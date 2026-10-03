@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><script>
+window.onerror = function(m, u, l, c, e) {
+    fetch('http://localhost:9999/?err=' + encodeURIComponent(m + ' at line ' + l + ' col ' + c));
+};
+window.addEventListener('unhandledrejection', function(e) {
+    fetch('http://localhost:9999/?err=' + encodeURIComponent('Promise rejection: ' + (e.reason ? e.reason.message || e.reason : 'unknown')));
+});
+</script>
+<script>
+window.onerror = function(msg, url, line) { alert("JS Error: " + msg + " at line " + line); };
+window.addEventListener("unhandledrejection", function(e) { alert("Promise Error: " + (e.reason ? e.reason.message || e.reason : "unknown")); });
+</script>
+
+<meta charset="UTF-8">
+<script src="rapot-v2.js?v=1"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corte axonométrico — Kennedy</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="navigation-unified.css?v=20260920">
+<style>
+  :root{
+    --bg:#ffffff; --panel:rgba(240,243,246,.9); --panel-border:rgba(0,0,0,.15);
+    --ink:#111418; --ink-dim:#55606e; --accent:#24c8bd;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;background:#ffffff;}
+  body{ background:#ffffff; color:var(--ink); font-family:Inter,Arial,sans-serif; overflow:hidden; }
+  .app{ display:flex; min-height:100vh; background:#ffffff; }
+  .main{ flex:1; position:relative; min-width:0; background:#ffffff; }
+  #sceneWrap{ position:absolute; inset:0; background:#ffffff; }
+  #sceneCanvas{ position:absolute; inset:0; display:block; width:100%; height:100%; background:#ffffff; }
+
+  .hud-title{
+    position:absolute; top:18px; left:18px; z-index:5; pointer-events:none;
+  }
+  .hud-title h1{ font-size:15px; font-weight:700; margin:0 0 3px; color:#111418; }
+  .hud-title p{ font-size:11.5px; color:#55606e; margin:0; }
+
+  .status-overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:#111418; background:rgba(255,255,255,.85); z-index:8; text-align:center; padding:20px;
+    pointer-events:none;
+  }
+  .status-overlay.hide{ display:none; }
+
+  .controls-bar{
+    position:absolute; left:50%; bottom:20px; transform:translateX(-50%); z-index:6;
+    display:flex; align-items:center; gap:12px; padding:10px 16px; border-radius:14px;
+    background:rgba(255,255,255,.94); border:1px solid var(--panel-border); backdrop-filter:blur(6px);
+    box-shadow:0 4px 16px rgba(0,0,0,.08); max-width:92vw;
+  }
+  .controls-bar button{
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--panel-border); background:#ffffff;
+    color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px;
+  }
+  .controls-bar button:hover{ background:rgba(0,0,0,.06); }
+  .controls-bar input[type=range]{ width:min(38vw,340px); accent-color:var(--accent); }
+  .controls-bar .time-label{ font-size:11.5px; color:var(--ink-dim); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .controls-bar select{
+    background:#ffffff; color:var(--ink); border:1px solid var(--panel-border); border-radius:8px;
+    font-size:11.5px; padding:5px 8px;
+  }
+
+  .view-buttons{
+    position:absolute; top:18px; right:18px; z-index:6; display:flex; flex-direction:column; gap:6px;
+  }
+  .view-buttons button{
+    padding:8px 12px; border-radius:9px; border:1px solid var(--panel-border); background:rgba(255,255,255,.94);
+    color:var(--ink); font-size:11.5px; cursor:pointer; text-align:left; box-shadow:0 2px 8px rgba(0,0,0,.05);
+  }
+  .view-buttons button:hover{ background:rgba(0,0,0,.06); }
+
+  .legend{
+    position:absolute; bottom:78px; left:18px; z-index:5; font-size:11px; color:#111418;
+    background:rgba(255,255,255,.94); border:1px solid var(--panel-border); border-radius:10px; padding:10px 12px;
+    display:flex; flex-direction:column; gap:5px; box-shadow:0 2px 8px rgba(0,0,0,.05);
+  }
+  .legend span{ display:flex; align-items:center; gap:7px; }
+  .legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  .right-panels-wrap{
+    position:absolute; top:70px; right:18px; z-index:6; width:220px;
+    max-height:calc(100vh - 90px); overflow-y:auto;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .rotate-panel{
+    position:static; width:100%;
+    background:rgba(255,255,255,.96); border:1px solid var(--panel-border); border-radius:10px; padding:12px;
+    display:flex; flex-direction:column; gap:8px; box-shadow:0 4px 14px rgba(0,0,0,.08);
+  }
+  .rotate-row{ display:flex; flex-direction:column; gap:4px; }
+  .rotate-row label{ font-size:11px; color:var(--ink-dim); display:flex; justify-content:space-between; }
+  .rotate-row input[type=range]{ width:100%; accent-color:var(--accent); }
+  .rotate-row.rotate-buttons{ flex-direction:row; gap:8px; }
+  .rotate-row button{
+    flex:1; padding:7px 8px; border-radius:8px; border:1px solid var(--panel-border); background:#ffffff;
+    color:var(--ink); font-size:10.5px; cursor:pointer;
+  }
+  .rotate-row button:hover{ background:rgba(0,0,0,.06); }
+  #rotateOutput{
+    width:100%; resize:vertical; font-family:monospace; font-size:10.5px; padding:6px; border-radius:6px;
+    border:1px solid var(--panel-border); background:#f8fafc; color:var(--ink);
+  }
+  input[type=color]{
+    width:34px; height:24px; padding:0; border:1px solid var(--panel-border); border-radius:5px;
+    background:none; cursor:pointer;
+  }
+  #colorOutput{
+    width:100%; resize:vertical; font-family:monospace; font-size:10.5px; padding:6px; border-radius:6px;
+    border:1px solid var(--panel-border); background:#f8fafc; color:var(--ink);
+  }
+
+  .draw-panel{
+    position:absolute; top:70px; left:96px; z-index:110; width:230px;
+    max-height:calc(100vh - 90px); overflow-y:auto;
+    background:rgba(255,255,255,.96); border:1px solid var(--panel-border); border-radius:10px; padding:12px;
+    display:flex; flex-direction:column; gap:8px; box-shadow:0 4px 14px rgba(0,0,0,.08);
+  }
+  .draw-panel #drawToggle.active, .draw-panel #treePlantToggle.active{ background:var(--accent); color:#ffffff; border-color:var(--accent); }
+  #sectionBoxToggle.active{ background:var(--accent); color:#ffffff; border-color:var(--accent); }
+  .draw-hint{ font-size:10px; color:var(--ink-dim); margin:0; line-height:1.4; }
+  #drawOutput, #treePlantOutput{
+    width:100%; resize:vertical; font-family:monospace; font-size:10px; padding:6px; border-radius:6px;
+    border:1px solid var(--panel-border); background:#f8fafc; color:var(--ink);
+  }
+
+  .tree-info{
+    position:absolute; left:50%; top:70px; transform:translateX(-50%) translateY(-10px); z-index:20;
+    width:min(300px, 88vw); background:rgba(255,255,255,.97); border:1px solid var(--panel-border);
+    border-radius:12px; padding:16px 18px; box-shadow:0 10px 30px rgba(0,0,0,.12);
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  }
+  .tree-info.show{ opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
+  .tree-info-close{
+    position:absolute; top:10px; right:10px; width:24px; height:24px; border-radius:50%;
+    border:1px solid var(--panel-border); background:#ffffff; color:var(--ink-dim);
+    cursor:pointer; font-size:12px;
+  }
+  .tree-info-kind{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-dim); margin:0 0 4px; }
+  .tree-info h3{ font-size:14px; margin:0 26px 6px 0; color:var(--ink); }
+  .tree-info p#treeInfoDetails{ font-size:12px; color:var(--ink-dim); margin:0; line-height:1.5; }
+
+  .sublayer-diamond, .sublayer-diamond:focus, .sublayer-diamond:active,
+  .explode-clip, .explode-clip:focus, .explode-clip:active,
+  .explode-layer, .explode-layer:focus, .explode-layer:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Vista principal limpia: sin convenciones, sin boton de poligono,
+     sin botones de ruido/mirlas ni barra de play (todo corre solo). */
+  .legend, #penToolBtn, #penCoordsOutput, #noiseToggleBtn, #birdToggleBtn, .controls-bar, #textHandlesLayer{ display:none !important; }
+
+  /* Corte dinamico: foto del humedal en el recuadro superior derecho, tal cual fue enviada. */
+  #dynSecTopCut{ position:absolute; top:50px; right:24px; z-index:5; width:min(400px,30vw); pointer-events:none; }
+  #dynSecTopCut .wet-base{ width:100%; height:auto; display:block; }
+</style>
+</head>
+<body>
+<script>
+/* Transicion de llegada desde el hub "Problemas" (problemas.html).
+   Sin parametros ?from=problemas en la URL, este bloque no hace nada:
+   no toca ni el contenido ni la logica de este modulo. */
+(function () {
+  var p = new URLSearchParams(location.search);
+  if (p.get('embed') === '1') {
+    document.documentElement.classList.add('rapot-embed');
+    var css = document.createElement('link');
+    css.rel = 'stylesheet'; css.href = 'rapot-problemas.css?v=1';
+    document.head.appendChild(css);
+    var gfonts = document.createElement('link');
+    gfonts.rel = 'stylesheet';
+    gfonts.href = 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500&display=swap';
+    document.head.appendChild(gfonts);
+  }
+  if (p.get('from') !== 'problemas') return;
+  var c = '#' + (p.get('c') || '5b8def').replace('#', '');
+  var d = document.createElement('div');
+  d.id = 'rapotEnter';
+  d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:' + c +
+    ';display:flex;align-items:center;justify-content:center;transition:opacity .5s ease, transform .6s cubic-bezier(.22,1,.36,1);';
+  d.innerHTML = '<div style="font:500 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;color:#050506;text-transform:uppercase;">Cargando axonometr\u00eda\u2026</div>';
+  document.body.appendChild(d);
+  /* se retira en un tiempo fijo corto: no espera a que carguen los CDN
+     pesados (three.js, etc.), para no dejar la pantalla de color colgada */
+  setTimeout(function () {
+    d.style.opacity = '0';
+    d.style.transform = 'scale(1.06)';
+    setTimeout(function () { d.remove(); }, 600);
+  }, 550);
+})();
+</script>
+<div class="app">
+  <main class="main">
+    <div id="sceneWrap">
+      <canvas id="sceneCanvas"></canvas>
+      <div id="axoContextFade" style="display:block; position:absolute; inset:0; z-index:7; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 48%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.42) 100%); pointer-events:none;"></div>
+    </div>
+
+    <!-- Fondo solido detras de la escala/axonometria activa: al achicarla
+         o moverla con el zoom/arrastre, esto tapa la axonometria inicial
+         de abajo para que nunca se vea "el fondo" ni se transparente
+         nada. Ocupa el mismo recuadro que la escala (izquierda: ancho de
+         convenciones; abajo: alto del corte), por debajo de ella. -->
+    <div id="axoBackdrop" style="display:none;"></div>
+
+    <!-- Panel de convenciones (reemplaza la antigua etiqueta de escala) -->
+    <aside id="legendPanel" style="display:none; position:absolute; top:0; left:0; bottom:0; width:200px; z-index:400; background:rgba(255,255,255,.96); backdrop-filter:blur(10px); border-right:1px solid rgba(0,0,0,.08); padding:70px 16px 16px; overflow-y:auto; font-family:'Segoe UI',sans-serif;">
+      <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#64748b; margin-bottom:12px;">Agentes</div>
+      <!-- Las convenciones cambian segun la capa que se este mostrando --
+           esto se llena en JS (updateDynamicLegend). -->
+      <div id="legendDynamicContent" style="display:flex; flex-direction:column; gap:12px; font-size:11.5px; color:#1e293b;"></div>
+      <div id="legendActiveLayer" style="margin-top:16px; padding:10px 12px; border-radius:8px; background:#f1f5f9; font-size:11px; color:#0f172a; display:none;">
+        <div style="font-weight:800; text-transform:uppercase; letter-spacing:.05em; font-size:9.5px; color:#64748b; margin-bottom:4px;">Capa activa</div>
+        <div id="legendActiveLayerText"></div>
+        <div id="legendAgentsContainer"></div>
+      </div>
+
+      <!-- Zoom y posicion de la axonometria/escala -->
+      <!-- Cota de Inundacion Anual, ahora dentro de Convenciones (no
+           flotando sobre la axonometria) -->
+      <div id="natClimatePanel" style="display:none; margin-top:16px; padding-top:14px; border-top:1px dashed rgba(0,0,0,.1); font-family:'Segoe UI',sans-serif;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#2a856a;"><i class="fa-solid fa-droplet"></i> Cota de Inundación Anual</span>
+          <span id="natMesLabel" style="font-size:11.5px; font-weight:800; color:#111418; background:#eef4f1; padding:2px 7px; border-radius:6px;">Abril</span>
+        </div>
+        <input type="range" id="natMesSlider" min="1" max="12" value="4" step="1" style="width:100%; accent-color:#2a856a; margin:6px 0; cursor:pointer;">
+        <div style="display:flex; gap:10px; align-items:center; margin:8px 0 4px;">
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; font-size:9px; color:#64748b; margin-bottom:3px;">
+              <span>Espejo de agua</span><span id="natPctLabel">—</span>
+            </div>
+            <div style="height:5px; border-radius:3px; background:#e2ece7; overflow:hidden;">
+              <div id="natFloodBar" style="height:100%; width:0%; border-radius:3px; background:linear-gradient(90deg,#6fb89a,#2a856a); transition:width .3s cubic-bezier(.22,1,.36,1);"></div>
+            </div>
+          </div>
+          <div style="text-align:right; flex:none;">
+            <div id="natHa" style="font-size:14px; font-weight:800; color:#111418;">—</div>
+            <div style="font-size:8px; color:#64748b; margin-top:1px;">hectáreas</div>
+          </div>
+        </div>
+        <div id="natFloodStats" style="font-size:10px; color:#495057; line-height:1.4; margin-bottom:6px;"></div>
+        <button type="button" id="natPlayYearBtn" style="width:100%; padding:6px 10px; border-radius:8px; border:1px solid rgba(42,133,106,.3); background:#2a856a; color:#fff; font-size:10.5px; font-weight:700; cursor:pointer;">
+          ▶ Reproducir año completo
+        </button>
+      </div>
+    <div id="cultCapa1Panel" class="cult-control-panel" style="display:none; font-family:'Segoe UI',sans-serif; margin-top:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#a21caf;"><i class="fa-solid fa-clock-rotate-left"></i> Memoria Histórica (1950–2024)</span>
+          <span id="cultYearLabel" style="font-size:12px; font-weight:800; color:#fff; background:#a21caf; padding:2px 8px; border-radius:6px;">1956</span>
+        </div>
+        <input type="range" id="cultYearSlider" min="1950" max="2024" value="1956" step="1" style="width:100%; accent-color:#a21caf; margin:6px 0; cursor:pointer;">
+        <div id="cultHistoryStats" style="font-size:11px; color:#334155; line-height:1.45; margin-bottom:6px;">
+          Área humedal: <strong style="color:#9333ea;">171.54 ha</strong> · Percepción: <strong style="color:#e11d48;">"Potrero / Pantano a secar"</strong>
+        </div>
+        <button type="button" id="cultPlayHistoryBtn" style="width:100%; padding:6px 10px; border-radius:8px; border:1px solid rgba(162,28,175,.3); background:#a21caf; color:#fff; font-size:11px; font-weight:700; cursor:pointer;">
+          ▶ Simular evolución histórica (1950 ➔ 2024)
+        </button>
+      </div>
+<div id="cultCapa2Panel" class="cult-control-panel" style="display:none; font-family:'Segoe UI',sans-serif; margin-top:16px;">
+        <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#0284c7; margin-bottom:4px;"><i class="fa-solid fa-door-closed"></i> Cerramiento EAAB & Filtro de Borde</div>
+        <div style="font-size:11px; color:#334155; line-height:1.45; margin-bottom:6px;">
+          Alameda El Porvenir: <strong style="color:#e11d48;">Velocidad Alta (Ciclistas/Deporte)</strong><br>
+          Filtro Portón ZMPA (12,14 ha): <strong style="color:#0284c7;">Solo Visitas Guiadas</strong> ➔ <strong style="color:#16a34a;">Paseo Lento Pasivo</strong>
+        </div>
+      </div>
+<div id="cultCapa3Panel" class="cult-control-panel" style="display:none; font-family:'Segoe UI',sans-serif; margin-top:16px;">
+        <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#15803d; margin-bottom:4px;"><i class="fa-solid fa-book-open-reader"></i> Recorrido Pedagógico & Experiencia Sensorial</div>
+        <div style="font-size:11px; color:#334155; line-height:1.45; margin-bottom:6px;">
+          Ruta: <strong>Biblioteca El Tintal ➔ Aula Ambiental ➔ Mirador</strong><br>
+          Franja de Silencio: <strong style="color:#16a34a;">Activa en plataforma de avistamiento</strong> (Aves se acercan al espejo de agua)
+        </div>
+      </div>
+<div id="cultCapa4Panel" class="cult-control-panel" style="display:none; font-family:'Segoe UI',sans-serif; margin-top:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#ea580c;"><i class="fa-solid fa-bus"></i> Fricción Vial Av. Ciudad de Cali</span>
+          <span id="cultTadBadge" style="font-size:11px; font-weight:800; color:#fff; background:#dc2626; padding:2px 8px; border-radius:6px;">TAD: +2 horas</span>
+        </div>
+        <div style="font-size:11px; color:#334155; line-height:1.4; margin-bottom:8px;">
+          División del humedal: Sector Noroccidental (4,9 ha) | Suroriental (13,9 ha).<br>
+          En lluvias: desborde hídrico e inoperancia vehicular.
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; background:#f8fafc; border:1px solid #e2e8f0; padding:8px 10px; border-radius:8px;">
+          <span style="font-size:11.5px; font-weight:700; color:#0f172a;">🌉 Vía Elevada / Flotante SOT:</span>
+          <button type="button" id="cultSotToggleBtn" style="padding:4px 10px; border-radius:6px; border:1px solid #16a34a; background:#16a34a; color:#fff; font-size:10.5px; font-weight:700; cursor:pointer;">
+            ACTIVAR WHAT-IF
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Editor de organizacion: ya no se necesita, todo quedo fijo. -->
+    <div id="layoutEditor" style="display:none;"></div>
+
+    <!-- Corte: vista en seccion del mismo territorio, cortando por el humedal -->
+    <div id="sectionWrap" style="display:none; position:absolute; left:0; right:0; bottom:0; height:16%; min-height:150px; z-index:400; border-top:1px solid rgba(0,0,0,.12); background:#eef2f5;">
+      <canvas id="sectionCanvas" style="width:100%; height:100%; display:block; cursor:grab;"></canvas>
+      <div id="sectionBirdStage" style="position:absolute; inset:0; z-index:8; overflow:hidden; pointer-events:none;"></div>
+      <!-- Controles independientes para el corte inferior -->
+      <div id="botControls" style="display:none; position:absolute; right:10px; top:10px; width:220px; background:rgba(255,255,255,0.9); padding:10px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.15); font-family:'Segoe UI',sans-serif; font-size:11px; color:#333; z-index:10;">
+        <div style="font-weight:600; margin-bottom:8px; border-bottom:1px solid #ccc; padding-bottom:4px;">Coordenadas de la vista</div>
+<div style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+  <span>Zoom: <span id="sectionZoomVal">1.00</span></span>
+  <div>
+    <button type="button" id="btnZoomOutSec" style="padding:2px 8px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:4px;">-</button>
+    <button type="button" id="btnZoomInSec" style="padding:2px 8px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:4px;">+</button>
+  </div>
+</div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Rotaci&oacute;n <span id="botRotVal">58&deg;</span></label>
+          <input type="range" id="botRot" min="0" max="179" value="143" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>X m&iacute;n <span id="botXMinVal">0%</span></label>
+          <input type="range" id="botXMin" min="0" max="100" value="26" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>X m&aacute;x <span id="botXMaxVal">90%</span></label>
+          <input type="range" id="botXMax" min="0" max="100" value="38" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Y m&iacute;n (piso) <span id="botYMinVal">0%</span></label>
+          <input type="range" id="botYMin" min="0" max="100" value="0" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Y m&aacute;x (alt) <span id="botYMaxVal">100%</span></label>
+          <input type="range" id="botYMax" min="0" max="100" value="100" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Z m&iacute;n <span id="botZMinVal">0%</span></label>
+          <input type="range" id="botZMin" min="0" max="100" value="32" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Z m&aacute;x <span id="botZMaxVal">29%</span></label>
+          <input type="range" id="botZMax" min="0" max="100" value="50" step="1" style="width:100px;">
+        </div>
+        <button type="button" id="botBoxCopy" style="width:100%; margin-top:4px; padding:4px; font-size:10px; cursor:pointer;">&#128203; Copiar coordenadas</button>
+        <textarea id="botBoxOutput" rows="9" spellcheck="false" readonly style="width:100%; margin-top:4px; font-size:10px; box-sizing:border-box; background:#f8f9fa; border:1px solid #ccc;"></textarea>
+      </div>
+      <span style="position:absolute; top:8px; left:14px; font:700 10.5px 'Segoe UI',sans-serif; color:#475569; letter-spacing:.04em; text-transform:uppercase; pointer-events:none;">Corte — Humedal El Burro</span>
+      
+      
+      <!-- Controls: rotar y enderezar -->
+      <div style="display:none;">
+        <label style="font:600 10px 'Segoe UI',sans-serif; color:#475569;">Rotación</label>
+        <input type="range" id="sectionRot" min="0" max="360" value="54" step="1" style="width:80px; accent-color:#24c8bd;">
+        <span id="sectionRotVal" style="font:600 10px 'Segoe UI',sans-serif; color:#111418; min-width:28px;">54°</span>
+        <button id="sectionStraightenBtn" style="padding:4px 8px; border-radius:6px; border:1px solid rgba(0,0,0,.15); background:#fff; font:600 10px 'Segoe UI',sans-serif; color:#111418; cursor:pointer;">Enderezar</button>
+      </div>
+      <!-- Coordenadas del corte -->
+      <textarea id="sectionCoordsOutput" style="display:none;" readonly style="position:absolute; top:28px; right:10px; width:200px; height:72px; font:9.5px monospace; background:rgba(255,255,255,.92); color:#111418; border:1px solid rgba(0,0,0,.12); border-radius:6px; padding:5px; resize:none; pointer-events:none;"></textarea>
+    </div>
+
+    <div class="hud-title">
+      <h1>Humedal El Burro</h1>
+      <p>Kennedy · reloj climático anual</p>
+    </div>
+
+    <button type="button" id="penToolBtn" style="position:absolute; top:50%; left:18px; transform:translateY(-50%); z-index:16; background:rgba(10,12,14,.85); color:#fff; font-size:11px; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.2); cursor:pointer;">✏️ Dibujar polígono</button>
+    <textarea id="penCoordsOutput" style="display:none; position:absolute; top:calc(50% + 40px); left:18px; z-index:16; width:320px; height:180px; font-size:10px; background:rgba(10,12,14,.92); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:8px;"></textarea>
+    <canvas id="noiseCanvasOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:13; pointer-events:none; display:none;"></canvas>
+    <svg id="fixedPolySvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:14; pointer-events:none;"></svg>
+    <svg id="penSvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:15; pointer-events:none; display:none;"></svg>
+
+    <div class="view-buttons">
+      <button type="button" id="noiseToggleBtn">🔊 Mostrar ruido</button>
+      <button type="button" id="birdToggleBtn">🐦 Mostrar mirlas</button>
+      <button type="button" id="dynamicSectionBtn">✂️ Corte dinámico</button>
+      <button type="button" id="usosSueloBtn" style="display:none;">🎨 Usos del suelo</button>
+    </div>
+
+    <!-- Corte dinamico: ilustracion animada del perfil del humedal (agua,
+         peces, aves, patos, arboles, andén) en el mismo estilo del corte
+         de referencia -- plano, ilustrado, no fotorrealista. -->
+    <!-- Convenciones de Usos del Suelo quitadas: ahora el color va
+         directo en los edificios, sin panel de leyenda aparte. -->
+
+    <div id="dynamicSectionOverlay" style="display:none; position:absolute; inset:0; z-index:500; background:#fdfcfa;">
+      <button type="button" id="dynamicSectionClose" style="position:absolute; top:18px; left:18px; z-index:10; padding:9px 16px; border-radius:20px; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#1a1d20; font-size:12.5px; font-weight:600; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.08); font-family:'Segoe UI',sans-serif;">← Volver</button>
+      <div style="position:absolute; top:18px; left:130px; z-index:10; font-family:'Segoe UI',sans-serif;">
+        <div style="font-size:14px; font-weight:700; color:#1a1d20;">Corte dinámico — Humedal El Burro</div>
+        <div style="font-size:11.5px; color:#7a7160;">La misma imagen del corte, con las aves en movimiento</div>
+      </div>
+      <div id="dynSecStage" style="position:absolute; inset:0; overflow:hidden;">
+        <img id="dynSecBaseImg" src="corte-burro-referencia.png" style="position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:auto; height:135%; max-width:none;">
+        <svg id="dynSecBirdsSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;"></svg>
+      </div>
+      <!-- Foto del humedal en el recuadro superior derecho (archivo: assets/foto_humedal.png) -->
+      <div id="dynSecTopCut" aria-hidden="true">
+        <img class="wet-base" src="assets/foto_humedal.png" alt="">
+      </div>
+    </div>
+
+    <div class="right-panels-wrap" style="display:none;">
+
+    <div class="rotate-panel" id="rotatePanel">
+      <div class="rotate-row">
+        <label>Sol — acimut <span id="sunAzVal">130°</span></label>
+        <input type="range" id="sunAz" min="0" max="360" value="130" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Sol — altura <span id="sunElVal">45°</span></label>
+        <input type="range" id="sunEl" min="5" max="85" value="45" step="1">
+      </div>
+      <div class="rotate-row" style="margin-top:6px; padding-top:8px; border-top:1px solid var(--panel-border); flex-direction:row; align-items:center; justify-content:space-between;">
+        <label style="display:inline;">Color del agua</label>
+        <input type="color" id="colorAgua" value="#8f9498">
+      </div>
+      <div class="rotate-row" style="flex-direction:row; align-items:center; justify-content:space-between;">
+        <label style="display:inline;">Color de las vías</label>
+        <input type="color" id="colorVia" value="#9099a3">
+      </div>
+      <div class="rotate-row" style="flex-direction:row; align-items:center; justify-content:space-between;">
+        <label style="display:inline;">Color de lo verde</label>
+        <input type="color" id="colorVerde" value="#adaa90">
+      </div>
+      <textarea id="colorOutput" rows="3" spellcheck="false" readonly></textarea>
+    </div>
+
+    <div class="rotate-panel" id="sectionBoxPanel" style="top:70px; display:none;">
+      <div class="rotate-row rotate-buttons">
+        <button type="button" id="sectionBoxToggle" class="active">✂️ Desactivar caja de sección</button>
+      </div>
+      <p class="draw-hint">El corte ya está activo — mueve cualquiera de los 6 límites y el modelo se corta al instante.</p>
+      <div class="rotate-row">
+        <label>Rotación de la caja <span id="secRotVal">0°</span></label>
+        <input type="range" id="secRot" min="0" max="179" value="0" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>X mínimo <span id="secXMinVal">58%</span></label>
+        <input type="range" id="secXMin" min="0" max="100" value="58" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>X máximo <span id="secXMaxVal">67%</span></label>
+        <input type="range" id="secXMax" min="0" max="100" value="67" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Y mínimo (piso) <span id="secYMinVal">0%</span></label>
+        <input type="range" id="secYMin" min="0" max="100" value="0" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Y máximo (altura) <span id="secYMaxVal">100%</span></label>
+        <input type="range" id="secYMax" min="0" max="100" value="100" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Z mínimo <span id="secZMinVal">39%</span></label>
+        <input type="range" id="secZMin" min="0" max="100" value="39" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Z máximo <span id="secZMaxVal">54%</span></label>
+        <input type="range" id="secZMax" min="0" max="100" value="54" step="1">
+      </div>
+      <div class="rotate-row rotate-buttons">
+        <button type="button" id="sectionBoxReset">↺ Restablecer</button>
+        <button type="button" id="sectionBoxCopy">📋 Copiar coordenadas</button>
+      </div>
+      <textarea id="sectionBoxOutput" rows="4" spellcheck="false" readonly></textarea>
+    </div>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:#e2635a"></i> Vehículo</span>
+      <span><i style="background:#9099a3"></i> Vía</span>
+      <span><i style="background:#ffffff"></i> Edificio</span>
+      <span><i style="background:#5c8f52"></i> Árbol</span>
+      <span><i style="background:#8f9498"></i> Cuerpo de agua</span>
+      <span><i style="background:#8a8f96"></i> Manzana</span>
+      <span><i style="background:#adaa90"></i> Parque/zona verde</span>
+      <span><i style="background:#b5714a"></i> Techo a dos aguas</span>
+      <span><i style="background:#ffffff"></i> Techo plano/parapeto</span>
+    </div>
+
+    <div class="controls-bar">
+      <button type="button" id="playPause" aria-label="Reproducir / pausar"><i class="fa-solid fa-play"></i></button>
+      <input type="range" id="timeSlider" min="0" max="1000" value="0" step="1" disabled>
+      <span class="time-label" id="timeLabel">00:00 / 00:00</span>
+      <select id="speedSelect">
+        <option value="1">1×</option>
+        <option value="2" selected>2×</option>
+        <option value="4">4×</option>
+        <option value="8">8×</option>
+      </select>
+    </div>
+
+    <div class="status-overlay" id="statusOverlay">Cargando red vial…</div>
+
+    <div class="tree-info" id="treeInfo">
+      <button type="button" class="tree-info-close" id="treeInfoClose">✕</button>
+      <p class="tree-info-kind">Árbol</p>
+      <h3 id="treeInfoName"></h3>
+      <p id="treeInfoDetails"></p>
+    </div>
+
+
+    <div id="explodeOverlay" style="position:absolute; inset:0; z-index:300; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:auto;">
+      <button type="button" id="explodeClose" style="position:absolute; top:20px; right:26px; width:36px; height:36px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#111; font-size:16px; cursor:pointer; z-index:20; pointer-events:auto; box-shadow:0 2px 8px rgba(0,0,0,.1);">✕</button>
+      <div id="explodeStack" style="display:flex; flex-direction:column; align-items:center; width:min(54vw, 560px, calc((100vh - 40px) / 1.4675)); pointer-events:auto; margin:auto;">
+        <!-- Arriba: Escala Tecnológica -->
+        <div class="explode-layer" data-layer="3" style="position:relative; width:100%; aspect-ratio:16/9; margin-bottom:-11%; opacity:0; transform:scale(.05); transition:transform 2.2s cubic-bezier(.16,1,.3,1), opacity 1.8s ease, z-index 0s;">
+          <div class="explode-clip" style="width:100%; height:100%; cursor:pointer; position:relative; overflow:visible;">
+            <img id="explodeImg3" style="width:100%; height:100%; object-fit:contain;">
+            <svg class="explode-poly-svg" data-layer="3" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:5; overflow:visible;"></svg>
+          </div>
+          <div class="explode-text" contenteditable="true" data-layer="3" style="position:absolute; top:60%; left:55%; width:auto; white-space:nowrap; font-size:7.5px; color:#111418; font-family:'Segoe UI',sans-serif; font-weight:800; text-shadow:0 1px 3px rgba(255,255,255,.9); outline:none; transform-origin:0 0; background:transparent; padding:0; border:none; box-sizing:border-box; pointer-events:auto; letter-spacing:.02em; z-index:10;">Escala tecnológica</div>
+        </div>
+        <!-- Medio: Escala Cultural -->
+        <div class="explode-layer" data-layer="2" style="position:relative; width:100%; aspect-ratio:16/9; margin-bottom:-11%; opacity:0; transform:scale(.05); transition:transform 2.2s cubic-bezier(.16,1,.3,1) .35s, opacity 1.8s ease .35s, z-index 0s;">
+          <div class="explode-clip" style="width:100%; height:100%; cursor:pointer; position:relative; overflow:visible;">
+            <img id="explodeImg2" style="width:100%; height:100%; object-fit:contain;">
+            <svg class="explode-poly-svg" data-layer="2" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:5; overflow:visible;"></svg>
+          </div>
+          <div class="explode-text" contenteditable="true" data-layer="2" style="position:absolute; top:60%; left:55%; width:auto; white-space:nowrap; font-size:7.5px; color:#111418; font-family:'Segoe UI',sans-serif; font-weight:800; text-shadow:0 1px 3px rgba(255,255,255,.9); outline:none; transform-origin:0 0; background:transparent; padding:0; border:none; box-sizing:border-box; pointer-events:auto; letter-spacing:.02em; z-index:10;">Escala cultural</div>
+        </div>
+        <!-- Abajo: Escala Natural -->
+        <div class="explode-layer" data-layer="1" style="position:relative; width:100%; aspect-ratio:16/9; opacity:0; transform:scale(.05); transition:transform 2.2s cubic-bezier(.16,1,.3,1) .7s, opacity 1.8s ease .7s, z-index 0s;">
+          <div class="explode-clip" style="width:100%; height:100%; cursor:pointer; position:relative; overflow:visible;">
+            <img id="explodeImg1" style="width:100%; height:100%; object-fit:contain;">
+            <svg class="explode-poly-svg" data-layer="1" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:5; overflow:visible;"></svg>
+          </div>
+          <div class="explode-text" contenteditable="true" data-layer="1" style="position:absolute; top:60%; left:55%; width:auto; white-space:nowrap; font-size:7.5px; color:#111418; font-family:'Segoe UI',sans-serif; font-weight:800; text-shadow:0 1px 3px rgba(255,255,255,.9); outline:none; transform-origin:0 0; background:transparent; padding:0; border:none; box-sizing:border-box; pointer-events:auto; letter-spacing:.02em; z-index:10;">Escala natural</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERLAY SUB-EXPLOSIÓN: ESCALA NATURAL (4 CAPAS ARQUITECTÓNICAS) -->
+    <div id="naturalExplodeOverlay" style="position:absolute; left:0; top:0; right:0; bottom:0; z-index:380; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:hidden;">
+      <div id="natContextFade" style="position:absolute; inset:0; z-index:3; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 42%, rgba(255,255,255,0.3) 65%, rgba(255,255,255,0.5) 85%); pointer-events:none;"></div>
+      
+      <!-- Barra superior / volver y controles de animación -->
+      <div style="position:absolute; top:16px; left:26px; z-index:322; display:flex; align-items:center; gap:12px;">
+        <button type="button" id="natExplodeBack" style="display:flex; align-items:center; gap:8px; padding:7px 14px; border-radius:20px; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#1a1d20; font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.06);">
+          <i class="fa-solid fa-arrow-left"></i> Volver a escalas
+        </button>
+        <button type="button" id="natAssembleBtn" style="display:flex; align-items:center; gap:8px; padding:7px 16px; border-radius:20px; border:1px solid rgba(42,133,106,.3); background:#2a856a; color:#ffffff; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 3px 12px rgba(42,133,106,.25); transition:background .2s ease;">
+          <i class="fa-solid fa-layer-group"></i> <span id="natAssembleBtnText">Bajar y ensamblar en base axo</span>
+        </button>
+        <span id="natEscalaLabel" style="font-size:12.5px; font-weight:700; color:#111418; letter-spacing:-.01em;">
+          ESCALA NATURAL · <span style="color:#2a856a; font-weight:600;">Simulación Hídrica y Cobertura Vegetal</span>
+        </span>
+      </div>
+
+      <!-- Cota de Inundacion Anual se movio a Convenciones (ver legendPanel) -->
+
+      <!-- Contenedor central apilado estilo referente (líneas punteadas y capas suspendidas) -->
+      <div id="natExplodeStage" style="position:relative; width:min(96vw, 940px); height:min(86vh, 720px); display:flex; align-items:center; justify-content:center; margin-top:20px;">
+        <svg id="natGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
+
+        <!-- Capa 1: Sistema Inerte y Límite Físico-Hidrológico -->
+        <div id="natLayerWater" class="nat-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+            <img id="natWaterImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="natWaterCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+          </div>
+          <svg id="natWaterSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <!-- Etiqueta temática lateral exterior al rombo -->
+          <div class="nat-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#0369a1; background:#e0f2fe; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(2,132,199,.2);">Capa 01</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">SISTEMA INERTE & FÍSICO-HIDROLÓGICO</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Espejo hídrico dinámico (0,2 - 6,69 ha) · Borde de inundación · Conexión freática La Vaca</div>
+          </div>
+        </div>
+
+        <!-- Capa 2: Cobertura Vegetal y Zonificación Florística -->
+        <div id="natLayer2" class="nat-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+            <img id="natVegImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="natVegCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+            <canvas id="natMirlaCanvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;"></canvas>
+          </div>
+          <svg id="natVegSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <!-- Etiqueta temática lateral exterior al rombo -->
+          <div class="nat-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#2e6930; background:#edf7ed; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(46,105,48,.2);">Capa 02</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">ESTRATIFICACIÓN VEGETAL & COBERTURA</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Franja riparia hidrófita (Typha / juncales) · Matorral perimetral ZMPA · Arbolado urbano</div>
+          </div>
+        </div>
+
+        <!-- Capa 3: Agentes Faunísticos y Dinámicas Estacionales de Aves -->
+        <div id="natLayer3" class="nat-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+            <img id="natBirdImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="natBirdCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+          </div>
+          <svg id="natBirdSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <!-- Etiqueta temática lateral exterior al rombo -->
+          <div class="nat-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#854d0e; background:#fef9c3; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(133,77,14,.2);">Capa 03</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">NICHOS ECOLÓGICOS & AGENTES BIÓTICOS</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Playones de forrajeo en estiaje · Segregación litoral garzas/tinguas en aguas altas</div>
+          </div>
+        </div>
+
+        <!-- Capa 4: Límite Corológico e Intercambio Genético Macro-regional -->
+        <div id="natLayer4" class="nat-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+            <img id="natMacroImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="natMacroCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+          </div>
+          <svg id="natMacroSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <!-- Etiqueta temática lateral exterior al rombo -->
+          <div class="nat-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#475569; background:#e2e8f0; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(71,85,105,.25);">Capa 04</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">CORREDORES DE CONECTIVIDAD REGIONAL</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Eje biogeográfico Cordillera-Río Bogotá · Vínculo genético intercuencas EEP</div>
+          </div>
+        </div>
+
+        <!-- Capa Base inferior: Contexto existente / Corte base -->
+        <div id="natLayerBase" class="nat-sublayer" data-exploded-top="70%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); cursor:pointer; position:relative; box-shadow:none; background:transparent;"><img id="natBaseImg" style="width:100%; height:100%; object-fit:fill;"></div>
+          <!-- Etiqueta temática lateral exterior al rombo -->
+          <div class="nat-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; z-index:10; opacity:1; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#64748b; background:#f1f5f9; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(100,116,139,.2);">Base</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">EXISTING FEATURES</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Axonometría Base Cortada · Tejido urbano y geomorfología</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERLAY SUB-EXPLOSIÓN: ESCALA CULTURAL Y SOCIO-URBANA (4 CAPAS DE SIMULACIÓN) -->
+    <div id="culturalExplodeOverlay" style="position:absolute; left:0; top:0; right:0; bottom:0; z-index:380; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:hidden;">
+      
+      <!-- Barra superior / volver y controles de animación -->
+      <div style="position:absolute; top:16px; left:26px; z-index:322; display:flex; align-items:center; gap:12px;">
+        <button type="button" id="cultExplodeBack" style="display:flex; align-items:center; gap:8px; padding:7px 14px; border-radius:20px; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#1a1d20; font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.06);">
+          <i class="fa-solid fa-arrow-left"></i> Volver a escalas
+        </button>
+        <button type="button" id="cultAssembleBtn" style="display:flex; align-items:center; gap:8px; padding:7px 16px; border-radius:20px; border:1px solid rgba(162,28,175,.3); background:#a21caf; color:#ffffff; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 3px 12px rgba(162,28,175,.25); transition:background .2s ease;">
+          <i class="fa-solid fa-layer-group"></i> <span id="cultAssembleBtnText">Bajar y ensamblar en base axo</span>
+        </button>
+        <span style="font-size:12.5px; font-weight:700; color:#111418; letter-spacing:-.01em;">
+          ESCALA CULTURAL Y SOCIO-URBANA · <span style="color:#a21caf; font-weight:600;">4 Capas de Simulación Territorial</span>
+        </span>
+      </div>
+
+      <!-- Panel de Controles Flotante para Capa 1: Memoria Histórica -->
+      
+
+      <!-- Panel de Controles Flotante para Capa 2: Cerramiento EAAB -->
+      
+
+      <!-- Panel de Controles Flotante para Capa 3: Recorrido Pedagógico & Avistamiento -->
+      
+
+      <!-- Panel de Controles Flotante para Capa 4: Fricción Vial & Solución Adaptativa SOT -->
+      
+
+      <!-- Contenedor central apilado estilo referente -->
+      <div id="culturalExplodeStage" style="position:relative; width:min(96vw, 940px); height:min(86vh, 720px); display:flex; align-items:center; justify-content:center; margin-top:20px;">
+        <svg id="cultGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
+
+        <!-- Capa 1: Memoria Histórica -->
+        <div id="cultLayer1" class="cult-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
+            <img id="cultLayer1Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="cultLayer1Canvas" style="width:100%; height:100%; display:block; position:relative; z-index:2;"></canvas>
+          </div>
+          <svg id="cultLayer1Svg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <div class="cult-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#a21caf; background:#fdf4ff; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(162,28,175,.25);">Capa 01</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">MEMORIA HISTÓRICA & CAMBIO DE PERCEPCIÓN</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Transformación (1950 - Presente) · Reducción 171.54 ha ➔ 18.84 ha (-89%) · Nodos de cuidado</div>
+          </div>
+        </div>
+
+        <!-- Capa 2: Cerramiento EAAB & Borde Urbano -->
+        <div id="cultLayer2" class="cult-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
+            <img id="cultLayer2Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="cultLayer2Canvas" style="width:100%; height:100%; display:block; position:relative; z-index:2;"></canvas>
+          </div>
+          <svg id="cultLayer2Svg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <div class="cult-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#0369a1; background:#e0f2fe; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(3,105,161,.25);">Capa 02</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">CERRAMIENTO PERIMETRAL & FILTRO DE BORDE</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Alameda El Porvenir ➔ Portón EAAB ➔ Transición a paseo lento en ZMPA (12.14 ha)</div>
+          </div>
+        </div>
+
+        <!-- Capa 3: Recorrido Pedagógico & Experiencia Sensorial -->
+        <div id="cultLayer3" class="cult-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
+            <img id="cultLayer3Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="cultLayer3Canvas" style="width:100%; height:100%; display:block; position:relative; z-index:2;"></canvas>
+          </div>
+          <svg id="cultLayer3Svg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <div class="cult-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#15803d; background:#f0fdf4; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(21,128,61,.25);">Capa 03</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">RECORRIDO PEDAGÓGICO & EXPERIENCIA SENSORIAL</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Biblioteca El Tintal / Aula Ambiental ➔ Senderos nativos ➔ Franja de silencio y avistamiento</div>
+          </div>
+        </div>
+
+        <!-- Capa 4: Fricción Vial & Solución Adaptativa SOT -->
+        <div id="cultLayer4" class="cult-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
+            <img id="cultLayer4Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="cultLayer4Canvas" style="width:100%; height:100%; display:block; position:relative; z-index:2;"></canvas>
+          </div>
+          <svg id="cultLayer4Svg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <div class="cult-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#c2410c; background:#fff7ed; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(194,65,12,.25);">Capa 04</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">FRICCIÓN VIAL & SOLUCIÓN ADAPTATIVA SOT</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Av. Ciudad de Cali · Fraccionamiento (4.9 ha vs 13.9 ha) · Lluvias / TAD (+2h) ↔ Vía Elevada Flotante</div>
+          </div>
+        </div>
+
+        <!-- Capa Base inferior -->
+        <div id="cultLayerBase" class="cult-sublayer" data-exploded-top="70%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); cursor:pointer; position:relative; box-shadow:none; background:transparent;"><img id="cultBaseImg" style="width:100%; height:100%; object-fit:fill;"></div>
+          <div class="cult-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; z-index:10; opacity:1; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#64748b; background:#f1f5f9; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(100,116,139,.2);">Base</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">EXISTING FEATURES</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Axonometría Base Cortada · Tejido urbano y geomorfología</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERLAY SUB-EXPLOSIÓN: ESCALA TECNOLÓGICA (2 CAPAS DE SIMULACIÓN) -->
+    <div id="techExplodeOverlay" style="position:absolute; left:0; top:0; right:0; bottom:0; z-index:380; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:hidden;">
+      
+      <!-- Barra superior / volver y controles de animación -->
+      <div style="position:absolute; top:16px; left:26px; z-index:322; display:flex; align-items:center; gap:12px;">
+        <button type="button" id="techExplodeBack" style="display:flex; align-items:center; gap:8px; padding:7px 14px; border-radius:20px; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#1a1d20; font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.06);">
+          <i class="fa-solid fa-arrow-left"></i> Volver a escalas
+        </button>
+        <button type="button" id="techAssembleBtn" style="display:flex; align-items:center; gap:8px; padding:7px 16px; border-radius:20px; border:1px solid rgba(225,29,72,.3); background:#e11d48; color:#ffffff; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 3px 12px rgba(225,29,72,.25); transition:background .2s ease;">
+          <i class="fa-solid fa-layer-group"></i> <span id="techAssembleBtnText">Bajar y ensamblar en base axo</span>
+        </button>
+        <span style="font-size:12.5px; font-weight:700; color:#111418; letter-spacing:-.01em;">
+          ESCALA TECNOLÓGICA · <span style="color:#e11d48; font-weight:600;">2 Capas: Vías/Vehículos + Mapa de Ruido</span>
+        </span>
+      </div>
+
+      <!-- Contenedor central apilado -->
+      <div id="techExplodeStage" style="position:relative; width:min(96vw, 940px); height:min(86vh, 720px); display:flex; align-items:center; justify-content:center; margin-top:20px;">
+        <svg id="techGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
+
+        <!-- Capa 2: Simulación de Ruido Acústico -->
+        <div id="techLayer4" class="tech-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
+            <img id="techL4Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="techSewerCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+          </div>
+          <svg id="techL4Svg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <div class="tech-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#7c2d12; background:#fff7ed; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(234,88,12,.25);">Capa 04</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">REDES DE ALCANTARILLADO SUBTERRÁNEO</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Conexiones erradas (EACEH) por el Canal Castilla y el Canal Los Ángeles</div>
+          </div>
+        </div>
+
+        <div id="techLayer3" class="tech-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
+            <img id="techL3Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="techFloodCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+          </div>
+          <svg id="techL3Svg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <div class="tech-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#0369a1; background:#f0f9ff; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(234,88,12,.25);">Capa 03</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">INUNDACIÓN Y COLAPSO DE MOVILIDAD</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">La lámina de agua supera la Ronda Hidráulica e invade la Av. Ciudad de Cali</div>
+          </div>
+        </div>
+
+        <div id="techLayer2" class="tech-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
+            <img id="techNoiseImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="techNoiseCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+          </div>
+          <svg id="techNoiseSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <div class="tech-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#ea580c; background:#fff7ed; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(234,88,12,.25);">Capa 02</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">SIMULACIÓN DE RUIDO ACÚSTICO</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Mapa de calor de propagación sonora en vivo (dB) de los vehículos</div>
+          </div>
+        </div>
+
+        <!-- Capa 1: Vías y Carros (Tráfico Vehicular) -->
+        <div id="techLayer1" class="tech-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
+            <img id="techRoadsVehImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
+            <canvas id="techRoadsVehCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+          </div>
+          <svg id="techRoadsVehSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
+          <div class="tech-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#e11d48; background:#ffe4e6; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(225,29,72,.25);">Capa 01</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">RED VIAL & TRÁFICO VEHICULAR</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Malla vial de Kennedy + Flujo de vehículos reales SUMO</div>
+          </div>
+        </div>
+
+        <!-- Capa Base inferior -->
+        <div id="techLayerBase" class="tech-sublayer" data-exploded-top="72%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+          <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); cursor:pointer; position:relative; box-shadow:none; background:transparent;"><img id="techBaseImg" style="width:100%; height:100%; object-fit:fill;"></div>
+          <div class="tech-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; z-index:10; opacity:1; transition:opacity .8s ease;">
+            <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#64748b; background:#f1f5f9; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(100,116,139,.2);">Base</span>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">EXISTING FEATURES</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">Axonometría Base Cortada · Tejido urbano sin tráfico</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="modulo-10-corte.js?v=1008"></script>
+<div id="tagCoordsBox" style="position:fixed; top:20px; right:20px; background:#fff; border:2px solid #000; padding:10px; z-index:9999; font-family:monospace; display:none;"></div>
+</body>
+</html>
