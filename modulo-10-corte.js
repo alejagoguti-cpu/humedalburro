@@ -3623,6 +3623,18 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     renderNaturalBirdLayer(mes);
     renderNaturalMacroLayer(mes);
     drawNaturalGuideLines();
+    // Lluvia tambien aqui: este slider (natMesSlider) es DISTINTO al de
+    // la vista principal (mainBurroMes) -- antes solo se conectaba la
+    // lluvia a ese, dejando esta capa (donde se ve crecer el espejo de
+    // agua) sin lluvia nunca, sin importar el mes. Se activa cuando el
+    // mes es de temporada de lluvias Y la subcapa de Agua esta siendo
+    // mostrada (pasos 0 a 2: base, Agua extraida, Agua asentada -- el
+    // crecimiento del agua es visible en todos esos momentos).
+    if (typeof setLluviaActiva === "function") {
+      const esLluvia = [3, 4, 5, 10, 11].includes(mes);
+      const aguaVisible = typeof natExplodeStep === "undefined" || natExplodeStep <= 2;
+      setLluviaActiva(esLluvia && aguaVisible);
+    }
   }
 
   let natExplodeStep = 0;
