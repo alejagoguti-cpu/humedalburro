@@ -382,7 +382,7 @@
     // solo la de la capa activa esta visible). Conservan su centrado
     // vertical propio (translateY(-50%)) y se les suma el desplazamiento
     // de las flechitas encima.
-    document.querySelectorAll(".nat-layer-tag").forEach(el => {
+    document.querySelectorAll(".nat-layer-tag, .cult-layer-tag, .tech-layer-tag").forEach(el => {
       el.style.transform = `translate(${labelOffX}px, calc(-50% + ${labelOffY}px))`;
     });
     const out = document.getElementById("escalaCoordsOutput");
@@ -420,69 +420,54 @@
       const el = document.createElement("div");
       el.className = "sectionBirdSprite";
       // mix-blend-mode:multiply quita el fondo blanco de las fotos.
-      el.style.cssText = `position:absolute; width:${wPct}%; height:auto; aspect-ratio:${wOverH}; background-image:url(${src}); background-repeat:no-repeat; background-size:100% 100%; pointer-events:none; display:none; mix-blend-mode:multiply;`;
+      el.style.cssText = `position:absolute; left:0; top:0; width:${wPct}%; height:auto; aspect-ratio:${wOverH}; background-image:url(${src}); background-repeat:no-repeat; background-size:100% 100%; pointer-events:none; display:none; mix-blend-mode:multiply; transform-origin:50% 100%; will-change:transform;`;
       stage.appendChild(el);
       return el;
     }
     function smoothS(k) { return k * k * (3 - 2 * k); }
-
-    // Varias tinguas, ya en el centro del humedal desde el principio.
-    const tinguas = Array.from({ length: 3 }, (_, i) => {
-      const el = sprite("assets/tingua.png", 2.2, 166/200);
-      el.style.top = "54%"; el.style.left = (46 + i * 4) + "%";
-      return { el, baseLeft: 46 + i * 4, phase: i * 2, toEdge: false };
-    });
-    // Varias garzas, entran volando desde la izquierda, se posan justo
-    // sobre la linea del agua (no debajo).
-    const garzas = Array.from({ length: 2 }, (_, i) => {
-      const el = sprite("assets/garza.png", 1.8, 79/200);
-      el.style.top = "48%"; el.style.left = "50%";
-      return { el, phase: i * 3, dur: 9 + i * 1.5, offsetX: i * 6 - 3 };
-    });
-    // Pato: entra volando desde ARRIBA del corte, aleteando, hasta el
-    // centro del humedal (migracion desde Norteamerica).
-    const patoEl = sprite("assets/pato.png", 2.6, 1024/767);
-    patoEl.style.top = "50%"; patoEl.style.left = "50%";
-
+    // MAS animales y MAS PEQUENOS que antes (3 tinguas al 2.2%, 2 garzas al
+    // 1.8% y 1 pato al 2.6% del ancho). Todos pisan SIEMPRE la linea del suelo
+    // que la usuaria dibujo en el corte (corteSuelo.sec): sus pies nunca la pasan.
+    const tinguas = Array.from({ length: 8 }, (_, i) => ({ el: sprite("assets/tingua.png", 1.35, 166 / 200), baseLeft: 30 + i * 5.2, phase: i * 1.7, _cur: 0 }));
+    const garzas = Array.from({ length: 5 }, (_, i) => ({ el: sprite("assets/garza.png", 1.1, 79 / 200), baseLeft: 34 + i * 8.5, phase: i * 2.2, dur: 9 + (i % 3) * 1.4 }));
+    const patos = Array.from({ length: 3 }, (_, i) => ({ el: sprite("assets/pato.png", 1.6, 1024 / 767), baseLeft: 42 + i * 8, phase: i * 4 }));
     const start = performance.now();
     function loop(now) {
       const tSec = (now - start) / 1000;
-      const garzasLlegaron = garzas.some(g => {
-        const t = (tSec + g.phase) % g.dur;
-        return t > g.dur * 0.35; // ya aterrizo
+      const W = stage.clientWidth || 1, H = stage.clientHeight || 1;
+      const linea = (typeof corteSuelo !== "undefined" && corteSuelo.sec && corteSuelo.sec.length >= 2) ? corteSuelo.sec : null;
+      const pies = (xpx, fallback) => { if (!linea) return fallback; const v = corteGroundV(linea, xpx / W); return v === null ? fallback : v * H - 1; }; // 1 px de margen: nunca pasan de la linea
+      const garzasLlegaron = garzas.some(g => ((tSec + g.phase) % g.dur) > g.dur * 0.35);
+      tinguas.forEach(tg => {
+        if (tg.el.style.display === "none") return;
+        const targetOffset = garzasLlegaron ? (tg.baseLeft < 50 ? -14 : 14) : 0; // cuando llegan las garzas, se corren a los bordes
+        tg._cur += (targetOffset - tg._cur) * 0.02;
+        const xpx = tg.baseLeft / 100 * W + tg._cur + Math.sin(tSec * 0.35 + tg.phase) * 10;
+        const h = tg.el.offsetHeight || 22;
+        const bob = -Math.abs(Math.sin(tSec * 2.4 + tg.phase)) * 1.2; // siempre hacia arriba: nunca hunde los pies bajo la linea
+        tg.el.style.transform = `translate(${xpx}px, ${pies(xpx, H * 0.54 + h) - h + bob}px)`;
       });
       garzas.forEach(g => {
         if (g.el.style.display === "none") return;
         const t = ((tSec + g.phase) % g.dur) / g.dur;
         const k = smoothS(Math.min(1, t / 0.35));
-        const FROM = -200;
-        const x = FROM * (1 - k) + g.offsetX;
-        const dip = Math.sin(Math.min(1, t / 0.35) * Math.PI) * -6; // llega por arriba y se posa EN la linea
-        const flying = t < 0.35;
-        const flap = flying ? (1 - Math.abs(Math.sin(tSec * 9 + g.phase)) * 0.3) : 1;
-        g.el.style.transform = `translate(${x}px, ${dip}px) scaleY(${flap})`;
+        const xpx = g.baseLeft / 100 * W - 220 * (1 - k);
+        const h = g.el.offsetHeight || 38;
+        const flap = t < 0.35 ? (1 - Math.abs(Math.sin(tSec * 9 + g.phase)) * 0.3) : 1;
+        g.el.style.transform = `translate(${xpx}px, ${pies(xpx, H * 0.48 + h) - h - (1 - k) * 28}px) scaleY(${flap})`; // llegan desde arriba y se posan SOBRE la linea
       });
-      tinguas.forEach(tg => {
-        if (tg.el.style.display === "none") return;
-        // cuando llegan las garzas, las tinguas se corren a los bordes
-        const targetOffset = garzasLlegaron ? (tg.baseLeft < 50 ? -14 : 14) : 0;
-        if (tg._cur === undefined) tg._cur = 0;
-        tg._cur += (targetOffset - tg._cur) * 0.02; // se corren suave, una sola vez
-        const bob = Math.sin(tSec * 2.4 + tg.phase) * 1.2;
-        tg.el.style.transform = `translate(${tg._cur}px, ${bob}px)`;
+      patos.forEach(p => {
+        if (p.el.style.display === "none") return;
+        const t = ((tSec + p.phase) % 12) / 12, k = smoothS(Math.min(1, t / 0.4));
+        const xpx = p.baseLeft / 100 * W + (1 - k) * 70;
+        const h = p.el.offsetHeight || 16;
+        const flap = t < 0.4 ? (1 - Math.abs(Math.sin(tSec * 11 + p.phase)) * 0.35) : 1;
+        p.el.style.transform = `translate(${xpx}px, ${pies(xpx, H * 0.5 + h) - h - (1 - k) * H * 0.9}px) scaleY(${flap})`; // migra desde arriba del corte
       });
-      if (patoEl.style.display !== "none") {
-        const cyc = 12, t = (tSec % cyc) / cyc, k = smoothS(Math.min(1, t / 0.4));
-        const FROMY = -140; // arriba del corte
-        const y = FROMY * (1 - k);
-        const flying = t < 0.4;
-        const flap = flying ? (1 - Math.abs(Math.sin(tSec * 11)) * 0.35) : 1;
-        patoEl.style.transform = `translate(0, ${y}px) scaleY(${flap})`;
-      }
       sectionBirdsRaf = requestAnimationFrame(loop);
     }
     sectionBirdsRaf = requestAnimationFrame(loop);
-    stage.__tinguas = tinguas; stage.__garzas = garzas; stage.__pato = patoEl;
+    stage.__tinguas = tinguas; stage.__garzas = garzas; stage.__patos = patos;
   }
   function syncSectionBirdsToLayer(step) {
     buildSectionBirds();
@@ -494,7 +479,7 @@
     const dispBirds = (capa3 || capa4) ? "block" : "none";
     stage.__tinguas.forEach(tg => tg.el.style.display = dispBirds);
     stage.__garzas.forEach(g => g.el.style.display = dispBirds);
-    stage.__pato.style.display = capa4 ? "block" : "none";
+    stage.__patos.forEach(p => p.el.style.display = capa4 ? "block" : "none");
   }
 
   function syncSceneToLayer() {
@@ -2339,8 +2324,8 @@
     // lo que se ve, por eso se veian pocas y gordas.
     lluviaHalfW = (sceneExtentW > 120 ? sceneExtentW : 270) / 2 * 1.4;
     lluviaHalfH = (sceneExtentH > 120 ? sceneExtentH : 270) / 2 * 1.4;
-    const geo = new THREE.CylinderGeometry(0.32, 0.32, 15, 4, 1);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x24589e, transparent: true, opacity: 0.84, depthWrite: false, depthTest: false, fog: false });
+    const geo = new THREE.CylinderGeometry(0.27, 0.27, 9, 4, 1);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x2d6ab0, transparent: true, opacity: 0.8, depthWrite: false, depthTest: false, fog: false });
     lluviaGroup = new THREE.InstancedMesh(geo, mat, LLUVIA_COUNT);
     lluviaGroup.frustumCulled = false;
     lluviaGroup.renderOrder = 997;
@@ -3854,21 +3839,37 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; drops.length = 0; }
       if (!drops.length) {
         const n = Math.max(110, Math.round(W * H / cfg.area));
-        for (let i = 0; i < n; i++) drops.push({ x: Math.random() * (W + 80) - 20, y: Math.random() * H, len: cfg.lenMin + Math.random() * (cfg.lenMax - cfg.lenMin), v: cfg.vMin + Math.random() * (cfg.vMax - cfg.vMin), a: 0.5 + Math.random() * 0.45 });
+        for (let i = 0; i < n; i++) drops.push({ x: Math.random() * (W + 80) - 20, y: Math.random() * H, len: cfg.lenMin + Math.random() * (cfg.lenMax - cfg.lenMin), v: cfg.vMin + Math.random() * (cfg.vMax - cfg.vMin), a: 0.45 + Math.random() * 0.45 });
       }
       const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
       lastT = t;
+      // Si la usuaria dibujo la LINEA DEL SUELO, la lluvia solo existe por encima
+      // de ella: se recorta y cada gota se acaba (con su onda) al tocarla.
+      const gl = cfg.ground ? cfg.ground() : null;
+      const hasG = !!(gl && gl.length >= 2);
+      const gyAt = x => corteGroundV(gl, x / W) * H;
       const ctx = cv.getContext("2d");
       ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      if (hasG) {
+        const s = gl.slice().sort((p, q) => p[0] - q[0]);
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0); ctx.lineTo(W, gyAt(W));
+        for (let i = s.length - 1; i >= 0; i--) ctx.lineTo(s[i][0] * W, s[i][1] * H);
+        ctx.lineTo(0, gyAt(0)); ctx.closePath(); ctx.clip();
+      }
       ctx.lineCap = "round"; ctx.lineWidth = cfg.lineWidth;
       const slant = 0.22;
       for (const d of drops) {
         d.y += d.v * dt; d.x -= d.v * dt * slant;
-        if (d.y - d.len > H) {
+        const gy = hasG ? gyAt(d.x) : H + d.len;
+        if (d.y >= gy) {
+          if (cfg.ripples && ripples.length < 54 && Math.random() < 0.55) {
+            if (hasG) ripples.push({ x: d.x, y: gy - 0.5, r: 1, a: 0.6 });
+            else { const bd = cfg.rippleBand || [0.15, 0.85]; ripples.push({ x: Math.random() * W, y: H * (bd[0] + Math.random() * (bd[1] - bd[0])), r: 1, a: 0.6 }); }
+          }
           d.y = -d.len - Math.random() * H * 0.2; d.x = Math.random() * (W + 80) - 10;
-          if (cfg.ripples && ripples.length < 54 && Math.random() < 0.5) { const bd = cfg.rippleBand || [0.15, 0.85]; ripples.push({ x: Math.random() * W, y: H * (bd[0] + Math.random() * (bd[1] - bd[0])), r: 1, a: 0.6 }); }
         }
-        ctx.strokeStyle = "rgba(18,66,136," + d.a.toFixed(2) + ")";
+        ctx.strokeStyle = "rgba(30,88,160," + d.a.toFixed(2) + ")";
         ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + d.len * slant, d.y - d.len); ctx.stroke();
       }
       for (let i = ripples.length - 1; i >= 0; i--) {
@@ -3879,6 +3880,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
         ctx.strokeStyle = "rgba(255,255,255," + r.a.toFixed(2) + ")"; ctx.beginPath(); ctx.ellipse(r.x, r.y, r.r, r.r * 0.45, 0, 0, Math.PI * 2); ctx.stroke();
         ctx.strokeStyle = "rgba(30,90,160," + (r.a * 0.55).toFixed(2) + ")"; ctx.beginPath(); ctx.ellipse(r.x, r.y, r.r + 1.4, (r.r + 1.4) * 0.45, 0, 0, Math.PI * 2); ctx.stroke();
       }
+      ctx.restore();
       frame = requestAnimationFrame(step);
     }
     return {
@@ -3897,9 +3899,9 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       }
     };
   }
-  const natRain1 = makeRain2D({ canvasId: "natRainCanvas", area: 1150, lenMin: 12, lenMax: 30, vMin: 380, vMax: 780, lineWidth: 1.7, ripples: true });
-  const natRainStack = makeRain2D({ canvasId: "natStackRainCanvas", area: 1150, lenMin: 12, lenMax: 30, vMin: 380, vMax: 780, lineWidth: 1.7, ripples: true });
-  const corteRain = makeRain2D({ canvasId: "corteRainCanvas", area: 900, lenMin: 8, lenMax: 18, vMin: 300, vMax: 580, lineWidth: 1.4, ripples: true, rippleBand: [0.55, 0.95] });
+  const natRain1 = makeRain2D({ canvasId: "natRainCanvas", area: 850, lenMin: 5, lenMax: 12, vMin: 380, vMax: 780, lineWidth: 1.25, ripples: true });
+  const natRainStack = makeRain2D({ canvasId: "natStackRainCanvas", area: 850, lenMin: 5, lenMax: 12, vMin: 380, vMax: 780, lineWidth: 1.25, ripples: true });
+  const corteRain = makeRain2D({ canvasId: "corteRainCanvas", area: 650, lenMin: 3.5, lenMax: 8, vMin: 300, vMax: 580, lineWidth: 1.1, ripples: true, rippleBand: [0.55, 0.95], ground: () => corteSuelo.sec });
   function setNatRain(on) { if (!on) { natRain1.set(false); natRainStack.set(false); corteRain.set(false); } }
   function updateNaturalRain() {
     let rain1 = false, stack = false, corte = false;
@@ -3917,14 +3919,27 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   }
 
   // ============================================================
-  // POLIGONOS DE AGUA Y DE TIERRA EN EL CORTE (los dibuja la usuaria)
-  // Cada poligono funciona como MASCARA DE RECORTE de su foto (agua o tierra).
-  // Las coordenadas son normalizadas (0-1) sobre la imagen del corte, asi se
-  // quedan pegadas a ella aunque cambie el tamano de la ventana. "Copiar
-  // coordenadas" entrega el texto listo para pegarlo en CORTE_POLIGONOS_FIJOS
-  // y dejarlo fijo en el codigo.
+  // POLIGONOS DE AGUA Y DE TIERRA + LINEA DE SUELO EN EL CORTE (los dibuja la usuaria)
+  // - Cada poligono es MASCARA DE RECORTE de su foto (agua o tierra).
+  // - La LINEA DE SUELO (abierta, 2 o mas puntos) marca hasta donde llegan la
+  //   lluvia y los animales del corte: nada pasa por debajo de ella.
+  // - Mayus (Shift) sostenido: el nuevo tramo sale a 90 grados.
+  // Coordenadas normalizadas (0-1) sobre la imagen del corte; "Copiar
+  // coordenadas" entrega el texto listo para pegar en CORTE_POLIGONOS_FIJOS /
+  // CORTE_SUELO_FIJO y dejarlo fijo en el codigo.
   // ============================================================
   const CORTE_POLIGONOS_FIJOS = { dyn: [], sec: [] };
+  const CORTE_SUELO_FIJO = { dyn: [], sec: [] };
+  const corteSuelo = { dyn: CORTE_SUELO_FIJO.dyn.map(q => q.slice()), sec: CORTE_SUELO_FIJO.sec.map(q => q.slice()) };
+  function corteGroundV(pts, u) {
+    if (!pts || pts.length < 2) return null;
+    const s = pts.slice().sort((p, q) => p[0] - q[0]);
+    if (u <= s[0][0]) return s[0][1];
+    for (let i = 1; i < s.length; i++) {
+      if (u <= s[i][0]) { const p = s[i - 1], q = s[i], d = (q[0] - p[0]) || 1e-6; return p[1] + (q[1] - p[1]) * (u - p[0]) / d; }
+    }
+    return s[s.length - 1][1];
+  }
   const corteTexAgua = new Image(); corteTexAgua.src = "assets/corte_agua.jpg";
   const corteTexTierra = new Image(); corteTexTierra.src = "assets/corte_tierra.jpg";
   const corteTools = [];
@@ -3936,13 +3951,23 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     const cv = document.createElement("canvas");
     cv.style.cssText = "position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:" + (cfg.z || 0) + ";";
     if (cfg.before && cfg.before.parentNode === host) host.insertBefore(cv, cfg.before); else host.appendChild(cv);
-    let polys = [], cur = null, mode = null, mouse = null;
+    let polys = [], suelo = [], cur = null, mode = null, mouse = null, rawMouse = null;
     try { const s = sessionStorage.getItem(cfg.key); polys = s ? JSON.parse(s) : JSON.parse(JSON.stringify(cfg.fijos || [])); } catch (e) { polys = JSON.parse(JSON.stringify(cfg.fijos || [])); }
-    function save() { try { sessionStorage.setItem(cfg.key, JSON.stringify(polys)); } catch (e) {} }
+    try { const s = sessionStorage.getItem(cfg.key + "_suelo"); suelo = s ? JSON.parse(s) : (cfg.fijosSuelo || []).map(q => q.slice()); } catch (e) { suelo = (cfg.fijosSuelo || []).map(q => q.slice()); }
+    function pushSuelo() { corteSuelo[cfg.id] = suelo.map(q => q.slice()); }
+    pushSuelo();
+    function save() { try { sessionStorage.setItem(cfg.key, JSON.stringify(polys)); sessionStorage.setItem(cfg.key + "_suelo", JSON.stringify(suelo)); } catch (e) {} }
+    const minPts = t => (t === "suelo" ? 2 : 3);
     function box() { return cfg.getBox ? cfg.getBox() : { l: 0, t: 0, w: host.clientWidth, h: host.clientHeight }; }
     function toPx(p, b) { return [b.l + p[0] * b.w, b.t + p[1] * b.h]; }
     function toUV(x, y, b) { return [(x - b.l) / b.w, (y - b.t) / b.h]; }
     function pathOf(pts, b, ctx) { ctx.beginPath(); pts.forEach((p, i) => { const q = toPx(p, b); if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }); ctx.closePath(); }
+    // Mayus: el nuevo punto queda alineado en horizontal o vertical con el anterior (90 grados)
+    function snapPx(x, y, shift) {
+      if (!shift || !cur || !cur.pts.length) return [x, y];
+      const p = toPx(cur.pts[cur.pts.length - 1], box());
+      return Math.abs(x - p[0]) >= Math.abs(y - p[1]) ? [x, p[1]] : [p[0], y];
+    }
     function draw() {
       const W = host.clientWidth, H = host.clientHeight;
       if (!W || !H) return;
@@ -3967,8 +3992,16 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
         ctx.restore();
         pathOf(p.pts, b, ctx); ctx.lineWidth = 1.4; ctx.strokeStyle = agua ? "rgba(18,86,100,.85)" : "rgba(98,70,42,.85)"; ctx.stroke();
       });
+      // la linea de suelo es una guia: solo se ve mientras se esta dibujando
+      if (mode && suelo.length >= 2) {
+        const sp = suelo.map(q => toPx(q, b));
+        ctx.beginPath(); sp.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]));
+        ctx.lineJoin = "round"; ctx.lineCap = "round";
+        ctx.lineWidth = 3.6; ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.stroke();
+        ctx.lineWidth = 1.6; ctx.strokeStyle = "#7c4a1e"; ctx.setLineDash([7, 4]); ctx.stroke(); ctx.setLineDash([]);
+      }
       if (cur && cur.pts.length) {
-        const col = cur.tipo === "agua" ? "#0e7490" : "#92400e";
+        const col = cur.tipo === "agua" ? "#0e7490" : (cur.tipo === "suelo" ? "#7c4a1e" : "#92400e");
         const pts = cur.pts.map(q => toPx(q, b));
         ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]));
         if (mouse) ctx.lineTo(mouse[0], mouse[1]);
@@ -3979,7 +4012,9 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     function codeText() {
       const f = n => Number(n).toFixed(4);
       const body = polys.map(p => "    { tipo: \"" + p.tipo + "\", pts: [" + p.pts.map(q => "[" + f(q[0]) + ", " + f(q[1]) + "]").join(", ") + "] }").join(",\n");
-      return "// CORTE_POLIGONOS (" + cfg.label + ") -- coordenadas normalizadas 0-1 sobre la imagen del corte\nCORTE_POLIGONOS_FIJOS." + cfg.id + " = [\n" + body + "\n];";
+      let t = "// CORTE (" + cfg.label + ") -- coordenadas normalizadas 0-1 sobre la imagen del corte\nCORTE_POLIGONOS_FIJOS." + cfg.id + " = [\n" + body + "\n];";
+      if (!cfg.noSuelo) t += "\nCORTE_SUELO_FIJO." + cfg.id + " = [" + suelo.map(q => "[" + f(q[0]) + ", " + f(q[1]) + "]").join(", ") + "];";
+      return t;
     }
     // ---- barra de herramientas ----
     const bar = document.createElement("div");
@@ -3988,31 +4023,41 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     bar.innerHTML = '<div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">'
       + '<button type="button" data-a="agua" title="Dibujar polígono de agua" style="' + BTN + '"><i class="fa-solid fa-droplet"></i> Polígono de agua</button>'
       + '<button type="button" data-a="tierra" title="Dibujar polígono de tierra" style="' + BTN + '"><i class="fa-solid fa-mountain"></i> Polígono de tierra</button>'
-      + '<button type="button" data-a="cerrar" title="Cerrar polígono (Enter)" style="' + BTN + '"><i class="fa-solid fa-check"></i></button>'
+      + (cfg.noSuelo ? '' : '<button type="button" data-a="suelo" title="Línea del suelo: la lluvia y los animales no pasan de ella" style="' + BTN + '"><i class="fa-solid fa-grip-lines"></i> Línea de suelo</button>')
+      + '<button type="button" data-a="cerrar" title="Terminar (Enter)" style="' + BTN + '"><i class="fa-solid fa-check"></i></button>'
       + '<button type="button" data-a="undo" title="Deshacer (clic derecho)" style="' + BTN + '"><i class="fa-solid fa-rotate-left"></i></button>'
-      + '<button type="button" data-a="clear" title="Borrar todos" style="' + BTN + '"><i class="fa-solid fa-trash"></i></button>'
+      + '<button type="button" data-a="clear" title="Borrar todo" style="' + BTN + '"><i class="fa-solid fa-trash"></i></button>'
       + '<button type="button" data-a="copy" title="Copiar coordenadas" style="' + BTN + '"><i class="fa-solid fa-copy"></i> <span data-role="copylabel">Copiar coordenadas</span></button>'
       + '</div>'
-      + (cfg.showText ? '<div style="margin-top:6px; font:500 10px \'Segoe UI\',sans-serif; color:#cbd3dc; line-height:1.4;">Clic: poner puntos · doble clic o Enter: cerrar · clic derecho: deshacer</div><textarea data-role="out" readonly spellcheck="false" rows="5" style="margin-top:6px; width:300px; max-width:60vw; background:#0b0c0f; color:#8fd4c8; border:1px solid rgba(255,255,255,.16); border-radius:6px; font:10px/1.35 monospace; padding:6px; resize:vertical;"></textarea>' : '');
+      + (cfg.showText ? '<div style="margin-top:6px; font:500 10px \'Segoe UI\',sans-serif; color:#cbd3dc; line-height:1.4;">Clic: poner puntos · Mayús (Shift): a 90° · doble clic o Enter: terminar · clic derecho: deshacer</div><textarea data-role="out" readonly spellcheck="false" rows="5" style="margin-top:6px; width:300px; max-width:60vw; background:#0b0c0f; color:#8fd4c8; border:1px solid rgba(255,255,255,.16); border-radius:6px; font:10px/1.35 monospace; padding:6px; resize:vertical;"></textarea>' : '');
     (cfg.barParent || host).appendChild(bar);
     const out = bar.querySelector('[data-role="out"]');
-    const btnAgua = bar.querySelector('[data-a="agua"]'), btnTierra = bar.querySelector('[data-a="tierra"]');
+    const btnAgua = bar.querySelector('[data-a="agua"]'), btnTierra = bar.querySelector('[data-a="tierra"]'), btnSuelo = bar.querySelector('[data-a="suelo"]');
     function refreshUi() {
       btnAgua.style.background = mode === "agua" ? "#0e7490" : "rgba(255,255,255,.08)";
       btnTierra.style.background = mode === "tierra" ? "#92400e" : "rgba(255,255,255,.08)";
+      if (btnSuelo) btnSuelo.style.background = mode === "suelo" ? "#7c4a1e" : "rgba(255,255,255,.08)";
       if (out) out.value = codeText();
     }
     function closeCur() {
-      if (cur && cur.pts.length >= 3) {
-        polys.push({ tipo: cur.tipo, pts: cur.pts.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]) });
-        save();
-        cur = { tipo: mode, pts: [] }; // sigue en el mismo modo para dibujar otro del mismo tipo
+      if (cur) {
+        if (cur.tipo === "suelo") {
+          if (cur.pts.length >= 2) {
+            suelo = cur.pts.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]); pushSuelo(); save();
+            mode = null; cur = null; cv.style.pointerEvents = "none"; cv.style.cursor = "";
+          }
+        } else if (cur.pts.length >= 3) {
+          polys.push({ tipo: cur.tipo, pts: cur.pts.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]) });
+          save();
+          cur = { tipo: mode, pts: [] }; // sigue en el mismo modo para dibujar otro del mismo tipo
+        }
       }
       refreshUi(); draw();
     }
     function setMode(t) {
-      if (mode === t) { if (cur && cur.pts.length >= 3) closeCur(); mode = null; cur = null; }
+      if (mode === t) { if (cur && cur.pts.length >= minPts(t)) closeCur(); mode = null; cur = null; }
       else { mode = t; cur = { tipo: t, pts: [] }; }
+      mouse = null;
       cv.style.pointerEvents = mode ? "auto" : "none";
       cv.style.cursor = mode ? "crosshair" : "";
       refreshUi(); draw();
@@ -4033,30 +4078,33 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       if (!a) return;
       e.stopPropagation();
       const k = a.dataset.a;
-      if (k === "agua" || k === "tierra") setMode(k);
+      if (k === "agua" || k === "tierra" || k === "suelo") setMode(k);
       else if (k === "cerrar") closeCur();
       else if (k === "undo") undo();
-      else if (k === "clear") { polys = []; cur = mode ? { tipo: mode, pts: [] } : null; save(); refreshUi(); draw(); }
+      else if (k === "clear") { polys = []; suelo = []; pushSuelo(); cur = mode ? { tipo: mode, pts: [] } : null; save(); refreshUi(); draw(); }
       else if (k === "copy") copy();
     });
     bar.addEventListener("pointerdown", e => e.stopPropagation());
     function local(e) { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
     cv.addEventListener("pointerdown", e => {
-      if (!mode || e.button !== 0) return;
+      if (!mode || e.button !== 0 || !cur) return;
       e.preventDefault(); e.stopPropagation();
-      const [x, y] = local(e), b = box();
-      if (cur.pts.length >= 3) { const f = toPx(cur.pts[0], b); if (Math.hypot(f[0] - x, f[1] - y) < 10) { closeCur(); return; } }
-      cur.pts.push(toUV(x, y, b));
+      const raw = local(e), b = box();
+      if (cur.tipo !== "suelo" && cur.pts.length >= 3) { const f = toPx(cur.pts[0], b); if (Math.hypot(f[0] - raw[0], f[1] - raw[1]) < 10) { closeCur(); return; } }
+      const sn = snapPx(raw[0], raw[1], e.shiftKey);
+      cur.pts.push(toUV(sn[0], sn[1], b));
       refreshUi(); draw();
     });
-    cv.addEventListener("pointermove", e => { if (!mode) return; mouse = local(e); draw(); });
-    cv.addEventListener("dblclick", e => { if (!mode || !cur) return; e.preventDefault(); e.stopPropagation(); if (cur.pts.length >= 4) cur.pts.pop(); closeCur(); });
+    cv.addEventListener("pointermove", e => { if (!mode) return; rawMouse = local(e); mouse = snapPx(rawMouse[0], rawMouse[1], e.shiftKey); draw(); });
+    cv.addEventListener("dblclick", e => { if (!mode || !cur) return; e.preventDefault(); e.stopPropagation(); if (cur.pts.length >= minPts(cur.tipo) + 1) cur.pts.pop(); closeCur(); });
     cv.addEventListener("contextmenu", e => { if (!mode) return; e.preventDefault(); undo(); });
     document.addEventListener("keydown", e => {
       if (!mode) return;
       if (e.key === "Enter") closeCur();
       else if (e.key === "Escape") { cur = { tipo: mode, pts: [] }; refreshUi(); draw(); }
+      else if (e.key === "Shift" && rawMouse) { mouse = snapPx(rawMouse[0], rawMouse[1], true); draw(); }
     });
+    document.addEventListener("keyup", e => { if (mode && e.key === "Shift" && rawMouse) { mouse = rawMouse; draw(); } });
     if (window.ResizeObserver) new ResizeObserver(() => draw()).observe(host);
     if (cfg.imgEl) cfg.imgEl.addEventListener("load", draw);
     refreshUi(); draw();
@@ -4067,7 +4115,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (dynStage && dynImg) {
       corteTools.push(createPolyTool({
         id: "dyn", label: "corte dinámico", key: "corte_poly_dyn", host: dynStage, before: document.getElementById("dynSecBirdsSvg"), z: 0,
-        fijos: CORTE_POLIGONOS_FIJOS.dyn, showText: true, imgEl: dynImg, barParent: document.getElementById("dynamicSectionOverlay"),
+        fijos: CORTE_POLIGONOS_FIJOS.dyn, noSuelo: true, showText: true, imgEl: dynImg, barParent: document.getElementById("dynamicSectionOverlay"),
         getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; },
         barStyle: "position:absolute; top:78px; left:18px; z-index:20; padding:9px 10px; border-radius:10px; background:rgba(17,20,24,.92); border:1px solid rgba(255,255,255,.14); box-shadow:0 8px 24px rgba(0,0,0,.25);"
       }));
@@ -4076,7 +4124,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (secWrap) {
       corteTools.push(createPolyTool({
         id: "sec", label: "corte inferior", key: "corte_poly_sec", host: secWrap, before: document.getElementById("sectionBirdStage"), z: 7,
-        fijos: CORTE_POLIGONOS_FIJOS.sec, showText: false, barParent: secWrap,
+        fijos: CORTE_POLIGONOS_FIJOS.sec, fijosSuelo: CORTE_SUELO_FIJO.sec, showText: false, barParent: secWrap,
         barStyle: "position:absolute; top:6px; right:10px; z-index:12; padding:5px 6px; border-radius:9px; background:rgba(17,20,24,.88); border:1px solid rgba(255,255,255,.14);"
       }));
     }
@@ -4319,6 +4367,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   let techTime = 0;
   
   function openTechExplode() {
+    if (typeof applyLabelPosition === "function") applyLabelPosition(); // titulo de capa en el mismo lugar que las primeras 4
     const lp = document.getElementById("legendPanel");
     if (lp) lp.style.display = "block";
     const cp = document.getElementById("natClimatePanel");
@@ -6200,6 +6249,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   let isSotElevated = false;
 
   function openCulturalExplode() {
+    if (typeof applyLabelPosition === "function") applyLabelPosition(); // titulo de capa en el mismo lugar que las primeras 4
     const lp = document.getElementById("legendPanel");
     if (lp) lp.style.display = "block";
     const cp = document.getElementById("natClimatePanel");
