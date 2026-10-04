@@ -3936,7 +3936,14 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   // coordenadas" entrega el texto listo para pegar en CORTE_POLIGONOS_FIJOS /
   // CORTE_SUELO_FIJO y dejarlo fijo en el codigo.
   // ============================================================
-  const CORTE_POLIGONOS_FIJOS = { dyn: [], sec: [] };
+  // Poligonos que dibujo la usuaria en el corte inferior (coordenadas normalizadas 0-1).
+  const CORTE_POLIGONOS_FIJOS = {
+    dyn: [],
+    sec: [
+      { tipo: "agua", pts: [[0.2620, 0.7047], [0.7708, 0.7047], [0.7625, 0.7785], [0.2682, 0.7785]] },
+      { tipo: "tierra", pts: [[0.7703, 0.6913], [0.9271, 0.6913], [0.9271, 0.9329], [0.0583, 0.9329], [0.0583, 0.7181], [0.2625, 0.7181], [0.2677, 0.7852], [0.7625, 0.7785]] }
+    ]
+  };
   const CORTE_SUELO_FIJO = { dyn: [], sec: [] };
   const corteSuelo = { dyn: CORTE_SUELO_FIJO.dyn.map(q => q.slice()), sec: CORTE_SUELO_FIJO.sec.map(q => q.slice()) };
   function corteGroundV(pts, u) {
@@ -3952,6 +3959,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   const CORTE_TEX_TIERRA_OPACIDAD = 0.8;
   const corteTexAgua = new Image(); corteTexAgua.src = "assets/corte_agua.jpg";
   const corteTexTierra = new Image(); corteTexTierra.src = "assets/corte_tierra.jpg";
+  // Peces (sin fondo) que nadan MUY pequenos dentro de los poligonos de agua. La lubina mira a la izquierda, la mojarra a la derecha.
+  const corteFishDefs = [{ src: "assets/pez_lubina.png", faceRight: false }, { src: "assets/pez_mojarra.png", faceRight: true }].map(d => { const img = new Image(); img.src = d.src; return { img, faceRight: d.faceRight }; });
   const corteTools = [];
   corteTexAgua.onload = corteTexTierra.onload = () => corteTools.forEach(t => t && t.draw());
   window.addEventListener("resize", () => corteTools.forEach(t => t && t.draw()));
@@ -3964,9 +3973,26 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     let polys = [], suelo = [], cur = null, mode = null, mouse = null, rawMouse = null;
     try { const s = sessionStorage.getItem(cfg.key); polys = s ? JSON.parse(s) : JSON.parse(JSON.stringify(cfg.fijos || [])); } catch (e) { polys = JSON.parse(JSON.stringify(cfg.fijos || [])); }
     try { const s = sessionStorage.getItem(cfg.key + "_suelo"); suelo = s ? JSON.parse(s) : (cfg.fijosSuelo || []).map(q => q.slice()); } catch (e) { suelo = (cfg.fijosSuelo || []).map(q => q.slice()); }
-    function pushSuelo() { corteSuelo[cfg.id] = suelo.map(q => q.slice()); }
+    // Sin linea dibujada, el "suelo" es el borde SUPERIOR de los poligonos de agua y tierra: la lluvia y los
+    // animales del corte no pasan de ahi (superficie del agua sobre el humedal, orilla sobre la tierra).
+    function derivedSuelo() {
+      const out = [];
+      for (let k = 0; k <= 200; k++) {
+        const u = k / 200; let top = null;
+        polys.forEach(pl => {
+          if (pl.pts.length < 3) return;
+          for (let i = 0; i < pl.pts.length; i++) {
+            const a = pl.pts[i], c = pl.pts[(i + 1) % pl.pts.length];
+            if ((a[0] <= u && c[0] > u) || (c[0] <= u && a[0] > u)) { const v = a[1] + (u - a[0]) * (c[1] - a[1]) / (c[0] - a[0]); if (top === null || v < top) top = v; }
+          }
+        });
+        if (top !== null) out.push([u, top]);
+      }
+      return out;
+    }
+    function pushSuelo() { corteSuelo[cfg.id] = (suelo.length >= 2 ? suelo : derivedSuelo()).map(q => q.slice()); }
     pushSuelo();
-    function save() { try { sessionStorage.setItem(cfg.key, JSON.stringify(polys)); sessionStorage.setItem(cfg.key + "_suelo", JSON.stringify(suelo)); } catch (e) {} }
+    function save() { pushSuelo(); try { sessionStorage.setItem(cfg.key, JSON.stringify(polys)); sessionStorage.setItem(cfg.key + "_suelo", JSON.stringify(suelo)); } catch (e) {} }
     const minPts = t => (t === "suelo" ? 2 : 3);
     function box() { return cfg.getBox ? cfg.getBox() : { l: 0, t: 0, w: host.clientWidth, h: host.clientHeight }; }
     function toPx(p, b) { return [b.l + p[0] * b.w, b.t + p[1] * b.h]; }
@@ -4134,13 +4160,76 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (window.ResizeObserver) new ResizeObserver(() => draw()).observe(host);
     if (cfg.imgEl) cfg.imgEl.addEventListener("load", draw);
     refreshUi(); draw();
+    // ---- PECES: nadan MUY pequenos dentro de cada poligono de AGUA ----
+    const fishCv = document.createElement("canvas");
+    fishCv.style.cssText = "position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:" + (cfg.z || 0) + ";";
+    if (cfg.before && cfg.before.parentNode === host) host.insertBefore(fishCv, cfg.before); else host.appendChild(fishCv);
+    let fishes = [], fishSig = "", fishLastT = 0;
+    function scanIntervals(pts, y) {
+      const xs = [];
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i], c = pts[(i + 1) % pts.length];
+        if ((a[1] <= y && c[1] > y) || (c[1] <= y && a[1] > y)) xs.push(a[0] + (y - a[1]) * (c[0] - a[0]) / (c[1] - a[1]));
+      }
+      xs.sort((u, v) => u - v);
+      const out = [];
+      for (let i = 0; i + 1 < xs.length; i += 2) out.push([xs[i], xs[i + 1]]);
+      return out;
+    }
+    function polyAreaPx(pts) { let s = 0; for (let i = 0; i < pts.length; i++) { const a = pts[i], c = pts[(i + 1) % pts.length]; s += a[0] * c[1] - c[0] * a[1]; } return Math.abs(s) / 2; }
+    function makeFish(waters) {
+      const out = [];
+      waters.forEach((pts, wi) => {
+        const n = Math.max(3, Math.min(16, Math.round(polyAreaPx(pts) / 1300)));
+        for (let i = 0; i < n; i++) out.push({ wi, row: 0.2 + Math.random() * 0.6, t: Math.random(), dir: Math.random() < 0.5 ? -1 : 1, speed: 7 + Math.random() * 14, sizeR: Math.random(), species: Math.random() < 0.5 ? 0 : 1, phase: Math.random() * 6.28 });
+      });
+      return out;
+    }
+    function fishLoop(t) {
+      const W = host.clientWidth, H = host.clientHeight;
+      if (W && H) {
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        if (fishCv.width !== Math.round(W * dpr) || fishCv.height !== Math.round(H * dpr)) { fishCv.width = Math.round(W * dpr); fishCv.height = Math.round(H * dpr); }
+        const ctx = fishCv.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+        const b = box();
+        const waters = (b.w && b.h) ? polys.filter(pl => pl.tipo === "agua" && pl.pts.length >= 3).map(pl => pl.pts.map(q => toPx(q, b))) : [];
+        if (waters.length && corteFishDefs.every(d => d.img.complete && d.img.naturalWidth)) {
+          const sig = waters.map(pp => pp.map(q => q[0].toFixed(0) + "," + q[1].toFixed(0)).join(";")).join("|");
+          if (sig !== fishSig) { fishSig = sig; fishes = makeFish(waters); }
+          const dt = fishLastT ? Math.min(0.05, (t - fishLastT) / 1000) : 0.016; fishLastT = t;
+          const time = t / 1000;
+          waters.forEach((pts, wi) => {
+            const ys = pts.map(q => q[1]), ymin = Math.min(...ys), ph = Math.max(...ys) - ymin;
+            ctx.save(); ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.closePath(); ctx.clip();
+            fishes.forEach(f => {
+              if (f.wi !== wi) return;
+              const def = corteFishDefs[f.species], ratio = def.img.naturalHeight / def.img.naturalWidth;
+              const y = ymin + f.row * ph, iv = scanIntervals(pts, y).sort((u, v) => (v[1] - v[0]) - (u[1] - u[0]))[0];
+              if (!iv) return;
+              let wpx = Math.min(b.w * (0.008 + 0.007 * f.sizeR), (ph * 0.8) / ratio); wpx = Math.max(wpx, 6);
+              const hpx = wpx * ratio, x0 = iv[0] + wpx * 0.6, x1 = iv[1] - wpx * 0.6;
+              if (x1 - x0 < wpx) return;
+              f.t += f.dir * f.speed * dt / (x1 - x0);
+              if (f.t > 1) { f.t = 1; f.dir = -1; } else if (f.t < 0) { f.t = 0; f.dir = 1; }
+              const x = x0 + f.t * (x1 - x0), yy = y + Math.sin(time * 1.6 + f.phase) * Math.min(1.2, ph * 0.08);
+              ctx.save(); ctx.translate(x, yy); ctx.rotate(Math.sin(time * 9 + f.phase) * 0.05); ctx.scale((f.dir > 0) === def.faceRight ? 1 : -1, 1);
+              ctx.globalAlpha = 0.95; ctx.drawImage(def.img, -wpx / 2, -hpx / 2, wpx, hpx); ctx.restore();
+            });
+            ctx.restore();
+          });
+        } else { fishSig = ""; fishes = []; }
+      }
+      requestAnimationFrame(fishLoop);
+    }
+    requestAnimationFrame(fishLoop);
     return { draw, get polys() { return polys; } };
   }
   (function initCortePolyTools() {
     const dynStage = document.getElementById("dynSecStage"), dynImg = document.getElementById("dynSecBaseImg");
     if (dynStage && dynImg) {
       corteTools.push(createPolyTool({
-        id: "dyn", label: "corte dinámico", key: "corte_poly_dyn", host: dynStage, before: document.getElementById("dynSecBirdsSvg"), z: 0,
+        id: "dyn", label: "corte dinámico", key: "corte_poly_dyn_v2", host: dynStage, before: document.getElementById("dynSecBirdsSvg"), z: 0,
         fijos: CORTE_POLIGONOS_FIJOS.dyn, noSuelo: true, showText: true, imgEl: dynImg, barParent: document.getElementById("dynamicSectionOverlay"),
         getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; },
         barStyle: "position:absolute; top:78px; left:18px; z-index:20; padding:9px 10px; border-radius:10px; background:rgba(17,20,24,.92); border:1px solid rgba(255,255,255,.14); box-shadow:0 8px 24px rgba(0,0,0,.25);"
@@ -4149,7 +4238,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     const secWrap = document.getElementById("sectionWrap");
     if (secWrap) {
       corteTools.push(createPolyTool({
-        id: "sec", label: "corte inferior", key: "corte_poly_sec", host: secWrap, before: document.getElementById("sectionBirdStage"), z: 7,
+        id: "sec", label: "corte inferior", key: "corte_poly_sec_v2", host: secWrap, before: document.getElementById("sectionBirdStage"), z: 7,
         fijos: CORTE_POLIGONOS_FIJOS.sec, fijosSuelo: CORTE_SUELO_FIJO.sec, showText: false, barParent: secWrap,
         barStyle: "position:absolute; top:6px; right:10px; z-index:12; padding:5px 6px; border-radius:9px; background:rgba(17,20,24,.88); border:1px solid rgba(255,255,255,.14);"
       }));
