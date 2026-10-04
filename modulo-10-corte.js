@@ -30,7 +30,12 @@
   // del todo a blanco, por eso se veia "cortado" en vez de difuminado.
   // Ahora la niebla termina de cerrar a blanco bien antes del limite real
   // de la camara (1900 de 2000), asegurando un desvanecido completo.
-  scene.fog = new THREE.Fog(0xffffff, 700, 1900);
+  // Niebla ORIGINAL (900-3200): conserva el contexto lejano de la base de las capas.
+  // Antes la acorte a 700-1900 para esconder el corte duro del borde, pero eso
+  // blanqueaba la mitad del contexto. El corte venia de que la camara dejaba de
+  // dibujar en 2000 (far); ahora far=4200, la niebla ya cerro en blanco antes y
+  // no hay borde duro NI se pierde contexto.
+  scene.fog = new THREE.Fog(0xffffff, 900, 3200);
   // Todo el contenido del mapa (vias, edificios, arboles, agua, vehiculos)
   // se agrega a este grupo, no directamente a la escena, para poder
   // rotarlo entero en X/Y/Z con los controles manuales de orientacion.
@@ -44,7 +49,7 @@
   // pura dentro de toScene() (ver abajo), sin tocar la altura de nada.
   scene.add(sceneRoot);
 
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 2000);
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 4200);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, alpha: true }); // alpha:true agregado para poder capturar fondos transparentes en las subcapas de escala tecnologica (sin afectar la vista principal, que sigue fijando su propio color de fondo opaco)
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.shadowMap.enabled = true;
@@ -2324,8 +2329,8 @@
     // lo que se ve, por eso se veian pocas y gordas.
     lluviaHalfW = (sceneExtentW > 120 ? sceneExtentW : 270) / 2 * 1.4;
     lluviaHalfH = (sceneExtentH > 120 ? sceneExtentH : 270) / 2 * 1.4;
-    const geo = new THREE.CylinderGeometry(0.27, 0.27, 9, 4, 1);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x2d6ab0, transparent: true, opacity: 0.8, depthWrite: false, depthTest: false, fog: false });
+    const geo = new THREE.CylinderGeometry(0.2, 0.2, 5, 4, 1);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x5a9bd8, transparent: true, opacity: 0.7, depthWrite: false, depthTest: false, fog: false });
     lluviaGroup = new THREE.InstancedMesh(geo, mat, LLUVIA_COUNT);
     lluviaGroup.frustumCulled = false;
     lluviaGroup.renderOrder = 997;
@@ -3424,6 +3429,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   // extruido de la caja) en esta captura.
   // ============================================================
   function captureBaseWithContext(renderFocusSetup) {
+    const lluviaPrevVis = (typeof lluviaGroup !== "undefined" && lluviaGroup) ? lluviaGroup.visible : false;
+    if (typeof lluviaGroup !== "undefined" && lluviaGroup) lluviaGroup.visible = false; // sin gotas congeladas en la base
     const burroVisPrev = mainBurroMesh ? mainBurroMesh.visible : false;
     if (mainBurroMesh) mainBurroMesh.visible = false; // la base usa la forma real del humedal
     const W = renderer.domElement.width, H = renderer.domElement.height;
@@ -3489,6 +3496,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (rawBuildingsData) buildBuildings(rawBuildingsData, null);
     if (rawEdgesData) buildRoads(rawEdgesData, null);
     rebuildFilteredGeometry(); // Re-apply section box if active
+    if (typeof lluviaGroup !== "undefined" && lluviaGroup) lluviaGroup.visible = lluviaPrevVis;
     return off.toDataURL("image/png");
   }
 
@@ -3839,7 +3847,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; drops.length = 0; }
       if (!drops.length) {
         const n = Math.max(110, Math.round(W * H / cfg.area));
-        for (let i = 0; i < n; i++) drops.push({ x: Math.random() * (W + 80) - 20, y: Math.random() * H, len: cfg.lenMin + Math.random() * (cfg.lenMax - cfg.lenMin), v: cfg.vMin + Math.random() * (cfg.vMax - cfg.vMin), a: 0.45 + Math.random() * 0.45 });
+        for (let i = 0; i < n; i++) drops.push({ x: Math.random() * (W + 80) - 20, y: Math.random() * H, len: cfg.lenMin + Math.random() * (cfg.lenMax - cfg.lenMin), v: cfg.vMin + Math.random() * (cfg.vMax - cfg.vMin), a: 0.35 + Math.random() * 0.35 });
       }
       const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
       lastT = t;
@@ -3869,7 +3877,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
           }
           d.y = -d.len - Math.random() * H * 0.2; d.x = Math.random() * (W + 80) - 10;
         }
-        ctx.strokeStyle = "rgba(30,88,160," + d.a.toFixed(2) + ")";
+        ctx.strokeStyle = "rgba(76,136,206," + d.a.toFixed(2) + ")";
         ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + d.len * slant, d.y - d.len); ctx.stroke();
       }
       for (let i = ripples.length - 1; i >= 0; i--) {
@@ -3899,9 +3907,9 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       }
     };
   }
-  const natRain1 = makeRain2D({ canvasId: "natRainCanvas", area: 850, lenMin: 5, lenMax: 12, vMin: 380, vMax: 780, lineWidth: 1.25, ripples: true });
-  const natRainStack = makeRain2D({ canvasId: "natStackRainCanvas", area: 850, lenMin: 5, lenMax: 12, vMin: 380, vMax: 780, lineWidth: 1.25, ripples: true });
-  const corteRain = makeRain2D({ canvasId: "corteRainCanvas", area: 650, lenMin: 3.5, lenMax: 8, vMin: 300, vMax: 580, lineWidth: 1.1, ripples: true, rippleBand: [0.55, 0.95], ground: () => corteSuelo.sec });
+  const natRain1 = makeRain2D({ canvasId: "natRainCanvas", area: 850, lenMin: 3.5, lenMax: 8, vMin: 380, vMax: 780, lineWidth: 1.1, ripples: true });
+  const natRainStack = makeRain2D({ canvasId: "natStackRainCanvas", area: 850, lenMin: 3.5, lenMax: 8, vMin: 380, vMax: 780, lineWidth: 1.1, ripples: true });
+  const corteRain = makeRain2D({ canvasId: "corteRainCanvas", area: 650, lenMin: 2.5, lenMax: 6, vMin: 300, vMax: 580, lineWidth: 1, ripples: true, rippleBand: [0.55, 0.95], ground: () => corteSuelo.sec });
   function setNatRain(on) { if (!on) { natRain1.set(false); natRainStack.set(false); corteRain.set(false); } }
   function updateNaturalRain() {
     let rain1 = false, stack = false, corte = false;
@@ -3940,6 +3948,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     }
     return s[s.length - 1][1];
   }
+  const CORTE_TEX_TIERRA_ESCALA = 0.1; // ancho de cada repeticion de la textura de tierra, como fraccion del ancho del corte (mas chico = textura mas fina)
+  const CORTE_TEX_TIERRA_OPACIDAD = 0.8;
   const corteTexAgua = new Image(); corteTexAgua.src = "assets/corte_agua.jpg";
   const corteTexTierra = new Image(); corteTexTierra.src = "assets/corte_tierra.jpg";
   const corteTools = [];
@@ -3985,9 +3995,25 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
         if (img.complete && img.naturalWidth) {
           const px = p.pts.map(q => toPx(q, b)), xs = px.map(q => q[0]), ys = px.map(q => q[1]);
           const bx = Math.min(...xs), by = Math.min(...ys), bw = Math.max(...xs) - bx, bh = Math.max(...ys) - by;
-          const s = Math.max(bw / img.naturalWidth, bh / img.naturalHeight, 0.05);
-          const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
-          ctx.drawImage(img, bx + (bw - dw) / 2, by + (bh - dh) / 2, dw, dh);
+          if (agua) {
+            const s = Math.max(bw / img.naturalWidth, bh / img.naturalHeight, 0.05);
+            const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+            ctx.drawImage(img, bx + (bw - dw) / 2, by + (bh - dh) / 2, dw, dh);
+          } else {
+            // TIERRA: antes la foto se estiraba a todo el poligono y se veia enorme. Ahora se
+            // repite a escala chica (en espejo, para que no se noten costuras) y va al 80%.
+            const tw = Math.max(40, b.w * CORTE_TEX_TIERRA_ESCALA), th = tw * img.naturalHeight / img.naturalWidth;
+            const i0 = Math.floor((bx - b.l) / tw), i1 = Math.ceil((bx + bw - b.l) / tw), j0 = Math.floor((by - b.t) / th), j1 = Math.ceil((by + bh - b.t) / th);
+            const prevA = ctx.globalAlpha; ctx.globalAlpha = prevA * CORTE_TEX_TIERRA_OPACIDAD;
+            for (let i = i0; i < i1; i++) for (let jj = j0; jj < j1; jj++) {
+              ctx.save();
+              ctx.translate(b.l + (i + (i & 1 ? 1 : 0)) * tw, b.t + (jj + (jj & 1 ? 1 : 0)) * th);
+              ctx.scale(i & 1 ? -1 : 1, jj & 1 ? -1 : 1);
+              ctx.drawImage(img, 0, 0, tw, th);
+              ctx.restore();
+            }
+            ctx.globalAlpha = prevA;
+          }
         } else { ctx.fillStyle = agua ? "#5fa8a6" : "#b99b78"; ctx.fill(); }
         ctx.restore();
         pathOf(p.pts, b, ctx); ctx.lineWidth = 1.4; ctx.strokeStyle = agua ? "rgba(18,86,100,.85)" : "rgba(98,70,42,.85)"; ctx.stroke();
