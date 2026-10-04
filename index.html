@@ -302,6 +302,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
     <div id="sectionWrap" style="display:none; position:absolute; left:0; right:0; bottom:0; height:16%; min-height:150px; z-index:400; border-top:1px solid rgba(0,0,0,.12); background:#eef2f5;">
       <canvas id="sectionCanvas" style="width:100%; height:100%; display:block; cursor:grab;"></canvas>
       <div id="sectionBirdStage" style="position:absolute; inset:0; z-index:8; overflow:hidden; pointer-events:none;"></div>
+      <canvas id="corteRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; z-index:9; pointer-events:none; opacity:0; transition:opacity .6s ease;"></canvas>
       <!-- Controles independientes para el corte inferior -->
       <div id="botControls" style="display:none; position:absolute; right:10px; top:10px; width:220px; background:rgba(255,255,255,0.9); padding:10px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.15); font-family:'Segoe UI',sans-serif; font-size:11px; color:#333; z-index:10;">
         <div style="font-weight:600; margin-bottom:8px; border-bottom:1px solid #ccc; padding-bottom:4px;">Coordenadas de la vista</div>
@@ -549,6 +550,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
 
       <!-- Contenedor central apilado estilo referente (líneas punteadas y capas suspendidas) -->
       <div id="natExplodeStage" style="position:relative; width:min(96vw, 940px); height:min(86vh, 720px); display:flex; align-items:center; justify-content:center; margin-top:20px;">
+        <div id="natStackRainWrap" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; transform:translate(-50%, -40%); z-index:30; pointer-events:none; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"><canvas id="natStackRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity .6s ease;"></canvas></div>
         <svg id="natGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
 
         <!-- Capa 1: Sistema Inerte y Límite Físico-Hidrológico -->
@@ -556,6 +558,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <img id="natWaterImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="natWaterCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+            <canvas id="natRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:6; opacity:0; transition:opacity .6s ease;"></canvas>
           </div>
           <svg id="natWaterSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
           <!-- Etiqueta temática lateral exterior al rombo -->
