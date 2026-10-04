@@ -531,6 +531,51 @@
   function updateDynamicLegend() {
     const c = document.getElementById("legendDynamicContent");
     if (!c) return;
+    // Antes esta funcion solo conocia natExplodeStep -- las capas Cultural
+    // y Tecnologica nunca llenaban el panel de Agentes de la izquierda,
+    // aunque sus propios paneles de estadisticas (cultCapa1Panel, etc)
+    // si funcionaban bien por separado. Se agrega el mismo tratamiento
+    // para esas dos capas, con sus 4 subcapas reales cada una.
+    const cultStep = typeof cultExplodeStep !== "undefined" ? cultExplodeStep : 0;
+    const techStep = typeof techExplodeStep !== "undefined" ? techExplodeStep : 0;
+    const cultOverlayEl = document.getElementById("culturalExplodeOverlay");
+    const techOverlayEl = document.getElementById("techExplodeOverlay");
+    const cultVisible = cultOverlayEl && cultOverlayEl.style.display && cultOverlayEl.style.display !== "none";
+    const techVisible = techOverlayEl && techOverlayEl.style.display && techOverlayEl.style.display !== "none";
+
+    if (cultVisible) {
+      let rows = "";
+      const idx = cultStep === 0 ? -1 : Math.floor((cultStep - 1) / 2);
+      if (idx === 0 || cultStep === 0) rows += legendRow(`<i class="fa-solid fa-clock-rotate-left" style="width:20px; text-align:center; color:#a21caf;"></i>`, "Memoria histórica (1950–2024)");
+      if (idx === 1) rows += legendRow(`<i class="fa-solid fa-door-closed" style="width:20px; text-align:center; color:#0284c7;"></i>`, "Cerramiento de borde (EAAB)");
+      if (idx === 2) rows += legendRow(`<i class="fa-solid fa-book-open-reader" style="width:20px; text-align:center; color:#15803d;"></i>`, "Recorrido pedagógico");
+      if (idx === 3) rows += legendRow(`<i class="fa-solid fa-road" style="width:20px; text-align:center; color:#b45309;"></i>`, "Fricción vial (SOT)");
+      if (cultStep >= 9) {
+        rows = legendRow(`<i class="fa-solid fa-clock-rotate-left" style="width:20px; text-align:center; color:#a21caf;"></i>`, "Memoria histórica (1950–2024)")
+          + legendRow(`<i class="fa-solid fa-door-closed" style="width:20px; text-align:center; color:#0284c7;"></i>`, "Cerramiento de borde (EAAB)")
+          + legendRow(`<i class="fa-solid fa-book-open-reader" style="width:20px; text-align:center; color:#15803d;"></i>`, "Recorrido pedagógico")
+          + legendRow(`<i class="fa-solid fa-road" style="width:20px; text-align:center; color:#b45309;"></i>`, "Fricción vial (SOT)");
+      }
+      c.innerHTML = rows;
+      return;
+    }
+    if (techVisible) {
+      let rows = "";
+      const idx = techStep === 0 ? -1 : Math.floor((techStep - 1) / 2);
+      if (idx === 0 || techStep === 0) rows += legendRow(`<i class="fa-solid fa-car" style="width:20px; text-align:center; color:#334155;"></i>`, "Red vial y tráfico");
+      if (idx === 1) rows += legendRow(`<i class="fa-solid fa-volume-high" style="width:20px; text-align:center; color:#dc2626;"></i>`, "Simulación de ruido");
+      if (idx === 2) rows += legendRow(`<i class="fa-solid fa-water" style="width:20px; text-align:center; color:#0ea5e9;"></i>`, "Inundación y movilidad");
+      if (idx === 3) rows += legendRow(`<i class="fa-solid fa-toilets-portable" style="width:20px; text-align:center; color:#475569;"></i>`, "Alcantarillado");
+      if (techStep >= 9) {
+        rows = legendRow(`<i class="fa-solid fa-car" style="width:20px; text-align:center; color:#334155;"></i>`, "Red vial y tráfico")
+          + legendRow(`<i class="fa-solid fa-volume-high" style="width:20px; text-align:center; color:#dc2626;"></i>`, "Simulación de ruido")
+          + legendRow(`<i class="fa-solid fa-water" style="width:20px; text-align:center; color:#0ea5e9;"></i>`, "Inundación y movilidad")
+          + legendRow(`<i class="fa-solid fa-toilets-portable" style="width:20px; text-align:center; color:#475569;"></i>`, "Alcantarillado");
+      }
+      c.innerHTML = rows;
+      return;
+    }
+
     const step = typeof natExplodeStep !== "undefined" ? natExplodeStep : 0;
     let rows = "";
     if (step === 1 || step === 2) {
@@ -2266,11 +2311,12 @@
     // las gotas eran casi invisibles (demasiado chicas y demasiado
     // dispersas respecto a lo que la camara realmente encuadra).
     const COUNT = 1200;
-    const RADIO = 650; // cubre el area visible real de la axonometria
-    const ALTO_MAX = 180, ALTO_MIN = 15;
+    const RADIO = 320; // acotado al area que la camara de la axonometria realmente encuadra (antes 650, caia fuera de cuadro)
+    const ALTO_MAX = 70, ALTO_MIN = 4; // igual, acotado -- antes 15-180 quedaba por encima de lo visible en esta vista
     const geo = new THREE.CylinderGeometry(0.4, 0.4, 7, 5, 1);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xbfe0f2, transparent: true, opacity: 0.5, depthWrite: false });
+    const mat = new THREE.MeshBasicMaterial({ color: 0xbfe0f2, transparent: true, opacity: 0.6, depthWrite: false, depthTest: false });
     lluviaGroup = new THREE.InstancedMesh(geo, mat, COUNT);
+    lluviaGroup.renderOrder = 997; // para que no quede tapada por el terreno/edificios ya dibujados
     lluviaVel = new Float32Array(COUNT);
     const dummy = new THREE.Object3D();
     for (let i = 0; i < COUNT; i++) {
@@ -2295,10 +2341,10 @@
       lluviaGroup.getMatrixAt(i, lluviaDummy.matrix);
       lluviaDummy.matrix.decompose(lluviaDummy.position, lluviaDummy.quaternion, lluviaDummy.scale);
       lluviaDummy.position.y -= lluviaVel[i] * dt;
-      if (lluviaDummy.position.y < 15) {
-        lluviaDummy.position.y = 160 + Math.random() * 20;
-        lluviaDummy.position.x = (Math.random() - 0.5) * 1300;
-        lluviaDummy.position.z = (Math.random() - 0.5) * 1300;
+      if (lluviaDummy.position.y < 4) {
+        lluviaDummy.position.y = 65 + Math.random() * 5; // igual al nuevo ALTO_MAX de buildLluvia
+        lluviaDummy.position.x = (Math.random() - 0.5) * 640; // igual al nuevo RADIO*2
+        lluviaDummy.position.z = (Math.random() - 0.5) * 640;
       }
       lluviaDummy.rotation.set(0.12, 0, 0.07);
       lluviaDummy.updateMatrix();
@@ -4082,6 +4128,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   }
 
   function updateTechLayersStep(animated = true) {
+    updateDynamicLegend();
     const sublayers = [techLayer1, techLayer2, techLayer3, techLayer4];
     const tags = techOverlay.querySelectorAll(".tech-layer-tag");
 

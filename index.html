@@ -196,10 +196,11 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
 })();
 </script>
 <div class="app">
+                      
   <main class="main">
     <div id="sceneWrap">
       <canvas id="sceneCanvas"></canvas>
-      <div id="axoContextFade" style="display:block; position:absolute; inset:0; z-index:7; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 48%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.42) 100%); pointer-events:none;"></div>
+      <div id="axoContextFade" style="display:none; position:absolute; inset:0; z-index:7; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 48%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.42) 100%); pointer-events:none;"></div>
     </div>
 
     <!-- Fondo solido detras de la escala/axonometria activa: al achicarla
@@ -499,7 +500,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
 
     <div id="explodeOverlay" style="position:absolute; inset:0; z-index:300; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:auto;">
       <button type="button" id="explodeClose" style="position:absolute; top:20px; right:26px; width:36px; height:36px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#111; font-size:16px; cursor:pointer; z-index:20; pointer-events:auto; box-shadow:0 2px 8px rgba(0,0,0,.1);">✕</button>
-      <div id="explodeStack" style="display:flex; flex-direction:column; align-items:center; width:min(54vw, 560px, calc((100vh - 40px) / 1.4675)); pointer-events:auto; margin:auto;">
+      <div id="explodeStack" style="display:flex; flex-direction:column; align-items:center; width:min(64vw, 680px, calc((100vh - 40px) / 1.25)); pointer-events:auto; margin:auto;">
         <!-- Arriba: Escala Tecnológica -->
         <div class="explode-layer" data-layer="3" style="position:relative; width:100%; aspect-ratio:16/9; margin-bottom:-11%; opacity:0; transform:scale(.05); transition:transform 2.2s cubic-bezier(.16,1,.3,1), opacity 1.8s ease, z-index 0s;">
           <div class="explode-clip" style="width:100%; height:100%; cursor:pointer; position:relative; overflow:visible;">
