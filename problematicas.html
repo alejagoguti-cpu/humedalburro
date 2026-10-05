@@ -183,23 +183,22 @@
       <canvas id="sceneCanvas"></canvas>
     </div>
 
-    <div class="hud-title">
+    <div class="hud-title" style="pointer-events:none;">
       <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:6px; pointer-events:auto;"><button type="button" style="padding:6px 12px; border-radius:8px; border:1px solid var(--panel-border); background:rgba(17,20,24,.9); color:var(--ink); font-size:11.5px; font-weight:600; cursor:pointer;">← Volver al Humedal</button></a>
-      <h1>Problemáticas — Simulación 3D Kennedy</h1>
-      <p>Proyección axonométrica · arrastra para orbitar · clic derecho para panear · rueda para zoom</p>
+      <h1 style="font-size:16px; font-weight:700; margin:0 0 4px; display:flex; align-items:center; gap:8px;">
+        Problemáticas — Evolución Histórica
+        <span id="eraBadge" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(36,200,189,.2); border:1px solid var(--accent); color:var(--accent);">1950</span>
+      </h1>
+      <p id="eraDesc" style="font-size:11.5px; color:var(--ink-dim); max-width:540px; margin:0; line-height:1.4;">1950 · Humedal El Burro y Sabana Rural (89% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, sin vías ni urbanización).</p>
     </div>
 
-    <div class="controls-bar" id="controlsBar" title="Clic: Reproducir/Pausar · Doble clic: Abrir barra de tiempo">
-      <button type="button" id="playPause" aria-label="Reproducir / pausar"><i class="fa-solid fa-play"></i></button>
-      <div class="controls-expandable" id="controlsExpandable">
-        <input type="range" id="timeSlider" min="0" max="1000" value="0" step="1" disabled>
-        <span class="time-label" id="timeLabel">00:00 / 00:00</span>
-        <select id="speedSelect">
-          <option value="1">1×</option>
-          <option value="2" selected>2×</option>
-          <option value="4">4×</option>
-          <option value="8">8×</option>
-        </select>
+    <div class="controls-bar" id="controlsBar" style="bottom:22px; padding:6px 14px; border-radius:24px; background:rgba(17,20,24,.92); border:1px solid var(--panel-border); backdrop-filter:blur(8px); display:flex; align-items:center; gap:12px;">
+      <button type="button" id="histPlayPause" aria-label="Reproducir evolución histórica" style="width:38px; height:38px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#111418; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 3px 12px rgba(0,0,0,.3); flex-shrink:0;"><i class="fa-solid fa-play"></i></button>
+      
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button type="button" class="year-btn active" data-year="1950" style="padding:5px 12px; border-radius:12px; border:1px solid var(--accent); background:rgba(36,200,189,.25); color:var(--accent); font-size:11.5px; font-weight:700; cursor:pointer;">1950</button>
+        <button type="button" class="year-btn" data-year="1956" style="padding:5px 12px; border-radius:12px; border:1px solid var(--panel-border); background:rgba(255,255,255,.06); color:var(--ink); font-size:11.5px; font-weight:600; cursor:pointer;">1956</button>
+        <input type="range" id="histYearSlider" min="1950" max="1956" value="1950" step="1" style="width:100px; accent-color:var(--accent); cursor:pointer; margin-left:6px;">
       </div>
     </div>
 
