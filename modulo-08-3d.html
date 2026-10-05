@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="navigation-unified.css?v=20260920">
 <style>
   :root{
     --bg:#0b0c0f; --panel:rgba(255,255,255,.06); --panel-border:rgba(255,255,255,.12);
@@ -166,29 +165,8 @@
 })();
 </script>
 <div class="app">
-                      <aside class="sidebar sidebar-icons-only">
-      <a class="brand-icon" href="index.html" title="Bogotá Viva · Inicio" aria-label="Inicio"><i class="fa-solid fa-diagram-project"></i></a>
-      <nav class="icon-nav" aria-label="Módulos">
-        <a href="index.html" class="icon-nav-item" title="Inicio"><i class="fa-solid fa-house"></i></a>
-        <a href="modulo-metropolitano.html" class="icon-nav-item" title="Escala metropolitana &middot; Bogot&aacute; completa"><i class="fa-solid fa-city"></i></a>
-        <a href="modulo-02.html" class="icon-nav-item" title="02 · Medir la red"><i class="fa-solid fa-chart-simple"></i></a>
-        <a href="modulo-03.html" class="icon-nav-item" title="03 · Discurso vs realidad"><i class="fa-solid fa-eye"></i></a>
-        <a href="modulo-04.html" class="icon-nav-item" title="04 · Macromodelos"><i class="fa-solid fa-bullseye"></i></a>
-        <a href="modulo-05.html" class="icon-nav-item" title="05 · Navegador multiescalar"><i class="fa-solid fa-magnifying-glass-location"></i></a>
-        <a href="modulo-06.html" class="icon-nav-item" title="06 · POT ↔ ODS"><i class="fa-solid fa-earth-americas"></i></a>
-        <a href="modulo-07.html" class="icon-nav-item" title="07 · Simulador"><i class="fa-solid fa-flask"></i></a>
-        <a href="modulo-08.html" class="icon-nav-item" title="08 · Lectura dinámica"><i class="fa-solid fa-wave-square"></i></a>
-        <a href="modulo-08-3d.html" class="icon-nav-item active" title="08 · Simulación 3D"><i class="fa-solid fa-cube"></i></a>
-        <a href="modulo-08-corte.html" class="icon-nav-item" title="08b · Simulación 3D — Corte"><i class="fa-solid fa-layer-group"></i></a>
-        <a href="modulo-10-corte.html" class="icon-nav-item" title="10 · Corte axonométrico"><i class="fa-solid fa-scissors"></i></a>
-        <a href="modulo-conectografias.html" class="icon-nav-item" title="Conectografías"><i class="fa-solid fa-diagram-project"></i></a>
-        <a href="modulo-12-problemas.html" class="icon-nav-item" title="12 · Problemáticas Corabastos"><i class="fa-solid fa-triangle-exclamation"></i></a>
-        <a href="red-residuos-organicos.html" class="icon-nav-item" title="Red de problemáticas"><i class="fa-solid fa-diagram-project"></i></a>
-        <a href="modulo-09.html" class="icon-nav-item" title="09 · Modelo propio"><i class="fa-solid fa-atom"></i></a>
-      </nav>
-    </aside>
-  <main class="main">
-    <div id="sceneWrap">
+  <main class="main" style="width:100vw; height:100vh; position:relative; overflow:hidden;">
+    <div id="sceneWrap" style="position:absolute; inset:0;">
       <canvas id="sceneCanvas"></canvas>
     </div>
 
