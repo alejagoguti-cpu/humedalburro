@@ -190,15 +190,10 @@
     const w = (bbox[2] - bbox[0]) * SCALE * 1.4;
     const h = (bbox[3] - bbox[1]) * SCALE * 1.4;
     const geo = new THREE.PlaneGeometry(w, h);
-    const pastoTex = new THREE.TextureLoader().load("./assets/textura_pasto.jpg");
-    pastoTex.wrapS = THREE.RepeatWrapping;
-    pastoTex.wrapT = THREE.RepeatWrapping;
-    pastoTex.repeat.set(180, 180);
     const mat = new THREE.MeshStandardMaterial({
-      map: pastoTex,
-      color: 0x7da86e, // tono verde fértil natural de la Sabana
-      roughness: 0.95,
-      metalness: 0.02
+      color: 0xebedee, // suelo arquitectónico claro, limpio y uniforme
+      roughness: 1,
+      metalness: 0
     });
     groundMesh = new THREE.Mesh(geo, mat);
     groundMesh.rotation.x = -Math.PI / 2;
@@ -220,21 +215,20 @@
   // SIMULACIÓN HISTÓRICA: 1950 (Sabana & Humedal El Burro) y 1956 (La Vaca & Aeropuerto de Techo)
   // =====================================================================
 
-  // Texturas de agua con relieve y movimiento
+  // Texturas de agua con relieve y movimiento (mismo color y textura que la axonometría)
   const waterTexLoader = new THREE.TextureLoader();
   const histWaterTex = waterTexLoader.load("./assets/textura_agua2.jpg");
   histWaterTex.wrapS = THREE.RepeatWrapping;
   histWaterTex.wrapT = THREE.RepeatWrapping;
-  histWaterTex.repeat.set(28, 28);
   waterTexRef = histWaterTex;
 
   const histWaterBump = waterTexLoader.load("./assets/textura_agua2.jpg");
   histWaterBump.wrapS = THREE.RepeatWrapping;
   histWaterBump.wrapT = THREE.RepeatWrapping;
-  histWaterBump.repeat.set(34, 34);
+  histWaterBump.repeat.set(2.3, 2.3);
   waterBumpRef = histWaterBump;
 
-  // 1. Sprites de vacas en pastoreo (tamaño proporcional realista)
+  // 1. Sprites de vacas en pastoreo con sombra negra en el suelo (caminando en el plano sin flotar)
   const cowTextures = [];
   const cowTexLoader = new THREE.TextureLoader();
   for (let i = 0; i < 12; i++) {
@@ -246,12 +240,12 @@
     cowsGroup.clear();
     cowInstances.length = 0;
     
-    // Zonas de pastoreo distribuidas en los potreros de la Sabana
+    // Zonas de pastoreo alrededor de los humedales y pasturas
     const cowZones = [
-      { cx: 160, cz: -15, rx: 110, rz: 80, count: 40 },  // Alrededor de Humedal El Burro
-      { cx: 65, cz: 115, rx: 85, rz: 65, count: 35 },   // Alrededor de Humedal La Vaca
-      { cx: 260, cz: 80, rx: 95, rz: 75, count: 35 },   // Alrededor de Techo / Pasturas orientales
-      { cx: 120, cz: -110, rx: 90, rz: 80, count: 25 }, // Zona rural norte
+      { cx: 210, cz: -10, rx: 80, rz: 60, count: 28 }, // Humedal El Burro
+      { cx: 70, cz: 115, rx: 65, rz: 50, count: 24 },  // Humedal La Vaca
+      { cx: 270, cz: 90, rx: 75, rz: 60, count: 20 },  // Pasturas orientales / Techo
+      { cx: 130, cz: -80, rx: 70, rz: 60, count: 18 }, // Zona rural norte
     ];
 
     cowZones.forEach(zone => {
@@ -261,21 +255,33 @@
           map: tex,
           transparent: true,
           side: THREE.DoubleSide,
-          alphaTest: 0.15,
+          alphaTest: 0.35,
           depthWrite: false
         });
-        // Vacas proporcionadas y chiquitas (1.2 x 0.88 unidades)
-        const geo = new THREE.PlaneGeometry(1.8, 1.3);
+        const geo = new THREE.PlaneGeometry(1.6, 1.1);
         const mesh = new THREE.Mesh(geo, mat);
+
+        // Sombra negra en el suelo debajo de la vaca
+        const shadowGeo = new THREE.PlaneGeometry(1.5, 0.8);
+        const shadowMat = new THREE.MeshBasicMaterial({
+          color: 0x000000,
+          transparent: true,
+          opacity: 0.38,
+          depthWrite: false
+        });
+        const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+        shadowMesh.rotation.x = -Math.PI / 2;
+        shadowMesh.position.set(0, -0.48, 0);
+        mesh.add(shadowMesh);
 
         const angle = Math.random() * Math.PI * 2;
         const dist = Math.sqrt(Math.random());
         const x = zone.cx + Math.cos(angle) * zone.rx * dist;
         const z = zone.cz + Math.sin(angle) * zone.rz * dist;
 
-        mesh.position.set(x, 0.65, z);
+        mesh.position.set(x, 0.55, z);
         mesh.rotation.x = -Math.PI / 4.2;
-        mesh.rotation.y = (Math.random() - 0.5) * 0.4;
+        mesh.rotation.y = (Math.random() - 0.5) * 0.3;
         const s = 0.85 + Math.random() * 0.3;
         mesh.scale.set((Math.random() > 0.5 ? 1 : -1) * s, s, s);
 
@@ -285,14 +291,14 @@
           baseX: x,
           baseZ: z,
           phase: Math.random() * Math.PI * 2,
-          speed: 0.25 + Math.random() * 0.35,
+          speed: 0.3 + Math.random() * 0.4,
           wanderR: 1.2 + Math.random() * 2.0
         });
       }
     });
   }
 
-  // 2. Construcción de humedales históricos expandidos (+90% a +98% tamaño histórico)
+  // 2. Construcción de humedales históricos con el mismo color y textura de agua
   function buildHistoricalWetlands(waterBodies) {
     if (!waterBodies || !waterBodies.length) return;
     historicalWetlandsGroup.clear();
@@ -301,11 +307,11 @@
 
     waterBodies.forEach(w => {
       const name = w.nombre || "";
-      let scale = 1.6;
-      if (name.includes("Burro")) scale = 2.65; // Gran expansión histórica de El Burro (+98%)
-      else if (name.includes("Vaca")) scale = 2.45; // Gran expansión histórica de La Vaca (+90%)
-      else if (name.includes("Techo")) scale = 2.35; // Expansión de Humedal de Techo
-      else scale = 1.7; // Canales y meandros naturales
+      let scale = 1.0;
+      if (name.includes("Burro")) scale = 2.0;  // Humedal El Burro expandido
+      else if (name.includes("Vaca")) scale = 1.95; // Humedal La Vaca expandido
+      else if (name.includes("Techo")) scale = 1.85;
+      else scale = 1.3;
 
       const cx = w.pts.reduce((s, p) => s + p[0], 0) / w.pts.length;
       const cy = w.pts.reduce((s, p) => s + p[1], 0) / w.pts.length;
@@ -323,7 +329,7 @@
 
       tris.forEach(([a, b, c]) => {
         [a, b, c].forEach(idx => {
-          positions.push(pts[idx].x, 0.026, pts[idx].z);
+          positions.push(pts[idx].x, 0.024, pts[idx].z);
           uvs.push(pts[idx].x * UV_SCALE, pts[idx].z * UV_SCALE);
         });
       });
@@ -337,12 +343,12 @@
     const histWaterMat = new THREE.MeshStandardMaterial({
       map: histWaterTex,
       bumpMap: histWaterBump,
-      bumpScale: 0.18,
-      color: 0x5b9ab5, // agua viva cristalina y natural con textura realista
-      roughness: 0.14,
-      metalness: 0.12,
+      bumpScale: 0.12,
+      color: 0x97a5af, // Mismo color exacto de agua de la axonometría urbana
+      roughness: 0.18,
+      metalness: 0.15,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.82,
       side: THREE.DoubleSide
     });
 
@@ -350,136 +356,53 @@
     historicalWetlandsGroup.add(mesh);
   }
 
-  // 3. Gran bosque y vegetación rural histórica (árboles abundantes en rondas hídricas y sabana)
-  let histTreeMesh = null;
-  let histTreeInstanceData = null;
-  function buildHistoricalTrees() {
-    historicalTreesGroup.clear();
-    const treeTex = new THREE.TextureLoader().load("./assets/arbol_real4.png");
-    const planeGeo = makePlaneGeometry();
-    const mat = new THREE.MeshStandardMaterial({
-      map: treeTex,
-      transparent: true,
-      alphaTest: 0.28,
-      side: THREE.DoubleSide,
-      roughness: 0.95
-    });
-
-    // Crear 1400 árboles distribuidos en bosques naturales y rondas
-    const TOTAL_TREES = 1800;
-    const mesh = new THREE.InstancedMesh(planeGeo, mat, TOTAL_TREES);
-    mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(TOTAL_TREES * 3), 3);
-    mesh.castShadow = false;
-    histTreeMesh = mesh;
-    histTreeInstanceData = new Array(TOTAL_TREES);
-
-    const dummy = new THREE.Object3D();
-    const clusters = [
-      { cx: 200, cz: -10, rx: 120, rz: 80, count: 650 }, // Bosques y ronda densa de Humedal El Burro
-      { cx: 65, cz: 115, rx: 90, rz: 70, count: 500 },   // Ronda y arboledas de Humedal La Vaca
-      { cx: 275, cz: 85, rx: 95, rz: 75, count: 350 },   // Arboledas de Techo y sabana
-      { cx: 120, cz: -100, rx: 110, rz: 90, count: 300 }, // Bosques de galería norte
-    ];
-
-    let tIdx = 0;
-    clusters.forEach(cl => {
-      for (let i = 0; i < cl.count && tIdx < TOTAL_TREES; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 0.15 + Math.sqrt(Math.random()) * 0.85;
-        const x = cl.cx + Math.cos(angle) * cl.rx * dist;
-        const z = cl.cz + Math.sin(angle) * cl.rz * dist;
-        // Altura visible realista de árbol (3.2 a 5.8 unidades Three.js)
-        const h = 3.2 + Math.random() * 2.6;
-        const w = h * (0.95 + Math.random() * 0.25);
-
-        histTreeInstanceData[tIdx] = { x, z, w, h };
-        dummy.position.set(x, 0, z);
-        dummy.scale.set(w, h, 1);
-        dummy.rotation.set(0, 0, 0);
-        dummy.updateMatrix();
-        mesh.setMatrixAt(tIdx, dummy.matrix);
-
-        // Variaciones naturales de verde bosque sabanero
-        const gVar = 0.85 + Math.random() * 0.25;
-        mesh.setColorAt(tIdx, new THREE.Color(gVar * 0.88, gVar * 1.05, gVar * 0.82));
-        tIdx++;
-      }
-    });
-
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    historicalTreesGroup.add(mesh);
-    updateHistoricalTreeBillboards();
-  }
-
-  function updateHistoricalTreeBillboards() {
-    if (!histTreeMesh || !histTreeInstanceData) return;
-    const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
-    const angle = Math.atan2(dx, dz);
-    const dummy = new THREE.Object3D();
-    for (let i = 0; i < histTreeInstanceData.length; i++) {
-      const d = histTreeInstanceData[i];
-      if (!d) continue;
-      dummy.position.set(d.x, 0, d.z);
-      dummy.scale.set(d.w, d.h, 1);
-      dummy.rotation.set(0, angle, 0);
-      dummy.updateMatrix();
-      histTreeMesh.setMatrixAt(i, dummy.matrix);
-    }
-    histTreeMesh.instanceMatrix.needsUpdate = true;
-  }
-
-  // 4. Modelo arquitectónico limpio del Predio del Antiguo Aeropuerto de Techo (1956)
+  // 3. Modelo arquitectónico limpio del Predio del Antiguo Aeropuerto de Techo (1956)
   function buildAeropuertoTecho() {
     aeropuertoTechoGroup.clear();
     const pos = toScene(8180.94, 2102.08); // Coordenadas exactas en Techo { x: ~283.96, z: ~105.98 }
     const group = new THREE.Group();
     group.position.set(pos.x, 0, pos.z);
 
-    // Predio / plataforma en el terreno
+    // Plataforma / predio en el terreno
     const apronMat = new THREE.MeshStandardMaterial({
-      color: 0x5a5e64,
-      roughness: 0.9
+      color: 0x686c72,
+      roughness: 0.95
     });
-    const apronGeo = new THREE.PlaneGeometry(55, 26);
+    const apronGeo = new THREE.PlaneGeometry(50, 24);
     const apron = new THREE.Mesh(apronGeo, apronMat);
     apron.rotation.x = -Math.PI / 2;
     apron.position.set(0, 0.015, 6);
     group.add(apron);
 
-    // Volumen arquitectónico simple y limpio (edificio terminal)
+    // Terminal limpia
     const wallMat = new THREE.MeshStandardMaterial({
-      color: 0xedeae1,
+      color: 0xf4f1ea,
       roughness: 0.85,
       metalness: 0.05
     });
-    const termGeo = new THREE.BoxGeometry(22, 2.4, 9);
+    const termGeo = new THREE.BoxGeometry(20, 2.2, 8);
     const term = new THREE.Mesh(termGeo, wallMat);
-    term.position.set(0, 1.2, -4);
+    term.position.set(0, 1.1, -4);
     group.add(term);
 
-    // Torre de control sutil
-    const towerGeo = new THREE.BoxGeometry(4.5, 4.8, 4.5);
+    // Torre de control
+    const towerGeo = new THREE.BoxGeometry(4.2, 4.5, 4.2);
     const tower = new THREE.Mesh(towerGeo, wallMat);
-    tower.position.set(0, 2.4, -4);
+    tower.position.set(0, 2.25, -4);
     group.add(tower);
 
-    // Bordes arquitectónicos limpios
+    // Bordes limpios
     const edgeGeo = new THREE.EdgesGeometry(termGeo);
     const edgeMat = new THREE.LineBasicMaterial({ color: 0x2c2d30, transparent: true, opacity: 0.35 });
     const termEdges = new THREE.LineSegments(edgeGeo, edgeMat);
     termEdges.position.copy(term.position);
     group.add(termEdges);
 
-    const towerEdges = new THREE.LineSegments(new THREE.EdgesGeometry(towerGeo), edgeMat);
-    towerEdges.position.copy(tower.position);
-    group.add(towerEdges);
-
     aeropuertoTechoGroup.add(group);
   }
 
-  // 5. Animación suave de cámara entre épocas
-  function transitionCameraTo(targetPos, targetLookAt, targetZoom, duration = 2000) {
+  // 4. Animación suave de cámara entre épocas
+  function transitionCameraTo(targetPos, targetLookAt, targetZoom, duration = 2200) {
     const startPos = camera.position.clone();
     const startLookAt = controls.target.clone();
     const startZoom = camera.zoom;
@@ -504,7 +427,7 @@
     };
   }
 
-  // 6. Función de cambio de época histórica
+  // 5. Función de cambio de época histórica
   function setHistoricalYear(year, animateCam = true) {
     currentHistoricalYear = year;
 
@@ -529,22 +452,22 @@
     if (modernRoadLines) modernRoadLines.visible = false;
     if (modernRoadMesh) modernRoadMesh.visible = false;
     if (modernManzanasMesh) modernManzanasMesh.visible = false;
-    if (modernParquesMesh) modernParquesMesh.visible = false;
     if (modernFacadesMesh) modernFacadesMesh.visible = false;
     if (elBurroMesh) elBurroMesh.visible = false;
-    if (treeMesh) treeMesh.visible = false; // ocultar arbolado urbano moderno
     if (vehInstanced) vehInstanced.visible = false;
     if (intersectionMeshes && intersectionMeshes.length) {
       intersectionMeshes.forEach(m => { if (m) m.visible = false; });
     }
 
+    // Mantener árboles reales y zonas verdes visibles
+    if (treeMesh) treeMesh.visible = true;
+    if (modernParquesMesh) modernParquesMesh.visible = true;
+
     cowsGroup.visible = true;
     historicalWetlandsGroup.visible = true;
-    historicalTreesGroup.visible = true;
 
-    // Cambiar tono del pasto con textura natural
     if (groundMesh && groundMesh.material) {
-      groundMesh.material.color.setHex(year === 1950 ? 0x7da86e : 0x769f67);
+      groundMesh.material.color.setHex(0xebedee);
     }
 
     if (year === 1950) {
@@ -553,10 +476,11 @@
       aeropuertoTechoGroup.visible = false;
 
       if (animateCam) {
+        // Enfoque exacto en Humedal El Burro (GPS 4.64232, -74.15098 -> x: 209.56, z: -10.93)
         transitionCameraTo(
-          new THREE.Vector3(17.6, 630.7, 713.9),
-          new THREE.Vector3(139.2, -124.7, -31.7),
-          2.39,
+          new THREE.Vector3(87.96, 630.7, 734.67),
+          new THREE.Vector3(209.56, -124.7, -10.93),
+          2.45,
           1800
         );
       }
@@ -566,16 +490,25 @@
       aeropuertoTechoGroup.visible = true;
 
       if (animateCam) {
+        // Paneo suave a Humedal La Vaca (x: 67.66, z: 118.17)
         transitionCameraTo(
-          new THREE.Vector3(8.4, 630.7, 855.6),
-          new THREE.Vector3(130.0, -124.7, 110.0),
-          2.35,
+          new THREE.Vector3(-71.6, 630.7, 870.6),
+          new THREE.Vector3(50.0, -124.7, 125.0),
+          2.60,
           2200
         );
       }
     }
   }
 
+  // Función de vista inicial en Humedal El Burro
+  function setAxonometricView(distance) {
+    camera.position.set(87.96, 630.7, 734.67);
+    controls.target.set(209.56, -124.7, -10.93);
+    camera.zoom = 2.45;
+    camera.updateProjectionMatrix();
+    controls.update();
+  }
     // 7. Event listeners de la línea de tiempo histórica
   document.querySelectorAll(".year-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -1557,11 +1490,11 @@
     const pastoTex = new THREE.TextureLoader().load("./assets/textura_pasto.jpg");
     pastoTex.wrapS = THREE.RepeatWrapping;
     pastoTex.wrapT = THREE.RepeatWrapping;
-    const mat = new THREE.MeshStandardMaterial({ map: pastoTex, color: 0xadaa90, roughness: 0.95, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+    const mat = new THREE.MeshStandardMaterial({ map: pastoTex, color: 0xa8c59f, roughness: 0.95, transparent: true, opacity: 0.65, side: THREE.DoubleSide });
     parqueMat = mat;
     const mesh = new THREE.Mesh(geo, mat);
     modernParquesMesh = mesh;
-    if (currentHistoricalYear <= 1956) mesh.visible = false;
+    mesh.visible = true; // Zonas verdes/pastos naturales siempre visibles
     mesh.receiveShadow = true;
     sceneRoot.add(mesh);
   }
@@ -1839,7 +1772,6 @@
       setAxonometricView(w);
       setStatus("", false); // ocultar overlay de inmediato
       createCows();
-      buildHistoricalTrees();
       buildAeropuertoTecho();
       loadWaterBodies();
       loadBuildings();
@@ -1962,7 +1894,6 @@
     if (now - lastTreeBillboardUpdate < 120) return;
     lastTreeBillboardUpdate = now;
     updateTreeBillboards();
-    updateHistoricalTreeBillboards();
   });
   // La camara (posicion, hacia donde mira, zoom) tambien se refleja en el
   // cuadro de coordenadas, para poder acomodar el angulo y el zoom que se
@@ -2116,18 +2047,14 @@
     requestAnimationFrame(animate);
     if (camAnim) camAnim.update(now);
 
-    // Animación suave de las vacas pastando
+    // Animación de las vacas caminando en el terreno sin flotar
     if (cowsGroup.visible && cowInstances.length) {
       const t = now * 0.001;
       for (let i = 0; i < cowInstances.length; i++) {
         const c = cowInstances[i];
-        const bob = Math.sin(t * c.speed + c.phase) * 0.12;
-        c.mesh.position.y = 1.8 + bob;
-        // desplazamiento lento de pastoreo
-        const wx = Math.sin(t * 0.2 + c.phase) * c.wanderR;
-        const wz = Math.cos(t * 0.2 + c.phase) * c.wanderR;
-        c.mesh.position.x = c.baseX + wx;
-        c.mesh.position.z = c.baseZ + wz;
+        c.mesh.position.y = 0.55; // Firme sobre el terreno
+        c.mesh.position.x = c.baseX + Math.sin(t * 0.15 * c.speed + c.phase) * c.wanderR;
+        c.mesh.position.z = c.baseZ + Math.cos(t * 0.15 * c.speed + c.phase) * c.wanderR;
       }
     }
     if (playing && timesteps.length && slider) {
