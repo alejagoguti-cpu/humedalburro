@@ -1422,36 +1422,48 @@
   });
   speedSelect.addEventListener("change", () => { speed = parseFloat(speedSelect.value); });
 
-  // ---- Vista axonometrica fija: 45 grados de elevacion (bloqueado en
-  // los controles) y 45 grados de acimut, proyeccion en paralelo (sin
-  // fuga de perspectiva). ----
+  // ---- Vista axonometrica fija con las coordenadas de la usuaria ----
   function setAxonometricView(distance) {
-    // Vista inicial fija que el usuario dejo lista (posicion, objetivo y
-    // zoom exactos), en vez de calcularla a partir del tamano de la red.
-    // Se verifico que la elevacion sigue siendo exactamente 45° (proyeccion
-    // paralela/axonometrica intacta).
-    camera.position.set(56.88, 700.96, 649.09);
-    controls.target.set(178.42, -54.42, -96.45);
-    camera.zoom = 1.0;
+    camera.position.set(17.6, 630.7, 713.9);
+    controls.target.set(139.2, -124.7, -31.7);
+    camera.zoom = 2.39;
     camera.updateProjectionMatrix();
+    controls.update();
   }
 
   // ---- Botones de vista ----
-  document.getElementById("viewReset").addEventListener("click", () => setAxonometricView(400));
+  const viewResetBtn = document.getElementById("viewReset");
+  if (viewResetBtn) viewResetBtn.addEventListener("click", () => setAxonometricView(400));
 
-  // ---- Rotacion manual del mapa completo (X/Y/Z), para que el usuario
-  document.getElementById("noiseToggle").addEventListener("click", (e) => {
+  // ---- Toggles ----
+  const noiseToggle = document.getElementById("noiseToggle");
+  if (noiseToggle) noiseToggle.addEventListener("click", (e) => {
     if (!noiseMesh) return;
     noiseMesh.visible = !noiseMesh.visible;
     e.target.classList.toggle("active", noiseMesh.visible);
     e.target.textContent = noiseMesh.visible ? "🔇 Ocultar mapa de ruido" : "🔊 Mostrar mapa de ruido";
   });
-  document.getElementById("bioToggle").addEventListener("click", (e) => {
+  const bioToggle = document.getElementById("bioToggle");
+  if (bioToggle) bioToggle.addEventListener("click", (e) => {
     if (!birdsGroup) return;
     birdsGroup.visible = !birdsGroup.visible;
     e.target.classList.toggle("active", birdsGroup.visible);
     e.target.textContent = birdsGroup.visible ? "🐦 Ocultar mirlas" : "🐦 Mostrar mirlas";
   });
+
+  // ---- Barra de controles expandible con doble clic ----
+  const controlsBarEl = document.getElementById("controlsBar");
+  if (controlsBarEl) {
+    controlsBarEl.addEventListener("dblclick", (e) => {
+      controlsBarEl.classList.toggle("expanded");
+    });
+  }
+  if (playBtn) {
+    playBtn.addEventListener("dblclick", (e) => {
+      e.stopPropagation();
+      if (controlsBarEl) controlsBarEl.classList.toggle("expanded");
+    });
+  }
 
   // ---- Reloj climatico anual del Humedal El Burro ----
   const MESES_NOMBRE = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -1463,17 +1475,18 @@
   const humedalHa = document.getElementById("humedalHa");
   function applyHumedalMes(mes) {
     const d = setHumedalMes(mes);
-    humedalMesVal.textContent = MESES_NOMBRE[mes - 1];
+    if (humedalMesVal) humedalMesVal.textContent = MESES_NOMBRE[mes - 1];
     if (d) {
-      humedalDatos.textContent = `Profundidad: ${d.profundidad_m.toFixed(2)} m`;
-      humedalPctLabel.textContent = `+${d.expansion_pct.toFixed(1)}%`;
-      humedalBar.style.width = Math.min(100, d.expansion_pct / 50 * 100) + "%";
-      humedalHa.textContent = d.area_ha != null ? d.area_ha.toFixed(2) : "—";
+      if (humedalDatos) humedalDatos.textContent = `Profundidad: ${d.profundidad_m.toFixed(2)} m`;
+      if (humedalPctLabel) humedalPctLabel.textContent = `+${d.expansion_pct.toFixed(1)}%`;
+      if (humedalBar) humedalBar.style.width = Math.min(100, d.expansion_pct / 50 * 100) + "%";
+      if (humedalHa) humedalHa.textContent = d.area_ha != null ? d.area_ha.toFixed(2) : "—";
     }
   }
-  humedalMesSlider.addEventListener("input", () => applyHumedalMes(parseInt(humedalMesSlider.value, 10)));
+  if (humedalMesSlider) humedalMesSlider.addEventListener("input", () => applyHumedalMes(parseInt(humedalMesSlider.value, 10)));
   let humedalPlaying = false, humedalPlayTimer = null;
-  document.getElementById("humedalPlay").addEventListener("click", (e) => {
+  const humedalPlayBtn = document.getElementById("humedalPlay");
+  if (humedalPlayBtn) humedalPlayBtn.addEventListener("click", (e) => {
     humedalPlaying = !humedalPlaying;
     if (humedalPlaying) {
       e.target.textContent = "⏸ Detener";

@@ -36,16 +36,29 @@
   .status-overlay.hide{ display:none; }
 
   .controls-bar{
-    position:absolute; left:50%; bottom:20px; transform:translateX(-50%); z-index:6;
-    display:flex; align-items:center; gap:12px; padding:10px 16px; border-radius:14px;
-    background:rgba(17,20,24,.9); border:1px solid var(--panel-border); backdrop-filter:blur(6px);
-    max-width:92vw;
+    position:absolute; left:50%; bottom:24px; transform:translateX(-50%); z-index:6;
+    display:flex; align-items:center; gap:0; padding:0; border-radius:30px;
+    background:transparent; border:none; backdrop-filter:none;
+    transition: all .25s ease;
   }
-  .controls-bar button{
-    width:34px; height:34px; border-radius:50%; border:1px solid var(--panel-border); background:var(--panel);
-    color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px;
+  .controls-bar.expanded{
+    gap:12px; padding:8px 16px; border-radius:14px;
+    background:rgba(17,20,24,.92); border:1px solid var(--panel-border); backdrop-filter:blur(8px);
   }
-  .controls-bar button:hover{ background:rgba(255,255,255,.12); }
+  .controls-bar button#playPause{
+    width:44px; height:44px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff;
+    color:#111418; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.28); flex-shrink:0; transition: transform .15s ease, background .15s ease;
+  }
+  .controls-bar button#playPause:hover{
+    transform: scale(1.08); background:#f4f5f7;
+  }
+  .controls-bar .controls-expandable{
+    display:none; align-items:center; gap:12px;
+  }
+  .controls-bar.expanded .controls-expandable{
+    display:flex;
+  }
   .controls-bar input[type=range]{ width:min(38vw,340px); accent-color:var(--accent); }
   .controls-bar .time-label{ font-size:11.5px; color:var(--ink-dim); font-variant-numeric:tabular-nums; white-space:nowrap; }
   .controls-bar select{
@@ -176,120 +189,18 @@
       <p>Proyección axonométrica · arrastra para orbitar · clic derecho para panear · rueda para zoom</p>
     </div>
 
-    <div class="view-buttons">
-      <button type="button" id="viewReset">Restablecer vista axonométrica</button>
-      <button type="button" id="perspToggle">📐 Ver en perspectiva</button>
-    </div>
-
-    <!-- Boton del corte arriba a la derecha -->
-    <button type="button" id="goCorteBtn" onclick="window.location.href='index.html'">✂️ Volver al Humedal</button>
-
-    <!-- Corte: vista en sección con coordenadas fijas -->
-    <div id="sectionWrap" style="display:none; position:absolute; left:218px; right:0; bottom:0; height:22%; min-height:130px; z-index:150; border-top:1px solid var(--panel-border); background:rgba(11,12,15,.9);">
-      <canvas id="sectionCanvas" style="width:100%; height:100%; display:block;"></canvas>
-      <span style="position:absolute; top:8px; left:14px; font:700 10.5px 'Segoe UI',sans-serif; color:var(--ink-dim); letter-spacing:.04em; text-transform:uppercase; pointer-events:none;">Corte — Humedal El Burro</span>
-      <div style="position:absolute; bottom:8px; left:14px; display:flex; align-items:center; gap:8px; z-index:5;">
-        <label style="font:600 10px 'Segoe UI',sans-serif; color:var(--ink-dim);">Rotación</label>
-        <input type="range" id="sectionRot" min="0" max="360" value="54" step="1" style="width:80px; accent-color:var(--accent);">
-        <span id="sectionRotVal" style="font:600 10px 'Segoe UI',sans-serif; color:var(--ink); min-width:28px;">54°</span>
-        <button id="sectionStraightenBtn" style="padding:4px 8px; border-radius:6px; border:1px solid var(--panel-border); background:var(--panel); font:600 10px 'Segoe UI',sans-serif; color:var(--ink); cursor:pointer;">Enderezar</button>
-      </div>
-      <textarea id="sectionCoordsOutput" readonly style="display:none !important;position:absolute; top:28px; right:10px; width:210px; height:76px; font:9.5px monospace; background:rgba(255,255,255,.06); color:var(--ink); border:1px solid var(--panel-border); border-radius:6px; padding:5px; resize:none; pointer-events:none;"></textarea>
-    </div>
-
-    <div class="rotate-panel" id="rotatePanel">
-      <div class="rotate-row rotate-buttons" style="padding-bottom:8px; border-bottom:1px solid var(--panel-border);">
-        <button type="button" id="sectionBoxToggle" class="active">✂️ Desactivar caja de sección</button>
-      </div>
-      <p class="draw-hint">Cuadra la vista 3D con el mouse/teclado o con los límites de corte. Copia las coordenadas para pasármelas:</p>
-      <div class="rotate-row">
-        <label>Rotación de la caja <span id="secRotVal">0°</span></label>
-        <input type="range" id="secRot" min="0" max="179" value="0" step="1">
-      </div>
-      <div class="rotate-row">
-        <label>X mínimo <span id="secXMinVal">0%</span></label>
-        <input type="range" id="secXMin" min="0" max="100" value="0" step="1">
-      </div>
-      <div class="rotate-row">
-        <label>X máximo <span id="secXMaxVal">100%</span></label>
-        <input type="range" id="secXMax" min="0" max="100" value="100" step="1">
-      </div>
-      <div class="rotate-row">
-        <label>Y mínimo (piso) <span id="secYMinVal">0%</span></label>
-        <input type="range" id="secYMin" min="0" max="100" value="0" step="1">
-      </div>
-      <div class="rotate-row">
-        <label>Y máximo (altura) <span id="secYMaxVal">100%</span></label>
-        <input type="range" id="secYMax" min="0" max="100" value="100" step="1">
-      </div>
-      <div class="rotate-row">
-        <label>Z mínimo <span id="secZMinVal">0%</span></label>
-        <input type="range" id="secZMin" min="0" max="100" value="0" step="1">
-      </div>
-      <div class="rotate-row">
-        <label>Z máximo <span id="secZMaxVal">100%</span></label>
-        <input type="range" id="secZMax" min="0" max="100" value="100" step="1">
-      </div>
-      <div class="rotate-row rotate-buttons">
-        <button type="button" id="sectionBoxReset">↺ Restablecer</button>
-        <button type="button" id="sectionBoxCopy">📋 Copiar coordenadas</button>
-      </div>
-      <textarea id="sectionBoxOutput" rows="7" spellcheck="false" readonly style="width:100%; resize:vertical; font-family:monospace; font-size:10px; padding:6px; border-radius:6px; border:1px solid var(--panel-border); background:#0d0f12; color:var(--accent); margin-top:6px; line-height:1.35;"></textarea>
-      <div class="rotate-row rotate-buttons" style="margin-top:6px; padding-top:8px; border-top:1px solid var(--panel-border);">
-        <button type="button" id="noiseToggle">🔊 Mostrar mapa de ruido</button>
-      </div>
-      <div class="rotate-row rotate-buttons">
-        <button type="button" id="bioToggle">🐦 Mostrar mirlas</button>
-      </div>
-      <div style="margin-top:6px; padding:12px 12px 10px; border-top:1px solid var(--panel-border); background:#00052e; border-radius:8px; border:1px solid #1b2550;">
-        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px;">
-          <span style="font:700 10px/1 'IBM Plex Mono',monospace; letter-spacing:.09em; color:#6b7aa8; text-transform:uppercase;">Humedal El Burro</span>
-          <span id="humedalMesVal" style="font:700 11px/1 'IBM Plex Mono',monospace; letter-spacing:.06em; color:#34fcff;">ENE</span>
-        </div>
-        <input type="range" id="humedalMes" min="1" max="12" value="1" step="1" style="width:100%; accent-color:#0428cb; margin:0 0 10px; height:14px;">
-        <div id="humedalDiagram" style="display:flex; gap:14px; align-items:flex-end;">
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; font:400 9px/1 'IBM Plex Mono',monospace; letter-spacing:.06em; color:#6b7aa8; margin-bottom:5px; text-transform:uppercase;">
-              <span>Espejo de agua</span><span id="humedalPctLabel" style="color:#afb4db;">—</span>
-            </div>
-            <div style="height:4px; border-radius:2px; background:#111a45; overflow:hidden;">
-              <div id="humedalBar" style="height:100%; width:0%; border-radius:2px; background:linear-gradient(90deg,#0428cb,#34fcff); box-shadow:0 0 8px 0 rgba(52,252,255,.5); transition:width .4s cubic-bezier(.22,1,.36,1);"></div>
-            </div>
-          </div>
-          <div style="text-align:right; flex:none;">
-            <div id="humedalHa" style="font:700 17px/1 'IBM Plex Mono',monospace; letter-spacing:-.02em; color:#ffffff;">—</div>
-            <div style="font:400 8px/1 'IBM Plex Mono',monospace; letter-spacing:.08em; color:#6b7aa8; margin-top:3px; text-transform:uppercase;">hectáreas</div>
-          </div>
-        </div>
-        <p style="margin:8px 0 0; font:400 9.5px/1.4 'IBM Plex Mono',monospace; color:#6b7aa8;" id="humedalDatos"></p>
-        <button type="button" id="humedalPlay" style="width:100%; margin-top:10px; padding:7px; border-radius:6px; border:1px solid #223066; background:transparent; color:#34fcff; font:700 9.5px/1 'IBM Plex Mono',monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer;">▶ Reproducir año completo</button>
-      </div>
-    </div>
-
-    <div class="legend">
-      <span><i style="background:#e2635a"></i> Vehículo</span>
-      <span><i style="background:#b7babd"></i> Vía</span>
-      <span><i style="background:#ffffff"></i> Edificio</span>
-      <span><i style="background:#5c8f52"></i> Árbol</span>
-      <span><i style="background:#97a5af"></i> Cuerpo de agua</span>
-      <span><i style="background:#8a8f96"></i> Manzana</span>
-      <span><i style="background:#adaa90"></i> Parque/zona verde</span>
-      <span><i style="background:#b5714a"></i> Techo a dos aguas</span>
-      <span><i style="background:#ffffff"></i> Techo plano/parapeto</span>
-      <span><i style="background:#e5484d"></i> Ruido alto</span>
-      <span><i style="background:#2e7d5b"></i> Ruido bajo</span>
-    </div>
-
-    <div class="controls-bar">
+    <div class="controls-bar" id="controlsBar" title="Clic: Reproducir/Pausar · Doble clic: Abrir barra de tiempo">
       <button type="button" id="playPause" aria-label="Reproducir / pausar"><i class="fa-solid fa-play"></i></button>
-      <input type="range" id="timeSlider" min="0" max="1000" value="0" step="1" disabled>
-      <span class="time-label" id="timeLabel">00:00 / 00:00</span>
-      <select id="speedSelect">
-        <option value="1">1×</option>
-        <option value="2" selected>2×</option>
-        <option value="4">4×</option>
-        <option value="8">8×</option>
-      </select>
+      <div class="controls-expandable" id="controlsExpandable">
+        <input type="range" id="timeSlider" min="0" max="1000" value="0" step="1" disabled>
+        <span class="time-label" id="timeLabel">00:00 / 00:00</span>
+        <select id="speedSelect">
+          <option value="1">1×</option>
+          <option value="2" selected>2×</option>
+          <option value="4">4×</option>
+          <option value="8">8×</option>
+        </select>
+      </div>
     </div>
 
     <div class="status-overlay" id="statusOverlay">Cargando red vial…</div>
