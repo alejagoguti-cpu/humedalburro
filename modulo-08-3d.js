@@ -1845,9 +1845,6 @@
     });
   }
 
-  resize();
-  requestAnimationFrame(animate);
-
   // =====================================================================
   // SIMULACIÓN HISTÓRICA: 1950 (Sabana & Humedal El Burro) y 1956 (La Vaca, Av. Américas & Aeropuerto de Techo)
   // =====================================================================
@@ -2206,5 +2203,11 @@
       }
     });
   }
+
+
+
+  resize();
+  requestAnimationFrame(animate);
+
 
 })();
