@@ -41,6 +41,9 @@
   let modernRoadLines = null;
   let modernRoadMesh = null;
   let modernManzanasMesh = null;
+  let modernBuildingEdges = null;
+  let modernParquesMesh = null;
+  let modernFacadesMesh = null;
   let camAnim = null;
 
   const cowsGroup = new THREE.Group();
@@ -201,6 +204,374 @@
     return { x: (x - netCenter.x) * SCALE, z: -(y - netCenter.y) * SCALE };
   }
 
+// =====================================================================
+  // SIMULACIÓN HISTÓRICA: 1950 (Sabana & Humedal El Burro) y 1956 (La Vaca, Av. Américas & Aeropuerto de Techo)
+  // =====================================================================
+  // Grupos históricos ya inicializados en la cabecera
+
+  // 1. Sprites de vacas en pastoreo
+  const cowTextures = [];
+  const texLoader = new THREE.TextureLoader();
+  for (let i = 0; i < 12; i++) {
+    cowTextures.push(texLoader.load(`./assets/vaca_${i}.png`));
+  }
+
+  const cowInstances = [];
+  function createCows() {
+    // Distribuir vacas en las zonas de potrero (pastizales de la Sabana)
+    // Alrededor de El Burro, La Vaca y Techo
+    const cowZones = [
+      { cx: 160, cz: -10, rx: 90, rz: 60, count: 28 },  // Alrededor de El Burro
+      { cx: 70, cz: 110, rx: 70, rz: 50, count: 24 },   // Alrededor de La Vaca
+      { cx: 270, cz: 90, rx: 80, rz: 60, count: 26 },   // Alrededor de Techo / Pasturas
+      { cx: 100, cz: -100, rx: 70, rz: 60, count: 18 },  // Zona rural norte
+    ];
+
+    cowZones.forEach(zone => {
+      for (let i = 0; i < zone.count; i++) {
+        const tex = cowTextures[Math.floor(Math.random() * cowTextures.length)];
+        const mat = new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          side: THREE.DoubleSide,
+          alphaTest: 0.1,
+          depthWrite: false
+        });
+        const geo = new THREE.PlaneGeometry(5.2, 3.8);
+        const mesh = new THREE.Mesh(geo, mat);
+
+        // Posición aleatoria dentro de la zona
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.sqrt(Math.random());
+        const x = zone.cx + Math.cos(angle) * zone.rx * dist;
+        const z = zone.cz + Math.sin(angle) * zone.rz * dist;
+
+        mesh.position.set(x, 1.8, z);
+        mesh.rotation.x = -Math.PI / 4.2; // inclinación hacia la vista axonométrica para proyección isométrica perfecta
+        mesh.rotation.y = (Math.random() - 0.5) * 0.4;
+        mesh.scale.set(Math.random() > 0.5 ? 1 : -1, 1, 1); // variar orientación
+
+        cowsGroup.add(mesh);
+        cowInstances.push({
+          mesh,
+          baseX: x,
+          baseZ: z,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.3 + Math.random() * 0.4,
+          wanderR: 2 + Math.random() * 3
+        });
+      }
+    });
+  }
+  // createCows() llamado en fetch(NET_URL)
+
+  // 2. Construcción de humedales históricos expandidos (1950: +94% El Burro, +90% La Vaca, +85% Techo)
+  function buildHistoricalWetlands(waterBodies) {
+    if (!waterBodies || !waterBodies.length) return;
+    const positions = [], uvs = [];
+    const UV_SCALE = 0.08;
+
+    waterBodies.forEach(w => {
+      const name = w.nombre || "";
+      let scale = 1.0;
+      if (name.includes("Burro")) scale = 1.94; // +94% expansión histórica en 1950
+      else if (name.includes("Vaca")) scale = 1.90; // +90% expansión histórica
+      else if (name.includes("Techo")) scale = 1.85; // +85% expansión histórica
+      else scale = 1.4; // canales y meandros naturales
+
+      // Calcular centro del polígono
+      const cx = w.pts.reduce((s, p) => s + p[0], 0) / w.pts.length;
+      const cy = w.pts.reduce((s, p) => s + p[1], 0) / w.pts.length;
+
+      const pts = w.pts.map(p => {
+        const ex = cx + (p[0] - cx) * scale;
+        const ey = cy + (p[1] - cy) * scale;
+        return toScene(ex, ey);
+      });
+
+      if (pts.length < 3) return;
+      const pts2d = pts.map(p => new THREE.Vector2(p.x, p.z));
+      let tris = [];
+      try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
+
+      tris.forEach(([a, b, c]) => {
+        [a, b, c].forEach(idx => {
+          positions.push(pts[idx].x, 0.024, pts[idx].z);
+          uvs.push(pts[idx].x * UV_SCALE, pts[idx].z * UV_SCALE);
+        });
+      });
+    });
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.computeVertexNormals();
+
+    const histWaterMat = new THREE.MeshStandardMaterial({
+      map: waterTexRef,
+      bumpMap: waterBumpRef,
+      bumpScale: 0.12,
+      color: 0x729baa, // agua natural más cristalina y limpia en la Sabana de 1950
+      roughness: 0.15,
+      metalness: 0.12,
+      transparent: true,
+      opacity: 0.88,
+      side: THREE.DoubleSide
+    });
+
+    const mesh = new THREE.Mesh(geo, histWaterMat);
+    historicalWetlandsGroup.add(mesh);
+  }
+
+  // 3. Avenida de las Américas (1956)
+  function buildAmericasRoad() {
+    // Traza de la Avenida de las Américas desde el borde oriental directo al Aeropuerto de Techo y cruzando Kennedy
+    const pts = [
+      toScene(10600, 2000),
+      toScene(9500, 2040),
+      toScene(8600, 2080),
+      toScene(8180.94, 2102.08), // Aeropuerto de Techo / Banderas
+      toScene(7200, 2140),
+      toScene(6000, 2180),
+      toScene(4800, 2220),
+      toScene(3500, 2260)
+    ];
+
+    const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(p.x, 0.016, p.z)));
+    const tubeGeo = new THREE.TubeGeometry(curve, 64, 2.4, 4, false);
+    const roadMat = new THREE.MeshStandardMaterial({
+      color: 0x3d434a,
+      roughness: 0.9,
+      metalness: 0.1
+    });
+    const roadMesh = new THREE.Mesh(tubeGeo, roadMat);
+    americasRoadGroup.add(roadMesh);
+
+    // Líneas divisorias blancas de la avenida
+    const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(80));
+    americasRoadGroup.add(new THREE.Line(lineGeo, lineMat));
+  }
+  // buildAmericasRoad() llamado en fetch(NET_URL)
+
+  // 4. Modelo 3D del Antiguo Aeropuerto de Techo (1930–1959)
+  function buildAeropuertoTecho() {
+    const pos = toScene(8180.94, 2102.08); // { x: ~283.96, z: ~105.98 }
+    const group = new THREE.Group();
+    group.position.set(pos.x, 0, pos.z);
+
+    // Material estilo Art Déco / colonial moderno años 30-50
+    const wallMat = new THREE.MeshStandardMaterial({
+      color: 0xe8e4dc,
+      roughness: 0.7,
+      metalness: 0.1
+    });
+    const roofMat = new THREE.MeshStandardMaterial({
+      color: 0xb5714a, // teja de barro / terracota
+      roughness: 0.6
+    });
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0x3a5a78,
+      roughness: 0.2,
+      metalness: 0.6,
+      transparent: true,
+      opacity: 0.8
+    });
+    const apronMat = new THREE.MeshStandardMaterial({
+      color: 0x4a4d52,
+      roughness: 0.95
+    });
+
+    // Pista de aterrizaje / plataforma de carreteo
+    const apronGeo = new THREE.PlaneGeometry(85, 24);
+    const apron = new THREE.Mesh(apronGeo, apronMat);
+    apron.rotation.x = -Math.PI / 2;
+    apron.position.set(0, 0.012, 10);
+    group.add(apron);
+
+    // Edificio Terminal principal
+    const termGeo = new THREE.BoxGeometry(32, 5.2, 14);
+    const term = new THREE.Mesh(termGeo, wallMat);
+    term.position.set(0, 2.6, -6);
+    term.castShadow = true;
+    term.receiveShadow = true;
+    group.add(term);
+
+    // Techo terminal
+    const roofGeo = new THREE.BoxGeometry(33, 0.6, 15);
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.set(0, 5.5, -6);
+    group.add(roof);
+
+    // Torre de Control central
+    const towerGeo = new THREE.BoxGeometry(8, 10.5, 8);
+    const tower = new THREE.Mesh(towerGeo, wallMat);
+    tower.position.set(0, 5.25, -6);
+    tower.castShadow = true;
+    group.add(tower);
+
+    // Cabina de control acristalada
+    const cabGeo = new THREE.BoxGeometry(9.2, 3.2, 9.2);
+    const cab = new THREE.Mesh(cabGeo, glassMat);
+    cab.position.set(0, 11.2, -6);
+    group.add(cab);
+
+    // Techo cúpula de la torre
+    const domeGeo = new THREE.BoxGeometry(10, 0.8, 10);
+    const dome = new THREE.Mesh(domeGeo, roofMat);
+    dome.position.set(0, 13.0, -6);
+    group.add(dome);
+
+    // Alas laterales / Hangares auxiliares
+    const hangarGeo = new THREE.BoxGeometry(18, 4.0, 16);
+    const hangar1 = new THREE.Mesh(hangarGeo, wallMat);
+    hangar1.position.set(-28, 2.0, -4);
+    hangar1.castShadow = true;
+    group.add(hangar1);
+
+    const hangar2 = new THREE.Mesh(hangarGeo, wallMat);
+    hangar2.position.set(28, 2.0, -4);
+    hangar2.castShadow = true;
+    group.add(hangar2);
+
+    aeropuertoTechoGroup.add(group);
+  }
+  // buildAeropuertoTecho() llamado en fetch(NET_URL)
+
+  // 5. Animación suave de cámara entre épocas
+  function transitionCameraTo(targetPos, targetLookAt, targetZoom, duration = 1800) {
+    const startPos = camera.position.clone();
+    const startLookAt = controls.target.clone();
+    const startZoom = camera.zoom;
+    const startTime = performance.now();
+
+    camAnim = {
+      update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        // Easing cúbico suave
+        const ease = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        camera.position.lerpVectors(startPos, targetPos, ease);
+        controls.target.lerpVectors(startLookAt, targetLookAt, ease);
+        camera.zoom = startZoom + (targetZoom - startZoom) * ease;
+        camera.updateProjectionMatrix();
+        controls.update();
+
+        if (progress >= 1) camAnim = null;
+      }
+    };
+  }
+
+  // 6. Función de cambio de época histórica
+  function setHistoricalYear(year, animateCam = true) {
+    currentHistoricalYear = year;
+
+    // Actualizar botones de año y slider
+    document.querySelectorAll(".year-btn").forEach(btn => {
+      const y = parseInt(btn.dataset.year, 10);
+      const isActive = y === year;
+      btn.classList.toggle("active", isActive);
+      btn.style.borderColor = isActive ? "var(--accent)" : "var(--panel-border)";
+      btn.style.background = isActive ? "rgba(36,200,189,.25)" : "rgba(255,255,255,.06)";
+      btn.style.color = isActive ? "var(--accent)" : "var(--ink)";
+    });
+    const slider = document.getElementById("histYearSlider");
+    if (slider) slider.value = year;
+
+    const badge = document.getElementById("eraBadge");
+    const desc = document.getElementById("eraDesc");
+
+    // Ocultar capas urbanas modernas en 1950 y 1956
+    if (currentBuildingMesh) currentBuildingMesh.visible = false;
+    if (buildingEdgeMat) buildingEdgeMat.visible = false;
+    if (modernBuildingEdges) modernBuildingEdges.visible = false;
+    if (modernRoadLines) modernRoadLines.visible = false;
+    if (modernRoadMesh) modernRoadMesh.visible = false;
+    if (modernManzanasMesh) modernManzanasMesh.visible = false;
+    if (modernParquesMesh) modernParquesMesh.visible = false;
+    if (modernFacadesMesh) modernFacadesMesh.visible = false;
+    if (vehInstanced) vehInstanced.visible = false;
+    if (intersectionMeshes && intersectionMeshes.length) {
+      intersectionMeshes.forEach(m => { if (m) m.visible = false; });
+    }
+
+    cowsGroup.visible = true;
+    historicalWetlandsGroup.visible = true;
+
+    // Cambiar tono del pasto a verde rural fértil de la Sabana
+    if (groundMesh && groundMesh.material) {
+      groundMesh.material.color.setHex(year === 1950 ? 0x5a8c52 : 0x54844e);
+    }
+
+    if (year === 1950) {
+      if (badge) badge.textContent = "1950";
+      if (desc) desc.textContent = "1950 · Humedal El Burro y Sabana Rural (89% a 98% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, sin vías ni urbanización).";
+      americasRoadGroup.visible = false;
+      aeropuertoTechoGroup.visible = false;
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(17.6, 630.7, 713.9),
+          new THREE.Vector3(139.2, -124.7, -31.7),
+          2.39,
+          1600
+        );
+      }
+    } else if (year === 1956) {
+      if (badge) badge.textContent = "1956";
+      if (desc) desc.textContent = "1956 · Avenida de las Américas, Humedal La Vaca (+90% extensión) y Antiguo Aeropuerto de Techo. Potreros circundantes.";
+      americasRoadGroup.visible = true;
+      aeropuertoTechoGroup.visible = true;
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(190.0, 590.0, 560.0),
+          new THREE.Vector3(175.0, -90.0, 70.0),
+          2.10,
+          1800
+        );
+      }
+    }
+  }
+
+  // 7. Event listeners de la línea de tiempo histórica
+  document.querySelectorAll(".year-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setHistoricalYear(parseInt(btn.dataset.year, 10), true);
+    });
+  });
+
+  const histSlider = document.getElementById("histYearSlider");
+  if (histSlider) {
+    histSlider.addEventListener("input", () => {
+      setHistoricalYear(parseInt(histSlider.value, 10), true);
+    });
+  }
+
+  let histPlaying = false, histPlayTimer = null;
+  const histPlayBtn = document.getElementById("histPlayPause");
+  if (histPlayBtn) {
+    histPlayBtn.addEventListener("click", () => {
+      histPlaying = !histPlaying;
+      histPlayBtn.innerHTML = histPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+      if (histPlaying) {
+        histPlayTimer = setInterval(() => {
+          const next = currentHistoricalYear === 1950 ? 1956 : 1950;
+          setHistoricalYear(next, true);
+        }, 5500);
+      } else {
+        clearInterval(histPlayTimer);
+      }
+    });
+  }
+
+
+
+  
+
   // ---- Red vial: una sola geometria de lineas fusionada (19 mil tramos,
   // asi que se combina TODO en un unico BufferGeometry por rendimiento) ----
   function buildRoads(edges) {
@@ -217,6 +588,7 @@
     const mat = new THREE.LineBasicMaterial({ color: 0x4a545e, transparent: true, opacity: 0.85 });
     const lines = new THREE.LineSegments(geo, mat);
     modernRoadLines = lines;
+    if (currentHistoricalYear <= 1956) lines.visible = false;
     sceneRoot.add(lines);
 
     // Segunda capa mas gruesa "de asfalto" usando una tira continua con
@@ -284,6 +656,8 @@
     });
     roadMat = ribbonMat;
     const roadMesh = new THREE.Mesh(ribbonGeo, ribbonMat);
+    modernRoadMesh = roadMesh;
+    if (currentHistoricalYear <= 1956) roadMesh.visible = false;
     roadMesh.receiveShadow = true;
     sceneRoot.add(roadMesh);
   }
@@ -429,13 +803,17 @@
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     currentBuildingMesh = mesh;
+    if (currentHistoricalYear <= 1956) mesh.visible = false;
     sceneRoot.add(mesh);
 
     const edgeGeo = new THREE.BufferGeometry();
     edgeGeo.setAttribute("position", new THREE.Float32BufferAttribute(edgePositions, 3));
     const edgeMat = new THREE.LineBasicMaterial({ color: 0x2b2e33, transparent: true, opacity: 0.14 });
     buildingEdgeMat = edgeMat;
-    sceneRoot.add(new THREE.LineSegments(edgeGeo, edgeMat));
+    const edgeLines = new THREE.LineSegments(edgeGeo, edgeMat);
+    modernBuildingEdges = edgeLines;
+    if (currentHistoricalYear <= 1956) edgeLines.visible = false;
+    sceneRoot.add(edgeLines);
   }
 
   function findBuildingByVertexIndex(vIdx) {
@@ -1075,7 +1453,11 @@
   function loadWaterBodies() {
     return fetch(WATER_URL)
       .then(r => { if (!r.ok) throw new Error("no se pudo cargar " + WATER_URL); return r.json(); })
-      .then(data => { buildWaterBodies(data); buildHistoricalWetlands(data); setHistoricalYear(1950, false); if (typeof applyHumedalMes === "function") applyHumedalMes(parseInt(humedalMesSlider.value, 10)); })
+      .then(data => {
+        buildWaterBodies(data);
+        buildHistoricalWetlands(data);
+        setHistoricalYear(1950, false);
+      })
       .catch(err => console.warn("No se pudieron cargar los cuerpos de agua:", err));
   }
 
@@ -1097,6 +1479,7 @@
     const mat = new THREE.LineBasicMaterial({ color: 0x8a8f96, transparent: true, opacity: 0.5 });
     const manMesh = new THREE.LineSegments(geo, mat);
     modernManzanasMesh = manMesh;
+    if (currentHistoricalYear <= 1956) manMesh.visible = false;
     sceneRoot.add(manMesh);
   }
 
@@ -1138,6 +1521,8 @@
     const mat = new THREE.MeshStandardMaterial({ map: pastoTex, color: 0xadaa90, roughness: 0.95, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
     parqueMat = mat;
     const mesh = new THREE.Mesh(geo, mat);
+    modernParquesMesh = mesh;
+    if (currentHistoricalYear <= 1956) mesh.visible = false;
     mesh.receiveShadow = true;
     sceneRoot.add(mesh);
   }
@@ -1273,6 +1658,8 @@
     geo.computeVertexNormals();
     const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.75, metalness: 0.02, side: THREE.DoubleSide, ...opts });
     const mesh = new THREE.Mesh(geo, mat);
+    modernFacadesMesh = mesh;
+    if (currentHistoricalYear <= 1956) mesh.visible = false;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     sceneRoot.add(mesh);
@@ -1370,7 +1757,8 @@
       dummy.updateMatrix();
       vehInstanced.setMatrixAt(i, dummy.matrix);
     }
-    vehInstanced.count = n;
+    vehInstanced.count = (currentHistoricalYear <= 1956 ? 0 : n);
+    if (currentHistoricalYear <= 1956) vehInstanced.visible = false;
     vehInstanced.instanceMatrix.needsUpdate = true;
     computeLiveNoiseField(vehicles, performance.now());
   }
@@ -1429,17 +1817,23 @@
     });
 
   // ---- Controles de reproduccion ----
-  playBtn.addEventListener("click", () => {
-    playing = !playing;
-    playBtn.innerHTML = playing ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
-    lastFrameAt = null;
-  });
-  slider.addEventListener("input", () => {
-    currentTime = parseFloat(slider.value);
-    renderVehiclesAt(currentTime);
-    timeLabel.textContent = `${fmtTime(currentTime)} / ${fmtTime(parseFloat(slider.max))}`;
-  });
-  speedSelect.addEventListener("change", () => { speed = parseFloat(speedSelect.value); });
+  if (playBtn) {
+    playBtn.addEventListener("click", () => {
+      playing = !playing;
+      playBtn.innerHTML = playing ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+      lastFrameAt = null;
+    });
+  }
+  if (slider) {
+    slider.addEventListener("input", () => {
+      currentTime = parseFloat(slider.value);
+      renderVehiclesAt(currentTime);
+      if (timeLabel) timeLabel.textContent = `${fmtTime(currentTime)} / ${fmtTime(parseFloat(slider.max))}`;
+    });
+  }
+  if (speedSelect) {
+    speedSelect.addEventListener("change", () => { speed = parseFloat(speedSelect.value); });
+  }
 
   // ---- Vista axonometrica fija con las coordenadas de la usuaria ----
   function setAxonometricView(distance) {
@@ -1551,7 +1945,8 @@
   const treeInfo = document.getElementById("treeInfo");
   const treeInfoName = document.getElementById("treeInfoName");
   const treeInfoDetails = document.getElementById("treeInfoDetails");
-  document.getElementById("treeInfoClose").addEventListener("click", () => treeInfo.classList.remove("show"));
+  const treeInfoCloseBtn = document.getElementById("treeInfoClose");
+  if (treeInfoCloseBtn && treeInfo) treeInfoCloseBtn.addEventListener("click", () => treeInfo.classList.remove("show"));
 
   let downAt = null;
   renderer.domElement.addEventListener("pointerdown", (e) => { downAt = { x: e.clientX, y: e.clientY }; });
@@ -1695,7 +2090,7 @@
         c.mesh.position.z = c.baseZ + wz;
       }
     }
-    if (playing && timesteps.length) {
+    if (playing && timesteps.length && slider) {
       if (lastFrameAt == null) lastFrameAt = now;
       const dt = (now - lastFrameAt) / 1000;
       lastFrameAt = now;
@@ -1703,7 +2098,7 @@
       const maxT = parseFloat(slider.max) || 0;
       if (currentTime > maxT) currentTime = 0;
       slider.value = String(Math.round(currentTime));
-      timeLabel.textContent = `${fmtTime(currentTime)} / ${fmtTime(maxT)}`;
+      if (timeLabel) timeLabel.textContent = `${fmtTime(currentTime)} / ${fmtTime(maxT)}`;
       renderVehiclesAt(currentTime);
     }
     // Lineas de borde de edificios: opacidad FIJA y baja, no cambia con
@@ -1844,367 +2239,6 @@
       } catch (e) {}
     });
   }
-
-  // =====================================================================
-  // SIMULACIÓN HISTÓRICA: 1950 (Sabana & Humedal El Burro) y 1956 (La Vaca, Av. Américas & Aeropuerto de Techo)
-  // =====================================================================
-  // Grupos históricos ya inicializados en la cabecera
-
-  // 1. Sprites de vacas en pastoreo
-  const cowTextures = [];
-  const texLoader = new THREE.TextureLoader();
-  for (let i = 0; i < 12; i++) {
-    cowTextures.push(texLoader.load(`./assets/vaca_${i}.png`));
-  }
-
-  const cowInstances = [];
-  function createCows() {
-    // Distribuir vacas en las zonas de potrero (pastizales de la Sabana)
-    // Alrededor de El Burro, La Vaca y Techo
-    const cowZones = [
-      { cx: 160, cz: -10, rx: 90, rz: 60, count: 28 },  // Alrededor de El Burro
-      { cx: 70, cz: 110, rx: 70, rz: 50, count: 24 },   // Alrededor de La Vaca
-      { cx: 270, cz: 90, rx: 80, rz: 60, count: 26 },   // Alrededor de Techo / Pasturas
-      { cx: 100, cz: -100, rx: 70, rz: 60, count: 18 },  // Zona rural norte
-    ];
-
-    cowZones.forEach(zone => {
-      for (let i = 0; i < zone.count; i++) {
-        const tex = cowTextures[Math.floor(Math.random() * cowTextures.length)];
-        const mat = new THREE.MeshBasicMaterial({
-          map: tex,
-          transparent: true,
-          side: THREE.DoubleSide,
-          alphaTest: 0.1,
-          depthWrite: false
-        });
-        const geo = new THREE.PlaneGeometry(5.2, 3.8);
-        const mesh = new THREE.Mesh(geo, mat);
-
-        // Posición aleatoria dentro de la zona
-        const angle = Math.random() * Math.PI * 2;
-        const dist = Math.sqrt(Math.random());
-        const x = zone.cx + Math.cos(angle) * zone.rx * dist;
-        const z = zone.cz + Math.sin(angle) * zone.rz * dist;
-
-        mesh.position.set(x, 1.8, z);
-        mesh.rotation.x = -Math.PI / 4.2; // inclinación hacia la vista axonométrica para proyección isométrica perfecta
-        mesh.rotation.y = (Math.random() - 0.5) * 0.4;
-        mesh.scale.set(Math.random() > 0.5 ? 1 : -1, 1, 1); // variar orientación
-
-        cowsGroup.add(mesh);
-        cowInstances.push({
-          mesh,
-          baseX: x,
-          baseZ: z,
-          phase: Math.random() * Math.PI * 2,
-          speed: 0.3 + Math.random() * 0.4,
-          wanderR: 2 + Math.random() * 3
-        });
-      }
-    });
-  }
-  // createCows() llamado en fetch(NET_URL)
-
-  // 2. Construcción de humedales históricos expandidos (1950: +94% El Burro, +90% La Vaca, +85% Techo)
-  function buildHistoricalWetlands(waterBodies) {
-    if (!waterBodies || !waterBodies.length) return;
-    const positions = [], uvs = [];
-    const UV_SCALE = 0.08;
-
-    waterBodies.forEach(w => {
-      const name = w.nombre || "";
-      let scale = 1.0;
-      if (name.includes("Burro")) scale = 1.94; // +94% expansión histórica en 1950
-      else if (name.includes("Vaca")) scale = 1.90; // +90% expansión histórica
-      else if (name.includes("Techo")) scale = 1.85; // +85% expansión histórica
-      else scale = 1.4; // canales y meandros naturales
-
-      // Calcular centro del polígono
-      const cx = w.pts.reduce((s, p) => s + p[0], 0) / w.pts.length;
-      const cy = w.pts.reduce((s, p) => s + p[1], 0) / w.pts.length;
-
-      const pts = w.pts.map(p => {
-        const ex = cx + (p[0] - cx) * scale;
-        const ey = cy + (p[1] - cy) * scale;
-        return toScene(ex, ey);
-      });
-
-      if (pts.length < 3) return;
-      const pts2d = pts.map(p => new THREE.Vector2(p.x, p.z));
-      let tris = [];
-      try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
-
-      tris.forEach(([a, b, c]) => {
-        [a, b, c].forEach(idx => {
-          positions.push(pts[idx].x, 0.024, pts[idx].z);
-          uvs.push(pts[idx].x * UV_SCALE, pts[idx].z * UV_SCALE);
-        });
-      });
-    });
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-    geo.computeVertexNormals();
-
-    const histWaterMat = new THREE.MeshStandardMaterial({
-      map: waterTexRef,
-      bumpMap: waterBumpRef,
-      bumpScale: 0.12,
-      color: 0x729baa, // agua natural más cristalina y limpia en la Sabana de 1950
-      roughness: 0.15,
-      metalness: 0.12,
-      transparent: true,
-      opacity: 0.88,
-      side: THREE.DoubleSide
-    });
-
-    const mesh = new THREE.Mesh(geo, histWaterMat);
-    historicalWetlandsGroup.add(mesh);
-  }
-
-  // 3. Avenida de las Américas (1956)
-  function buildAmericasRoad() {
-    // Traza de la Avenida de las Américas desde el borde oriental directo al Aeropuerto de Techo y cruzando Kennedy
-    const pts = [
-      toScene(10600, 2000),
-      toScene(9500, 2040),
-      toScene(8600, 2080),
-      toScene(8180.94, 2102.08), // Aeropuerto de Techo / Banderas
-      toScene(7200, 2140),
-      toScene(6000, 2180),
-      toScene(4800, 2220),
-      toScene(3500, 2260)
-    ];
-
-    const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(p.x, 0.016, p.z)));
-    const tubeGeo = new THREE.TubeGeometry(curve, 64, 2.4, 4, false);
-    const roadMat = new THREE.MeshStandardMaterial({
-      color: 0x3d434a,
-      roughness: 0.9,
-      metalness: 0.1
-    });
-    const roadMesh = new THREE.Mesh(tubeGeo, roadMat);
-    americasRoadGroup.add(roadMesh);
-
-    // Líneas divisorias blancas de la avenida
-    const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
-    const lineGeo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(80));
-    americasRoadGroup.add(new THREE.Line(lineGeo, lineMat));
-  }
-  // buildAmericasRoad() llamado en fetch(NET_URL)
-
-  // 4. Modelo 3D del Antiguo Aeropuerto de Techo (1930–1959)
-  function buildAeropuertoTecho() {
-    const pos = toScene(8180.94, 2102.08); // { x: ~283.96, z: ~105.98 }
-    const group = new THREE.Group();
-    group.position.set(pos.x, 0, pos.z);
-
-    // Material estilo Art Déco / colonial moderno años 30-50
-    const wallMat = new THREE.MeshStandardMaterial({
-      color: 0xe8e4dc,
-      roughness: 0.7,
-      metalness: 0.1
-    });
-    const roofMat = new THREE.MeshStandardMaterial({
-      color: 0xb5714a, // teja de barro / terracota
-      roughness: 0.6
-    });
-    const glassMat = new THREE.MeshStandardMaterial({
-      color: 0x3a5a78,
-      roughness: 0.2,
-      metalness: 0.6,
-      transparent: true,
-      opacity: 0.8
-    });
-    const apronMat = new THREE.MeshStandardMaterial({
-      color: 0x4a4d52,
-      roughness: 0.95
-    });
-
-    // Pista de aterrizaje / plataforma de carreteo
-    const apronGeo = new THREE.PlaneGeometry(85, 24);
-    const apron = new THREE.Mesh(apronGeo, apronMat);
-    apron.rotation.x = -Math.PI / 2;
-    apron.position.set(0, 0.012, 10);
-    group.add(apron);
-
-    // Edificio Terminal principal
-    const termGeo = new THREE.BoxGeometry(32, 5.2, 14);
-    const term = new THREE.Mesh(termGeo, wallMat);
-    term.position.set(0, 2.6, -6);
-    term.castShadow = true;
-    term.receiveShadow = true;
-    group.add(term);
-
-    // Techo terminal
-    const roofGeo = new THREE.BoxGeometry(33, 0.6, 15);
-    const roof = new THREE.Mesh(roofGeo, roofMat);
-    roof.position.set(0, 5.5, -6);
-    group.add(roof);
-
-    // Torre de Control central
-    const towerGeo = new THREE.BoxGeometry(8, 10.5, 8);
-    const tower = new THREE.Mesh(towerGeo, wallMat);
-    tower.position.set(0, 5.25, -6);
-    tower.castShadow = true;
-    group.add(tower);
-
-    // Cabina de control acristalada
-    const cabGeo = new THREE.BoxGeometry(9.2, 3.2, 9.2);
-    const cab = new THREE.Mesh(cabGeo, glassMat);
-    cab.position.set(0, 11.2, -6);
-    group.add(cab);
-
-    // Techo cúpula de la torre
-    const domeGeo = new THREE.BoxGeometry(10, 0.8, 10);
-    const dome = new THREE.Mesh(domeGeo, roofMat);
-    dome.position.set(0, 13.0, -6);
-    group.add(dome);
-
-    // Alas laterales / Hangares auxiliares
-    const hangarGeo = new THREE.BoxGeometry(18, 4.0, 16);
-    const hangar1 = new THREE.Mesh(hangarGeo, wallMat);
-    hangar1.position.set(-28, 2.0, -4);
-    hangar1.castShadow = true;
-    group.add(hangar1);
-
-    const hangar2 = new THREE.Mesh(hangarGeo, wallMat);
-    hangar2.position.set(28, 2.0, -4);
-    hangar2.castShadow = true;
-    group.add(hangar2);
-
-    aeropuertoTechoGroup.add(group);
-  }
-  // buildAeropuertoTecho() llamado en fetch(NET_URL)
-
-  // 5. Animación suave de cámara entre épocas
-  let camAnim = null;
-  function transitionCameraTo(targetPos, targetLookAt, targetZoom, duration = 1800) {
-    const startPos = camera.position.clone();
-    const startLookAt = controls.target.clone();
-    const startZoom = camera.zoom;
-    const startTime = performance.now();
-
-    camAnim = {
-      update(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(1, elapsed / duration);
-        // Easing cúbico suave
-        const ease = progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-
-        camera.position.lerpVectors(startPos, targetPos, ease);
-        controls.target.lerpVectors(startLookAt, targetLookAt, ease);
-        camera.zoom = startZoom + (targetZoom - startZoom) * ease;
-        camera.updateProjectionMatrix();
-        controls.update();
-
-        if (progress >= 1) camAnim = null;
-      }
-    };
-  }
-
-  // 6. Función de cambio de época histórica
-  function setHistoricalYear(year, animateCam = true) {
-    currentHistoricalYear = year;
-
-    // Actualizar botones de año y slider
-    document.querySelectorAll(".year-btn").forEach(btn => {
-      const y = parseInt(btn.dataset.year, 10);
-      const isActive = y === year;
-      btn.classList.toggle("active", isActive);
-      btn.style.borderColor = isActive ? "var(--accent)" : "var(--panel-border)";
-      btn.style.background = isActive ? "rgba(36,200,189,.25)" : "rgba(255,255,255,.06)";
-      btn.style.color = isActive ? "var(--accent)" : "var(--ink)";
-    });
-    const slider = document.getElementById("histYearSlider");
-    if (slider) slider.value = year;
-
-    const badge = document.getElementById("eraBadge");
-    const desc = document.getElementById("eraDesc");
-
-    // Ocultar capas urbanas modernas en 1950 y 1956
-    if (currentBuildingMesh) currentBuildingMesh.visible = false;
-    if (buildingEdgeMat) buildingEdgeMat.visible = false;
-    if (modernRoadLines) modernRoadLines.visible = false;
-    if (modernRoadMesh) modernRoadMesh.visible = false;
-    if (modernManzanasMesh) modernManzanasMesh.visible = false;
-    if (vehInstanced) vehInstanced.visible = false;
-
-    cowsGroup.visible = true;
-    historicalWetlandsGroup.visible = true;
-
-    // Cambiar tono del pasto a verde rural fértil de la Sabana
-    if (groundMesh && groundMesh.material) {
-      groundMesh.material.color.setHex(year === 1950 ? 0x5a8c52 : 0x54844e);
-    }
-
-    if (year === 1950) {
-      if (badge) badge.textContent = "1950";
-      if (desc) desc.textContent = "1950 · Humedal El Burro y Sabana Rural (89% a 98% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, sin vías ni urbanización).";
-      americasRoadGroup.visible = false;
-      aeropuertoTechoGroup.visible = false;
-
-      if (animateCam) {
-        transitionCameraTo(
-          new THREE.Vector3(17.6, 630.7, 713.9),
-          new THREE.Vector3(139.2, -124.7, -31.7),
-          2.39,
-          1600
-        );
-      }
-    } else if (year === 1956) {
-      if (badge) badge.textContent = "1956";
-      if (desc) desc.textContent = "1956 · Avenida de las Américas, Humedal La Vaca (+90% extensión) y Antiguo Aeropuerto de Techo. Potreros circundantes.";
-      americasRoadGroup.visible = true;
-      aeropuertoTechoGroup.visible = true;
-
-      if (animateCam) {
-        transitionCameraTo(
-          new THREE.Vector3(190.0, 590.0, 560.0),
-          new THREE.Vector3(175.0, -90.0, 70.0),
-          2.10,
-          1800
-        );
-      }
-    }
-  }
-
-  // 7. Event listeners de la línea de tiempo histórica
-  document.querySelectorAll(".year-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      setHistoricalYear(parseInt(btn.dataset.year, 10), true);
-    });
-  });
-
-  const histSlider = document.getElementById("histYearSlider");
-  if (histSlider) {
-    histSlider.addEventListener("input", () => {
-      setHistoricalYear(parseInt(histSlider.value, 10), true);
-    });
-  }
-
-  let histPlaying = false, histPlayTimer = null;
-  const histPlayBtn = document.getElementById("histPlayPause");
-  if (histPlayBtn) {
-    histPlayBtn.addEventListener("click", () => {
-      histPlaying = !histPlaying;
-      histPlayBtn.innerHTML = histPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
-      if (histPlaying) {
-        histPlayTimer = setInterval(() => {
-          const next = currentHistoricalYear === 1950 ? 1956 : 1950;
-          setHistoricalYear(next, true);
-        }, 5500);
-      } else {
-        clearInterval(histPlayTimer);
-      }
-    });
-  }
-
-
 
   resize();
   requestAnimationFrame(animate);
