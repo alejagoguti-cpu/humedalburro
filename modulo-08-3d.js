@@ -58,6 +58,9 @@
   const aeropuertoTechoGroup = new THREE.Group();
   sceneRoot.add(aeropuertoTechoGroup);
 
+  const historicalTreesGroup = new THREE.Group();
+  sceneRoot.add(historicalTreesGroup);
+
 
   let camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 2000);
   const orthoCameraRef = camera; // referencia estable a la ortografica, para poder volver a ella
@@ -187,7 +190,16 @@
     const w = (bbox[2] - bbox[0]) * SCALE * 1.4;
     const h = (bbox[3] - bbox[1]) * SCALE * 1.4;
     const geo = new THREE.PlaneGeometry(w, h);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xeceeef, roughness: 1, metalness: 0 });
+    const pastoTex = new THREE.TextureLoader().load("./assets/textura_pasto.jpg");
+    pastoTex.wrapS = THREE.RepeatWrapping;
+    pastoTex.wrapT = THREE.RepeatWrapping;
+    pastoTex.repeat.set(180, 180);
+    const mat = new THREE.MeshStandardMaterial({
+      map: pastoTex,
+      color: 0x7da86e, // tono verde fértil natural de la Sabana
+      roughness: 0.95,
+      metalness: 0.02
+    });
     groundMesh = new THREE.Mesh(geo, mat);
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.set(0, -0.4, 0);
@@ -205,26 +217,41 @@
   }
 
 // =====================================================================
-  // SIMULACIÓN HISTÓRICA: 1950 (Sabana & Humedal El Burro) y 1956 (La Vaca, Av. Américas & Aeropuerto de Techo)
+  // SIMULACIÓN HISTÓRICA: 1950 (Sabana & Humedal El Burro) y 1956 (La Vaca & Aeropuerto de Techo)
   // =====================================================================
-  // Grupos históricos ya inicializados en la cabecera
 
-  // 1. Sprites de vacas en pastoreo
+  // Texturas de agua con relieve y movimiento
+  const waterTexLoader = new THREE.TextureLoader();
+  const histWaterTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  histWaterTex.wrapS = THREE.RepeatWrapping;
+  histWaterTex.wrapT = THREE.RepeatWrapping;
+  histWaterTex.repeat.set(28, 28);
+  waterTexRef = histWaterTex;
+
+  const histWaterBump = waterTexLoader.load("./assets/textura_agua2.jpg");
+  histWaterBump.wrapS = THREE.RepeatWrapping;
+  histWaterBump.wrapT = THREE.RepeatWrapping;
+  histWaterBump.repeat.set(34, 34);
+  waterBumpRef = histWaterBump;
+
+  // 1. Sprites de vacas en pastoreo (tamaño proporcional realista)
   const cowTextures = [];
-  const texLoader = new THREE.TextureLoader();
+  const cowTexLoader = new THREE.TextureLoader();
   for (let i = 0; i < 12; i++) {
-    cowTextures.push(texLoader.load(`./assets/vaca_${i}.png`));
+    cowTextures.push(cowTexLoader.load(`./assets/vaca_${i}.png`));
   }
 
   const cowInstances = [];
   function createCows() {
-    // Distribuir vacas en las zonas de potrero (pastizales de la Sabana)
-    // Alrededor de El Burro, La Vaca y Techo
+    cowsGroup.clear();
+    cowInstances.length = 0;
+    
+    // Zonas de pastoreo distribuidas en los potreros de la Sabana
     const cowZones = [
-      { cx: 160, cz: -10, rx: 90, rz: 60, count: 28 },  // Alrededor de El Burro
-      { cx: 70, cz: 110, rx: 70, rz: 50, count: 24 },   // Alrededor de La Vaca
-      { cx: 270, cz: 90, rx: 80, rz: 60, count: 26 },   // Alrededor de Techo / Pasturas
-      { cx: 100, cz: -100, rx: 70, rz: 60, count: 18 },  // Zona rural norte
+      { cx: 160, cz: -15, rx: 110, rz: 80, count: 40 },  // Alrededor de Humedal El Burro
+      { cx: 65, cz: 115, rx: 85, rz: 65, count: 35 },   // Alrededor de Humedal La Vaca
+      { cx: 260, cz: 80, rx: 95, rz: 75, count: 35 },   // Alrededor de Techo / Pasturas orientales
+      { cx: 120, cz: -110, rx: 90, rz: 80, count: 25 }, // Zona rural norte
     ];
 
     cowZones.forEach(zone => {
@@ -234,22 +261,23 @@
           map: tex,
           transparent: true,
           side: THREE.DoubleSide,
-          alphaTest: 0.1,
+          alphaTest: 0.15,
           depthWrite: false
         });
-        const geo = new THREE.PlaneGeometry(5.2, 3.8);
+        // Vacas proporcionadas y chiquitas (1.2 x 0.88 unidades)
+        const geo = new THREE.PlaneGeometry(1.8, 1.3);
         const mesh = new THREE.Mesh(geo, mat);
 
-        // Posición aleatoria dentro de la zona
         const angle = Math.random() * Math.PI * 2;
         const dist = Math.sqrt(Math.random());
         const x = zone.cx + Math.cos(angle) * zone.rx * dist;
         const z = zone.cz + Math.sin(angle) * zone.rz * dist;
 
-        mesh.position.set(x, 1.8, z);
-        mesh.rotation.x = -Math.PI / 4.2; // inclinación hacia la vista axonométrica para proyección isométrica perfecta
+        mesh.position.set(x, 0.65, z);
+        mesh.rotation.x = -Math.PI / 4.2;
         mesh.rotation.y = (Math.random() - 0.5) * 0.4;
-        mesh.scale.set(Math.random() > 0.5 ? 1 : -1, 1, 1); // variar orientación
+        const s = 0.85 + Math.random() * 0.3;
+        mesh.scale.set((Math.random() > 0.5 ? 1 : -1) * s, s, s);
 
         cowsGroup.add(mesh);
         cowInstances.push({
@@ -257,29 +285,28 @@
           baseX: x,
           baseZ: z,
           phase: Math.random() * Math.PI * 2,
-          speed: 0.3 + Math.random() * 0.4,
-          wanderR: 2 + Math.random() * 3
+          speed: 0.25 + Math.random() * 0.35,
+          wanderR: 1.2 + Math.random() * 2.0
         });
       }
     });
   }
-  // createCows() llamado en fetch(NET_URL)
 
-  // 2. Construcción de humedales históricos expandidos (1950: +94% El Burro, +90% La Vaca, +85% Techo)
+  // 2. Construcción de humedales históricos expandidos (+90% a +98% tamaño histórico)
   function buildHistoricalWetlands(waterBodies) {
     if (!waterBodies || !waterBodies.length) return;
+    historicalWetlandsGroup.clear();
     const positions = [], uvs = [];
     const UV_SCALE = 0.08;
 
     waterBodies.forEach(w => {
       const name = w.nombre || "";
-      let scale = 1.0;
-      if (name.includes("Burro")) scale = 1.94; // +94% expansión histórica en 1950
-      else if (name.includes("Vaca")) scale = 1.90; // +90% expansión histórica
-      else if (name.includes("Techo")) scale = 1.85; // +85% expansión histórica
-      else scale = 1.4; // canales y meandros naturales
+      let scale = 1.6;
+      if (name.includes("Burro")) scale = 2.65; // Gran expansión histórica de El Burro (+98%)
+      else if (name.includes("Vaca")) scale = 2.45; // Gran expansión histórica de La Vaca (+90%)
+      else if (name.includes("Techo")) scale = 2.35; // Expansión de Humedal de Techo
+      else scale = 1.7; // Canales y meandros naturales
 
-      // Calcular centro del polígono
       const cx = w.pts.reduce((s, p) => s + p[0], 0) / w.pts.length;
       const cy = w.pts.reduce((s, p) => s + p[1], 0) / w.pts.length;
 
@@ -296,7 +323,7 @@
 
       tris.forEach(([a, b, c]) => {
         [a, b, c].forEach(idx => {
-          positions.push(pts[idx].x, 0.024, pts[idx].z);
+          positions.push(pts[idx].x, 0.026, pts[idx].z);
           uvs.push(pts[idx].x * UV_SCALE, pts[idx].z * UV_SCALE);
         });
       });
@@ -308,11 +335,11 @@
     geo.computeVertexNormals();
 
     const histWaterMat = new THREE.MeshStandardMaterial({
-      map: waterTexRef,
-      bumpMap: waterBumpRef,
-      bumpScale: 0.12,
-      color: 0x729baa, // agua natural más cristalina y limpia en la Sabana de 1950
-      roughness: 0.15,
+      map: histWaterTex,
+      bumpMap: histWaterBump,
+      bumpScale: 0.18,
+      color: 0x5b9ab5, // agua viva cristalina y natural con textura realista
+      roughness: 0.14,
       metalness: 0.12,
       transparent: true,
       opacity: 0.88,
@@ -323,123 +350,136 @@
     historicalWetlandsGroup.add(mesh);
   }
 
-  // 3. Avenida de las Américas (1956)
-  function buildAmericasRoad() {
-    // Traza de la Avenida de las Américas desde el borde oriental directo al Aeropuerto de Techo y cruzando Kennedy
-    const pts = [
-      toScene(10600, 2000),
-      toScene(9500, 2040),
-      toScene(8600, 2080),
-      toScene(8180.94, 2102.08), // Aeropuerto de Techo / Banderas
-      toScene(7200, 2140),
-      toScene(6000, 2180),
-      toScene(4800, 2220),
-      toScene(3500, 2260)
-    ];
-
-    const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(p.x, 0.016, p.z)));
-    const tubeGeo = new THREE.TubeGeometry(curve, 64, 2.4, 4, false);
-    const roadMat = new THREE.MeshStandardMaterial({
-      color: 0x3d434a,
-      roughness: 0.9,
-      metalness: 0.1
-    });
-    const roadMesh = new THREE.Mesh(tubeGeo, roadMat);
-    americasRoadGroup.add(roadMesh);
-
-    // Líneas divisorias blancas de la avenida
-    const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
-    const lineGeo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(80));
-    americasRoadGroup.add(new THREE.Line(lineGeo, lineMat));
-  }
-  // buildAmericasRoad() llamado en fetch(NET_URL)
-
-  // 4. Modelo 3D del Antiguo Aeropuerto de Techo (1930–1959)
-  function buildAeropuertoTecho() {
-    const pos = toScene(8180.94, 2102.08); // { x: ~283.96, z: ~105.98 }
-    const group = new THREE.Group();
-    group.position.set(pos.x, 0, pos.z);
-
-    // Material estilo Art Déco / colonial moderno años 30-50
-    const wallMat = new THREE.MeshStandardMaterial({
-      color: 0xe8e4dc,
-      roughness: 0.7,
-      metalness: 0.1
-    });
-    const roofMat = new THREE.MeshStandardMaterial({
-      color: 0xb5714a, // teja de barro / terracota
-      roughness: 0.6
-    });
-    const glassMat = new THREE.MeshStandardMaterial({
-      color: 0x3a5a78,
-      roughness: 0.2,
-      metalness: 0.6,
+  // 3. Gran bosque y vegetación rural histórica (árboles abundantes en rondas hídricas y sabana)
+  let histTreeMesh = null;
+  let histTreeInstanceData = null;
+  function buildHistoricalTrees() {
+    historicalTreesGroup.clear();
+    const treeTex = new THREE.TextureLoader().load("./assets/arbol_real4.png");
+    const planeGeo = makePlaneGeometry();
+    const mat = new THREE.MeshStandardMaterial({
+      map: treeTex,
       transparent: true,
-      opacity: 0.8
-    });
-    const apronMat = new THREE.MeshStandardMaterial({
-      color: 0x4a4d52,
+      alphaTest: 0.28,
+      side: THREE.DoubleSide,
       roughness: 0.95
     });
 
-    // Pista de aterrizaje / plataforma de carreteo
-    const apronGeo = new THREE.PlaneGeometry(85, 24);
+    // Crear 1400 árboles distribuidos en bosques naturales y rondas
+    const TOTAL_TREES = 1800;
+    const mesh = new THREE.InstancedMesh(planeGeo, mat, TOTAL_TREES);
+    mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(TOTAL_TREES * 3), 3);
+    mesh.castShadow = false;
+    histTreeMesh = mesh;
+    histTreeInstanceData = new Array(TOTAL_TREES);
+
+    const dummy = new THREE.Object3D();
+    const clusters = [
+      { cx: 200, cz: -10, rx: 120, rz: 80, count: 650 }, // Bosques y ronda densa de Humedal El Burro
+      { cx: 65, cz: 115, rx: 90, rz: 70, count: 500 },   // Ronda y arboledas de Humedal La Vaca
+      { cx: 275, cz: 85, rx: 95, rz: 75, count: 350 },   // Arboledas de Techo y sabana
+      { cx: 120, cz: -100, rx: 110, rz: 90, count: 300 }, // Bosques de galería norte
+    ];
+
+    let tIdx = 0;
+    clusters.forEach(cl => {
+      for (let i = 0; i < cl.count && tIdx < TOTAL_TREES; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 0.15 + Math.sqrt(Math.random()) * 0.85;
+        const x = cl.cx + Math.cos(angle) * cl.rx * dist;
+        const z = cl.cz + Math.sin(angle) * cl.rz * dist;
+        // Altura visible realista de árbol (3.2 a 5.8 unidades Three.js)
+        const h = 3.2 + Math.random() * 2.6;
+        const w = h * (0.95 + Math.random() * 0.25);
+
+        histTreeInstanceData[tIdx] = { x, z, w, h };
+        dummy.position.set(x, 0, z);
+        dummy.scale.set(w, h, 1);
+        dummy.rotation.set(0, 0, 0);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(tIdx, dummy.matrix);
+
+        // Variaciones naturales de verde bosque sabanero
+        const gVar = 0.85 + Math.random() * 0.25;
+        mesh.setColorAt(tIdx, new THREE.Color(gVar * 0.88, gVar * 1.05, gVar * 0.82));
+        tIdx++;
+      }
+    });
+
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    historicalTreesGroup.add(mesh);
+    updateHistoricalTreeBillboards();
+  }
+
+  function updateHistoricalTreeBillboards() {
+    if (!histTreeMesh || !histTreeInstanceData) return;
+    const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
+    const angle = Math.atan2(dx, dz);
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < histTreeInstanceData.length; i++) {
+      const d = histTreeInstanceData[i];
+      if (!d) continue;
+      dummy.position.set(d.x, 0, d.z);
+      dummy.scale.set(d.w, d.h, 1);
+      dummy.rotation.set(0, angle, 0);
+      dummy.updateMatrix();
+      histTreeMesh.setMatrixAt(i, dummy.matrix);
+    }
+    histTreeMesh.instanceMatrix.needsUpdate = true;
+  }
+
+  // 4. Modelo arquitectónico limpio del Predio del Antiguo Aeropuerto de Techo (1956)
+  function buildAeropuertoTecho() {
+    aeropuertoTechoGroup.clear();
+    const pos = toScene(8180.94, 2102.08); // Coordenadas exactas en Techo { x: ~283.96, z: ~105.98 }
+    const group = new THREE.Group();
+    group.position.set(pos.x, 0, pos.z);
+
+    // Predio / plataforma en el terreno
+    const apronMat = new THREE.MeshStandardMaterial({
+      color: 0x5a5e64,
+      roughness: 0.9
+    });
+    const apronGeo = new THREE.PlaneGeometry(55, 26);
     const apron = new THREE.Mesh(apronGeo, apronMat);
     apron.rotation.x = -Math.PI / 2;
-    apron.position.set(0, 0.012, 10);
+    apron.position.set(0, 0.015, 6);
     group.add(apron);
 
-    // Edificio Terminal principal
-    const termGeo = new THREE.BoxGeometry(32, 5.2, 14);
+    // Volumen arquitectónico simple y limpio (edificio terminal)
+    const wallMat = new THREE.MeshStandardMaterial({
+      color: 0xedeae1,
+      roughness: 0.85,
+      metalness: 0.05
+    });
+    const termGeo = new THREE.BoxGeometry(22, 2.4, 9);
     const term = new THREE.Mesh(termGeo, wallMat);
-    term.position.set(0, 2.6, -6);
-    term.castShadow = true;
-    term.receiveShadow = true;
+    term.position.set(0, 1.2, -4);
     group.add(term);
 
-    // Techo terminal
-    const roofGeo = new THREE.BoxGeometry(33, 0.6, 15);
-    const roof = new THREE.Mesh(roofGeo, roofMat);
-    roof.position.set(0, 5.5, -6);
-    group.add(roof);
-
-    // Torre de Control central
-    const towerGeo = new THREE.BoxGeometry(8, 10.5, 8);
+    // Torre de control sutil
+    const towerGeo = new THREE.BoxGeometry(4.5, 4.8, 4.5);
     const tower = new THREE.Mesh(towerGeo, wallMat);
-    tower.position.set(0, 5.25, -6);
-    tower.castShadow = true;
+    tower.position.set(0, 2.4, -4);
     group.add(tower);
 
-    // Cabina de control acristalada
-    const cabGeo = new THREE.BoxGeometry(9.2, 3.2, 9.2);
-    const cab = new THREE.Mesh(cabGeo, glassMat);
-    cab.position.set(0, 11.2, -6);
-    group.add(cab);
+    // Bordes arquitectónicos limpios
+    const edgeGeo = new THREE.EdgesGeometry(termGeo);
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x2c2d30, transparent: true, opacity: 0.35 });
+    const termEdges = new THREE.LineSegments(edgeGeo, edgeMat);
+    termEdges.position.copy(term.position);
+    group.add(termEdges);
 
-    // Techo cúpula de la torre
-    const domeGeo = new THREE.BoxGeometry(10, 0.8, 10);
-    const dome = new THREE.Mesh(domeGeo, roofMat);
-    dome.position.set(0, 13.0, -6);
-    group.add(dome);
-
-    // Alas laterales / Hangares auxiliares
-    const hangarGeo = new THREE.BoxGeometry(18, 4.0, 16);
-    const hangar1 = new THREE.Mesh(hangarGeo, wallMat);
-    hangar1.position.set(-28, 2.0, -4);
-    hangar1.castShadow = true;
-    group.add(hangar1);
-
-    const hangar2 = new THREE.Mesh(hangarGeo, wallMat);
-    hangar2.position.set(28, 2.0, -4);
-    hangar2.castShadow = true;
-    group.add(hangar2);
+    const towerEdges = new THREE.LineSegments(new THREE.EdgesGeometry(towerGeo), edgeMat);
+    towerEdges.position.copy(tower.position);
+    group.add(towerEdges);
 
     aeropuertoTechoGroup.add(group);
   }
-  // buildAeropuertoTecho() llamado en fetch(NET_URL)
 
   // 5. Animación suave de cámara entre épocas
-  function transitionCameraTo(targetPos, targetLookAt, targetZoom, duration = 1800) {
+  function transitionCameraTo(targetPos, targetLookAt, targetZoom, duration = 2000) {
     const startPos = camera.position.clone();
     const startLookAt = controls.target.clone();
     const startZoom = camera.zoom;
@@ -449,7 +489,6 @@
       update(now) {
         const elapsed = now - startTime;
         const progress = Math.min(1, elapsed / duration);
-        // Easing cúbico suave
         const ease = progress < 0.5
           ? 4 * progress * progress * progress
           : 1 - Math.pow(-2 * progress + 2, 3) / 2;
@@ -469,7 +508,6 @@
   function setHistoricalYear(year, animateCam = true) {
     currentHistoricalYear = year;
 
-    // Actualizar botones de año y slider
     document.querySelectorAll(".year-btn").forEach(btn => {
       const y = parseInt(btn.dataset.year, 10);
       const isActive = y === year;
@@ -493,6 +531,8 @@
     if (modernManzanasMesh) modernManzanasMesh.visible = false;
     if (modernParquesMesh) modernParquesMesh.visible = false;
     if (modernFacadesMesh) modernFacadesMesh.visible = false;
+    if (elBurroMesh) elBurroMesh.visible = false;
+    if (treeMesh) treeMesh.visible = false; // ocultar arbolado urbano moderno
     if (vehInstanced) vehInstanced.visible = false;
     if (intersectionMeshes && intersectionMeshes.length) {
       intersectionMeshes.forEach(m => { if (m) m.visible = false; });
@@ -500,16 +540,16 @@
 
     cowsGroup.visible = true;
     historicalWetlandsGroup.visible = true;
+    historicalTreesGroup.visible = true;
 
-    // Cambiar tono del pasto a verde rural fértil de la Sabana
+    // Cambiar tono del pasto con textura natural
     if (groundMesh && groundMesh.material) {
-      groundMesh.material.color.setHex(year === 1950 ? 0x5a8c52 : 0x54844e);
+      groundMesh.material.color.setHex(year === 1950 ? 0x7da86e : 0x769f67);
     }
 
     if (year === 1950) {
       if (badge) badge.textContent = "1950";
-      if (desc) desc.textContent = "1950 · Humedal El Burro y Sabana Rural (89% a 98% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, sin vías ni urbanización).";
-      americasRoadGroup.visible = false;
+      if (desc) desc.textContent = "1950 · Humedal El Burro y Sabana Rural (89% a 98% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
       aeropuertoTechoGroup.visible = false;
 
       if (animateCam) {
@@ -517,27 +557,26 @@
           new THREE.Vector3(17.6, 630.7, 713.9),
           new THREE.Vector3(139.2, -124.7, -31.7),
           2.39,
-          1600
+          1800
         );
       }
     } else if (year === 1956) {
       if (badge) badge.textContent = "1956";
-      if (desc) desc.textContent = "1956 · Avenida de las Américas, Humedal La Vaca (+90% extensión) y Antiguo Aeropuerto de Techo. Potreros circundantes.";
-      americasRoadGroup.visible = true;
+      if (desc) desc.textContent = "1956 · Humedal La Vaca (+90% extensión), Antiguo Aeropuerto de Techo y Sabana Rural con potreros.";
       aeropuertoTechoGroup.visible = true;
 
       if (animateCam) {
         transitionCameraTo(
-          new THREE.Vector3(190.0, 590.0, 560.0),
-          new THREE.Vector3(175.0, -90.0, 70.0),
-          2.10,
-          1800
+          new THREE.Vector3(8.4, 630.7, 855.6),
+          new THREE.Vector3(130.0, -124.7, 110.0),
+          2.35,
+          2200
         );
       }
     }
   }
 
-  // 7. Event listeners de la línea de tiempo histórica
+    // 7. Event listeners de la línea de tiempo histórica
   document.querySelectorAll(".year-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       setHistoricalYear(parseInt(btn.dataset.year, 10), true);
@@ -1800,7 +1839,7 @@
       setAxonometricView(w);
       setStatus("", false); // ocultar overlay de inmediato
       createCows();
-      buildAmericasRoad();
+      buildHistoricalTrees();
       buildAeropuertoTecho();
       loadWaterBodies();
       loadBuildings();
@@ -1923,6 +1962,7 @@
     if (now - lastTreeBillboardUpdate < 120) return;
     lastTreeBillboardUpdate = now;
     updateTreeBillboards();
+    updateHistoricalTreeBillboards();
   });
   // La camara (posicion, hacia donde mira, zoom) tambien se refleja en el
   // cuadro de coordenadas, para poder acomodar el angulo y el zoom que se
