@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<script src="rapot-v2.js?v=1"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulación 3D de tránsito — Kennedy</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -144,39 +143,6 @@
 </style>
 </head>
 <body>
-<script>
-/* Transicion de llegada desde el hub "Problemas" (problemas.html).
-   Sin parametros ?from=problemas en la URL, este bloque no hace nada:
-   no toca ni el contenido ni la logica de este modulo. */
-(function () {
-  var p = new URLSearchParams(location.search);
-  if (p.get('embed') === '1') {
-    document.documentElement.classList.add('rapot-embed');
-    var css = document.createElement('link');
-    css.rel = 'stylesheet'; css.href = 'rapot-problemas.css?v=1';
-    document.head.appendChild(css);
-    var gfonts = document.createElement('link');
-    gfonts.rel = 'stylesheet';
-    gfonts.href = 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500&display=swap';
-    document.head.appendChild(gfonts);
-  }
-  if (p.get('from') !== 'problemas') return;
-  var c = '#' + (p.get('c') || '5b8def').replace('#', '');
-  var d = document.createElement('div');
-  d.id = 'rapotEnter';
-  d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:' + c +
-    ';display:flex;align-items:center;justify-content:center;transition:opacity .5s ease, transform .6s cubic-bezier(.22,1,.36,1);';
-  d.innerHTML = '<div style="font:500 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;color:#050506;text-transform:uppercase;">Cargando axonometr\u00eda\u2026</div>';
-  document.body.appendChild(d);
-  /* se retira en un tiempo fijo corto: no espera a que carguen los CDN
-     pesados (three.js, etc.), para no dejar la pantalla de color colgada */
-  setTimeout(function () {
-    d.style.opacity = '0';
-    d.style.transform = 'scale(1.06)';
-    setTimeout(function () { d.remove(); }, 600);
-  }, 550);
-})();
-</script>
 <div class="app">
   <main class="main" style="width:100vw; height:100vh; position:relative; overflow:hidden;">
     <div id="sceneWrap" style="position:absolute; inset:0;">
@@ -238,6 +204,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=201"></script>
+<script src="modulo-08-3d.js?v=202"></script>
 </body>
 </html>

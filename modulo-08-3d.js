@@ -34,9 +34,27 @@
   // no es el eje "arriba" de esta escena); un giro en Y reordena el plano
   // igual mientras deja la altura intacta.
   const sceneRoot = new THREE.Group();
-  // No se rota el grupo entero — el reacomodo del plano se hace de forma
-  // pura dentro de toScene() (ver abajo), sin tocar la altura de nada.
   scene.add(sceneRoot);
+
+  // Variables y grupos de la simulación histórica (1950 - 1956)
+  let currentHistoricalYear = 1950;
+  let modernRoadLines = null;
+  let modernRoadMesh = null;
+  let modernManzanasMesh = null;
+  let camAnim = null;
+
+  const cowsGroup = new THREE.Group();
+  sceneRoot.add(cowsGroup);
+
+  const historicalWetlandsGroup = new THREE.Group();
+  sceneRoot.add(historicalWetlandsGroup);
+
+  const americasRoadGroup = new THREE.Group();
+  sceneRoot.add(americasRoadGroup);
+
+  const aeropuertoTechoGroup = new THREE.Group();
+  sceneRoot.add(aeropuertoTechoGroup);
+
 
   let camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 2000);
   const orthoCameraRef = camera; // referencia estable a la ortografica, para poder volver a ella
@@ -1393,6 +1411,9 @@
       resize();
       setAxonometricView(w);
       setStatus("", false); // ocultar overlay de inmediato
+      createCows();
+      buildAmericasRoad();
+      buildAeropuertoTecho();
       loadWaterBodies();
       loadBuildings();
       loadTrees();
@@ -1830,22 +1851,7 @@
   // =====================================================================
   // SIMULACIÓN HISTÓRICA: 1950 (Sabana & Humedal El Burro) y 1956 (La Vaca, Av. Américas & Aeropuerto de Techo)
   // =====================================================================
-  let currentHistoricalYear = 1950;
-  let modernRoadLines = null;
-  let modernRoadMesh = null;
-  let modernManzanasMesh = null;
-
-  const cowsGroup = new THREE.Group();
-  sceneRoot.add(cowsGroup);
-
-  const historicalWetlandsGroup = new THREE.Group();
-  sceneRoot.add(historicalWetlandsGroup);
-
-  const americasRoadGroup = new THREE.Group();
-  sceneRoot.add(americasRoadGroup);
-
-  const aeropuertoTechoGroup = new THREE.Group();
-  sceneRoot.add(aeropuertoTechoGroup);
+  // Grupos históricos ya inicializados en la cabecera
 
   // 1. Sprites de vacas en pastoreo
   const cowTextures = [];
@@ -1901,7 +1907,7 @@
       }
     });
   }
-  createCows();
+  // createCows() llamado en fetch(NET_URL)
 
   // 2. Construcción de humedales históricos expandidos (1950: +94% El Burro, +90% La Vaca, +85% Techo)
   function buildHistoricalWetlands(waterBodies) {
@@ -1990,7 +1996,7 @@
     const lineGeo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(80));
     americasRoadGroup.add(new THREE.Line(lineGeo, lineMat));
   }
-  buildAmericasRoad();
+  // buildAmericasRoad() llamado en fetch(NET_URL)
 
   // 4. Modelo 3D del Antiguo Aeropuerto de Techo (1930–1959)
   function buildAeropuertoTecho() {
@@ -2074,7 +2080,7 @@
 
     aeropuertoTechoGroup.add(group);
   }
-  buildAeropuertoTecho();
+  // buildAeropuertoTecho() llamado en fetch(NET_URL)
 
   // 5. Animación suave de cámara entre épocas
   let camAnim = null;
