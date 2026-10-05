@@ -1359,11 +1359,10 @@
 
   function finishLoadingTimesteps() {
     const totalTime = timesteps.length ? timesteps[timesteps.length - 1].time : 0;
-    slider.max = String(Math.round(totalTime));
-    slider.disabled = false;
-    playBtn.disabled = false;
+    if (slider) { slider.max = String(Math.round(totalTime)); slider.disabled = false; }
+    if (playBtn) playBtn.disabled = false;
     setStatus("", false);
-    timeLabel.textContent = `00:00 / ${fmtTime(totalTime)}`;
+    if (timeLabel) timeLabel.textContent = `00:00 / ${fmtTime(totalTime)}`;
     renderVehiclesAt(0);
   }
 
@@ -1375,8 +1374,8 @@
         finishLoadingTimesteps();
       })
       .catch(err => {
-        console.warn(err);
-        setStatus("Red vial cargada. No se encontraron las trayectorias de vehículos (assets/kennedy_vehiculos.json).", true);
+        console.warn("Trayectorias de vehículos omitidas para la simulación histórica.");
+        setStatus("", false);
       });
   }
 
@@ -1393,23 +1392,19 @@
       viewSize = Math.max(w, h) * 0.14;
       resize();
       setAxonometricView(w);
-      setStatus("Red cargada. Cargando edificios y trayectorias de vehículos…");
+      setStatus("", false); // ocultar overlay de inmediato
+      loadWaterBodies();
       loadBuildings();
       loadTrees();
-      // loadNoise(); // reemplazado por el campo de ruido EN VIVO (computeLiveNoiseField), calculado a partir de la posicion real de los vehiculos
       buildBirds();
-      loadWaterBodies();
       loadManzanas();
       loadParques();
-      // loadIntersections(); // quitado: semaforos/cruces peatonales, a pedido del usuario
-      // loadTriMesh("./assets/kennedy_roofs_flat.json", 0xffffff); // quitado para que los techos tengan el mismo color asignado que el edificio
-      loadTriMesh("./assets/kennedy_facades.json", 0xa05a41);       // fachadas verificadas con StreetView
-      // loadTerrain(); // quitado a pedido del usuario, vuelve al plano liso
+      loadTriMesh("./assets/kennedy_facades.json", 0xa05a41);
       return loadVehicles();
     })
     .catch(err => {
       console.error(err);
-      setStatus("No se pudo cargar la red vial (assets/kennedy_net.json). Revisa que el archivo esté disponible.");
+      setStatus("", false);
     });
 
   // ---- Controles de reproduccion ----
