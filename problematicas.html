@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<script src="rapot-v2.js?v=1"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulación 3D de tránsito — Kennedy</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="navigation-unified.css?v=20260920">
+<style>
+  :root{
+    --bg:#0b0c0f; --panel:rgba(255,255,255,.06); --panel-border:rgba(255,255,255,.12);
+    --ink:#e8ecf1; --ink-dim:#8b96a5; --accent:#24c8bd;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{ background:var(--bg); color:var(--ink); font-family:Inter,Arial,sans-serif; overflow:hidden; }
+  .app{ display:flex; min-height:100vh; }
+  .main{ flex:1; position:relative; min-width:0; }
+  #sceneWrap{ position:absolute; inset:0; }
+  #sceneCanvas{ position:absolute; inset:0; display:block; width:100%; height:100%; }
+
+  .hud-title{
+    position:absolute; top:18px; left:18px; z-index:5; pointer-events:none;
+  }
+  .hud-title h1{ font-size:15px; font-weight:600; margin:0 0 3px; }
+  .hud-title p{ font-size:11.5px; color:var(--ink-dim); margin:0; }
+
+  .status-overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:var(--ink-dim); background:rgba(11,12,15,.6); z-index:8; text-align:center; padding:20px;
+    pointer-events:none;
+  }
+  .status-overlay.hide{ display:none; }
+
+  .controls-bar{
+    position:absolute; left:50%; bottom:20px; transform:translateX(-50%); z-index:6;
+    display:flex; align-items:center; gap:12px; padding:10px 16px; border-radius:14px;
+    background:rgba(17,20,24,.9); border:1px solid var(--panel-border); backdrop-filter:blur(6px);
+    max-width:92vw;
+  }
+  .controls-bar button{
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--panel-border); background:var(--panel);
+    color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px;
+  }
+  .controls-bar button:hover{ background:rgba(255,255,255,.12); }
+  .controls-bar input[type=range]{ width:min(38vw,340px); accent-color:var(--accent); }
+  .controls-bar .time-label{ font-size:11.5px; color:var(--ink-dim); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .controls-bar select{
+    background:var(--panel); color:var(--ink); border:1px solid var(--panel-border); border-radius:8px;
+    font-size:11.5px; padding:5px 8px;
+  }
+
+  .view-buttons{
+    position:absolute; top:18px; right:18px; z-index:6; display:flex; flex-direction:column; gap:6px;
+  }
+  .view-buttons button{
+    padding:8px 12px; border-radius:9px; border:1px solid var(--panel-border); background:rgba(17,20,24,.85);
+    color:var(--ink); font-size:11.5px; cursor:pointer; text-align:left;
+  }
+  .view-buttons button:hover{ background:rgba(255,255,255,.1); }
+  #goCorteBtn{ position:absolute; top:18px; right:18px; z-index:7; padding:8px 14px; border-radius:9px; border:1px solid var(--accent); background:rgba(36,200,189,.15); color:var(--accent); font-size:11.5px; cursor:pointer; backdrop-filter:blur(6px); }
+  #goCorteBtn:hover{ background:rgba(36,200,189,.35); }
+
+  .legend{
+    position:absolute; bottom:78px; left:18px; z-index:5; font-size:11px; color:var(--ink-dim);
+    background:rgba(17,20,24,.8); border:1px solid var(--panel-border); border-radius:10px; padding:10px 12px;
+    display:flex; flex-direction:column; gap:5px;
+  }
+  .legend span{ display:flex; align-items:center; gap:7px; }
+  .legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  .rotate-panel{
+    position:absolute; top:104px; right:18px; z-index:6; width:220px;
+    background:rgba(17,20,24,.92); border:1px solid var(--panel-border); border-radius:10px; padding:12px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .rotate-row{ display:flex; flex-direction:column; gap:4px; }
+  .rotate-row label{ font-size:11px; color:var(--ink-dim); display:flex; justify-content:space-between; }
+  .rotate-row input[type=range]{ width:100%; accent-color:var(--accent); }
+  .rotate-row.rotate-buttons{ flex-direction:row; gap:8px; }
+  .rotate-row button{
+    flex:1; padding:7px 8px; border-radius:8px; border:1px solid var(--panel-border); background:var(--panel);
+    color:var(--ink); font-size:10.5px; cursor:pointer;
+  }
+  .rotate-row button:hover{ background:rgba(255,255,255,.12); }
+  #rotateOutput{
+    width:100%; resize:vertical; font-family:monospace; font-size:10.5px; padding:6px; border-radius:6px;
+    border:1px solid var(--panel-border); background:#0d0f12; color:var(--ink);
+  }
+  #sectionBoxToggle.active{ background:var(--accent); color:#0b0c0f; border-color:var(--accent); }
+  input[type=color]{
+    width:34px; height:24px; padding:0; border:1px solid var(--panel-border); border-radius:5px;
+    background:none; cursor:pointer;
+  }
+  #colorOutput{
+    width:100%; resize:vertical; font-family:monospace; font-size:10.5px; padding:6px; border-radius:6px;
+    border:1px solid var(--panel-border); background:#0d0f12; color:var(--ink);
+  }
+
+  .draw-panel{
+    position:absolute; top:70px; left:96px; z-index:110; width:230px;
+    max-height:calc(100vh - 90px); overflow-y:auto;
+    background:rgba(17,20,24,.92); border:1px solid var(--panel-border); border-radius:10px; padding:12px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .draw-panel #drawToggle.active, .draw-panel #treePlantToggle.active{ background:var(--accent); color:#0b0c0f; border-color:var(--accent); }
+  .draw-hint{ font-size:10px; color:var(--ink-dim); margin:0; line-height:1.4; }
+  #drawOutput, #treePlantOutput{
+    width:100%; resize:vertical; font-family:monospace; font-size:10px; padding:6px; border-radius:6px;
+    border:1px solid var(--panel-border); background:#0d0f12; color:var(--ink);
+  }
+
+  .tree-info{
+    position:absolute; left:50%; top:70px; transform:translateX(-50%) translateY(-10px); z-index:20;
+    width:min(300px, 88vw); background:rgba(17,20,24,.97); border:1px solid var(--panel-border);
+    border-radius:12px; padding:16px 18px; box-shadow:0 10px 30px rgba(0,0,0,.5);
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  }
+  .tree-info.show{ opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
+  .tree-info-close{
+    position:absolute; top:10px; right:10px; width:24px; height:24px; border-radius:50%;
+    border:1px solid var(--panel-border); background:var(--panel); color:var(--ink-dim);
+    cursor:pointer; font-size:12px;
+  }
+  .tree-info-kind{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-dim); margin:0 0 4px; }
+  .tree-info h3{ font-size:14px; margin:0 26px 6px 0; color:var(--ink); }
+  .tree-info p#treeInfoDetails{ font-size:12px; color:var(--ink-dim); margin:0; line-height:1.5; }
+</style>
+</head>
+<body>
+<script>
+/* Transicion de llegada desde el hub "Problemas" (problemas.html).
+   Sin parametros ?from=problemas en la URL, este bloque no hace nada:
+   no toca ni el contenido ni la logica de este modulo. */
+(function () {
+  var p = new URLSearchParams(location.search);
+  if (p.get('embed') === '1') {
+    document.documentElement.classList.add('rapot-embed');
+    var css = document.createElement('link');
+    css.rel = 'stylesheet'; css.href = 'rapot-problemas.css?v=1';
+    document.head.appendChild(css);
+    var gfonts = document.createElement('link');
+    gfonts.rel = 'stylesheet';
+    gfonts.href = 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500&display=swap';
+    document.head.appendChild(gfonts);
+  }
+  if (p.get('from') !== 'problemas') return;
+  var c = '#' + (p.get('c') || '5b8def').replace('#', '');
+  var d = document.createElement('div');
+  d.id = 'rapotEnter';
+  d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:' + c +
+    ';display:flex;align-items:center;justify-content:center;transition:opacity .5s ease, transform .6s cubic-bezier(.22,1,.36,1);';
+  d.innerHTML = '<div style="font:500 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;color:#050506;text-transform:uppercase;">Cargando axonometr\u00eda\u2026</div>';
+  document.body.appendChild(d);
+  /* se retira en un tiempo fijo corto: no espera a que carguen los CDN
+     pesados (three.js, etc.), para no dejar la pantalla de color colgada */
+  setTimeout(function () {
+    d.style.opacity = '0';
+    d.style.transform = 'scale(1.06)';
+    setTimeout(function () { d.remove(); }, 600);
+  }, 550);
+})();
+</script>
+<div class="app">
+                      <aside class="sidebar sidebar-icons-only">
+      <a class="brand-icon" href="index.html" title="Bogotá Viva · Inicio" aria-label="Inicio"><i class="fa-solid fa-diagram-project"></i></a>
+      <nav class="icon-nav" aria-label="Módulos">
+        <a href="index.html" class="icon-nav-item" title="Inicio"><i class="fa-solid fa-house"></i></a>
+        <a href="modulo-metropolitano.html" class="icon-nav-item" title="Escala metropolitana &middot; Bogot&aacute; completa"><i class="fa-solid fa-city"></i></a>
+        <a href="modulo-02.html" class="icon-nav-item" title="02 · Medir la red"><i class="fa-solid fa-chart-simple"></i></a>
+        <a href="modulo-03.html" class="icon-nav-item" title="03 · Discurso vs realidad"><i class="fa-solid fa-eye"></i></a>
+        <a href="modulo-04.html" class="icon-nav-item" title="04 · Macromodelos"><i class="fa-solid fa-bullseye"></i></a>
+        <a href="modulo-05.html" class="icon-nav-item" title="05 · Navegador multiescalar"><i class="fa-solid fa-magnifying-glass-location"></i></a>
+        <a href="modulo-06.html" class="icon-nav-item" title="06 · POT ↔ ODS"><i class="fa-solid fa-earth-americas"></i></a>
+        <a href="modulo-07.html" class="icon-nav-item" title="07 · Simulador"><i class="fa-solid fa-flask"></i></a>
+        <a href="modulo-08.html" class="icon-nav-item" title="08 · Lectura dinámica"><i class="fa-solid fa-wave-square"></i></a>
+        <a href="modulo-08-3d.html" class="icon-nav-item active" title="08 · Simulación 3D"><i class="fa-solid fa-cube"></i></a>
+        <a href="modulo-08-corte.html" class="icon-nav-item" title="08b · Simulación 3D — Corte"><i class="fa-solid fa-layer-group"></i></a>
+        <a href="modulo-10-corte.html" class="icon-nav-item" title="10 · Corte axonométrico"><i class="fa-solid fa-scissors"></i></a>
+        <a href="modulo-conectografias.html" class="icon-nav-item" title="Conectografías"><i class="fa-solid fa-diagram-project"></i></a>
+        <a href="modulo-12-problemas.html" class="icon-nav-item" title="12 · Problemáticas Corabastos"><i class="fa-solid fa-triangle-exclamation"></i></a>
+        <a href="red-residuos-organicos.html" class="icon-nav-item" title="Red de problemáticas"><i class="fa-solid fa-diagram-project"></i></a>
+        <a href="modulo-09.html" class="icon-nav-item" title="09 · Modelo propio"><i class="fa-solid fa-atom"></i></a>
+      </nav>
+    </aside>
+  <main class="main">
+    <div id="sceneWrap">
+      <canvas id="sceneCanvas"></canvas>
+    </div>
+
+    <div class="hud-title">
+      <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:6px; pointer-events:auto;"><button type="button" style="padding:6px 12px; border-radius:8px; border:1px solid var(--panel-border); background:rgba(17,20,24,.9); color:var(--ink); font-size:11.5px; font-weight:600; cursor:pointer;">← Volver al Humedal</button></a>
+      <h1>Problemáticas — Simulación 3D Kennedy</h1>
+      <p>Proyección axonométrica · arrastra para orbitar · clic derecho para panear · rueda para zoom</p>
+    </div>
+
+    <div class="view-buttons">
+      <button type="button" id="viewReset">Restablecer vista axonométrica</button>
+      <button type="button" id="perspToggle">📐 Ver en perspectiva</button>
+    </div>
+
+    <!-- Boton del corte arriba a la derecha -->
+    <button type="button" id="goCorteBtn" onclick="window.location.href='index.html'">✂️ Volver al Humedal</button>
+
+    <!-- Corte: vista en sección con coordenadas fijas -->
+    <div id="sectionWrap" style="display:none; position:absolute; left:218px; right:0; bottom:0; height:22%; min-height:130px; z-index:150; border-top:1px solid var(--panel-border); background:rgba(11,12,15,.9);">
+      <canvas id="sectionCanvas" style="width:100%; height:100%; display:block;"></canvas>
+      <span style="position:absolute; top:8px; left:14px; font:700 10.5px 'Segoe UI',sans-serif; color:var(--ink-dim); letter-spacing:.04em; text-transform:uppercase; pointer-events:none;">Corte — Humedal El Burro</span>
+      <div style="position:absolute; bottom:8px; left:14px; display:flex; align-items:center; gap:8px; z-index:5;">
+        <label style="font:600 10px 'Segoe UI',sans-serif; color:var(--ink-dim);">Rotación</label>
+        <input type="range" id="sectionRot" min="0" max="360" value="54" step="1" style="width:80px; accent-color:var(--accent);">
+        <span id="sectionRotVal" style="font:600 10px 'Segoe UI',sans-serif; color:var(--ink); min-width:28px;">54°</span>
+        <button id="sectionStraightenBtn" style="padding:4px 8px; border-radius:6px; border:1px solid var(--panel-border); background:var(--panel); font:600 10px 'Segoe UI',sans-serif; color:var(--ink); cursor:pointer;">Enderezar</button>
+      </div>
+      <textarea id="sectionCoordsOutput" readonly style="display:none !important;position:absolute; top:28px; right:10px; width:210px; height:76px; font:9.5px monospace; background:rgba(255,255,255,.06); color:var(--ink); border:1px solid var(--panel-border); border-radius:6px; padding:5px; resize:none; pointer-events:none;"></textarea>
+    </div>
+
+    <div class="rotate-panel" id="rotatePanel">
+      <div class="rotate-row rotate-buttons" style="padding-bottom:8px; border-bottom:1px solid var(--panel-border);">
+        <button type="button" id="sectionBoxToggle" class="active">✂️ Desactivar caja de sección</button>
+      </div>
+      <p class="draw-hint">Cuadra la vista 3D con el mouse/teclado o con los límites de corte. Copia las coordenadas para pasármelas:</p>
+      <div class="rotate-row">
+        <label>Rotación de la caja <span id="secRotVal">0°</span></label>
+        <input type="range" id="secRot" min="0" max="179" value="0" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>X mínimo <span id="secXMinVal">0%</span></label>
+        <input type="range" id="secXMin" min="0" max="100" value="0" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>X máximo <span id="secXMaxVal">100%</span></label>
+        <input type="range" id="secXMax" min="0" max="100" value="100" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Y mínimo (piso) <span id="secYMinVal">0%</span></label>
+        <input type="range" id="secYMin" min="0" max="100" value="0" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Y máximo (altura) <span id="secYMaxVal">100%</span></label>
+        <input type="range" id="secYMax" min="0" max="100" value="100" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Z mínimo <span id="secZMinVal">0%</span></label>
+        <input type="range" id="secZMin" min="0" max="100" value="0" step="1">
+      </div>
+      <div class="rotate-row">
+        <label>Z máximo <span id="secZMaxVal">100%</span></label>
+        <input type="range" id="secZMax" min="0" max="100" value="100" step="1">
+      </div>
+      <div class="rotate-row rotate-buttons">
+        <button type="button" id="sectionBoxReset">↺ Restablecer</button>
+        <button type="button" id="sectionBoxCopy">📋 Copiar coordenadas</button>
+      </div>
+      <textarea id="sectionBoxOutput" rows="7" spellcheck="false" readonly style="width:100%; resize:vertical; font-family:monospace; font-size:10px; padding:6px; border-radius:6px; border:1px solid var(--panel-border); background:#0d0f12; color:var(--accent); margin-top:6px; line-height:1.35;"></textarea>
+      <div class="rotate-row rotate-buttons" style="margin-top:6px; padding-top:8px; border-top:1px solid var(--panel-border);">
+        <button type="button" id="noiseToggle">🔊 Mostrar mapa de ruido</button>
+      </div>
+      <div class="rotate-row rotate-buttons">
+        <button type="button" id="bioToggle">🐦 Mostrar mirlas</button>
+      </div>
+      <div style="margin-top:6px; padding:12px 12px 10px; border-top:1px solid var(--panel-border); background:#00052e; border-radius:8px; border:1px solid #1b2550;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px;">
+          <span style="font:700 10px/1 'IBM Plex Mono',monospace; letter-spacing:.09em; color:#6b7aa8; text-transform:uppercase;">Humedal El Burro</span>
+          <span id="humedalMesVal" style="font:700 11px/1 'IBM Plex Mono',monospace; letter-spacing:.06em; color:#34fcff;">ENE</span>
+        </div>
+        <input type="range" id="humedalMes" min="1" max="12" value="1" step="1" style="width:100%; accent-color:#0428cb; margin:0 0 10px; height:14px;">
+        <div id="humedalDiagram" style="display:flex; gap:14px; align-items:flex-end;">
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; font:400 9px/1 'IBM Plex Mono',monospace; letter-spacing:.06em; color:#6b7aa8; margin-bottom:5px; text-transform:uppercase;">
+              <span>Espejo de agua</span><span id="humedalPctLabel" style="color:#afb4db;">—</span>
+            </div>
+            <div style="height:4px; border-radius:2px; background:#111a45; overflow:hidden;">
+              <div id="humedalBar" style="height:100%; width:0%; border-radius:2px; background:linear-gradient(90deg,#0428cb,#34fcff); box-shadow:0 0 8px 0 rgba(52,252,255,.5); transition:width .4s cubic-bezier(.22,1,.36,1);"></div>
+            </div>
+          </div>
+          <div style="text-align:right; flex:none;">
+            <div id="humedalHa" style="font:700 17px/1 'IBM Plex Mono',monospace; letter-spacing:-.02em; color:#ffffff;">—</div>
+            <div style="font:400 8px/1 'IBM Plex Mono',monospace; letter-spacing:.08em; color:#6b7aa8; margin-top:3px; text-transform:uppercase;">hectáreas</div>
+          </div>
+        </div>
+        <p style="margin:8px 0 0; font:400 9.5px/1.4 'IBM Plex Mono',monospace; color:#6b7aa8;" id="humedalDatos"></p>
+        <button type="button" id="humedalPlay" style="width:100%; margin-top:10px; padding:7px; border-radius:6px; border:1px solid #223066; background:transparent; color:#34fcff; font:700 9.5px/1 'IBM Plex Mono',monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer;">▶ Reproducir año completo</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:#e2635a"></i> Vehículo</span>
+      <span><i style="background:#b7babd"></i> Vía</span>
+      <span><i style="background:#ffffff"></i> Edificio</span>
+      <span><i style="background:#5c8f52"></i> Árbol</span>
+      <span><i style="background:#97a5af"></i> Cuerpo de agua</span>
+      <span><i style="background:#8a8f96"></i> Manzana</span>
+      <span><i style="background:#adaa90"></i> Parque/zona verde</span>
+      <span><i style="background:#b5714a"></i> Techo a dos aguas</span>
+      <span><i style="background:#ffffff"></i> Techo plano/parapeto</span>
+      <span><i style="background:#e5484d"></i> Ruido alto</span>
+      <span><i style="background:#2e7d5b"></i> Ruido bajo</span>
+    </div>
+
+    <div class="controls-bar">
+      <button type="button" id="playPause" aria-label="Reproducir / pausar"><i class="fa-solid fa-play"></i></button>
+      <input type="range" id="timeSlider" min="0" max="1000" value="0" step="1" disabled>
+      <span class="time-label" id="timeLabel">00:00 / 00:00</span>
+      <select id="speedSelect">
+        <option value="1">1×</option>
+        <option value="2" selected>2×</option>
+        <option value="4">4×</option>
+        <option value="8">8×</option>
+      </select>
+    </div>
+
+    <div class="status-overlay" id="statusOverlay">Cargando red vial…</div>
+
+    <div class="tree-info" id="treeInfo">
+      <button type="button" class="tree-info-close" id="treeInfoClose">✕</button>
+      <p class="tree-info-kind">Árbol</p>
+      <h3 id="treeInfoName"></h3>
+      <p id="treeInfoDetails"></p>
+    </div>
+
+    <!-- Tarjeta de edición de color de edificio (techo + paredes) -->
+    <div class="tree-info" id="buildingInfo" style="width:320px;">
+      <button type="button" class="tree-info-close" id="buildingInfoClose">✕</button>
+      <p class="tree-info-kind">Edificio seleccionado</p>
+      <h3 id="buildingInfoTitle">Edificio</h3>
+      <p id="buildingInfoDetails" style="margin-bottom:8px;"></p>
+      
+      <label style="font-size:11px; font-weight:600; color:var(--ink-dim); display:block; margin-bottom:6px;">Cambiar color (paredes + techo):</label>
+      <div id="buildingColorPalette" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+        <button type="button" class="color-swatch" data-color="#ffffff" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:#ffffff; cursor:pointer;" title="Blanco original"></button>
+        <button type="button" class="color-swatch" data-color="#e8e4dc" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#e8e4dc; cursor:pointer;" title="Crema"></button>
+        <button type="button" class="color-swatch" data-color="#d4aa6a" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#d4aa6a; cursor:pointer;" title="Ocre"></button>
+        <button type="button" class="color-swatch" data-color="#d88a70" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#d88a70; cursor:pointer;" title="Terracota"></button>
+        <button type="button" class="color-swatch" data-color="#789882" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#789882; cursor:pointer;" title="Verde sabana"></button>
+        <button type="button" class="color-swatch" data-color="#6a8cae" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#6a8cae; cursor:pointer;" title="Azul pizarra"></button>
+        <button type="button" class="color-swatch" data-color="#c88a96" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#c88a96; cursor:pointer;" title="Rosa ceniza"></button>
+        <input type="color" id="buildingCustomColorPicker" value="#d88a70" style="width:30px; height:26px; padding:0; border:1px solid rgba(255,255,255,.2); border-radius:6px; background:none; cursor:pointer;" title="Color personalizado">
+      </div>
+      
+      <textarea id="buildingColorConfigOutput" rows="3" readonly spellcheck="false" style="width:100%; font:9.5px/1.3 monospace; background:#0d0f12; color:var(--accent); border:1px solid var(--panel-border); border-radius:6px; padding:6px; margin-bottom:8px; resize:none;"></textarea>
+      <button type="button" id="copyBuildingColorConfigBtn" style="width:100%; padding:7px 8px; border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#0b0c0f; font-size:11px; font-weight:700; cursor:pointer;">📋 Copiar cambios de color</button>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="modulo-08-3d.js?v=103"></script>
+</body>
+</html>
