@@ -159,17 +159,9 @@
     // arbol cercano donde el ave llega y se queda; el vuelo entra desde
     // AFUERA del cuadro, pasa cerca del agua, y termina posado ahi.
     const NATW = 8000, NATH = 5654;
-    const birdsDef = [
-      { box: [3382,3767,3515,3850], toLeft: true },   // ave rojiza
-      { box: [5095,4375,5260,4485], toLeft: false },  // pato volando (grupo)
-      { box: [5265,4345,5440,4465], toLeft: false },  // pato volando (grupo)
-      { box: [5175,4445,5385,4605], toLeft: false },  // pato volando (grupo)
-      { box: [4345,4655,4455,4720], toLeft: false, idle: true }, // pato posado junto al agua -- antes se quedaba quieto
-    ];
-    const fishDef = [
-      { box: [3955,4795,4075,4840] },
-      { box: [4665,4800,4730,4838] },
-    ];
+    // Sin animales (a pedido de la usuaria): los de la imagen se borraron del archivo y estas copias animadas ya no existen.
+    const birdsDef = [];
+    const fishDef = [];
 
     function setup() {
       const stageRect = stage.getBoundingClientRect();
@@ -200,7 +192,7 @@
       // y vuelve a subir y salir -- como si fuera a pescar. ----
       const topCutBox = document.getElementById("dynSecTopCut");
       let herons = [];
-      if (topCutBox) {
+      if (topCutBox && false) { // garza y tingua animadas del recuadro: eliminadas
         const topRect = topCutBox.getBoundingClientRect();
         const w = topRect.width * 0.30; // bastante mas chica que antes
         const h = w * (1697 / 1200);
@@ -425,7 +417,7 @@
       const el = document.createElement("div");
       el.className = "sectionBirdSprite";
       // mix-blend-mode:multiply quita el fondo blanco de las fotos.
-      el.style.cssText = `position:absolute; left:0; top:0; width:${wPct}%; height:auto; aspect-ratio:${wOverH}; background-image:url(${src}); background-repeat:no-repeat; background-size:100% 100%; pointer-events:none; display:none; mix-blend-mode:multiply; transform-origin:50% 100%; will-change:transform;`;
+      el.style.cssText = `position:absolute; left:0; top:0; width:${wPct}%; height:auto; aspect-ratio:${wOverH}; background-image:url(${src}); background-repeat:no-repeat; background-size:100% 100%; pointer-events:none; display:none; transform-origin:50% 100%; will-change:transform;`;
       stage.appendChild(el);
       return el;
     }
@@ -433,41 +425,72 @@
     // MAS animales y MAS PEQUENOS que antes (3 tinguas al 2.2%, 2 garzas al
     // 1.8% y 1 pato al 2.6% del ancho). Todos pisan SIEMPRE la linea del suelo
     // que la usuaria dibujo en el corte (corteSuelo.sec): sus pies nunca la pasan.
-    const tinguas = Array.from({ length: 8 }, (_, i) => ({ el: sprite("assets/tingua.png", 1.35, 166 / 200), baseLeft: 30 + i * 5.2, phase: i * 1.7, _cur: 0 }));
-    const garzas = Array.from({ length: 5 }, (_, i) => ({ el: sprite("assets/garza.png", 1.1, 79 / 200), baseLeft: 34 + i * 8.5, phase: i * 2.2, dur: 9 + (i % 3) * 1.4 }));
-    const patos = Array.from({ length: 3 }, (_, i) => ({ el: sprite("assets/pato.png", 1.6, 1024 / 767), baseLeft: 42 + i * 8, phase: i * 4 }));
+    // Cada animal tiene DOS apariencias: posado (foto de pie) y en vuelo (fotos reales de aves
+    // con las alas en distintas posiciones, recortadas sin fondo, que se alternan para aletear).
+    // Los cuadros de vuelo miran a la IZQUIERDA; hacia la derecha se espejan.
+    function mkBird(perchSrc, perchW, perchRatio, flySrcs, flyW, flyRatio, extra) {
+      const el = sprite(perchSrc, perchW, perchRatio);
+      flySrcs.forEach(s => { const im = new Image(); im.src = s; }); // precarga
+      return Object.assign({ el, perchSrc, perchW, perchRatio, flySrcs, flyW, flyRatio, mode: "perch", frame: -1 }, extra);
+    }
+    function setBird(b, mode, frame) {
+      if (b.mode !== mode) { b.mode = mode; b.frame = -1; b.el.style.width = (mode === "fly" ? b.flyW : b.perchW) + "%"; b.el.style.aspectRatio = String(mode === "fly" ? b.flyRatio : b.perchRatio); }
+      if (mode === "fly") { if (b.frame !== frame) { b.frame = frame; b.el.style.backgroundImage = `url(${b.flySrcs[frame]})`; } }
+      else if (b.frame !== -2) { b.frame = -2; b.el.style.backgroundImage = `url(${b.perchSrc})`; }
+    }
+    const FLY_T = ["assets/vuelo_tingua_1.png", "assets/vuelo_tingua_2.png", "assets/vuelo_tingua_3.png"], SEQ_T = [0, 1, 2, 1];
+    const FLY_G = ["assets/vuelo_garza_1.png", "assets/vuelo_garza_2.png"], SEQ_G = [0, 1];
+    const FLY_P = ["assets/vuelo_pato_1.png", "assets/vuelo_pato_2.png"], SEQ_P = [0, 1];
+    const tinguas = Array.from({ length: 8 }, (_, i) => mkBird("assets/tingua.png", 1.35, 166 / 200, FLY_T, 2.5, 220 / 121, { baseLeft: 30 + i * 5.2, phase: i * 1.7, _cur: 0, dur: 18 + (i % 4) * 2.5, side: i % 2 ? 1 : -1 }));
+    const garzas = Array.from({ length: 5 }, (_, i) => mkBird("assets/garza.png", 1.1, 79 / 200, FLY_G, 3.4, 240 / 170, { baseLeft: 34 + i * 8.5, phase: i * 2.2, dur: 9 + (i % 3) * 1.4 }));
+    const patos = Array.from({ length: 3 }, (_, i) => mkBird("assets/pato.png", 1.6, 1024 / 767, FLY_P, 1.9, 170 / 101, { baseLeft: 42 + i * 8, phase: i * 4, dur: 12 }));
     const start = performance.now();
     function loop(now) {
       const tSec = (now - start) / 1000;
       const W = stage.clientWidth || 1, H = stage.clientHeight || 1;
       const linea = (typeof corteSuelo !== "undefined" && corteSuelo.sec && corteSuelo.sec.length >= 2) ? corteSuelo.sec : null;
       const pies = (xpx, fallback) => { if (!linea) return fallback; const v = corteGroundV(linea, xpx / W); return v === null ? fallback : v * H - 1; }; // 1 px de margen: nunca pasan de la linea
-      const garzasLlegaron = garzas.some(g => ((tSec + g.phase) % g.dur) > g.dur * 0.35);
+      const garzasLlegaron = garzas.some(g => { const t = ((tSec + g.phase) % g.dur) / g.dur; return t > 0.35 && t < 0.86; });
+      // pone el animal: posicion x, altura sobre el suelo (lift), si vuela, hacia donde mira y opacidad
+      function place(b, x, lift, volando, flip, op, frame, fallbackY, bob) {
+        setBird(b, volando ? "fly" : "perch", frame);
+        b.el.style.opacity = op;
+        const h = b.el.offsetHeight || 22;
+        b.el.style.transform = `translate(${x}px, ${pies(x, fallbackY + h) - h - lift + (bob || 0)}px) scaleX(${flip})`;
+      }
       tinguas.forEach(tg => {
         if (tg.el.style.display === "none") return;
+        const t = ((tSec + tg.phase) % tg.dur) / tg.dur;
+        if (t >= 0.96) { tg.el.style.opacity = 0; return; } // ya se fue: reaparece en el siguiente ciclo
         const targetOffset = garzasLlegaron ? (tg.baseLeft < 50 ? -14 : 14) : 0; // cuando llegan las garzas, se corren a los bordes
         tg._cur += (targetOffset - tg._cur) * 0.02;
-        const xpx = tg.baseLeft / 100 * W + tg._cur + Math.sin(tSec * 0.35 + tg.phase) * 10;
-        const h = tg.el.offsetHeight || 22;
-        const bob = -Math.abs(Math.sin(tSec * 2.4 + tg.phase)) * 1.2; // siempre hacia arriba: nunca hunde los pies bajo la linea
-        tg.el.style.transform = `translate(${xpx}px, ${pies(xpx, H * 0.54 + h) - h + bob}px)`;
+        const xBase = tg.baseLeft / 100 * W + tg._cur + Math.sin(tSec * 0.35 + tg.phase) * 10;
+        const fr = SEQ_T[Math.floor(tSec * 9 + tg.phase) % SEQ_T.length];
+        const op = Math.min(1, t / 0.03, (0.96 - t) / 0.04);
+        const flipV = tg.side < 0 ? -1 : 1; // entran por un lado y salen por el otro
+        if (t < 0.14) { const k = smoothS(t / 0.14); place(tg, xBase + tg.side * 240 * (1 - k), (1 - k) * 46, true, flipV, op, fr, H * 0.54); }
+        else if (t > 0.82) { const k = smoothS((t - 0.82) / 0.14); place(tg, xBase - tg.side * 240 * k, k * 60, true, flipV, op, fr, H * 0.54); }
+        else place(tg, xBase, 0, false, 1, 1, 0, H * 0.54, -Math.abs(Math.sin(tSec * 2.4 + tg.phase)) * 1.2); // posada: camina; el vaiven siempre hacia arriba, nunca hunde los pies bajo la linea
       });
       garzas.forEach(g => {
         if (g.el.style.display === "none") return;
         const t = ((tSec + g.phase) % g.dur) / g.dur;
-        const k = smoothS(Math.min(1, t / 0.35));
-        const xpx = g.baseLeft / 100 * W - 220 * (1 - k);
-        const h = g.el.offsetHeight || 38;
-        const flap = t < 0.35 ? (1 - Math.abs(Math.sin(tSec * 9 + g.phase)) * 0.3) : 1;
-        g.el.style.transform = `translate(${xpx}px, ${pies(xpx, H * 0.48 + h) - h - (1 - k) * 28}px) scaleY(${flap})`; // llegan desde arriba y se posan SOBRE la linea
+        if (t >= 0.97) { g.el.style.opacity = 0; return; }
+        const xBase = g.baseLeft / 100 * W, fr = SEQ_G[Math.floor(tSec * 7 + g.phase) % SEQ_G.length];
+        const op = Math.min(1, t / 0.04, (0.97 - t) / 0.05);
+        if (t < 0.35) { const k = smoothS(t / 0.35); place(g, xBase - 220 * (1 - k), (1 - k) * 28, true, -1, op, fr, H * 0.48); } // llega desde la izquierda, aleteando, y se posa SOBRE la linea
+        else if (t > 0.86) { const k = smoothS((t - 0.86) / 0.11); place(g, xBase + 260 * k, k * 46, true, -1, op, fr, H * 0.48); } // se va volando hacia la derecha
+        else place(g, xBase, 0, false, 1, 1, 0, H * 0.48);
       });
       patos.forEach(p => {
         if (p.el.style.display === "none") return;
-        const t = ((tSec + p.phase) % 12) / 12, k = smoothS(Math.min(1, t / 0.4));
-        const xpx = p.baseLeft / 100 * W + (1 - k) * 70;
-        const h = p.el.offsetHeight || 16;
-        const flap = t < 0.4 ? (1 - Math.abs(Math.sin(tSec * 11 + p.phase)) * 0.35) : 1;
-        p.el.style.transform = `translate(${xpx}px, ${pies(xpx, H * 0.5 + h) - h - (1 - k) * H * 0.9}px) scaleY(${flap})`; // migra desde arriba del corte
+        const t = ((tSec + p.phase) % p.dur) / p.dur;
+        if (t >= 0.97) { p.el.style.opacity = 0; return; }
+        const xBase = p.baseLeft / 100 * W, fr = SEQ_P[Math.floor(tSec * 10 + p.phase) % SEQ_P.length];
+        const op = Math.min(1, t / 0.05, (0.97 - t) / 0.06);
+        if (t < 0.4) { const k = smoothS(t / 0.4); place(p, xBase + (1 - k) * 70, (1 - k) * H * 0.9, true, 1, op, fr, H * 0.5); } // migra desde arriba del corte, aleteando
+        else if (t > 0.85) { const k = smoothS((t - 0.85) / 0.12); place(p, xBase - 160 * k, k * H * 0.9, true, 1, op, fr, H * 0.5); }
+        else place(p, xBase, 0, false, 1, 1, 0, H * 0.5);
       });
       sectionBirdsRaf = requestAnimationFrame(loop);
     }
@@ -3938,7 +3961,10 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   // ============================================================
   // Poligonos que dibujo la usuaria en el corte inferior (coordenadas normalizadas 0-1).
   const CORTE_POLIGONOS_FIJOS = {
-    dyn: [],
+    // Zona de peces del corte dinamico (el agua ya esta en la imagen: el poligono no se dibuja, solo contiene a los peces).
+    dyn: [
+      { tipo: "agua", pts: [[0.3328, 0.8341], [0.3535, 0.8382], [0.3719, 0.8398], [0.4282, 0.8536], [0.4402, 0.8658], [0.6666, 0.8642], [0.6782, 0.8553], [0.6833, 0.8504], [0.6931, 0.8423], [0.6994, 0.8349], [0.7029, 0.8341]] }
+    ],
     sec: [
       { tipo: "agua", pts: [[0.2620, 0.7047], [0.7708, 0.7047], [0.7625, 0.7785], [0.2682, 0.7785]] },
       { tipo: "tierra", pts: [[0.7703, 0.6913], [0.9271, 0.6913], [0.9271, 0.9329], [0.0583, 0.9329], [0.0583, 0.7181], [0.2625, 0.7181], [0.2677, 0.7852], [0.7625, 0.7785]] }
@@ -3960,7 +3986,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   const corteTexAgua = new Image(); corteTexAgua.src = "assets/corte_agua.jpg";
   const corteTexTierra = new Image(); corteTexTierra.src = "assets/corte_tierra.jpg";
   // Peces (sin fondo) que nadan MUY pequenos dentro de los poligonos de agua. La lubina mira a la izquierda, la mojarra a la derecha.
-  const corteFishDefs = [{ src: "assets/pez_lubina.png", faceRight: false }, { src: "assets/pez_mojarra.png", faceRight: true }].map(d => { const img = new Image(); img.src = d.src; return { img, faceRight: d.faceRight }; });
+  const corteFishDefs = [{ src: "assets/pez_lubina.png", faceRight: false, k: 1 }, { src: "assets/pez_guppy.png", faceRight: false, k: 0.85 }].map(d => { const img = new Image(); img.src = d.src; return { img, faceRight: d.faceRight, k: d.k }; });
   const corteTools = [];
   corteTexAgua.onload = corteTexTierra.onload = () => corteTools.forEach(t => t && t.draw());
   window.addEventListener("resize", () => corteTools.forEach(t => t && t.draw()));
@@ -4015,7 +4041,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       const b = box();
       if (!b.w || !b.h) return;
       polys.forEach(p => {
-        if (p.pts.length < 3) return;
+        if (p.pts.length < 3 || cfg.sinTextura) return;
         const agua = p.tipo === "agua", img = agua ? corteTexAgua : corteTexTierra;
         ctx.save(); pathOf(p.pts, b, ctx); ctx.clip();
         if (img.complete && img.naturalWidth) {
@@ -4082,7 +4108,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       + '<button type="button" data-a="copy" title="Copiar coordenadas" style="' + BTN + '"><i class="fa-solid fa-copy"></i> <span data-role="copylabel">Copiar coordenadas</span></button>'
       + '</div>'
       + (cfg.showText ? '<div style="margin-top:6px; font:500 10px \'Segoe UI\',sans-serif; color:#cbd3dc; line-height:1.4;">Clic: poner puntos · Mayús (Shift): a 90° · doble clic o Enter: terminar · clic derecho: deshacer</div><textarea data-role="out" readonly spellcheck="false" rows="5" style="margin-top:6px; width:300px; max-width:60vw; background:#0b0c0f; color:#8fd4c8; border:1px solid rgba(255,255,255,.16); border-radius:6px; font:10px/1.35 monospace; padding:6px; resize:vertical;"></textarea>' : '');
-    (cfg.barParent || host).appendChild(bar);
+    if (!cfg.noBar) (cfg.barParent || host).appendChild(bar);
     const out = bar.querySelector('[data-role="out"]');
     const btnAgua = bar.querySelector('[data-a="agua"]'), btnTierra = bar.querySelector('[data-a="tierra"]'), btnSuelo = bar.querySelector('[data-a="suelo"]');
     function refreshUi() {
@@ -4181,7 +4207,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       const out = [];
       waters.forEach((pts, wi) => {
         const n = Math.max(3, Math.min(16, Math.round(polyAreaPx(pts) / 1300)));
-        for (let i = 0; i < n; i++) out.push({ wi, row: 0.2 + Math.random() * 0.6, t: Math.random(), dir: Math.random() < 0.5 ? -1 : 1, speed: 7 + Math.random() * 14, sizeR: Math.random(), species: Math.random() < 0.5 ? 0 : 1, phase: Math.random() * 6.28 });
+        for (let i = 0; i < n; i++) out.push({ wi, row: 0.2 + Math.random() * 0.6, t: Math.random(), dir: Math.random() < 0.5 ? -1 : 1, speed: 7 + Math.random() * 14, sizeR: Math.random(), species: Math.random() < 0.4 ? 0 : 1, phase: Math.random() * 6.28 });
       });
       return out;
     }
@@ -4207,7 +4233,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
               const def = corteFishDefs[f.species], ratio = def.img.naturalHeight / def.img.naturalWidth;
               const y = ymin + f.row * ph, iv = scanIntervals(pts, y).sort((u, v) => (v[1] - v[0]) - (u[1] - u[0]))[0];
               if (!iv) return;
-              let wpx = Math.min(b.w * (0.008 + 0.007 * f.sizeR), (ph * 0.8) / ratio); wpx = Math.max(wpx, 6);
+              let wpx = Math.min(b.w * (0.0064 + 0.0056 * f.sizeR) * (def.k || 1), (ph * 0.8) / ratio); wpx = Math.max(wpx, 5);
               const hpx = wpx * ratio, x0 = iv[0] + wpx * 0.6, x1 = iv[1] - wpx * 0.6;
               if (x1 - x0 < wpx) return;
               f.t += f.dir * f.speed * dt / (x1 - x0);
@@ -4229,11 +4255,17 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     const dynStage = document.getElementById("dynSecStage"), dynImg = document.getElementById("dynSecBaseImg");
     if (dynStage && dynImg) {
       corteTools.push(createPolyTool({
-        id: "dyn", label: "corte dinámico", key: "corte_poly_dyn_v2", host: dynStage, before: document.getElementById("dynSecBirdsSvg"), z: 0,
-        fijos: CORTE_POLIGONOS_FIJOS.dyn, noSuelo: true, showText: true, imgEl: dynImg, barParent: document.getElementById("dynamicSectionOverlay"),
+        id: "dyn", label: "corte dinámico", key: "corte_poly_dyn_v3", host: dynStage, before: document.getElementById("dynSecBirdsSvg"), z: 0,
+        fijos: CORTE_POLIGONOS_FIJOS.dyn, noSuelo: true, showText: false, noBar: true, sinTextura: true, imgEl: dynImg, barParent: document.getElementById("dynamicSectionOverlay"),
         getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; },
         barStyle: "position:absolute; top:78px; left:18px; z-index:20; padding:9px 10px; border-radius:10px; background:rgba(17,20,24,.92); border:1px solid rgba(255,255,255,.14); box-shadow:0 8px 24px rgba(0,0,0,.25);"
       }));
+    }
+    if (window.crearConectografiaCorte && dynStage && dynImg) {
+      window.__cxApi = window.crearConectografiaCorte({
+        host: dynStage, imgEl: dynImg, uiParent: document.getElementById("dynamicSectionOverlay"),
+        getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; }
+      });
     }
     const secWrap = document.getElementById("sectionWrap");
     if (secWrap) {
