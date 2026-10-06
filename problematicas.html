@@ -198,11 +198,11 @@
       <div class="section-card">
         <div class="section-title">
           <span><i class="fa-solid fa-seedling" style="color:#a3e635;"></i> Ajuste de Pasto</span>
-          <span id="grassColorHex" style="font-size:10px; font-family:monospace; color:var(--accent);">#c2cb8e</span>
+          <span id="grassColorHex" style="font-size:10px; font-family:monospace; color:var(--accent);">#babe97</span>
         </div>
         <div class="grass-ctrl-row">
           <span>Color / Tono:</span>
-          <input type="color" id="grassColorPicker" value="#c2cb8e" title="Elegir tono de pasto">
+          <input type="color" id="grassColorPicker" value="#babe97" title="Elegir tono de pasto">
         </div>
         <div class="grass-ctrl-row">
           <span>Opacidad textura:</span>
@@ -211,11 +211,16 @@
         </div>
       </div>
 
-      <!-- Sección 2: Pincel de Árboles -->
+      <!-- Sección 2: Pincel y Tamaño de Árboles -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-tree" style="color:#4ade80;"></i> Pincel de Árboles</span>
+          <span><i class="fa-solid fa-tree" style="color:#4ade80;"></i> Árboles</span>
           <span id="plantedTreesCount" style="font-size:10px; color:#4ade80; font-weight:700;">0 nuevos</span>
+        </div>
+        <div class="grass-ctrl-row" style="margin-bottom:4px;">
+          <span>Tamaño / Escala:</span>
+          <input type="range" id="treeScaleSlider" min="0.6" max="3.5" step="0.1" value="1.4" title="Ajustar tamaño de todos los árboles">
+          <span id="treeScaleVal" style="font-size:10px; width:28px; text-align:right; font-weight:700; color:#4ade80;">1.4x</span>
         </div>
         <p class="brush-hint">Activa el pincel y <b>arrastra el cursor sobre el mapa</b> para pintar un trazo continuo de árboles.</p>
         <div class="btn-group">

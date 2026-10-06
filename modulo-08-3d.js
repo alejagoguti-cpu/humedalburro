@@ -210,7 +210,7 @@
     
     const mat = new THREE.MeshStandardMaterial({
       map: histGrassTex,
-      color: 0xc2cb8e, // Tono pastizal amarillito / sabana cálida natural
+      color: 0xbabe97, // Tono pastizal amarillito exacto solicitado
       roughness: 0.95,
       metalness: 0.0,
       transparent: true,
@@ -364,12 +364,12 @@
     const histWaterMat = new THREE.MeshStandardMaterial({
       map: histWaterTex,
       bumpMap: histWaterBump,
-      bumpScale: 0.12,
-      color: 0x97a5af, // Mismo color exacto de agua de la axonometría urbana
-      roughness: 0.18,
-      metalness: 0.15,
+      bumpScale: 0.28,
+      color: 0x6e9cb0, // Color agua de humedal realista con relieve y reflejo
+      roughness: 0.12,
+      metalness: 0.22,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.88,
       side: THREE.DoubleSide
     });
 
@@ -492,7 +492,7 @@
         groundMesh.material.map = histGrassTex;
         groundMesh.material.needsUpdate = true;
       }
-      groundMesh.material.color.setHex(0xc2cb8e);
+      groundMesh.material.color.setHex(0xbabe97);
       groundMesh.material.opacity = 0.75;
       groundMesh.material.transparent = true;
     }
@@ -972,6 +972,7 @@
   // camara actual. Con camara ortografica la direccion hacia la camara es
   // la misma sin importar la posicion en el suelo, asi que un solo angulo
   // (el acimut actual de la camara) sirve para todas las instancias.
+  let currentTreeScaleMultiplier = 1.4;
   const dummyT = new THREE.Object3D();
   function updateTreeBillboards() {
     if (!treeMesh || !treeInstanceData) return;
@@ -980,7 +981,7 @@
     for (let i = 0; i < treeInstanceData.length; i++) {
       const d = treeInstanceData[i];
       dummyT.position.set(d.x, 0, d.z);
-      dummyT.scale.set(d.w, d.h, d.w);
+      dummyT.scale.set(d.w * currentTreeScaleMultiplier, d.h * currentTreeScaleMultiplier, d.w * currentTreeScaleMultiplier);
       dummyT.rotation.set(0, faceAngle, 0);
       dummyT.updateMatrix();
       treeMesh.setMatrixAt(i, dummyT.matrix);
@@ -2141,6 +2142,16 @@
     requestAnimationFrame(animate);
     if (camAnim) camAnim.update(now);
 
+    // Ondas y movimiento realista del agua generado por viento
+    if (waterTexRef) {
+      waterTexRef.offset.x = (now * 0.000045) % 1;
+      waterTexRef.offset.y = (now * 0.000035) % 1;
+    }
+    if (waterBumpRef) {
+      waterBumpRef.offset.x = -(now * 0.000055) % 1;
+      waterBumpRef.offset.y = (now * 0.000045) % 1;
+    }
+
     // Animación de las vacas caminando en el terreno sin flotar
     if (cowsGroup.visible && cowInstances.length) {
       const t = now * 0.001;
@@ -2391,10 +2402,10 @@
       side: THREE.DoubleSide,
       roughness: 0.95
     });
-    const mesh = new THREE.Mesh(planeGeo, mat);
     const h = Math.max(0.3, hMeters * SCALE);
     const w = h * 1.15;
-    mesh.scale.set(w, h, w);
+    mesh.userData = { baseW: w, baseH: h };
+    mesh.scale.set(w * currentTreeScaleMultiplier, h * currentTreeScaleMultiplier, w * currentTreeScaleMultiplier);
     mesh.position.set(x, 0, z);
 
     const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
@@ -2556,6 +2567,26 @@
         groundMesh.material.opacity = op;
         groundMesh.material.transparent = true;
       }
+    });
+  }
+
+  // 4. Control de tamaño / escala de árboles
+  const treeScaleSlider = document.getElementById("treeScaleSlider");
+  const treeScaleVal = document.getElementById("treeScaleVal");
+  if (treeScaleSlider) {
+    treeScaleSlider.addEventListener("input", (e) => {
+      currentTreeScaleMultiplier = parseFloat(e.target.value);
+      if (treeScaleVal) treeScaleVal.textContent = `${currentTreeScaleMultiplier.toFixed(1)}x`;
+      updateTreeBillboards();
+      userPlantedGroup.children.forEach(mesh => {
+        if (mesh.userData && mesh.userData.baseW) {
+          mesh.scale.set(
+            mesh.userData.baseW * currentTreeScaleMultiplier,
+            mesh.userData.baseH * currentTreeScaleMultiplier,
+            mesh.userData.baseW * currentTreeScaleMultiplier
+          );
+        }
+      });
     });
   }
 
