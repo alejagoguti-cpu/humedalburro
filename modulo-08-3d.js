@@ -61,11 +61,6 @@
   const buildings1970Group = new THREE.Group();
   sceneRoot.add(buildings1970Group);
 
-  const roads1970Group = new THREE.Group();
-  sceneRoot.add(roads1970Group);
-
-  const DEFAULT_COWS_DATA = [{"id": 1, "tipo": "vaca", "x": 133.12, "z": -6.15}, {"id": 2, "tipo": "vaca", "x": 134.49, "z": -29.01}, {"id": 3, "tipo": "vaca", "x": 135.65, "z": -30.87}, {"id": 4, "tipo": "vaca", "x": 121.53, "z": -24.11}, {"id": 5, "tipo": "vaca", "x": 119.61, "z": -25.19}, {"id": 6, "tipo": "vaca", "x": 125.95, "z": -31.14}, {"id": 7, "tipo": "vaca", "x": 123.76, "z": -30.86}, {"id": 8, "tipo": "vaca", "x": 135.06, "z": -34.93}, {"id": 9, "tipo": "vaca", "x": 134.81, "z": -37.11}, {"id": 10, "tipo": "vaca", "x": 136.97, "z": -27.24}, {"id": 11, "tipo": "vaca", "x": 139.03, "z": -26.47}, {"id": 12, "tipo": "vaca", "x": 136.01, "z": -34.12}, {"id": 13, "tipo": "vaca", "x": 136.87, "z": -32.1}, {"id": 14, "tipo": "vaca", "x": 138.84, "z": -22.69}, {"id": 15, "tipo": "vaca", "x": 129.78, "z": -30.26}, {"id": 16, "tipo": "vaca", "x": 135.54, "z": -38.93}, {"id": 17, "tipo": "vaca", "x": 136.14, "z": -36.82}, {"id": 18, "tipo": "vaca", "x": 138.15, "z": -27.51}, {"id": 19, "tipo": "vaca", "x": 136.03, "z": -26.94}, {"id": 20, "tipo": "vaca", "x": 136.54, "z": -35.34}, {"id": 21, "tipo": "vaca", "x": 140.2, "z": -26.4}, {"id": 22, "tipo": "vaca", "x": 138.04, "z": -26.83}, {"id": 23, "tipo": "vaca", "x": 136.5, "z": -32.87}, {"id": 24, "tipo": "vaca", "x": 136.02, "z": -35.02}, {"id": 25, "tipo": "vaca", "x": 142.03, "z": -29.81}, {"id": 26, "tipo": "vaca", "x": 143.62, "z": -31.33}, {"id": 27, "tipo": "vaca", "x": 107.12, "z": -29.55}, {"id": 28, "tipo": "vaca", "x": 104.93, "z": -29.37}, {"id": 29, "tipo": "vaca", "x": 110.79, "z": -25.11}, {"id": 30, "tipo": "vaca", "x": 110.67, "z": -22.91}, {"id": 31, "tipo": "vaca", "x": 115.74, "z": -19.5}, {"id": 32, "tipo": "vaca", "x": 119.89, "z": -13.36}, {"id": 33, "tipo": "vaca", "x": 124.27, "z": -5.56}, {"id": 34, "tipo": "vaca", "x": 117.07, "z": -17.39}, {"id": 35, "tipo": "vaca", "x": 118.78, "z": -16.01}, {"id": 36, "tipo": "vaca", "x": 113.15, "z": -21.88}, {"id": 37, "tipo": "vaca", "x": 108.66, "z": -25.8}, {"id": 38, "tipo": "vaca", "x": 110.37, "z": -27.18}, {"id": 39, "tipo": "vaca", "x": 106.51, "z": -16.01}, {"id": 40, "tipo": "vaca", "x": 108.35, "z": -17.22}, {"id": 41, "tipo": "vaca", "x": 114.48, "z": -8.0}, {"id": 42, "tipo": "vaca", "x": 116.5, "z": -7.13}, {"id": 43, "tipo": "vaca", "x": 123.53, "z": -0.82}, {"id": 44, "tipo": "vaca", "x": 120.63, "z": -12.34}, {"id": 45, "tipo": "vaca", "x": 121.85, "z": -14.17}, {"id": 46, "tipo": "vaca", "x": 116.14, "z": -19.51}, {"id": 47, "tipo": "vaca", "x": 114.53, "z": -21.01}, {"id": 48, "tipo": "vaca", "x": 108.55, "z": -20.29}, {"id": 49, "tipo": "vaca", "x": 106.36, "z": -20.15}, {"id": 50, "tipo": "vaca", "x": 115.68, "z": -13.06}, {"id": 51, "tipo": "vaca", "x": 117.38, "z": -11.67}, {"id": 52, "tipo": "vaca", "x": 129.73, "z": -2.22}, {"id": 53, "tipo": "vaca", "x": 117.47, "z": -10.52}, {"id": 54, "tipo": "vaca", "x": 116.88, "z": -19.74}, {"id": 55, "tipo": "vaca", "x": 117.16, "z": -17.56}, {"id": 56, "tipo": "vaca", "x": 120.62, "z": -10.72}, {"id": 57, "tipo": "vaca", "x": 118.72, "z": -9.61}, {"id": 58, "tipo": "vaca", "x": 128.93, "z": 1.57}, {"id": 59, "tipo": "vaca", "x": 130.93, "z": 2.49}, {"id": 60, "tipo": "vaca", "x": 89.12, "z": -53.79}, {"id": 61, "tipo": "vaca", "x": 91.11, "z": -54.74}, {"id": 62, "tipo": "vaca", "x": 84.89, "z": -49.51}, {"id": 63, "tipo": "vaca", "x": 87.09, "z": -49.45}, {"id": 64, "tipo": "vaca", "x": 84.77, "z": -40.4}, {"id": 65, "tipo": "vaca", "x": 88.13, "z": -33.71}, {"id": 66, "tipo": "vaca", "x": 88.22, "z": -35.91}, {"id": 67, "tipo": "vaca", "x": 95.27, "z": -38.22}, {"id": 68, "tipo": "vaca", "x": 93.97, "z": -52.44}, {"id": 69, "tipo": "vaca", "x": 93.82, "z": -54.63}, {"id": 70, "tipo": "vaca", "x": 89.39, "z": -57.34}, {"id": 71, "tipo": "vaca", "x": 88.94, "z": -55.19}, {"id": 72, "tipo": "vaca", "x": 82.12, "z": -43.72}, {"id": 73, "tipo": "vaca", "x": 87.18, "z": -37.12}, {"id": 74, "tipo": "vaca", "x": 93.42, "z": -43.71}, {"id": 75, "tipo": "vaca", "x": 94.56, "z": -41.83}, {"id": 76, "tipo": "vaca", "x": 86.47, "z": -37.22}, {"id": 77, "tipo": "vaca", "x": 86.26, "z": -35.03}, {"id": 78, "tipo": "vaca", "x": 94.97, "z": -46.09}, {"id": 79, "tipo": "vaca", "x": 89.28, "z": -41.7}, {"id": 80, "tipo": "vaca", "x": 91.72, "z": -46.89}, {"id": 81, "tipo": "vaca", "x": 86.64, "z": -43.39}, {"id": 82, "tipo": "vaca", "x": 89.5, "z": -48.19}, {"id": 83, "tipo": "vaca", "x": 91.33, "z": -49.42}, {"id": 84, "tipo": "vaca", "x": 24.05, "z": 11.77}, {"id": 85, "tipo": "vaca", "x": 22.61, "z": 10.11}, {"id": 86, "tipo": "vaca", "x": 43.89, "z": 19.22}, {"id": 87, "tipo": "vaca", "x": 43.12, "z": 17.16}, {"id": 88, "tipo": "vaca", "x": 41.79, "z": 28.7}, {"id": 89, "tipo": "vaca", "x": 43.43, "z": 27.23}, {"id": 90, "tipo": "vaca", "x": 33.48, "z": 37.93}, {"id": 91, "tipo": "vaca", "x": 46.15, "z": 18.57}, {"id": 92, "tipo": "vaca", "x": 48.32, "z": 18.23}, {"id": 93, "tipo": "vaca", "x": 45.95, "z": 34.85}, {"id": 94, "tipo": "vaca", "x": 46.4, "z": 32.7}, {"id": 95, "tipo": "vaca", "x": 30.15, "z": 42.67}, {"id": 96, "tipo": "vaca", "x": 29.86, "z": 40.48}, {"id": 97, "tipo": "vaca", "x": 42.58, "z": 21.64}, {"id": 98, "tipo": "vaca", "x": 40.64, "z": 22.69}, {"id": 99, "tipo": "vaca", "x": 35.56, "z": 45.08}, {"id": 100, "tipo": "vaca", "x": 26.87, "z": 32.08}, {"id": 101, "tipo": "vaca", "x": 29.07, "z": 32.05}, {"id": 102, "tipo": "vaca", "x": 42.48, "z": 19.02}, {"id": 103, "tipo": "vaca", "x": 44.6, "z": 19.58}, {"id": 104, "tipo": "vaca", "x": 28.49, "z": 37.53}, {"id": 105, "tipo": "vaca", "x": 27.44, "z": 35.6}, {"id": 106, "tipo": "vaca", "x": 30.48, "z": 20.53}, {"id": 107, "tipo": "vaca", "x": 29.71, "z": 18.47}, {"id": 108, "tipo": "vaca", "x": 39.26, "z": 34.53}, {"id": 109, "tipo": "vaca", "x": 30.75, "z": 40.14}, {"id": 110, "tipo": "vaca", "x": 30.33, "z": 42.3}, {"id": 111, "tipo": "vaca", "x": 37.64, "z": 24.18}, {"id": 112, "tipo": "vaca", "x": 35.52, "z": 23.59}, {"id": 113, "tipo": "vaca", "x": 164.6, "z": 0.88}, {"id": 114, "tipo": "vaca", "x": 166.79, "z": 1.11}, {"id": 115, "tipo": "vaca", "x": 169.69, "z": 5.53}, {"id": 116, "tipo": "vaca", "x": 169.48, "z": 7.72}, {"id": 117, "tipo": "vaca", "x": 173.24, "z": 10.94}, {"id": 118, "tipo": "vaca", "x": 171.12, "z": 11.52}, {"id": 119, "tipo": "vaca", "x": 178.85, "z": 15.34}, {"id": 120, "tipo": "vaca", "x": 178.13, "z": 13.26}, {"id": 121, "tipo": "vaca", "x": 179.14, "z": 21.58}, {"id": 122, "tipo": "vaca", "x": 173.77, "z": 17.21}, {"id": 123, "tipo": "vaca", "x": 175.95, "z": 17.49}, {"id": 124, "tipo": "vaca", "x": 169.28, "z": 11.67}, {"id": 125, "tipo": "vaca", "x": 167.47, "z": 12.91}, {"id": 126, "tipo": "vaca", "x": 176.6, "z": 19.25}, {"id": 127, "tipo": "vaca", "x": 177.97, "z": 17.54}, {"id": 128, "tipo": "vaca", "x": 182.67, "z": 18.83}, {"id": 129, "tipo": "vaca", "x": 181.97, "z": 20.92}, {"id": 130, "tipo": "vaca", "x": 198.01, "z": -7.32}, {"id": 131, "tipo": "vaca", "x": 200.2, "z": -7.5}, {"id": 132, "tipo": "vaca", "x": 192.14, "z": -1.65}, {"id": 133, "tipo": "vaca", "x": 190.27, "z": -0.49}, {"id": 134, "tipo": "vaca", "x": 202.67, "z": -7.95}, {"id": 135, "tipo": "vaca", "x": 204.22, "z": -6.39}, {"id": 136, "tipo": "vaca", "x": 197.04, "z": 4.28}, {"id": 137, "tipo": "vaca", "x": 197.49, "z": 6.44}, {"id": 138, "tipo": "vaca", "x": 204.7, "z": -2.11}, {"id": 139, "tipo": "vaca", "x": 205.5, "z": -0.06}, {"id": 140, "tipo": "vaca", "x": 199.07, "z": 5.23}, {"id": 141, "tipo": "vaca", "x": 197.78, "z": 3.45}, {"id": 142, "tipo": "vaca", "x": 191.34, "z": 22.05}, {"id": 143, "tipo": "vaca", "x": 182.56, "z": 34.47}, {"id": 144, "tipo": "vaca", "x": 181.22, "z": 36.22}, {"id": 145, "tipo": "vaca", "x": 189.38, "z": 28.94}, {"id": 146, "tipo": "vaca", "x": 194.73, "z": 23.52}, {"id": 147, "tipo": "vaca", "x": 193.2, "z": 21.94}, {"id": 148, "tipo": "vaca", "x": 184.21, "z": 36.34}, {"id": 149, "tipo": "vaca", "x": 186.0, "z": 37.62}, {"id": 150, "tipo": "vaca", "x": 189.0, "z": 29.86}, {"id": 151, "tipo": "vaca", "x": 189.24, "z": 27.67}, {"id": 152, "tipo": "vaca", "x": 194.74, "z": 26.78}, {"id": 153, "tipo": "vaca", "x": 196.43, "z": 28.18}, {"id": 154, "tipo": "vaca", "x": 188.74, "z": 38.3}, {"id": 155, "tipo": "vaca", "x": 186.93, "z": 39.55}, {"id": 156, "tipo": "vaca", "x": 168.4, "z": 59.16}, {"id": 157, "tipo": "vaca", "x": 166.06, "z": 68.61}, {"id": 158, "tipo": "vaca", "x": 164.5, "z": 70.16}, {"id": 159, "tipo": "vaca", "x": 173.73, "z": 63.85}, {"id": 160, "tipo": "vaca", "x": 169.92, "z": 68.51}, {"id": 161, "tipo": "vaca", "x": 171.78, "z": 67.33}, {"id": 162, "tipo": "vaca", "x": 178.58, "z": 68.47}, {"id": 163, "tipo": "vaca", "x": 172.24, "z": 74.07}, {"id": 164, "tipo": "vaca", "x": 179.49, "z": 75.45}, {"id": 165, "tipo": "vaca", "x": 178.8, "z": 77.54}, {"id": 166, "tipo": "vaca", "x": 187.68, "z": 75.33}, {"id": 167, "tipo": "vaca", "x": 184.4, "z": 79.75}, {"id": 168, "tipo": "vaca", "x": 186.12, "z": 81.11}, {"id": 169, "tipo": "vaca", "x": 190.19, "z": 77.98}, {"id": 170, "tipo": "vaca", "x": 190.17, "z": 75.78}, {"id": 171, "tipo": "vaca", "x": 183.61, "z": 38.86}, {"id": 172, "tipo": "vaca", "x": 190.49, "z": 46.06}, {"id": 173, "tipo": "vaca", "x": 197.33, "z": 51.95}, {"id": 174, "tipo": "vaca", "x": 198.81, "z": 53.57}, {"id": 175, "tipo": "vaca", "x": 203.46, "z": 56.1}, {"id": 176, "tipo": "vaca", "x": 204.71, "z": 57.91}, {"id": 177, "tipo": "vaca", "x": 205.92, "z": 62.33}, {"id": 178, "tipo": "vaca", "x": 208.1, "z": 62.65}, {"id": 179, "tipo": "vaca", "x": 199.43, "z": 62.36}, {"id": 180, "tipo": "vaca", "x": 200.39, "z": 60.38}, {"id": 181, "tipo": "vaca", "x": 194.24, "z": 56.72}, {"id": 182, "tipo": "vaca", "x": 188.57, "z": 51.0}, {"id": 183, "tipo": "vaca", "x": 189.57, "z": 52.96}, {"id": 184, "tipo": "vaca", "x": 182.06, "z": 44.51}, {"id": 185, "tipo": "vaca", "x": 182.36, "z": 46.69}, {"id": 186, "tipo": "vaca", "x": 193.95, "z": 53.74}, {"id": 187, "tipo": "vaca", "x": 191.76, "z": 53.52}, {"id": 188, "tipo": "vaca", "x": 203.14, "z": 61.6}, {"id": 189, "tipo": "vaca", "x": 202.32, "z": 59.56}, {"id": 190, "tipo": "vaca", "x": 209.22, "z": 61.17}, {"id": 191, "tipo": "vaca", "x": 207.08, "z": 61.71}, {"id": 192, "tipo": "vaca", "x": 203.81, "z": 65.28}, {"id": 193, "tipo": "vaca", "x": 204.17, "z": 63.11}, {"id": 194, "tipo": "vaca", "x": 212.22, "z": 57.04}, {"id": 195, "tipo": "vaca", "x": 205.75, "z": 70.13}, {"id": 196, "tipo": "vaca", "x": 204.07, "z": 68.71}, {"id": 197, "tipo": "vaca", "x": 213.55, "z": 64.41}, {"id": 198, "tipo": "vaca", "x": 214.61, "z": 66.34}, {"id": 199, "tipo": "vaca", "x": 208.39, "z": 73.45}, {"id": 200, "tipo": "vaca", "x": 210.25, "z": 74.64}, {"id": 201, "tipo": "vaca", "x": 215.26, "z": 67.6}, {"id": 202, "tipo": "vaca", "x": 215.74, "z": 74.19}, {"id": 203, "tipo": "vaca", "x": 215.4, "z": 76.36}, {"id": 204, "tipo": "vaca", "x": 246.23, "z": 46.33}, {"id": 205, "tipo": "vaca", "x": 254.86, "z": 51.5}, {"id": 206, "tipo": "vaca", "x": 255.57, "z": 53.58}, {"id": 207, "tipo": "vaca", "x": 259.21, "z": 59.63}, {"id": 208, "tipo": "vaca", "x": 260.61, "z": 57.94}, {"id": 209, "tipo": "vaca", "x": 253.96, "z": 51.04}, {"id": 210, "tipo": "vaca", "x": 251.83, "z": 50.52}];
-
   const historicalTreesGroup = new THREE.Group();
   sceneRoot.add(historicalTreesGroup);
 
@@ -263,7 +258,7 @@
     
     const mat = new THREE.MeshStandardMaterial({
       map: histGrassTex,
-      color: 0xd0d4cc, // Tono pastizal suave natural mate #d0d4cc
+      color: 0xd4d5d3, // Tono pastizal suave #d4d5d3
       roughness: 0.95,
       metalness: 0.0,
       transparent: true,
@@ -305,12 +300,12 @@
   const sharedWaterMat = new THREE.MeshStandardMaterial({
     map: waterTex,
     bumpMap: bumpTex,
-    bumpScale: 0.15,
-    color: 0x3d7e9a, // Azul cerúleo y pizarra vivo y realista (agua limpia de humedal)
-    roughness: 0.12,
-    metalness: 0.18,
+    bumpScale: 0.12,
+    color: 0x8f9498, // Color exacto de modulo-10-corte.html
+    roughness: 0.18,
+    metalness: 0.15,
     transparent: true,
-    opacity: 0.86,
+    opacity: 0.82,
     side: THREE.DoubleSide
   });
   waterMat = sharedWaterMat;
@@ -327,51 +322,62 @@
     cowsGroup.clear();
     cowInstances.length = 0;
     
-    // Cargar las 210 vacas en sus coordenadas exactas en la sabana y humedales
-    DEFAULT_COWS_DATA.forEach((item, idx) => {
-      const tex = cowTextures[idx % cowTextures.length];
-      const mat = new THREE.MeshBasicMaterial({
-        map: tex,
-        transparent: true,
-        side: THREE.DoubleSide,
-        alphaTest: 0.35,
-        depthWrite: false
-      });
-      const geo = new THREE.PlaneGeometry(1.6, 1.1);
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.renderOrder = 999;
+    // Zonas de pastoreo alrededor de los humedales y pasturas
+    const cowZones = [
+      { cx: 210, cz: -10, rx: 80, rz: 60, count: 28 }, // Humedal El Burro
+      { cx: 70, cz: 115, rx: 65, rz: 50, count: 24 },  // Humedal La Vaca
+      { cx: 270, cz: 90, rx: 75, rz: 60, count: 20 },  // Pasturas orientales / Techo
+      { cx: 130, cz: -80, rx: 70, rz: 60, count: 18 }, // Zona rural norte
+    ];
 
-      // Sombra negra en el suelo debajo de la vaca
-      const shadowGeo = new THREE.PlaneGeometry(1.5, 0.8);
-      const shadowMat = new THREE.MeshBasicMaterial({
-        color: 0x000000,
-        transparent: true,
-        opacity: 0.38,
-        depthWrite: false
-      });
-      const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
-      shadowMesh.rotation.x = -Math.PI / 2;
-      shadowMesh.position.set(0, -0.48, 0);
-      shadowMesh.renderOrder = 998;
-      mesh.add(shadowMesh);
+    cowZones.forEach(zone => {
+      for (let i = 0; i < zone.count; i++) {
+        const tex = cowTextures[Math.floor(Math.random() * cowTextures.length)];
+        const mat = new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          side: THREE.DoubleSide,
+          alphaTest: 0.35,
+          depthWrite: false
+        });
+        const geo = new THREE.PlaneGeometry(1.6, 1.1);
+        const mesh = new THREE.Mesh(geo, mat);
 
-      mesh.position.set(item.x, 0.55, item.z);
-      mesh.rotation.x = -Math.PI / 4.2;
-      mesh.rotation.y = (Math.random() - 0.5) * 0.4;
-      const s = 0.85 + Math.random() * 0.3;
-      mesh.scale.set((Math.random() > 0.5 ? 1 : -1) * s, s, s);
+        // Sombra negra en el suelo debajo de la vaca
+        const shadowGeo = new THREE.PlaneGeometry(1.5, 0.8);
+        const shadowMat = new THREE.MeshBasicMaterial({
+          color: 0x000000,
+          transparent: true,
+          opacity: 0.38,
+          depthWrite: false
+        });
+        const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+        shadowMesh.rotation.x = -Math.PI / 2;
+        shadowMesh.position.set(0, -0.48, 0);
+        mesh.add(shadowMesh);
 
-      cowsGroup.add(mesh);
-      cowInstances.push({
-        mesh,
-        baseX: item.x,
-        baseZ: item.z,
-        phase: Math.random() * Math.PI * 2,
-        speed: 0.2 + Math.random() * 0.3,
-        wanderR: 0.5 + Math.random() * 1.0
-      });
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.sqrt(Math.random());
+        const x = zone.cx + Math.cos(angle) * zone.rx * dist;
+        const z = zone.cz + Math.sin(angle) * zone.rz * dist;
+
+        mesh.position.set(x, 0.55, z);
+        mesh.rotation.x = -Math.PI / 4.2;
+        mesh.rotation.y = (Math.random() - 0.5) * 0.3;
+        const s = 0.85 + Math.random() * 0.3;
+        mesh.scale.set((Math.random() > 0.5 ? 1 : -1) * s, s, s);
+
+        cowsGroup.add(mesh);
+        cowInstances.push({
+          mesh,
+          baseX: x,
+          baseZ: z,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.3 + Math.random() * 0.4,
+          wanderR: 1.2 + Math.random() * 2.0
+        });
+      }
     });
-    updateUserPlantedUI();
   }
 
   // 2. Construcción de humedales históricos con el área solicitada (El Burro: 171 ha, La Vaca: 181 ha hacia El Burro con curvas suaves, Techo: 120 ha)
@@ -519,7 +525,7 @@
 
     // Base de lecho clara para que la textura del pasto no oscurezca el agua transparente
     const bedGeo = geo.clone();
-    const bedMat = new THREE.MeshBasicMaterial({ color: 0xa8c5dc, side: THREE.DoubleSide });
+    const bedMat = new THREE.MeshBasicMaterial({ color: 0xd8e2ec, side: THREE.DoubleSide });
     const bedMesh = new THREE.Mesh(bedGeo, bedMat);
     bedMesh.position.y = -0.005;
     bedMesh.renderOrder = 10;
@@ -680,192 +686,6 @@
     group.add(termEdges);
 
     aeropuertoTechoGroup.add(group);
-
-    // D. Aviones de época (Modelos 3D Douglas DC-3 auténticos de los años 50 estilo maqueta arquitectónica)
-    function buildVintageAirplanes() {
-      const bodyMat = new THREE.MeshStandardMaterial({
-        color: 0xecf0f3,
-        metalness: 0.6,
-        roughness: 0.32
-      });
-      const stripeMat = new THREE.MeshStandardMaterial({
-        color: 0x1e3a8a, // Franja azul clásica de aerolínea años 50
-        metalness: 0.4,
-        roughness: 0.3
-      });
-      const wingMat = new THREE.MeshStandardMaterial({
-        color: 0xdde3e8,
-        metalness: 0.65,
-        roughness: 0.35
-      });
-      const glassMat = new THREE.MeshStandardMaterial({
-        color: 0x0f172a,
-        metalness: 0.2,
-        roughness: 0.1
-      });
-      const darkMat = new THREE.MeshStandardMaterial({
-        color: 0x1e293b,
-        roughness: 0.9
-      });
-      const propBlurMat = new THREE.MeshBasicMaterial({
-        color: 0x111111,
-        transparent: true,
-        opacity: 0.4,
-        side: THREE.DoubleSide
-      });
-      const shadowMat = new THREE.MeshBasicMaterial({
-        color: 0x000000,
-        transparent: true,
-        opacity: 0.38,
-        depthWrite: false
-      });
-      const edgeMat = new THREE.LineBasicMaterial({
-        color: 0x334155,
-        transparent: true,
-        opacity: 0.45
-      });
-
-      function make3DDC3(x, z, scale = 1.0, rotY = 0) {
-        const group = new THREE.Group();
-        group.position.set(x, 0, z);
-        group.rotation.y = rotY;
-        group.scale.set(scale, scale, scale);
-
-        // 1. Fuselaje principal estilizado
-        const fuseGeo = new THREE.CylinderGeometry(0.52, 0.28, 6.2, 16);
-        fuseGeo.rotateZ(Math.PI / 2);
-        const fuse = new THREE.Mesh(fuseGeo, bodyMat);
-        fuse.position.set(0, 0.72, 0);
-        fuse.castShadow = true;
-        group.add(fuse);
-
-        // Franja decorativa lateral
-        const stripeGeo = new THREE.CylinderGeometry(0.53, 0.29, 3.8, 16, 1, true);
-        stripeGeo.rotateZ(Math.PI / 2);
-        const stripe = new THREE.Mesh(stripeGeo, stripeMat);
-        stripe.position.set(0.3, 0.72, 0);
-        group.add(stripe);
-
-        // Nariz redondeada clásica DC-3
-        const noseGeo = new THREE.SphereGeometry(0.52, 16, 12);
-        noseGeo.scale(1.25, 0.95, 0.95);
-        const nose = new THREE.Mesh(noseGeo, bodyMat);
-        nose.position.set(3.1, 0.72, 0);
-        nose.castShadow = true;
-        group.add(nose);
-
-        // Cabina de mando tintada
-        const cockpitGeo = new THREE.BoxGeometry(0.7, 0.32, 0.64);
-        const cockpit = new THREE.Mesh(cockpitGeo, glassMat);
-        cockpit.position.set(2.35, 1.02, 0);
-        group.add(cockpit);
-
-        // 2. Alas principales (Envergadura DC-3 con flecha frontal y diedro sutil)
-        const wingLGeo = new THREE.BoxGeometry(1.6, 0.09, 4.4);
-        const wingL = new THREE.Mesh(wingLGeo, wingMat);
-        wingL.position.set(0.6, 0.62, 2.3);
-        wingL.rotation.x = 0.05; // Diedro alar
-        wingL.castShadow = true;
-        group.add(wingL);
-
-        const wingR = new THREE.Mesh(wingLGeo, wingMat);
-        wingR.position.set(0.6, 0.62, -2.3);
-        wingR.rotation.x = -0.05;
-        wingR.castShadow = true;
-        group.add(wingR);
-
-        // Sección central alar
-        const centerWingGeo = new THREE.BoxGeometry(1.7, 0.1, 1.4);
-        const centerWing = new THREE.Mesh(centerWingGeo, wingMat);
-        centerWing.position.set(0.6, 0.58, 0);
-        group.add(centerWing);
-
-        // 3. Motores radiales gemelos y hélices
-        [-2.1, 2.1].forEach(offsetZ => {
-          const nacelleGeo = new THREE.CylinderGeometry(0.28, 0.28, 1.25, 14);
-          nacelleGeo.rotateZ(Math.PI / 2);
-          const nacelle = new THREE.Mesh(nacelleGeo, darkMat);
-          nacelle.position.set(1.15, 0.52, offsetZ);
-          group.add(nacelle);
-
-          // Cono de hélice
-          const spinnerGeo = new THREE.ConeGeometry(0.12, 0.35, 10);
-          spinnerGeo.rotateZ(-Math.PI / 2);
-          const spinner = new THREE.Mesh(spinnerGeo, bodyMat);
-          spinner.position.set(1.9, 0.52, offsetZ);
-          group.add(spinner);
-
-          // Disco de hélice en rotación
-          const propGeo = new THREE.CircleGeometry(0.55, 14);
-          propGeo.rotateY(Math.PI / 2);
-          const prop = new THREE.Mesh(propGeo, propBlurMat);
-          prop.position.set(1.85, 0.52, offsetZ);
-          group.add(prop);
-        });
-
-        // 4. Cola y estabilizadores
-        const tailHorizGeo = new THREE.BoxGeometry(0.9, 0.07, 3.2);
-        const tailHoriz = new THREE.Mesh(tailHorizGeo, wingMat);
-        tailHoriz.position.set(-2.75, 0.95, 0);
-        group.add(tailHoriz);
-
-        const finGeo = new THREE.BoxGeometry(0.85, 0.95, 0.09);
-        const fin = new THREE.Mesh(finGeo, bodyMat);
-        fin.position.set(-2.6, 1.35, 0);
-        fin.rotation.z = -0.22; // Inclinación clásica del timón DC-3
-        group.add(fin);
-
-        // 5. Tren de aterrizaje apoyado firmemente en pista
-        [-1.8, 1.8].forEach(offsetZ => {
-          const strutGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.5, 8);
-          const strut = new THREE.Mesh(strutGeo, darkMat);
-          strut.position.set(0.95, 0.25, offsetZ);
-          group.add(strut);
-
-          const wheelGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.12, 12);
-          const wheel = new THREE.Mesh(wheelGeo, darkMat);
-          wheel.position.set(0.95, 0.18, offsetZ);
-          group.add(wheel);
-        });
-
-        // Rueda de cola
-        const tailWheelGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.08, 8);
-        const tailWheel = new THREE.Mesh(tailWheelGeo, darkMat);
-        tailWheel.position.set(-2.7, 0.08, 0);
-        group.add(tailWheel);
-
-        // 6. Líneas y bordes arquitectónicos limpios
-        [fuseGeo, wingLGeo, centerWingGeo, tailHorizGeo, finGeo].forEach(g => {
-          const eGeo = new THREE.EdgesGeometry(g);
-          const eMesh = new THREE.LineSegments(eGeo, edgeMat);
-          group.add(eMesh);
-        });
-
-        // 7. Sombra proyectada en el asfalto de la pista
-        const sGeo = new THREE.PlaneGeometry(6.6, 8.8);
-        const sMesh = new THREE.Mesh(sGeo, shadowMat);
-        sMesh.rotation.x = -Math.PI / 2;
-        sMesh.position.set(0.2, 0.04, 0);
-        sMesh.renderOrder = 305;
-        group.add(sMesh);
-
-        return group;
-      }
-
-      // Avión 1: En la plataforma de pasajeros frente al terminal de Techo
-      const plane1 = make3DDC3(252.0, 108.0, 1.0, -0.42);
-      aeropuertoTechoGroup.add(plane1);
-
-      // Avión 2: En la pista de rodaje hacia la cabecera
-      const plane2 = make3DDC3(288.0, 122.0, 1.05, -0.72);
-      aeropuertoTechoGroup.add(plane2);
-
-      // Avión 3: Estacionado en la zona de hangares / mantenimiento
-      const plane3 = make3DDC3(315.0, 114.0, 0.9, -2.15);
-      aeropuertoTechoGroup.add(plane3);
-    }
-
-    buildVintageAirplanes();
   }
 
   // 4. Animación suave de cámara entre épocas
@@ -897,17 +717,22 @@
   // 5. Función de cambio de época histórica
   function setHistoricalYear(year, animateCam = true) {
     currentHistoricalYear = year;
-    const badge = document.getElementById("activeHistYearBadge");
-    const desc = document.getElementById("activeHistYearDesc");
 
-    // Actualizar botones de la barra temporal
     document.querySelectorAll(".year-btn").forEach(btn => {
-      btn.classList.toggle("active", parseInt(btn.dataset.year, 10) === year);
+      const y = parseInt(btn.dataset.year, 10);
+      const isActive = y === year;
+      btn.classList.toggle("active", isActive);
+      btn.style.borderColor = isActive ? "var(--accent)" : "var(--panel-border)";
+      btn.style.background = isActive ? "rgba(36,200,189,.25)" : "rgba(255,255,255,.06)";
+      btn.style.color = isActive ? "var(--accent)" : "var(--ink)";
     });
-    const histSlider = document.getElementById("histTimeSlider");
-    if (histSlider) histSlider.value = String(year);
+    const slider = document.getElementById("histYearSlider");
+    if (slider) slider.value = year;
 
-    // Ocultar capas modernas por defecto
+    const badge = document.getElementById("eraBadge");
+    const desc = document.getElementById("eraDesc");
+
+    // Ocultar capas urbanas modernas en 1950 y 1956
     if (currentBuildingMesh) currentBuildingMesh.visible = false;
     if (buildingEdgeMat) buildingEdgeMat.visible = false;
     if (modernBuildingEdges) modernBuildingEdges.visible = false;
@@ -926,6 +751,21 @@
     if (treeMesh) treeMesh.visible = true;
     if (modernParquesMesh) modernParquesMesh.visible = true;
 
+    cowsGroup.visible = true;
+    historicalWetlandsGroup.visible = true;
+    userPlantedGroup.visible = true;
+    customPolysGroup.visible = true;
+
+    if (groundMesh && groundMesh.material) {
+      if (groundMesh.material.map !== histGrassTex) {
+        groundMesh.material.map = histGrassTex;
+        groundMesh.material.needsUpdate = true;
+      }
+      groundMesh.material.color.setHex(0xd4d5d3);
+      groundMesh.material.opacity = 0.75;
+      groundMesh.material.transparent = true;
+    }
+
     // Control de visibilidad de paneles de edición (solo activos para 1950, 1956 y 1970)
     const leftPolyPanel = document.getElementById("leftPolyPanel");
     const toolsPanel = document.getElementById("toolsPanel");
@@ -933,28 +773,11 @@
     if (leftPolyPanel) leftPolyPanel.style.display = isEditEra ? "flex" : "none";
     if (toolsPanel) toolsPanel.style.display = isEditEra ? "flex" : "none";
 
-    userPlantedGroup.visible = isEditEra;
-    customPolysGroup.visible = isEditEra;
-
     if (year === 1950) {
       if (badge) badge.textContent = "1950";
-      if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha) y Sabana Rural (potreros de pastoreo con 210 vacas, arboledas naturales, sin vías ni urbanización).";
-      
-      cowsGroup.visible = true;
-      historicalWetlandsGroup.visible = true;
+      if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha) y Sabana Rural (potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
       aeropuertoTechoGroup.visible = false;
-      roads1970Group.visible = false;
       buildings1970Group.visible = false;
-
-      if (groundMesh && groundMesh.material) {
-        if (groundMesh.material.map !== histGrassTex) {
-          groundMesh.material.map = histGrassTex;
-          groundMesh.material.needsUpdate = true;
-        }
-        groundMesh.material.color.setHex(0xd4d5d3);
-        groundMesh.material.opacity = 0.75;
-        groundMesh.material.transparent = true;
-      }
 
       if (animateCam) {
         // Enfoque exacto en Humedal El Burro (coordenadas seleccionadas por la usuaria)
@@ -967,23 +790,9 @@
       }
     } else if (year === 1956) {
       if (badge) badge.textContent = "1956";
-      if (desc) desc.textContent = "1956 · Humedal La Vaca (181 ha) y Laguna de Techo (120 ha) extendidos hacia El Burro, Antiguo Aeropuerto de Techo con aviones DC-3 y Sabana Ganadera.";
-      
-      cowsGroup.visible = true;
-      historicalWetlandsGroup.visible = true;
+      if (desc) desc.textContent = "1956 · Humedal La Vaca (181 ha) y Laguna de Techo (120 ha) extendidos hacia El Burro, Antiguo Aeropuerto de Techo y Sabana Rural.";
       aeropuertoTechoGroup.visible = true;
-      roads1970Group.visible = false;
       buildings1970Group.visible = false;
-
-      if (groundMesh && groundMesh.material) {
-        if (groundMesh.material.map !== histGrassTex) {
-          groundMesh.material.map = histGrassTex;
-          groundMesh.material.needsUpdate = true;
-        }
-        groundMesh.material.color.setHex(0xd4d5d3);
-        groundMesh.material.opacity = 0.75;
-        groundMesh.material.transparent = true;
-      }
 
       if (animateCam) {
         // Paneo suave a Humedal La Vaca y Aeropuerto de Techo (coordenadas seleccionadas por la usuaria)
@@ -996,24 +805,10 @@
       }
     } else if (year === 1970) {
       if (badge) badge.textContent = "1970";
-      if (desc) desc.textContent = "1970 · Primeros barrios de Ciudad Kennedy: Comienza la urbanización progresiva sobre la sabana, primeros conjuntos residenciales, red vial inicial y retiro del aeropuerto.";
-      
-      cowsGroup.visible = false; // Las vacas ya no están en 1970
-      aeropuertoTechoGroup.visible = false; // Aeropuerto retirado/urbanizado
-      roads1970Group.visible = true;
+      if (desc) desc.textContent = "1970 · Primeros barrios de Ciudad Kennedy: Comienza la urbanización progresiva sobre la sabana, primeros conjuntos residenciales y reducción inicial de humedales.";
+      aeropuertoTechoGroup.visible = true;
       buildings1970Group.visible = true;
-      historicalWetlandsGroup.visible = true;
       start1970UrbanizationAnimation();
-
-      if (groundMesh && groundMesh.material) {
-        if (groundMesh.material.map !== histGrassTex) {
-          groundMesh.material.map = histGrassTex;
-          groundMesh.material.needsUpdate = true;
-        }
-        groundMesh.material.color.setHex(0xd4d5d3);
-        groundMesh.material.opacity = 0.75;
-        groundMesh.material.transparent = true;
-      }
 
       if (animateCam) {
         // Paneo hacia el sector de urbanización inicial de Kennedy
@@ -1047,18 +842,9 @@
       }
 
       aeropuertoTechoGroup.visible = false;
-      roads1970Group.visible = false;
       buildings1970Group.visible = false;
       cowsGroup.visible = false;
       historicalWetlandsGroup.visible = false;
-
-      // Restaurar el color y opacidad vibrante del pasto moderno tal como estaba antes (#b8c582)
-      if (groundMesh && groundMesh.material) {
-        groundMesh.material.color.setHex(0x8ea082); // Verde sabana mate natural, nunca neón
-        groundMesh.material.opacity = 1.0;
-        groundMesh.material.transparent = false;
-        groundMesh.material.needsUpdate = true;
-      }
 
       if (animateCam) {
         // Vista general panorámica de Kennedy moderna
@@ -1121,120 +907,6 @@
 
   // ---- Red vial: una sola geometria de lineas fusionada (19 mil tramos,
   // asi que se combina TODO en un unico BufferGeometry por rendimiento) ----
-  
-  // Función para construir las avenidas principales y red arterial de Ciudad Kennedy (1970)
-  function build1970Roads() {
-    roads1970Group.clear();
-
-    const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
-    viaTex.wrapS = THREE.RepeatWrapping;
-    viaTex.wrapT = THREE.RepeatWrapping;
-
-    const HISTORICAL_AVENUES_1970 = [
-      // 1. Avenida de Las Américas (Troncal de acceso desde Bogotá Oriental hacia Techo y Kennedy)
-      {
-        width: 2.2,
-        pts: [
-          { x: 480.0, z: 50.0 },
-          { x: 410.0, z: 68.0 },
-          { x: 330.0, z: 90.0 },
-          { x: 250.0, z: 110.0 },
-          { x: 170.0, z: 125.0 }
-        ]
-      },
-      // 2. Avenida Primero de Mayo / Transversal Kennedy (Eje axial norte-sur)
-      {
-        width: 2.0,
-        pts: [
-          { x: 395.0, z: -35.0 },
-          { x: 360.0, z: 55.0 },
-          { x: 330.0, z: 135.0 },
-          { x: 295.0, z: 220.0 }
-        ]
-      },
-      // 3. Anillo y Boulevard Perimetral de las Primeras Supermánzanas de Kennedy (1970)
-      {
-        width: 1.6,
-        pts: [
-          { x: 360.0, z: 55.0 },
-          { x: 420.0, z: 100.0 },
-          { x: 365.0, z: 180.0 },
-          { x: 305.0, z: 135.0 },
-          { x: 360.0, z: 55.0 }
-        ]
-      },
-      // 4. Eje Transversal Interno de Supermánzanas
-      {
-        width: 1.4,
-        pts: [
-          { x: 305.0, z: 135.0 },
-          { x: 360.0, z: 105.0 },
-          { x: 420.0, z: 100.0 }
-        ]
-      },
-      // 5. Conexión hacia el Humedal La Vaca / El Burro
-      {
-        width: 1.4,
-        pts: [
-          { x: 250.0, z: 110.0 },
-          { x: 215.0, z: 155.0 },
-          { x: 180.0, z: 190.0 }
-        ]
-      }
-    ];
-
-    const ribbonGeo = new THREE.BufferGeometry();
-    const ribbonPos = [];
-    const ribbonUv = [];
-    const linePos = [];
-    const RIBBON_UV_SCALE = 0.06;
-
-    HISTORICAL_AVENUES_1970.forEach(ave => {
-      const pts = ave.pts;
-      const halfW = ave.width * 0.5;
-      const n = pts.length;
-      if (n < 2) return;
-
-      for (let i = 0; i < n - 1; i++) {
-        const a = pts[i], b = pts[i + 1];
-        linePos.push(a.x, 0.038, a.z, b.x, 0.038, b.z);
-        const dx = b.x - a.x, dz = b.z - a.z;
-        const len = Math.hypot(dx, dz) || 0.001;
-        const nx = -dz / len * halfW, nz = dx / len * halfW;
-        ribbonPos.push(
-          a.x - nx, 0.035, a.z - nz,  a.x + nx, 0.035, a.z + nz,  b.x + nx, 0.035, b.z + nz,
-          a.x - nx, 0.035, a.z - nz,  b.x + nx, 0.035, b.z + nz,  b.x - nx, 0.035, b.z - nz
-        );
-        [
-          [a.x - nx, a.z - nz], [a.x + nx, a.z + nz], [b.x + nx, b.z + nz],
-          [a.x - nx, a.z - nz], [b.x + nx, b.z + nz], [b.x - nx, b.z - nz]
-        ].forEach(([px, pz]) => ribbonUv.push(px * RIBBON_UV_SCALE, pz * RIBBON_UV_SCALE));
-      }
-    });
-
-    if (ribbonPos.length) {
-      ribbonGeo.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPos, 3));
-      ribbonGeo.setAttribute("uv", new THREE.Float32BufferAttribute(ribbonUv, 2));
-      ribbonGeo.computeVertexNormals();
-      const roadMat = new THREE.MeshStandardMaterial({
-        map: viaTex,
-        color: 0x94a3b8,
-        roughness: 0.85,
-        side: THREE.DoubleSide
-      });
-      const rMesh = new THREE.Mesh(ribbonGeo, roadMat);
-      rMesh.receiveShadow = true;
-      roads1970Group.add(rMesh);
-
-      const lGeo = new THREE.BufferGeometry();
-      lGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePos, 3));
-      const lMat = new THREE.LineBasicMaterial({ color: 0x334155, transparent: true, opacity: 0.5 });
-      const lMesh = new THREE.LineSegments(lGeo, lMat);
-      roads1970Group.add(lMesh);
-    }
-    roads1970Group.visible = (currentHistoricalYear === 1970);
-  }
-
   function buildRoads(edges) {
     const positions = [];
     edges.forEach(([kind, pts]) => {
@@ -2473,7 +2145,6 @@
       buildGround(data.bbox);
       buildNoiseGround(data.bbox);
       buildRoads(data.edges);
-        build1970Roads();
       const w = (data.bbox[2] - data.bbox[0]) * SCALE;
       const h = (data.bbox[3] - data.bbox[1]) * SCALE;
       sceneExtentW = w; sceneExtentH = h;

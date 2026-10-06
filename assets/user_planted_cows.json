@@ -2,1261 +2,631 @@
   {
     "id": 1,
     "tipo": "vaca",
-    "x": 133.12,
-    "z": -6.15
+    "x": 203.3,
+    "z": -11.59,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 2,
     "tipo": "vaca",
-    "x": 134.49,
-    "z": -29.01
+    "x": 226.86,
+    "z": 17.11,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 3,
     "tipo": "vaca",
-    "x": 135.65,
-    "z": -30.87
+    "x": 225.93,
+    "z": 1.2,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 4,
     "tipo": "vaca",
-    "x": 121.53,
-    "z": -24.11
+    "x": 222.88,
+    "z": 20.19,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 5,
     "tipo": "vaca",
-    "x": 119.61,
-    "z": -25.19
+    "x": 162.14,
+    "z": -46.94,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 6,
     "tipo": "vaca",
-    "x": 125.95,
-    "z": -31.14
+    "x": 224.28,
+    "z": 11.13,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 7,
     "tipo": "vaca",
-    "x": 123.76,
-    "z": -30.86
+    "x": 218.48,
+    "z": -18.99,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 8,
     "tipo": "vaca",
-    "x": 135.06,
-    "z": -34.93
+    "x": 224.04,
+    "z": 4.67,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 9,
     "tipo": "vaca",
-    "x": 134.81,
-    "z": -37.11
+    "x": 257.26,
+    "z": 28.87,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 10,
     "tipo": "vaca",
-    "x": 136.97,
-    "z": -27.24
+    "x": 183.77,
+    "z": -24.79,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 11,
     "tipo": "vaca",
-    "x": 139.03,
-    "z": -26.47
+    "x": 249.99,
+    "z": -31.76,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 12,
     "tipo": "vaca",
-    "x": 136.01,
-    "z": -34.12
+    "x": 242.46,
+    "z": -1.42,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 13,
     "tipo": "vaca",
-    "x": 136.87,
-    "z": -32.1
+    "x": 162.09,
+    "z": 23.34,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 14,
     "tipo": "vaca",
-    "x": 138.84,
-    "z": -22.69
+    "x": 190.92,
+    "z": -5.67,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 15,
     "tipo": "vaca",
-    "x": 129.78,
-    "z": -30.26
+    "x": 194.14,
+    "z": 25.97,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 16,
     "tipo": "vaca",
-    "x": 135.54,
-    "z": -38.93
+    "x": 191.05,
+    "z": 21.91,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 17,
     "tipo": "vaca",
-    "x": 136.14,
-    "z": -36.82
+    "x": 240.14,
+    "z": 1.61,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 18,
     "tipo": "vaca",
-    "x": 138.15,
-    "z": -27.51
+    "x": 181.93,
+    "z": -20.03,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 19,
     "tipo": "vaca",
-    "x": 136.03,
-    "z": -26.94
+    "x": 173.12,
+    "z": 6.46,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 20,
     "tipo": "vaca",
-    "x": 136.54,
-    "z": -35.34
+    "x": 233.06,
+    "z": -31.21,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 21,
     "tipo": "vaca",
-    "x": 140.2,
-    "z": -26.4
+    "x": 203.02,
+    "z": -5.59,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 22,
     "tipo": "vaca",
-    "x": 138.04,
-    "z": -26.83
+    "x": 199.7,
+    "z": -39.85,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 23,
     "tipo": "vaca",
-    "x": 136.5,
-    "z": -32.87
+    "x": 263.51,
+    "z": -30.86,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 24,
     "tipo": "vaca",
-    "x": 136.02,
-    "z": -35.02
+    "x": 220.51,
+    "z": -1.33,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 25,
     "tipo": "vaca",
-    "x": 142.03,
-    "z": -29.81
+    "x": 242.55,
+    "z": -19.48,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 26,
     "tipo": "vaca",
-    "x": 143.62,
-    "z": -31.33
+    "x": 227.2,
+    "z": -37.53,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 27,
     "tipo": "vaca",
-    "x": 107.12,
-    "z": -29.55
+    "x": 216.56,
+    "z": -4.96,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 28,
     "tipo": "vaca",
-    "x": 104.93,
-    "z": -29.37
+    "x": 199.29,
+    "z": -19.54,
+    "zona": "Humedal El Burro"
   },
   {
     "id": 29,
     "tipo": "vaca",
-    "x": 110.79,
-    "z": -25.11
+    "x": 80.91,
+    "z": 133.08,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 30,
     "tipo": "vaca",
-    "x": 110.67,
-    "z": -22.91
+    "x": 106.6,
+    "z": 84.87,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 31,
     "tipo": "vaca",
-    "x": 115.74,
-    "z": -19.5
+    "x": 56.98,
+    "z": 104.68,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 32,
     "tipo": "vaca",
-    "x": 119.89,
-    "z": -13.36
+    "x": 100.39,
+    "z": 109.16,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 33,
     "tipo": "vaca",
-    "x": 124.27,
-    "z": -5.56
+    "x": 95.63,
+    "z": 106.59,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 34,
     "tipo": "vaca",
-    "x": 117.07,
-    "z": -17.39
+    "x": 44.41,
+    "z": 97.8,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 35,
     "tipo": "vaca",
-    "x": 118.78,
-    "z": -16.01
+    "x": 37.6,
+    "z": 144.78,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 36,
     "tipo": "vaca",
-    "x": 113.15,
-    "z": -21.88
+    "x": 39.05,
+    "z": 91.63,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 37,
     "tipo": "vaca",
-    "x": 108.66,
-    "z": -25.8
+    "x": 52.44,
+    "z": 97.41,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 38,
     "tipo": "vaca",
-    "x": 110.37,
-    "z": -27.18
+    "x": 57.15,
+    "z": 100.59,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 39,
     "tipo": "vaca",
-    "x": 106.51,
-    "z": -16.01
+    "x": 82.41,
+    "z": 105.38,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 40,
     "tipo": "vaca",
-    "x": 108.35,
-    "z": -17.22
+    "x": 99.53,
+    "z": 131.95,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 41,
     "tipo": "vaca",
-    "x": 114.48,
-    "z": -8.0
+    "x": 73.39,
+    "z": 108.23,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 42,
     "tipo": "vaca",
-    "x": 116.5,
-    "z": -7.13
+    "x": 94.44,
+    "z": 130.21,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 43,
     "tipo": "vaca",
-    "x": 123.53,
-    "z": -0.82
+    "x": 44.48,
+    "z": 130.83,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 44,
     "tipo": "vaca",
-    "x": 120.63,
-    "z": -12.34
+    "x": 85.61,
+    "z": 131.53,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 45,
     "tipo": "vaca",
-    "x": 121.85,
-    "z": -14.17
+    "x": 97.01,
+    "z": 124.91,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 46,
     "tipo": "vaca",
-    "x": 116.14,
-    "z": -19.51
+    "x": 60.5,
+    "z": 128.52,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 47,
     "tipo": "vaca",
-    "x": 114.53,
-    "z": -21.01
+    "x": 89.89,
+    "z": 106.31,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 48,
     "tipo": "vaca",
-    "x": 108.55,
-    "z": -20.29
+    "x": 54.07,
+    "z": 124.19,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 49,
     "tipo": "vaca",
-    "x": 106.36,
-    "z": -20.15
+    "x": 113.77,
+    "z": 140.74,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 50,
     "tipo": "vaca",
-    "x": 115.68,
-    "z": -13.06
+    "x": 89.7,
+    "z": 89.91,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 51,
     "tipo": "vaca",
-    "x": 117.38,
-    "z": -11.67
+    "x": 86.92,
+    "z": 131.28,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 52,
     "tipo": "vaca",
-    "x": 129.73,
-    "z": -2.22
+    "x": 60.21,
+    "z": 124.55,
+    "zona": "Humedal La Vaca"
   },
   {
     "id": 53,
     "tipo": "vaca",
-    "x": 117.47,
-    "z": -10.52
+    "x": 246.44,
+    "z": 101.9,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 54,
     "tipo": "vaca",
-    "x": 116.88,
-    "z": -19.74
+    "x": 251.12,
+    "z": 103.49,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 55,
     "tipo": "vaca",
-    "x": 117.16,
-    "z": -17.56
+    "x": 301.73,
+    "z": 65.85,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 56,
     "tipo": "vaca",
-    "x": 120.62,
-    "z": -10.72
+    "x": 258.56,
+    "z": 106.92,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 57,
     "tipo": "vaca",
-    "x": 118.72,
-    "z": -9.61
+    "x": 283.66,
+    "z": 74.94,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 58,
     "tipo": "vaca",
-    "x": 128.93,
-    "z": 1.57
+    "x": 259.27,
+    "z": 86.31,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 59,
     "tipo": "vaca",
-    "x": 130.93,
-    "z": 2.49
+    "x": 256.94,
+    "z": 104.29,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 60,
     "tipo": "vaca",
-    "x": 89.12,
-    "z": -53.79
+    "x": 283.06,
+    "z": 56.93,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 61,
     "tipo": "vaca",
-    "x": 91.11,
-    "z": -54.74
+    "x": 254.31,
+    "z": 127.75,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 62,
     "tipo": "vaca",
-    "x": 84.89,
-    "z": -49.51
+    "x": 284.84,
+    "z": 80.53,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 63,
     "tipo": "vaca",
-    "x": 87.09,
-    "z": -49.45
+    "x": 311.3,
+    "z": 104.14,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 64,
     "tipo": "vaca",
-    "x": 84.77,
-    "z": -40.4
+    "x": 295.88,
+    "z": 106.62,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 65,
     "tipo": "vaca",
-    "x": 88.13,
-    "z": -33.71
+    "x": 296.53,
+    "z": 128.32,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 66,
     "tipo": "vaca",
-    "x": 88.22,
-    "z": -35.91
+    "x": 287.37,
+    "z": 84.44,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 67,
     "tipo": "vaca",
-    "x": 95.27,
-    "z": -38.22
+    "x": 292.84,
+    "z": 81.37,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 68,
     "tipo": "vaca",
-    "x": 93.97,
-    "z": -52.44
+    "x": 296.29,
+    "z": 108.02,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 69,
     "tipo": "vaca",
-    "x": 93.82,
-    "z": -54.63
+    "x": 258.56,
+    "z": 100.5,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 70,
     "tipo": "vaca",
-    "x": 89.39,
-    "z": -57.34
+    "x": 289.48,
+    "z": 72.67,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 71,
     "tipo": "vaca",
-    "x": 88.94,
-    "z": -55.19
+    "x": 255.22,
+    "z": 94.52,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 72,
     "tipo": "vaca",
-    "x": 82.12,
-    "z": -43.72
+    "x": 299.72,
+    "z": 96.99,
+    "zona": "Pasturas Orientales / Techo"
   },
   {
     "id": 73,
     "tipo": "vaca",
-    "x": 87.18,
-    "z": -37.12
+    "x": 140.15,
+    "z": -89.3,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 74,
     "tipo": "vaca",
-    "x": 93.42,
-    "z": -43.71
+    "x": 168.97,
+    "z": -48.88,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 75,
     "tipo": "vaca",
-    "x": 94.56,
-    "z": -41.83
+    "x": 109.1,
+    "z": -61.89,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 76,
     "tipo": "vaca",
-    "x": 86.47,
-    "z": -37.22
+    "x": 139.75,
+    "z": -88.08,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 77,
     "tipo": "vaca",
-    "x": 86.26,
-    "z": -35.03
+    "x": 102.96,
+    "z": -109.96,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 78,
     "tipo": "vaca",
-    "x": 94.97,
-    "z": -46.09
+    "x": 157.07,
+    "z": -49.28,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 79,
     "tipo": "vaca",
-    "x": 89.28,
-    "z": -41.7
+    "x": 82.21,
+    "z": -50.16,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 80,
     "tipo": "vaca",
-    "x": 91.72,
-    "z": -46.89
+    "x": 104.17,
+    "z": -65.77,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 81,
     "tipo": "vaca",
-    "x": 86.64,
-    "z": -43.39
+    "x": 146.0,
+    "z": -61.63,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 82,
     "tipo": "vaca",
-    "x": 89.5,
-    "z": -48.19
+    "x": 156.05,
+    "z": -59.01,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 83,
     "tipo": "vaca",
-    "x": 91.33,
-    "z": -49.42
+    "x": 84.03,
+    "z": -45.0,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 84,
     "tipo": "vaca",
-    "x": 24.05,
-    "z": 11.77
+    "x": 131.28,
+    "z": -78.93,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 85,
     "tipo": "vaca",
-    "x": 22.61,
-    "z": 10.11
+    "x": 137.24,
+    "z": -95.59,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 86,
     "tipo": "vaca",
-    "x": 43.89,
-    "z": 19.22
+    "x": 126.41,
+    "z": -83.78,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 87,
     "tipo": "vaca",
-    "x": 43.12,
-    "z": 17.16
+    "x": 181.33,
+    "z": -104.57,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 88,
     "tipo": "vaca",
-    "x": 41.79,
-    "z": 28.7
+    "x": 120.07,
+    "z": -70.73,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 89,
     "tipo": "vaca",
-    "x": 43.43,
-    "z": 27.23
+    "x": 154.9,
+    "z": -65.33,
+    "zona": "Zona Rural Norte"
   },
   {
     "id": 90,
     "tipo": "vaca",
-    "x": 33.48,
-    "z": 37.93
-  },
-  {
-    "id": 91,
-    "tipo": "vaca",
-    "x": 46.15,
-    "z": 18.57
-  },
-  {
-    "id": 92,
-    "tipo": "vaca",
-    "x": 48.32,
-    "z": 18.23
-  },
-  {
-    "id": 93,
-    "tipo": "vaca",
-    "x": 45.95,
-    "z": 34.85
-  },
-  {
-    "id": 94,
-    "tipo": "vaca",
-    "x": 46.4,
-    "z": 32.7
-  },
-  {
-    "id": 95,
-    "tipo": "vaca",
-    "x": 30.15,
-    "z": 42.67
-  },
-  {
-    "id": 96,
-    "tipo": "vaca",
-    "x": 29.86,
-    "z": 40.48
-  },
-  {
-    "id": 97,
-    "tipo": "vaca",
-    "x": 42.58,
-    "z": 21.64
-  },
-  {
-    "id": 98,
-    "tipo": "vaca",
-    "x": 40.64,
-    "z": 22.69
-  },
-  {
-    "id": 99,
-    "tipo": "vaca",
-    "x": 35.56,
-    "z": 45.08
-  },
-  {
-    "id": 100,
-    "tipo": "vaca",
-    "x": 26.87,
-    "z": 32.08
-  },
-  {
-    "id": 101,
-    "tipo": "vaca",
-    "x": 29.07,
-    "z": 32.05
-  },
-  {
-    "id": 102,
-    "tipo": "vaca",
-    "x": 42.48,
-    "z": 19.02
-  },
-  {
-    "id": 103,
-    "tipo": "vaca",
-    "x": 44.6,
-    "z": 19.58
-  },
-  {
-    "id": 104,
-    "tipo": "vaca",
-    "x": 28.49,
-    "z": 37.53
-  },
-  {
-    "id": 105,
-    "tipo": "vaca",
-    "x": 27.44,
-    "z": 35.6
-  },
-  {
-    "id": 106,
-    "tipo": "vaca",
-    "x": 30.48,
-    "z": 20.53
-  },
-  {
-    "id": 107,
-    "tipo": "vaca",
-    "x": 29.71,
-    "z": 18.47
-  },
-  {
-    "id": 108,
-    "tipo": "vaca",
-    "x": 39.26,
-    "z": 34.53
-  },
-  {
-    "id": 109,
-    "tipo": "vaca",
-    "x": 30.75,
-    "z": 40.14
-  },
-  {
-    "id": 110,
-    "tipo": "vaca",
-    "x": 30.33,
-    "z": 42.3
-  },
-  {
-    "id": 111,
-    "tipo": "vaca",
-    "x": 37.64,
-    "z": 24.18
-  },
-  {
-    "id": 112,
-    "tipo": "vaca",
-    "x": 35.52,
-    "z": 23.59
-  },
-  {
-    "id": 113,
-    "tipo": "vaca",
-    "x": 164.6,
-    "z": 0.88
-  },
-  {
-    "id": 114,
-    "tipo": "vaca",
-    "x": 166.79,
-    "z": 1.11
-  },
-  {
-    "id": 115,
-    "tipo": "vaca",
-    "x": 169.69,
-    "z": 5.53
-  },
-  {
-    "id": 116,
-    "tipo": "vaca",
-    "x": 169.48,
-    "z": 7.72
-  },
-  {
-    "id": 117,
-    "tipo": "vaca",
-    "x": 173.24,
-    "z": 10.94
-  },
-  {
-    "id": 118,
-    "tipo": "vaca",
-    "x": 171.12,
-    "z": 11.52
-  },
-  {
-    "id": 119,
-    "tipo": "vaca",
-    "x": 178.85,
-    "z": 15.34
-  },
-  {
-    "id": 120,
-    "tipo": "vaca",
-    "x": 178.13,
-    "z": 13.26
-  },
-  {
-    "id": 121,
-    "tipo": "vaca",
-    "x": 179.14,
-    "z": 21.58
-  },
-  {
-    "id": 122,
-    "tipo": "vaca",
-    "x": 173.77,
-    "z": 17.21
-  },
-  {
-    "id": 123,
-    "tipo": "vaca",
-    "x": 175.95,
-    "z": 17.49
-  },
-  {
-    "id": 124,
-    "tipo": "vaca",
-    "x": 169.28,
-    "z": 11.67
-  },
-  {
-    "id": 125,
-    "tipo": "vaca",
-    "x": 167.47,
-    "z": 12.91
-  },
-  {
-    "id": 126,
-    "tipo": "vaca",
-    "x": 176.6,
-    "z": 19.25
-  },
-  {
-    "id": 127,
-    "tipo": "vaca",
-    "x": 177.97,
-    "z": 17.54
-  },
-  {
-    "id": 128,
-    "tipo": "vaca",
-    "x": 182.67,
-    "z": 18.83
-  },
-  {
-    "id": 129,
-    "tipo": "vaca",
-    "x": 181.97,
-    "z": 20.92
-  },
-  {
-    "id": 130,
-    "tipo": "vaca",
-    "x": 198.01,
-    "z": -7.32
-  },
-  {
-    "id": 131,
-    "tipo": "vaca",
-    "x": 200.2,
-    "z": -7.5
-  },
-  {
-    "id": 132,
-    "tipo": "vaca",
-    "x": 192.14,
-    "z": -1.65
-  },
-  {
-    "id": 133,
-    "tipo": "vaca",
-    "x": 190.27,
-    "z": -0.49
-  },
-  {
-    "id": 134,
-    "tipo": "vaca",
-    "x": 202.67,
-    "z": -7.95
-  },
-  {
-    "id": 135,
-    "tipo": "vaca",
-    "x": 204.22,
-    "z": -6.39
-  },
-  {
-    "id": 136,
-    "tipo": "vaca",
-    "x": 197.04,
-    "z": 4.28
-  },
-  {
-    "id": 137,
-    "tipo": "vaca",
-    "x": 197.49,
-    "z": 6.44
-  },
-  {
-    "id": 138,
-    "tipo": "vaca",
-    "x": 204.7,
-    "z": -2.11
-  },
-  {
-    "id": 139,
-    "tipo": "vaca",
-    "x": 205.5,
-    "z": -0.06
-  },
-  {
-    "id": 140,
-    "tipo": "vaca",
-    "x": 199.07,
-    "z": 5.23
-  },
-  {
-    "id": 141,
-    "tipo": "vaca",
-    "x": 197.78,
-    "z": 3.45
-  },
-  {
-    "id": 142,
-    "tipo": "vaca",
-    "x": 191.34,
-    "z": 22.05
-  },
-  {
-    "id": 143,
-    "tipo": "vaca",
-    "x": 182.56,
-    "z": 34.47
-  },
-  {
-    "id": 144,
-    "tipo": "vaca",
-    "x": 181.22,
-    "z": 36.22
-  },
-  {
-    "id": 145,
-    "tipo": "vaca",
-    "x": 189.38,
-    "z": 28.94
-  },
-  {
-    "id": 146,
-    "tipo": "vaca",
-    "x": 194.73,
-    "z": 23.52
-  },
-  {
-    "id": 147,
-    "tipo": "vaca",
-    "x": 193.2,
-    "z": 21.94
-  },
-  {
-    "id": 148,
-    "tipo": "vaca",
-    "x": 184.21,
-    "z": 36.34
-  },
-  {
-    "id": 149,
-    "tipo": "vaca",
-    "x": 186.0,
-    "z": 37.62
-  },
-  {
-    "id": 150,
-    "tipo": "vaca",
-    "x": 189.0,
-    "z": 29.86
-  },
-  {
-    "id": 151,
-    "tipo": "vaca",
-    "x": 189.24,
-    "z": 27.67
-  },
-  {
-    "id": 152,
-    "tipo": "vaca",
-    "x": 194.74,
-    "z": 26.78
-  },
-  {
-    "id": 153,
-    "tipo": "vaca",
-    "x": 196.43,
-    "z": 28.18
-  },
-  {
-    "id": 154,
-    "tipo": "vaca",
-    "x": 188.74,
-    "z": 38.3
-  },
-  {
-    "id": 155,
-    "tipo": "vaca",
-    "x": 186.93,
-    "z": 39.55
-  },
-  {
-    "id": 156,
-    "tipo": "vaca",
-    "x": 168.4,
-    "z": 59.16
-  },
-  {
-    "id": 157,
-    "tipo": "vaca",
-    "x": 166.06,
-    "z": 68.61
-  },
-  {
-    "id": 158,
-    "tipo": "vaca",
-    "x": 164.5,
-    "z": 70.16
-  },
-  {
-    "id": 159,
-    "tipo": "vaca",
-    "x": 173.73,
-    "z": 63.85
-  },
-  {
-    "id": 160,
-    "tipo": "vaca",
-    "x": 169.92,
-    "z": 68.51
-  },
-  {
-    "id": 161,
-    "tipo": "vaca",
-    "x": 171.78,
-    "z": 67.33
-  },
-  {
-    "id": 162,
-    "tipo": "vaca",
-    "x": 178.58,
-    "z": 68.47
-  },
-  {
-    "id": 163,
-    "tipo": "vaca",
-    "x": 172.24,
-    "z": 74.07
-  },
-  {
-    "id": 164,
-    "tipo": "vaca",
-    "x": 179.49,
-    "z": 75.45
-  },
-  {
-    "id": 165,
-    "tipo": "vaca",
-    "x": 178.8,
-    "z": 77.54
-  },
-  {
-    "id": 166,
-    "tipo": "vaca",
-    "x": 187.68,
-    "z": 75.33
-  },
-  {
-    "id": 167,
-    "tipo": "vaca",
-    "x": 184.4,
-    "z": 79.75
-  },
-  {
-    "id": 168,
-    "tipo": "vaca",
-    "x": 186.12,
-    "z": 81.11
-  },
-  {
-    "id": 169,
-    "tipo": "vaca",
-    "x": 190.19,
-    "z": 77.98
-  },
-  {
-    "id": 170,
-    "tipo": "vaca",
-    "x": 190.17,
-    "z": 75.78
-  },
-  {
-    "id": 171,
-    "tipo": "vaca",
-    "x": 183.61,
-    "z": 38.86
-  },
-  {
-    "id": 172,
-    "tipo": "vaca",
-    "x": 190.49,
-    "z": 46.06
-  },
-  {
-    "id": 173,
-    "tipo": "vaca",
-    "x": 197.33,
-    "z": 51.95
-  },
-  {
-    "id": 174,
-    "tipo": "vaca",
-    "x": 198.81,
-    "z": 53.57
-  },
-  {
-    "id": 175,
-    "tipo": "vaca",
-    "x": 203.46,
-    "z": 56.1
-  },
-  {
-    "id": 176,
-    "tipo": "vaca",
-    "x": 204.71,
-    "z": 57.91
-  },
-  {
-    "id": 177,
-    "tipo": "vaca",
-    "x": 205.92,
-    "z": 62.33
-  },
-  {
-    "id": 178,
-    "tipo": "vaca",
-    "x": 208.1,
-    "z": 62.65
-  },
-  {
-    "id": 179,
-    "tipo": "vaca",
-    "x": 199.43,
-    "z": 62.36
-  },
-  {
-    "id": 180,
-    "tipo": "vaca",
-    "x": 200.39,
-    "z": 60.38
-  },
-  {
-    "id": 181,
-    "tipo": "vaca",
-    "x": 194.24,
-    "z": 56.72
-  },
-  {
-    "id": 182,
-    "tipo": "vaca",
-    "x": 188.57,
-    "z": 51.0
-  },
-  {
-    "id": 183,
-    "tipo": "vaca",
-    "x": 189.57,
-    "z": 52.96
-  },
-  {
-    "id": 184,
-    "tipo": "vaca",
-    "x": 182.06,
-    "z": 44.51
-  },
-  {
-    "id": 185,
-    "tipo": "vaca",
-    "x": 182.36,
-    "z": 46.69
-  },
-  {
-    "id": 186,
-    "tipo": "vaca",
-    "x": 193.95,
-    "z": 53.74
-  },
-  {
-    "id": 187,
-    "tipo": "vaca",
-    "x": 191.76,
-    "z": 53.52
-  },
-  {
-    "id": 188,
-    "tipo": "vaca",
-    "x": 203.14,
-    "z": 61.6
-  },
-  {
-    "id": 189,
-    "tipo": "vaca",
-    "x": 202.32,
-    "z": 59.56
-  },
-  {
-    "id": 190,
-    "tipo": "vaca",
-    "x": 209.22,
-    "z": 61.17
-  },
-  {
-    "id": 191,
-    "tipo": "vaca",
-    "x": 207.08,
-    "z": 61.71
-  },
-  {
-    "id": 192,
-    "tipo": "vaca",
-    "x": 203.81,
-    "z": 65.28
-  },
-  {
-    "id": 193,
-    "tipo": "vaca",
-    "x": 204.17,
-    "z": 63.11
-  },
-  {
-    "id": 194,
-    "tipo": "vaca",
-    "x": 212.22,
-    "z": 57.04
-  },
-  {
-    "id": 195,
-    "tipo": "vaca",
-    "x": 205.75,
-    "z": 70.13
-  },
-  {
-    "id": 196,
-    "tipo": "vaca",
-    "x": 204.07,
-    "z": 68.71
-  },
-  {
-    "id": 197,
-    "tipo": "vaca",
-    "x": 213.55,
-    "z": 64.41
-  },
-  {
-    "id": 198,
-    "tipo": "vaca",
-    "x": 214.61,
-    "z": 66.34
-  },
-  {
-    "id": 199,
-    "tipo": "vaca",
-    "x": 208.39,
-    "z": 73.45
-  },
-  {
-    "id": 200,
-    "tipo": "vaca",
-    "x": 210.25,
-    "z": 74.64
-  },
-  {
-    "id": 201,
-    "tipo": "vaca",
-    "x": 215.26,
-    "z": 67.6
-  },
-  {
-    "id": 202,
-    "tipo": "vaca",
-    "x": 215.74,
-    "z": 74.19
-  },
-  {
-    "id": 203,
-    "tipo": "vaca",
-    "x": 215.4,
-    "z": 76.36
-  },
-  {
-    "id": 204,
-    "tipo": "vaca",
-    "x": 246.23,
-    "z": 46.33
-  },
-  {
-    "id": 205,
-    "tipo": "vaca",
-    "x": 254.86,
-    "z": 51.5
-  },
-  {
-    "id": 206,
-    "tipo": "vaca",
-    "x": 255.57,
-    "z": 53.58
-  },
-  {
-    "id": 207,
-    "tipo": "vaca",
-    "x": 259.21,
-    "z": 59.63
-  },
-  {
-    "id": 208,
-    "tipo": "vaca",
-    "x": 260.61,
-    "z": 57.94
-  },
-  {
-    "id": 209,
-    "tipo": "vaca",
-    "x": 253.96,
-    "z": 51.04
-  },
-  {
-    "id": 210,
-    "tipo": "vaca",
-    "x": 251.83,
-    "z": 50.52
+    "x": 90.5,
+    "z": -101.98,
+    "zona": "Zona Rural Norte"
   }
 ]
