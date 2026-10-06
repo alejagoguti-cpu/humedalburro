@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulación 3D de tránsito — Kennedy</title>
+<title>Problemáticas — Evolución Histórica (Humedal El Burro)</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0c0f; --panel:rgba(255,255,255,.06); --panel-border:rgba(255,255,255,.12);
-    --ink:#e8ecf1; --ink-dim:#8b96a5; --accent:#24c8bd;
+    --bg:#0b0c0f; --panel:rgba(20,24,28,.95); --panel-border:rgba(255,255,255,.14);
+    --ink:#e8ecf1; --ink-dim:#8b96a5; --accent:#24c8bd; --accent-hover:#1fb0a6;
+    --grass:#b8c582;
   }
   *{box-sizing:border-box;}
   html,body{height:100%;margin:0;}
-  body{ background:var(--bg); color:var(--ink); font-family:Inter,Arial,sans-serif; overflow:hidden; }
+  body{ background:var(--bg); color:var(--ink); font-family:'IBM Plex Sans',Arial,sans-serif; overflow:hidden; }
   .app{ display:flex; min-height:100vh; }
   .main{ flex:1; position:relative; min-width:0; }
   #sceneWrap{ position:absolute; inset:0; }
@@ -24,8 +25,8 @@
   .hud-title{
     position:absolute; top:18px; left:18px; z-index:5; pointer-events:none;
   }
-  .hud-title h1{ font-size:15px; font-weight:600; margin:0 0 3px; }
-  .hud-title p{ font-size:11.5px; color:var(--ink-dim); margin:0; }
+  .hud-title h1{ font-size:16px; font-weight:700; margin:0 0 4px; display:flex; align-items:center; gap:8px; }
+  .hud-title p{ font-size:11.5px; color:var(--ink-dim); margin:0; line-height:1.4; max-width:540px; }
 
   .status-overlay{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
@@ -34,97 +35,116 @@
   }
   .status-overlay.hide{ display:none; }
 
+  /* Barra de control temporal histórica */
   .controls-bar{
     position:absolute; left:50%; bottom:24px; transform:translateX(-50%); z-index:6;
-    display:flex; align-items:center; gap:0; padding:0; border-radius:30px;
-    background:transparent; border:none; backdrop-filter:none;
-    transition: all .25s ease;
-  }
-  .controls-bar.expanded{
-    gap:12px; padding:8px 16px; border-radius:14px;
+    display:flex; align-items:center; gap:12px; padding:6px 14px; border-radius:24px;
     background:rgba(17,20,24,.92); border:1px solid var(--panel-border); backdrop-filter:blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
   }
-  .controls-bar button#playPause{
-    width:44px; height:44px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff;
-    color:#111418; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,.28); flex-shrink:0; transition: transform .15s ease, background .15s ease;
+  .controls-bar button#histPlayPause{
+    width:38px; height:38px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff;
+    color:#111418; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.3); flex-shrink:0; transition: transform .15s ease, background .15s ease;
   }
-  .controls-bar button#playPause:hover{
+  .controls-bar button#histPlayPause:hover{
     transform: scale(1.08); background:#f4f5f7;
   }
-  .controls-bar .controls-expandable{
-    display:none; align-items:center; gap:12px;
+  .year-btn{
+    padding:5px 12px; border-radius:12px; border:1px solid var(--panel-border); background:rgba(255,255,255,.06);
+    color:var(--ink); font-size:11.5px; font-weight:600; cursor:pointer; transition: all .15s ease;
   }
-  .controls-bar.expanded .controls-expandable{
-    display:flex;
-  }
-  .controls-bar input[type=range]{ width:min(38vw,340px); accent-color:var(--accent); }
-  .controls-bar .time-label{ font-size:11.5px; color:var(--ink-dim); font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .controls-bar select{
-    background:var(--panel); color:var(--ink); border:1px solid var(--panel-border); border-radius:8px;
-    font-size:11.5px; padding:5px 8px;
+  .year-btn:hover{ background:rgba(255,255,255,.12); }
+  .year-btn.active{
+    border-color:var(--accent); background:rgba(36,200,189,.25); color:var(--accent); font-weight:700;
   }
 
-  .view-buttons{
-    position:absolute; top:18px; right:18px; z-index:6; display:flex; flex-direction:column; gap:6px;
+  /* Panel lateral de herramientas de cámara, pasto y población */
+  .tools-panel{
+    position:absolute; top:18px; right:18px; z-index:10; width:320px;
+    max-height:calc(100vh - 36px); overflow-y:auto;
+    background:var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:14px;
+    box-shadow:0 8px 30px rgba(0,0,0,.45); backdrop-filter:blur(10px);
+    display:flex; flex-direction:column; gap:11px;
   }
-  .view-buttons button{
-    padding:8px 12px; border-radius:9px; border:1px solid var(--panel-border); background:rgba(17,20,24,.85);
-    color:var(--ink); font-size:11.5px; cursor:pointer; text-align:left;
+  .panel-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:8px; border-bottom:1px solid var(--panel-border);
   }
-  .view-buttons button:hover{ background:rgba(255,255,255,.1); }
-  #goCorteBtn{ position:absolute; top:18px; right:18px; z-index:7; padding:8px 14px; border-radius:9px; border:1px solid var(--accent); background:rgba(36,200,189,.15); color:var(--accent); font-size:11.5px; cursor:pointer; backdrop-filter:blur(6px); }
-  #goCorteBtn:hover{ background:rgba(36,200,189,.35); }
-
-  .legend{
-    position:absolute; bottom:78px; left:18px; z-index:5; font-size:11px; color:var(--ink-dim);
-    background:rgba(17,20,24,.8); border:1px solid var(--panel-border); border-radius:10px; padding:10px 12px;
-    display:flex; flex-direction:column; gap:5px;
+  .panel-header h2{
+    font-size:12.5px; font-weight:700; margin:0; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent);
+    display:flex; align-items:center; gap:6px;
   }
-  .legend span{ display:flex; align-items:center; gap:7px; }
-  .legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
-
-  .rotate-panel{
-    position:absolute; top:104px; right:18px; z-index:6; width:220px;
-    background:rgba(17,20,24,.92); border:1px solid var(--panel-border); border-radius:10px; padding:12px;
+  .section-card{
+    background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.07); border-radius:8px; padding:10px;
     display:flex; flex-direction:column; gap:8px;
   }
-  .rotate-row{ display:flex; flex-direction:column; gap:4px; }
-  .rotate-row label{ font-size:11px; color:var(--ink-dim); display:flex; justify-content:space-between; }
-  .rotate-row input[type=range]{ width:100%; accent-color:var(--accent); }
-  .rotate-row.rotate-buttons{ flex-direction:row; gap:8px; }
-  .rotate-row button{
-    flex:1; padding:7px 8px; border-radius:8px; border:1px solid var(--panel-border); background:var(--panel);
-    color:var(--ink); font-size:10.5px; cursor:pointer;
+  .section-title{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink);
+    display:flex; align-items:center; justify-content:space-between; margin:0;
   }
-  .rotate-row button:hover{ background:rgba(255,255,255,.12); }
-  #rotateOutput{
-    width:100%; resize:vertical; font-family:monospace; font-size:10.5px; padding:6px; border-radius:6px;
-    border:1px solid var(--panel-border); background:#0d0f12; color:var(--ink);
+  .coords-box{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; line-height:1.45;
+    background:#08090b; border:1px solid rgba(255,255,255,.1); border-radius:6px; padding:8px;
+    color:#38bdf8; word-break:break-all; user-select:all;
   }
-  #sectionBoxToggle.active{ background:var(--accent); color:#0b0c0f; border-color:var(--accent); }
-  input[type=color]{
-    width:34px; height:24px; padding:0; border:1px solid var(--panel-border); border-radius:5px;
+  .btn-group{
+    display:flex; gap:6px; flex-wrap:wrap;
+  }
+  .btn-tool{
+    flex:1; min-width:130px; padding:7px 10px; border-radius:7px; border:1px solid var(--panel-border);
+    background:rgba(255,255,255,.07); color:var(--ink); font-size:11px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px; transition: all .15s ease;
+    user-select:none;
+  }
+  .btn-tool:hover{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.25); }
+  .btn-tool.active{
+    background:#10b981; color:#0b0c0f; border-color:#10b981; font-weight:700;
+    box-shadow:0 0 12px rgba(16,185,129,.4);
+  }
+  .btn-tool.cow-active{
+    background:#f59e0b; color:#0b0c0f; border-color:#f59e0b; font-weight:700;
+    box-shadow:0 0 12px rgba(245,158,11,.4);
+  }
+  .btn-action-sm{
+    padding:5px 9px; border-radius:6px; border:1px solid var(--panel-border);
+    background:rgba(255,255,255,.08); color:var(--ink); font-size:10px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; gap:4px; transition:all .15s ease;
+  }
+  .btn-action-sm:hover{ background:rgba(255,255,255,.16); }
+
+  .elements-textarea{
+    width:100%; height:80px; resize:vertical; font-family:'IBM Plex Mono',monospace; font-size:9.5px; line-height:1.35;
+    background:#08090b; color:#a7f3d0; border:1px solid rgba(255,255,255,.12); border-radius:6px; padding:6px;
+    outline:none;
+  }
+  .elements-textarea:focus{ border-color:var(--accent); }
+
+  .brush-hint{
+    font-size:10px; color:#94a3b8; line-height:1.35; margin:0;
+  }
+
+  /* Controles de color y opacidad de pasto */
+  .grass-ctrl-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; color:var(--ink-dim);
+  }
+  .grass-ctrl-row input[type=color]{
+    width:36px; height:24px; padding:0; border:1px solid var(--panel-border); border-radius:5px;
     background:none; cursor:pointer;
   }
-  #colorOutput{
-    width:100%; resize:vertical; font-family:monospace; font-size:10.5px; padding:6px; border-radius:6px;
-    border:1px solid var(--panel-border); background:#0d0f12; color:var(--ink);
+  .grass-ctrl-row input[type=range]{
+    flex:1; accent-color:var(--accent); cursor:pointer;
   }
 
-  .draw-panel{
-    position:absolute; top:70px; left:96px; z-index:110; width:230px;
-    max-height:calc(100vh - 90px); overflow-y:auto;
-    background:rgba(17,20,24,.92); border:1px solid var(--panel-border); border-radius:10px; padding:12px;
-    display:flex; flex-direction:column; gap:8px;
-  }
-  .draw-panel #drawToggle.active, .draw-panel #treePlantToggle.active{ background:var(--accent); color:#0b0c0f; border-color:var(--accent); }
-  .draw-hint{ font-size:10px; color:var(--ink-dim); margin:0; line-height:1.4; }
-  #drawOutput, #treePlantOutput{
-    width:100%; resize:vertical; font-family:monospace; font-size:10px; padding:6px; border-radius:6px;
-    border:1px solid var(--panel-border); background:#0d0f12; color:var(--ink);
+  .left-poly-panel{
+    position:absolute; top:110px; left:18px; z-index:10; width:300px;
+    max-height:calc(100vh - 130px); overflow-y:auto;
+    background:var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:12px;
+    box-shadow:0 8px 30px rgba(0,0,0,.45); backdrop-filter:blur(10px);
+    display:flex; flex-direction:column; gap:9px;
   }
 
+  /* Tree info */
   .tree-info{
     position:absolute; left:50%; top:70px; transform:translateX(-50%) translateY(-10px); z-index:20;
     width:min(300px, 88vw); background:rgba(17,20,24,.97); border:1px solid var(--panel-border);
@@ -134,7 +154,7 @@
   .tree-info.show{ opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
   .tree-info-close{
     position:absolute; top:10px; right:10px; width:24px; height:24px; border-radius:50%;
-    border:1px solid var(--panel-border); background:var(--panel); color:var(--ink-dim);
+    border:1px solid var(--panel-border); background:rgba(255,255,255,.1); color:var(--ink-dim);
     cursor:pointer; font-size:12px;
   }
   .tree-info-kind{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-dim); margin:0 0 4px; }
@@ -149,22 +169,190 @@
       <canvas id="sceneCanvas"></canvas>
     </div>
 
+    <!-- Título HUD -->
     <div class="hud-title" style="pointer-events:none;">
-      <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:6px; pointer-events:auto;"><button type="button" style="padding:6px 12px; border-radius:8px; border:1px solid var(--panel-border); background:rgba(17,20,24,.9); color:var(--ink); font-size:11.5px; font-weight:600; cursor:pointer;">← Volver al Humedal</button></a>
-      <h1 style="font-size:16px; font-weight:700; margin:0 0 4px; display:flex; align-items:center; gap:8px;">
+      <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:6px; pointer-events:auto;">
+        <button type="button" style="padding:6px 12px; border-radius:8px; border:1px solid var(--panel-border); background:rgba(17,20,24,.9); color:var(--ink); font-size:11.5px; font-weight:600; cursor:pointer;">
+          <i class="fa-solid fa-arrow-left"></i> Volver al Humedal
+        </button>
+      </a>
+      <h1>
         Problemáticas — Evolución Histórica
         <span id="eraBadge" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(36,200,189,.2); border:1px solid var(--accent); color:var(--accent);">1950</span>
       </h1>
-      <p id="eraDesc" style="font-size:11.5px; color:var(--ink-dim); max-width:540px; margin:0; line-height:1.4;">1950 · Humedal El Burro y Sabana Rural (89% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, sin vías ni urbanización).</p>
+      <p id="eraDesc">1950 · Humedal El Burro y Sabana Rural (89% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).</p>
     </div>
 
-    <div class="controls-bar" id="controlsBar" style="bottom:22px; padding:6px 14px; border-radius:24px; background:rgba(17,20,24,.92); border:1px solid var(--panel-border); backdrop-filter:blur(8px); display:flex; align-items:center; gap:12px;">
-      <button type="button" id="histPlayPause" aria-label="Reproducir evolución histórica" style="width:38px; height:38px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#111418; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 3px 12px rgba(0,0,0,.3); flex-shrink:0;"><i class="fa-solid fa-play"></i></button>
-      
+    <!-- Panel Izquierdo: Trazado de Vías y Pista de Aeropuerto -->
+    <div class="left-poly-panel" id="leftPolyPanel">
+      <div class="panel-header">
+        <h2><i class="fa-solid fa-draw-polygon"></i> Trazado Aeropuerto / Vías</h2>
+      </div>
+
+      <!-- Sección Vía con Grosor -->
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-road" style="color:#f59e0b;"></i> Vía (Línea con grosor)</span>
+          <span id="roadPointsCount" style="font-size:10px; color:#f59e0b; font-weight:700;">0 pts</span>
+        </div>
+        <p class="brush-hint">Haz clic en el mapa para trazar tramos continuos de vía con textura y grosor.</p>
+        <div class="btn-group">
+          <button type="button" class="btn-tool" id="toolDrawRoadBtn" title="Activar modo para trazar vía con clics">
+            <i class="fa-solid fa-pen-nib"></i> Trazar Vía
+          </button>
+          <button type="button" class="btn-tool" id="finishRoadBtn" title="Completar la vía trazada">
+            <i class="fa-solid fa-check"></i> Finalizar Vía
+          </button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+          <span style="font-size:10px; color:var(--ink-dim);">Coordenadas Vía:</span>
+          <button type="button" class="btn-action-sm" id="copyRoadCoordsBtn" title="Copiar coordenadas de vía">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+        </div>
+        <textarea class="elements-textarea" id="roadCoordsOutput" readonly placeholder="// Coordenadas de los puntos de la vía..." style="height:60px;"></textarea>
+      </div>
+
+      <!-- Sección Pista Polígono Relleno -->
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-plane-departure" style="color:#38bdf8;"></i> Pista (Polígono relleno)</span>
+          <span id="runwayPointsCount" style="font-size:10px; color:#38bdf8; font-weight:700;">0 pts</span>
+        </div>
+        <p class="brush-hint">Haz clic para definir los vértices del polígono relleno de la pista.</p>
+        <div class="btn-group">
+          <button type="button" class="btn-tool" id="toolDrawRunwayBtn" title="Activar modo para trazar polígono de pista">
+            <i class="fa-solid fa-draw-polygon"></i> Trazar Pista
+          </button>
+          <button type="button" class="btn-tool" id="finishRunwayBtn" title="Cerrar y rellenar el polígono de la pista">
+            <i class="fa-solid fa-check"></i> Cerrar Polígono
+          </button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+          <span style="font-size:10px; color:var(--ink-dim);">Coordenadas Pista:</span>
+          <button type="button" class="btn-action-sm" id="copyRunwayCoordsBtn" title="Copiar coordenadas del polígono de la pista">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+        </div>
+        <textarea class="elements-textarea" id="runwayCoordsOutput" readonly placeholder="// Coordenadas del polígono relleno de la pista..." style="height:60px;"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button type="button" class="btn-action-sm" id="clearPolysBtn" style="color:#ef4444;" title="Borrar vías y pistas trazadas">
+          <i class="fa-solid fa-trash"></i> Limpiar Vías / Pistas
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Control Temporal -->
+    <div class="controls-bar" id="controlsBar">
+      <button type="button" id="histPlayPause" aria-label="Reproducir evolución histórica">
+        <i class="fa-solid fa-play"></i>
+      </button>
       <div style="display:flex; align-items:center; gap:6px;">
-        <button type="button" class="year-btn active" data-year="1950" style="padding:5px 12px; border-radius:12px; border:1px solid var(--accent); background:rgba(36,200,189,.25); color:var(--accent); font-size:11.5px; font-weight:700; cursor:pointer;">1950</button>
-        <button type="button" class="year-btn" data-year="1956" style="padding:5px 12px; border-radius:12px; border:1px solid var(--panel-border); background:rgba(255,255,255,.06); color:var(--ink); font-size:11.5px; font-weight:600; cursor:pointer;">1956</button>
-        <input type="range" id="histYearSlider" min="1950" max="1956" value="1950" step="1" style="width:100px; accent-color:var(--accent); cursor:pointer; margin-left:6px;">
+        <button type="button" class="year-btn active" data-year="1950" title="1950: Sabana Rural y Humedales Naturales (171 ha)">1950</button>
+        <button type="button" class="year-btn" data-year="1956" title="1956: Antiguo Aeropuerto de Techo y Sabana">1956</button>
+        <button type="button" class="year-btn" data-year="1972" title="1972: Inauguración de Corabastos en Potrero Alto Negro (38,5 ha)">1972</button>
+        <button type="button" class="year-btn" data-year="1988" title="1988: Bisección por Av. Ciudad de Cali y Planta Protecho (27,1 ha)">1988</button>
+        <button type="button" class="year-btn" data-year="2024" title="Actualidad: Modelo Axonométrico Moderno Completo de Kennedy">Actualidad</button>
+        <input type="range" id="histYearSlider" min="0" max="4" value="0" step="1" style="width:90px; accent-color:var(--accent); cursor:pointer; margin-left:6px;" title="Línea de tiempo histórica">
+      </div>
+    </div>
+
+    <!-- Panel Lateral: Herramientas 3D -->
+    <div class="tools-panel" id="toolsPanel">
+      <div class="panel-header">
+        <h2><i class="fa-solid fa-sliders"></i> Herramientas 3D</h2>
+        <span style="font-size:10px; color:#38bdf8;"><i class="fa-solid fa-lock"></i> Axo Fija</span>
+      </div>
+
+      <!-- Sección 1: Ajuste de Pasto / Sabana -->
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-seedling" style="color:#a3e635;"></i> Ajuste de Pasto</span>
+          <span id="grassColorHex" style="font-size:10px; font-family:monospace; color:var(--accent);">#d4d5d3</span>
+        </div>
+        <div class="grass-ctrl-row">
+          <span>Color / Tono:</span>
+          <input type="color" id="grassColorPicker" value="#d4d5d3" title="Elegir tono de pasto">
+        </div>
+        <div class="grass-ctrl-row">
+          <span>Opacidad textura:</span>
+          <input type="range" id="grassOpacitySlider" min="0.1" max="1" step="0.05" value="0.75" title="Opacidad de la textura de pasto">
+          <span id="grassOpacityVal" style="font-size:10px; width:26px; text-align:right;">75%</span>
+        </div>
+      </div>
+
+      <!-- Sección 2: Pincel y Variación de Árboles -->
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-tree" style="color:#4ade80;"></i> Árboles</span>
+          <span id="plantedTreesCount" style="font-size:10px; color:#4ade80; font-weight:700;">0 nuevos</span>
+        </div>
+        <div class="grass-ctrl-row" style="margin-bottom:6px;">
+          <span>Escala 24 grandes:</span>
+          <input type="range" id="treeScaleSlider" min="1.4" max="3.5" step="0.1" value="2.2" title="Ajustar tamaño de los 24 árboles aleatorios destacados">
+          <span id="treeScaleVal" style="font-size:10px; width:28px; text-align:right; font-weight:700; color:#4ade80;">2.2x</span>
+        </div>
+        <div style="margin-bottom:8px;">
+          <button type="button" class="btn-tool" id="randomizeTreesBtn" style="width:100%; justify-content:center; font-size:11px;" title="Seleccionar otros 24 árboles aleatorios para agrandar">
+            <i class="fa-solid fa-dice" style="color:#a3e635;"></i> Re-sortear 24 árboles grandes
+          </button>
+        </div>
+        <p class="brush-hint">Activa el pincel y <b>arrastra el cursor sobre el mapa</b> para pintar árboles con alturas y escalas individuales.</p>
+        <div class="btn-group">
+          <button type="button" class="btn-tool" id="toolPlantTreeBtn" title="Activa pincel para pintar árboles arrastrando">
+            <i class="fa-solid fa-paintbrush"></i> Pincel Árboles
+          </button>
+          <button type="button" class="btn-tool" id="batchTreesBtn" title="Pobla automáticamente un lote de 24 árboles con alturas variadas">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> +24 Árboles
+          </button>
+        </div>
+      </div>
+
+      <!-- Sección 3: Pincel de Vacas -->
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-cow" style="color:#fbbf24;"></i> Pincel de Vacas</span>
+          <span id="plantedCowsCount" style="font-size:10px; color:#fbbf24; font-weight:700;">0 nuevas</span>
+        </div>
+        <p class="brush-hint">Activa el pincel y haz clic o arrastra para colocar vacas en pastoreo con su sombra.</p>
+        <div class="btn-group">
+          <button type="button" class="btn-tool" id="toolPlantCowBtn" title="Activa pincel para colocar vacas arrastrando">
+            <i class="fa-solid fa-paintbrush"></i> Pincel Vacas
+          </button>
+          <button type="button" class="btn-tool" id="batchCowsBtn" title="Pobla automáticamente un lote de 10 vacas en el encuadre">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> +10 Vacas
+          </button>
+        </div>
+      </div>
+
+      <!-- Sección 4: Coordenadas de Elementos y Cámara -->
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-code"></i> Registro de Elementos</span>
+          <div style="display:flex; gap:4px;">
+            <button type="button" class="btn-action-sm" id="copyElementsCoordsBtn" title="Copiar lista de coordenadas de árboles y vacas">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+            <button type="button" class="btn-action-sm" id="clearElementsBtn" title="Limpiar elementos agregados">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <textarea class="elements-textarea" id="elementsCoordsOutput" readonly placeholder="// Aquí se registrarán las coordenadas de los nuevos árboles y vacas al pintar..."></textarea>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-video"></i> Coordenadas de Vista</span>
+          <button type="button" class="btn-action-sm" id="copyCamCoordsBtn" title="Copiar coordenadas de la vista actual">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+        </div>
+        <div class="coords-box" id="liveCamCoordsBox">
+          Cargando coordenadas...
+        </div>
       </div>
     </div>
 
@@ -176,34 +364,11 @@
       <h3 id="treeInfoName"></h3>
       <p id="treeInfoDetails"></p>
     </div>
-
-    <!-- Tarjeta de edición de color de edificio (techo + paredes) -->
-    <div class="tree-info" id="buildingInfo" style="width:320px;">
-      <button type="button" class="tree-info-close" id="buildingInfoClose">✕</button>
-      <p class="tree-info-kind">Edificio seleccionado</p>
-      <h3 id="buildingInfoTitle">Edificio</h3>
-      <p id="buildingInfoDetails" style="margin-bottom:8px;"></p>
-      
-      <label style="font-size:11px; font-weight:600; color:var(--ink-dim); display:block; margin-bottom:6px;">Cambiar color (paredes + techo):</label>
-      <div id="buildingColorPalette" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
-        <button type="button" class="color-swatch" data-color="#ffffff" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:#ffffff; cursor:pointer;" title="Blanco original"></button>
-        <button type="button" class="color-swatch" data-color="#e8e4dc" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#e8e4dc; cursor:pointer;" title="Crema"></button>
-        <button type="button" class="color-swatch" data-color="#d4aa6a" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#d4aa6a; cursor:pointer;" title="Ocre"></button>
-        <button type="button" class="color-swatch" data-color="#d88a70" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#d88a70; cursor:pointer;" title="Terracota"></button>
-        <button type="button" class="color-swatch" data-color="#789882" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#789882; cursor:pointer;" title="Verde sabana"></button>
-        <button type="button" class="color-swatch" data-color="#6a8cae" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#6a8cae; cursor:pointer;" title="Azul pizarra"></button>
-        <button type="button" class="color-swatch" data-color="#c88a96" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.2); background:#c88a96; cursor:pointer;" title="Rosa ceniza"></button>
-        <input type="color" id="buildingCustomColorPicker" value="#d88a70" style="width:30px; height:26px; padding:0; border:1px solid rgba(255,255,255,.2); border-radius:6px; background:none; cursor:pointer;" title="Color personalizado">
-      </div>
-      
-      <textarea id="buildingColorConfigOutput" rows="3" readonly spellcheck="false" style="width:100%; font:9.5px/1.3 monospace; background:#0d0f12; color:var(--accent); border:1px solid var(--panel-border); border-radius:6px; padding:6px; margin-bottom:8px; resize:none;"></textarea>
-      <button type="button" id="copyBuildingColorConfigBtn" style="width:100%; padding:7px 8px; border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#0b0c0f; font-size:11px; font-weight:700; cursor:pointer;">📋 Copiar cambios de color</button>
-    </div>
   </main>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=207"></script>
+<script src="modulo-08-3d.js?v=266"></script>
 </body>
 </html>

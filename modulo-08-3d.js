@@ -23,8 +23,8 @@
   const canvas = document.getElementById("sceneCanvas");
   const wrap = document.getElementById("sceneWrap");
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf3f4f5);
-  scene.fog = new THREE.Fog(0xf3f4f5, 900, 3200);
+  scene.background = new THREE.Color(0xdbe8d4);
+  scene.fog = new THREE.Fog(0xdbe8d4, 900, 3400);
   // Todo el contenido del mapa (vias, edificios, arboles, agua, vehiculos)
   // se agrega a este grupo, no directamente a la escena, para poder
   // rotarlo entero en X/Y/Z con los controles manuales de orientacion.
@@ -38,6 +38,7 @@
 
   // Variables y grupos de la simulación histórica (1950 - 1956)
   let currentHistoricalYear = 1950;
+  let rawWaterData = null;
   let modernRoadLines = null;
   let modernRoadMesh = null;
   let modernManzanasMesh = null;
@@ -58,9 +59,55 @@
   const aeropuertoTechoGroup = new THREE.Group();
   sceneRoot.add(aeropuertoTechoGroup);
 
+  const corabastosGroup = new THREE.Group();
+  sceneRoot.add(corabastosGroup);
+
+  const roads1972Group = new THREE.Group();
+  sceneRoot.add(roads1972Group);
+
+  const avCaliGroup = new THREE.Group();
+  sceneRoot.add(avCaliGroup);
+
+  const protechoGroup = new THREE.Group();
+  sceneRoot.add(protechoGroup);
+
   const historicalTreesGroup = new THREE.Group();
   sceneRoot.add(historicalTreesGroup);
 
+  const userPlantedGroup = new THREE.Group();
+  userPlantedGroup.renderOrder = 999;
+  sceneRoot.add(userPlantedGroup);
+  const userPlantedElements = [];
+  let currentActiveTool = null; // 'tree' | 'cow' | 'road' | 'runway' | null
+
+  // Grupo para polígonos personalizados de vía y pista de aterrizaje
+  const customPolysGroup = new THREE.Group();
+  customPolysGroup.renderOrder = 300;
+  sceneRoot.add(customPolysGroup);
+
+  const customRoadPoints = [];
+  const customRunwayPoints = [];
+  let currentActiveRoadMesh = null;
+  let currentActiveRunwayMesh = null;
+
+  const viaTexLoader = new THREE.TextureLoader();
+  const roadTexture = viaTexLoader.load("./assets/textura_via.jpg");
+  roadTexture.wrapS = THREE.RepeatWrapping;
+  roadTexture.wrapT = THREE.RepeatWrapping;
+
+  const customRoadMat = new THREE.MeshStandardMaterial({
+    map: roadTexture,
+    color: 0x9099a3,
+    roughness: 0.85,
+    side: THREE.DoubleSide
+  });
+
+  const customRunwayMat = new THREE.MeshStandardMaterial({
+    map: roadTexture,
+    color: 0x727982,
+    roughness: 0.85,
+    side: THREE.DoubleSide
+  });
 
   let camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 2000);
   const orthoCameraRef = camera; // referencia estable a la ortografica, para poder volver a ella
@@ -105,18 +152,20 @@
   window.addEventListener("resize", resize);
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  canvas.addEventListener("contextmenu", (e) => e.preventDefault()); // sin esto, el navegador abre su menu contextual con el clic derecho en vez de dejarlo mover (panear) la vista
+  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  // Antes el angulo de camara quedaba fijo en 45 grados (solo se podia
-  // orbitar en horizontal). Ahora se puede inclinar la vista libremente,
-  // para poder ver el corte de la caja de seccion desde el angulo que se
-  // quiera, no solo desde arriba.
-  controls.minPolarAngle = Math.PI / 12;   // casi cenital
-  controls.maxPolarAngle = Math.PI / 2.05; // casi al ras del horizonte
+  controls.enableRotate = false; // Vista axonométrica fija: no rota, solo se desplaza y hace zoom
+  controls.enablePan = true;
+  controls.screenSpacePanning = true;
+  controls.enableZoom = true;
   controls.minZoom = 0.15;
   controls.maxZoom = 30;
-  controls.enablePan = true;
+  controls.mouseButtons = {
+    LEFT: THREE.MOUSE.PAN,
+    MIDDLE: THREE.MOUSE.DOLLY,
+    RIGHT: THREE.MOUSE.PAN
+  };
 
   // ---- Cambiar entre proyeccion ortografica (axonometrica, la de
   // siempre) y perspectiva (con fuga real, como ve un ojo humano). Al
@@ -182,18 +231,33 @@
   // ---- Suelo ----
   let netCenter = { x: 0, y: 0 };
   let roadMat = null, waterMat = null, parqueMat = null; // referencias para los selectores de color en vivo
+  let modernWaterMesh = null;
   let waterTexRef = null, waterBumpRef = null; // texturas de agua, animadas en el loop de render
   let buildingEdgeMat = null; // referencia para ajustar su opacidad segun el zoom
   let groundMesh = null;
+  const grassTexLoader = new THREE.TextureLoader();
+  const histGrassTex = grassTexLoader.load("./assets/textura_pasto.jpg");
+  histGrassTex.wrapS = THREE.RepeatWrapping;
+  histGrassTex.wrapT = THREE.RepeatWrapping;
+  histGrassTex.anisotropy = 16;
+  histGrassTex.minFilter = THREE.LinearMipmapLinearFilter;
+  histGrassTex.magFilter = THREE.LinearFilter;
 
   function buildGround(bbox) {
     const w = (bbox[2] - bbox[0]) * SCALE * 1.4;
     const h = (bbox[3] - bbox[1]) * SCALE * 1.4;
     const geo = new THREE.PlaneGeometry(w, h);
+    
+    // Repetición suave y amplia para evitar efecto cuadrícula/cuarteado
+    histGrassTex.repeat.set(Math.max(10, Math.round(w / 45)), Math.max(10, Math.round(h / 45)));
+    
     const mat = new THREE.MeshStandardMaterial({
-      color: 0xebedee, // suelo arquitectónico claro, limpio y uniforme
-      roughness: 1,
-      metalness: 0
+      map: histGrassTex,
+      color: 0xd4d5d3, // Tono pastizal suave #d4d5d3
+      roughness: 0.95,
+      metalness: 0.0,
+      transparent: true,
+      opacity: 0.75
     });
     groundMesh = new THREE.Mesh(geo, mat);
     groundMesh.rotation.x = -Math.PI / 2;
@@ -217,16 +281,29 @@
 
   // Texturas de agua con relieve y movimiento (mismo color y textura que la axonometría)
   const waterTexLoader = new THREE.TextureLoader();
-  const histWaterTex = waterTexLoader.load("./assets/textura_agua2.jpg");
-  histWaterTex.wrapS = THREE.RepeatWrapping;
-  histWaterTex.wrapT = THREE.RepeatWrapping;
-  waterTexRef = histWaterTex;
+  const waterTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  waterTex.wrapS = THREE.RepeatWrapping;
+  waterTex.wrapT = THREE.RepeatWrapping;
+  waterTexRef = waterTex;
 
-  const histWaterBump = waterTexLoader.load("./assets/textura_agua2.jpg");
-  histWaterBump.wrapS = THREE.RepeatWrapping;
-  histWaterBump.wrapT = THREE.RepeatWrapping;
-  histWaterBump.repeat.set(2.3, 2.3);
-  waterBumpRef = histWaterBump;
+  const bumpTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  bumpTex.wrapS = THREE.RepeatWrapping;
+  bumpTex.wrapT = THREE.RepeatWrapping;
+  bumpTex.repeat.set(2.3, 2.3);
+  waterBumpRef = bumpTex;
+
+  const sharedWaterMat = new THREE.MeshStandardMaterial({
+    map: waterTex,
+    bumpMap: bumpTex,
+    bumpScale: 0.12,
+    color: 0x8f9498, // Color exacto de modulo-10-corte.html
+    roughness: 0.18,
+    metalness: 0.15,
+    transparent: true,
+    opacity: 0.82,
+    side: THREE.DoubleSide
+  });
+  waterMat = sharedWaterMat;
 
   // 1. Sprites de vacas en pastoreo con sombra negra en el suelo (caminando en el plano sin flotar)
   const cowTextures = [];
@@ -298,39 +375,145 @@
     });
   }
 
-  // 2. Construcción de humedales históricos con el mismo color y textura de agua
-  function buildHistoricalWetlands(waterBodies) {
+  // 2. Construcción de humedales históricos con el área solicitada según la época
+  function buildHistoricalWetlands(waterBodies, year = 1950) {
     if (!waterBodies || !waterBodies.length) return;
     historicalWetlandsGroup.clear();
     const positions = [], uvs = [];
     const UV_SCALE = 0.08;
 
-    waterBodies.forEach(w => {
+    function polyArea(pts) {
+      let a = 0;
+      for (let i = 0; i < pts.length; i++) {
+        const p1 = pts[i], p2 = pts[(i + 1) % pts.length];
+        a += p1[0] * p2[1] - p2[0] * p1[1];
+      }
+      return Math.abs(a) / 2;
+    }
+
+    // Suavizado de esquinas curvas (Algoritmo de Chaikin)
+    function chaikinSmooth(pts, iterations = 2) {
+      let cur = pts;
+      for (let iter = 0; iter < iterations; iter++) {
+        const n = cur.length;
+        const res = [];
+        for (let i = 0; i < n; i++) {
+          const p0 = cur[i];
+          const p1 = cur[(i + 1) % n];
+          res.push([0.75 * p0[0] + 0.25 * p1[0], 0.75 * p0[1] + 0.25 * p1[1]]);
+          res.push([0.25 * p0[0] + 0.75 * p1[0], 0.25 * p0[1] + 0.75 * p1[1]]);
+        }
+        cur = res;
+      }
+      return cur;
+    }
+
+    let targetAreaBurro = 1710000;
+    let targetAreaVaca = 1810000;
+    let targetAreaTecho = 1200000;
+
+    if (year === 1972) {
+      targetAreaBurro = 385300;
+      targetAreaVaca = 800000;
+      targetAreaTecho = 300000;
+    } else if (year === 1988) {
+      targetAreaBurro = 271400;
+      targetAreaVaca = 300000;
+      targetAreaTecho = 100000;
+    }
+
+    const burroObj = waterBodies.find(w => (w.nombre || "").includes("Burro"));
+    let burroCx = 7436.96, burroCy = 3271.17;
+    if (burroObj && burroObj.pts && burroObj.pts.length) {
+      burroCx = burroObj.pts.reduce((s, p) => s + p[0], 0) / burroObj.pts.length;
+      burroCy = burroObj.pts.reduce((s, p) => s + p[1], 0) / burroObj.pts.length;
+    }
+
+    waterBodies.forEach((w) => {
       const name = w.nombre || "";
-      let scale = 1.0;
-      if (name.includes("Burro")) scale = 2.0;  // Humedal El Burro expandido
-      else if (name.includes("Vaca")) scale = 1.95; // Humedal La Vaca expandido
-      else if (name.includes("Techo")) scale = 1.85;
-      else scale = 1.3;
+      if (!name.includes("Burro") && !name.includes("Vaca") && !name.includes("Techo")) return;
+      if (!w.pts || w.pts.length < 3) return;
 
-      const cx = w.pts.reduce((s, p) => s + p[0], 0) / w.pts.length;
-      const cy = w.pts.reduce((s, p) => s + p[1], 0) / w.pts.length;
+      const ptsOriginal = w.pts;
+      const baseArea = polyArea(ptsOriginal);
+      if (baseArea <= 0) return;
+      if (name.includes("Vaca") && baseArea < 20000) return;
 
-      const pts = w.pts.map(p => {
-        const ex = cx + (p[0] - cx) * scale;
-        const ey = cy + (p[1] - cy) * scale;
-        return toScene(ex, ey);
-      });
+      const cx = ptsOriginal.reduce((s, p) => s + p[0], 0) / ptsOriginal.length;
+      const cy = ptsOriginal.reduce((s, p) => s + p[1], 0) / ptsOriginal.length;
 
-      if (pts.length < 3) return;
-      const pts2d = pts.map(p => new THREE.Vector2(p.x, p.z));
+      let expandedPts = [];
+      let yLayer = 0.024;
+
+      if (name.includes("Burro")) {
+        yLayer = 0.024;
+        const scale = Math.sqrt(targetAreaBurro / baseArea);
+        const unscaled = ptsOriginal.map(p => [cx + (p[0] - cx) * scale, cy + (p[1] - cy) * scale]);
+        const smoothed = chaikinSmooth(unscaled, 1);
+        const sArea = polyArea(smoothed);
+        const k = Math.sqrt(targetAreaBurro / (sArea || 1));
+        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
+        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
+        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
+      } else if (name.includes("Vaca")) {
+        yLayer = 0.025;
+        const scaleBase = Math.sqrt(targetAreaVaca / baseArea);
+        const dx = burroCx - cx, dy = burroCy - cy;
+        const dist = Math.hypot(dx, dy) || 1;
+        const ux = dx / dist, uy = dy / dist;
+
+        const transformed = ptsOriginal.map(p => {
+          const px = p[0] - cx, py = p[1] - cy;
+          const proj = px * ux + py * uy;
+          const perp_x = px - proj * ux, perp_y = py - proj * uy;
+          const newProj = proj * (scaleBase * 1.30) + dist * 0.25;
+          const newPerpX = perp_x * (scaleBase * 0.769);
+          const newPerpY = perp_y * (scaleBase * 0.769);
+          return [cx + newProj * ux + newPerpX, cy + newProj * uy + newPerpY];
+        });
+
+        const smoothed = chaikinSmooth(transformed, 2);
+        const sArea = polyArea(smoothed);
+        const k = Math.sqrt(targetAreaVaca / (sArea || 1));
+        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
+        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
+        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
+      } else if (name.includes("Techo")) {
+        yLayer = 0.026;
+        const scaleBase = Math.sqrt(targetAreaTecho / baseArea);
+        const dx = burroCx - cx, dy = burroCy - cy;
+        const dist = Math.hypot(dx, dy) || 1;
+        const ux = dx / dist, uy = dy / dist;
+
+        const transformed = ptsOriginal.map(p => {
+          const px = p[0] - cx, py = p[1] - cy;
+          const proj = px * ux + py * uy;
+          const perp_x = px - proj * ux, perp_y = py - proj * uy;
+          const newProj = proj * (scaleBase * 1.22) + dist * 0.20;
+          const newPerpX = perp_x * (scaleBase * 0.82);
+          const newPerpY = perp_y * (scaleBase * 0.82);
+          return [cx + newProj * ux + newPerpX, cy + newProj * uy + newPerpY];
+        });
+
+        const smoothed = chaikinSmooth(transformed, 1);
+        const sArea = polyArea(smoothed);
+        const k = Math.sqrt(targetAreaTecho / (sArea || 1));
+        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
+        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
+        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
+      }
+
+      const scenePts = expandedPts.map(p => toScene(p[0], p[1]));
+      if (scenePts.length < 3) return;
+
+      const pts2d = scenePts.map(p => new THREE.Vector2(p.x, p.z));
       let tris = [];
       try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
 
       tris.forEach(([a, b, c]) => {
         [a, b, c].forEach(idx => {
-          positions.push(pts[idx].x, 0.024, pts[idx].z);
-          uvs.push(pts[idx].x * UV_SCALE, pts[idx].z * UV_SCALE);
+          positions.push(scenePts[idx].x, yLayer, scenePts[idx].z);
+          uvs.push(scenePts[idx].x * UV_SCALE, scenePts[idx].z * UV_SCALE);
         });
       });
     });
@@ -340,41 +523,252 @@
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
 
-    const histWaterMat = new THREE.MeshStandardMaterial({
-      map: histWaterTex,
-      bumpMap: histWaterBump,
-      bumpScale: 0.12,
-      color: 0x97a5af, // Mismo color exacto de agua de la axonometría urbana
-      roughness: 0.18,
-      metalness: 0.15,
-      transparent: true,
-      opacity: 0.82,
+    const bedGeo = geo.clone();
+    const bedMat = new THREE.MeshBasicMaterial({ color: 0xd8e2ec, side: THREE.DoubleSide });
+    const bedMesh = new THREE.Mesh(bedGeo, bedMat);
+    bedMesh.position.y = -0.005;
+    bedMesh.renderOrder = 10;
+    historicalWetlandsGroup.add(bedMesh);
+
+    const mesh = new THREE.Mesh(geo, sharedWaterMat);
+    mesh.renderOrder = 15;
+    mesh.receiveShadow = false;
+    historicalWetlandsGroup.add(mesh);
+  }
+  // ---- Modelos Históricos Documentados ----
+  function buildCorabastosModel() {
+    corabastosGroup.clear();
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7, metalness: 0.1 });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.4 });
+    const bodegas = [
+      { x: 260, z: 45, w: 28, h: 4.5, d: 14 },
+      { x: 260, z: 65, w: 28, h: 4.5, d: 14 },
+      { x: 295, z: 45, w: 24, h: 4.5, d: 14 },
+      { x: 295, z: 65, w: 24, h: 4.5, d: 14 },
+      { x: 275, z: 88, w: 38, h: 5.0, d: 16 }
+    ];
+    bodegas.forEach(b => {
+      const bGeo = new THREE.BoxGeometry(b.w, b.h, b.d);
+      const mesh = new THREE.Mesh(bGeo, wallMat);
+      mesh.position.set(b.x, b.h / 2 + 0.05, b.z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      const eGeo = new THREE.EdgesGeometry(bGeo);
+      const eMesh = new THREE.LineSegments(eGeo, edgeMat);
+      mesh.add(eMesh);
+      corabastosGroup.add(mesh);
+    });
+  }
+
+  function buildRoads1972() {
+    roads1972Group.clear();
+    const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
+    viaTex.wrapS = THREE.RepeatWrapping; viaTex.wrapT = THREE.RepeatWrapping;
+    const avenues = [
+      { width: 2.2, pts: [{ x: 460, z: 48 }, { x: 380, z: 66 }, { x: 310, z: 85 }] },
+      { width: 1.8, pts: [{ x: 310, z: 15 }, { x: 310, z: 85 }, { x: 280, z: 125 }, { x: 260, z: 160 }] }
+    ];
+    avenues.forEach(ave => {
+      const pts = ave.pts;
+      const halfW = ave.width * 0.5;
+      const ribbonGeo = new THREE.BufferGeometry();
+      const ribbonPos = [], ribbonUv = [];
+      for (let i = 0; i < pts.length - 1; i++) {
+        const a = pts[i], b = pts[i + 1];
+        const dx = b.x - a.x, dz = b.z - a.z;
+        const len = Math.hypot(dx, dz) || 0.001;
+        const nx = -dz / len * halfW, nz = dx / len * halfW;
+        ribbonPos.push(
+          a.x - nx, 0.038, a.z - nz,  a.x + nx, 0.038, a.z + nz,  b.x + nx, 0.038, b.z + nz,
+          a.x - nx, 0.038, a.z - nz,  b.x + nx, 0.038, b.z + nz,  b.x - nx, 0.038, b.z - nz
+        );
+        [
+          [a.x - nx, a.z - nz], [a.x + nx, a.z + nz], [b.x + nx, b.z + nz],
+          [a.x - nx, a.z - nz], [b.x + nx, b.z + nz], [b.x - nx, b.z - nz]
+        ].forEach(([px, pz]) => ribbonUv.push(px * 0.06, pz * 0.06));
+      }
+      ribbonGeo.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPos, 3));
+      ribbonGeo.setAttribute("uv", new THREE.Float32BufferAttribute(ribbonUv, 2));
+      ribbonGeo.computeVertexNormals();
+      const roadMat = new THREE.MeshStandardMaterial({ map: viaTex, color: 0x94a3b8, roughness: 0.85, side: THREE.DoubleSide });
+      const rMesh = new THREE.Mesh(ribbonGeo, roadMat);
+      roads1972Group.add(rMesh);
+    });
+  }
+
+  function buildAvCaliModel() {
+    avCaliGroup.clear();
+    const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
+    viaTex.wrapS = THREE.RepeatWrapping; viaTex.wrapT = THREE.RepeatWrapping;
+    const pts = [
+      { x: 226, z: -120 }, { x: 220, z: -55 }, { x: 212, z: -10 }, { x: 206, z: 45 }, { x: 198, z: 120 }
+    ];
+    const ribbonGeo = new THREE.BufferGeometry();
+    const ribbonPos = [], ribbonUv = [];
+    const halfW = 1.35;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1];
+      const dx = b.x - a.x, dz = b.z - a.z;
+      const len = Math.hypot(dx, dz) || 0.001;
+      const nx = -dz / len * halfW, nz = dx / len * halfW;
+      ribbonPos.push(
+        a.x - nx, 0.042, a.z - nz,  a.x + nx, 0.042, a.z + nz,  b.x + nx, 0.042, b.z + nz,
+        a.x - nx, 0.042, a.z - nz,  b.x + nx, 0.042, b.z + nz,  b.x - nx, 0.042, b.z - nz
+      );
+      [
+        [a.x - nx, a.z - nz], [a.x + nx, a.z + nz], [b.x + nx, b.z + nz],
+        [a.x - nx, a.z - nz], [b.x + nx, b.z + nz], [b.x - nx, b.z - nz]
+      ].forEach(([px, pz]) => ribbonUv.push(px * 0.06, pz * 0.06));
+    }
+    ribbonGeo.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPos, 3));
+    ribbonGeo.setAttribute("uv", new THREE.Float32BufferAttribute(ribbonUv, 2));
+    ribbonGeo.computeVertexNormals();
+    const roadMat = new THREE.MeshStandardMaterial({ map: viaTex, color: 0x64748b, roughness: 0.85, side: THREE.DoubleSide });
+    const rMesh = new THREE.Mesh(ribbonGeo, roadMat);
+    avCaliGroup.add(rMesh);
+  }
+
+  function buildProtechoModel() {
+    protechoGroup.clear();
+    const facMat = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.85 });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x1c1917, transparent: true, opacity: 0.45 });
+    const pGeo = new THREE.BoxGeometry(22, 6.5, 16);
+    const pMesh = new THREE.Mesh(pGeo, facMat);
+    pMesh.position.set(168, 3.3, -38);
+    pMesh.castShadow = true;
+    pMesh.receiveShadow = true;
+    const eGeo = new THREE.EdgesGeometry(pGeo);
+    const eMesh = new THREE.LineSegments(eGeo, edgeMat);
+    pMesh.add(eMesh);
+    protechoGroup.add(pMesh);
+  }
+
+
+  // 3. Modelo del Antiguo Aeropuerto de Techo (1956) con Pista y Vía trazadas en gris claro
+  const AEROPUERTO_RUNWAY_PTS = [
+    { x: 235.83, z: 96.00 },
+    { x: 231.51, z: 98.92 },
+    { x: 228.91, z: 103.03 },
+    { x: 228.24, z: 107.15 },
+    { x: 230.23, z: 112.00 },
+    { x: 233.77, z: 116.51 },
+    { x: 259.94, z: 144.64 },
+    { x: 264.32, z: 146.57 },
+    { x: 269.91, z: 145.06 },
+    { x: 273.99, z: 143.61 },
+    { x: 322.12, z: 120.95 },
+    { x: 332.93, z: 113.64 },
+    { x: 329.58, z: 107.96 },
+    { x: 328.33, z: 103.83 },
+    { x: 324.59, z: 103.22 },
+    { x: 234.95, z: 96.15 }
+  ];
+
+  const AEROPUERTO_ROAD_PTS = [
+    { x: 393.48, z: 107.81 },
+    { x: 235.46, z: 95.63 }
+  ];
+
+  function isPointInRunway(px, pz) {
+    let inside = false;
+    const n = AEROPUERTO_RUNWAY_PTS.length;
+    for (let i = 0; i < n; i++) {
+      const p1 = AEROPUERTO_RUNWAY_PTS[i], p2 = AEROPUERTO_RUNWAY_PTS[(i + 1) % n];
+      if (((p1.z > pz) !== (p2.z > pz)) && (px < (p2.x - p1.x) * (pz - p1.z) / (p2.z - p1.z + 1e-9) + p1.x)) {
+        inside = !inside;
+      }
+    }
+    return inside;
+  }
+
+  function isPointNearRoad(px, pz, maxDist = 3.8) {
+    const a = AEROPUERTO_ROAD_PTS[0], b = AEROPUERTO_ROAD_PTS[1];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const l2 = dx * dx + dz * dz;
+    if (l2 === 0) return Math.hypot(px - a.x, pz - a.z) < maxDist;
+    const t = Math.max(0, Math.min(1, ((px - a.x) * dx + (pz - a.z) * dz) / l2));
+    const projX = a.x + t * dx, projZ = a.z + t * dz;
+    return Math.hypot(px - projX, pz - projZ) < maxDist;
+  }
+
+  function buildAeropuertoTecho() {
+    aeropuertoTechoGroup.clear();
+
+    const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
+    viaTex.wrapS = THREE.RepeatWrapping;
+    viaTex.wrapT = THREE.RepeatWrapping;
+
+    // A. Pista de Techo (polígono relleno con textura de vía en gris claro)
+    const pts2d = AEROPUERTO_RUNWAY_PTS.map(p => new THREE.Vector2(p.x, p.z));
+    let tris = [];
+    try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
+
+    const runwayPos = [], runwayUv = [];
+    const RUNWAY_UV_SCALE = 0.05;
+    tris.forEach(([ia, ib, ic]) => {
+      [ia, ib, ic].forEach(idx => {
+        const pt = AEROPUERTO_RUNWAY_PTS[idx];
+        runwayPos.push(pt.x, 0.032, pt.z);
+        runwayUv.push(pt.x * RUNWAY_UV_SCALE, pt.z * RUNWAY_UV_SCALE);
+      });
+    });
+
+    const runwayGeo = new THREE.BufferGeometry();
+    runwayGeo.setAttribute("position", new THREE.Float32BufferAttribute(runwayPos, 3));
+    runwayGeo.setAttribute("uv", new THREE.Float32BufferAttribute(runwayUv, 2));
+    runwayGeo.computeVertexNormals();
+
+    const runwayMat = new THREE.MeshStandardMaterial({
+      map: viaTex,
+      color: 0xd2d6da, // Gris más claro
+      roughness: 0.85,
+      metalness: 0.02,
       side: THREE.DoubleSide
     });
 
-    const mesh = new THREE.Mesh(geo, histWaterMat);
-    historicalWetlandsGroup.add(mesh);
-  }
+    const runwayMesh = new THREE.Mesh(runwayGeo, runwayMat);
+    runwayMesh.receiveShadow = true;
+    aeropuertoTechoGroup.add(runwayMesh);
 
-  // 3. Modelo arquitectónico limpio del Predio del Antiguo Aeropuerto de Techo (1956)
-  function buildAeropuertoTecho() {
-    aeropuertoTechoGroup.clear();
-    const pos = toScene(8180.94, 2102.08); // Coordenadas exactas en Techo { x: ~283.96, z: ~105.98 }
+    // B. Vía de conexión (ribbon continuo en gris más claro)
+    const roadPos = [], roadUv = [];
+    const a = AEROPUERTO_ROAD_PTS[0], b = AEROPUERTO_ROAD_PTS[1];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const len = Math.hypot(dx, dz) || 1;
+    const nx = -dz / len, nz = dx / len;
+    const halfW = 1.35;
+    const ax = nx * halfW, az = nz * halfW;
+
+    roadPos.push(
+      a.x - ax, 0.035, a.z - az,  a.x + ax, 0.035, a.z + az,  b.x + ax, 0.035, b.z + az,
+      a.x - ax, 0.035, a.z - az,  b.x + ax, 0.035, b.z + az,  b.x - ax, 0.035, b.z - az
+    );
+    [
+      [a.x - ax, a.z - az], [a.x + ax, a.z + az], [b.x + ax, b.z + az],
+      [a.x - ax, a.z - az], [b.x + ax, b.z + az], [b.x - ax, b.z - az]
+    ].forEach(([px, pz]) => roadUv.push(px * 0.06, pz * 0.06));
+
+    const roadGeo = new THREE.BufferGeometry();
+    roadGeo.setAttribute("position", new THREE.Float32BufferAttribute(roadPos, 3));
+    roadGeo.setAttribute("uv", new THREE.Float32BufferAttribute(roadUv, 2));
+    roadGeo.computeVertexNormals();
+
+    const roadMatTecho = new THREE.MeshStandardMaterial({
+      map: viaTex,
+      color: 0xd2d6da, // Gris más claro idéntico
+      roughness: 0.85,
+      side: THREE.DoubleSide
+    });
+
+    const roadMesh = new THREE.Mesh(roadGeo, roadMatTecho);
+    roadMesh.receiveShadow = true;
+    aeropuertoTechoGroup.add(roadMesh);
+
+    // C. Edificio Terminal y torre
+    const pos = toScene(8180.94, 2102.08); // Coordenadas en Techo
     const group = new THREE.Group();
     group.position.set(pos.x, 0, pos.z);
 
-    // Plataforma / predio en el terreno
-    const apronMat = new THREE.MeshStandardMaterial({
-      color: 0x686c72,
-      roughness: 0.95
-    });
-    const apronGeo = new THREE.PlaneGeometry(50, 24);
-    const apron = new THREE.Mesh(apronGeo, apronMat);
-    apron.rotation.x = -Math.PI / 2;
-    apron.position.set(0, 0.015, 6);
-    group.add(apron);
-
-    // Terminal limpia
     const wallMat = new THREE.MeshStandardMaterial({
       color: 0xf4f1ea,
       roughness: 0.85,
@@ -454,6 +848,7 @@
     if (modernManzanasMesh) modernManzanasMesh.visible = false;
     if (modernFacadesMesh) modernFacadesMesh.visible = false;
     if (elBurroMesh) elBurroMesh.visible = false;
+    if (modernWaterMesh) modernWaterMesh.visible = false;
     if (vehInstanced) vehInstanced.visible = false;
     if (intersectionMeshes && intersectionMeshes.length) {
       intersectionMeshes.forEach(m => { if (m) m.visible = false; });
@@ -465,49 +860,155 @@
 
     cowsGroup.visible = true;
     historicalWetlandsGroup.visible = true;
+    userPlantedGroup.visible = true;
+    customPolysGroup.visible = true;
 
     if (groundMesh && groundMesh.material) {
-      groundMesh.material.color.setHex(0xebedee);
+      if (groundMesh.material.map !== histGrassTex) {
+        groundMesh.material.map = histGrassTex;
+        groundMesh.material.needsUpdate = true;
+      }
+      groundMesh.material.color.setHex(0xd4d5d3);
+      groundMesh.material.opacity = 0.75;
+      groundMesh.material.transparent = true;
     }
 
     if (year === 1950) {
-      if (badge) badge.textContent = "1950";
-      if (desc) desc.textContent = "1950 · Humedal El Burro y Sabana Rural (89% a 98% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
+      if (badge) badge.textContent = "1950 · Sabana Rural";
+      if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha), La Vaca (181 ha) y Sabana Rural con 210 vacas en pastoreo y senderos veredales.";
+      cowsGroup.visible = true;
+      historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = false;
+      roads1972Group.visible = false;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1950);
 
       if (animateCam) {
-        // Enfoque exacto en Humedal El Burro (GPS 4.64232, -74.15098 -> x: 209.56, z: -10.93)
         transitionCameraTo(
-          new THREE.Vector3(87.96, 630.7, 734.67),
-          new THREE.Vector3(209.56, -124.7, -10.93),
-          2.45,
-          1800
+          new THREE.Vector3(117.21, 724.68, 628.88),
+          new THREE.Vector3(219.64, -56.32, -92.84),
+          1.95,
+          2000
         );
       }
     } else if (year === 1956) {
-      if (badge) badge.textContent = "1956";
-      if (desc) desc.textContent = "1956 · Humedal La Vaca (+90% extensión), Antiguo Aeropuerto de Techo y Sabana Rural con potreros.";
+      if (badge) badge.textContent = "1956 · Aeropuerto Techo";
+      if (desc) desc.textContent = "1956 · Humedal La Vaca y Laguna de Techo extendidos hacia El Burro, Antiguo Aeropuerto de Techo con pista y vías de conexión.";
+      cowsGroup.visible = true;
+      historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = true;
+      corabastosGroup.visible = false;
+      roads1972Group.visible = false;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1956);
 
       if (animateCam) {
-        // Paneo suave a Humedal La Vaca (x: 67.66, z: 118.17)
         transitionCameraTo(
-          new THREE.Vector3(-71.6, 630.7, 870.6),
-          new THREE.Vector3(50.0, -124.7, 125.0),
-          2.60,
+          new THREE.Vector3(50.39, 695.32, 825.02),
+          new THREE.Vector3(171.99, -60.08, 79.42),
+          2.23,
+          2400
+        );
+      }
+    } else if (year === 1972) {
+      if (badge) badge.textContent = "1972 · Corabastos";
+      if (desc) desc.textContent = "1972 · Inauguración de Corabastos en Potrero Alto Negro y acceso por Av. Las Américas. Humedales reducidos a 38,5 ha.";
+      cowsGroup.visible = false;
+      historicalWetlandsGroup.visible = true;
+      aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = true;
+      roads1972Group.visible = true;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1972);
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(135.0, 710.0, 690.0),
+          new THREE.Vector3(240.0, -30.0, 35.0),
+          1.80,
+          2200
+        );
+      }
+    } else if (year === 1988) {
+      if (badge) badge.textContent = "1988 · Bisección Av. Cali";
+      if (desc) desc.textContent = "1988 · Construcción de Av. Ciudad de Cali que divide el humedal en dos sectores y Planta de basuras Protecho (EDIS).";
+      cowsGroup.visible = false;
+      historicalWetlandsGroup.visible = true;
+      aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = true;
+      roads1972Group.visible = true;
+      avCaliGroup.visible = true;
+      protechoGroup.visible = true;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1988);
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(155.0, 680.0, 620.0),
+          new THREE.Vector3(210.0, -25.0, -10.0),
+          1.75,
+          2200
+        );
+      }
+    } else if (year >= 2024) {
+      if (badge) badge.textContent = "Actualidad (2024)";
+      if (desc) desc.textContent = "Actualidad · Modelo axonométrico arquitectónico urbano completo de Kennedy con el Humedal El Burro protegido de 18,8 ha.";
+      
+      if (currentBuildingMesh) currentBuildingMesh.visible = true;
+      if (buildingEdgeMat) buildingEdgeMat.visible = true;
+      if (modernBuildingEdges) modernBuildingEdges.visible = true;
+      if (modernRoadLines) modernRoadLines.visible = true;
+      if (modernRoadMesh) modernRoadMesh.visible = true;
+      if (modernManzanasMesh) modernManzanasMesh.visible = true;
+      if (modernFacadesMesh) modernFacadesMesh.visible = true;
+      if (elBurroMesh) elBurroMesh.visible = true;
+      if (modernWaterMesh) modernWaterMesh.visible = true;
+      if (modernParquesMesh) modernParquesMesh.visible = true;
+      if (treeMesh) treeMesh.visible = true;
+      if (vehInstanced) vehInstanced.visible = true;
+
+      cowsGroup.visible = false;
+      historicalWetlandsGroup.visible = false;
+      aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = false;
+      roads1972Group.visible = false;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (groundMesh && groundMesh.material) {
+        groundMesh.material.map = null;
+        groundMesh.material.color.setHex(0xebedee);
+        groundMesh.material.opacity = 1.0;
+        groundMesh.material.transparent = false;
+        groundMesh.material.needsUpdate = true;
+      }
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(17.6, 630.7, 713.9),
+          new THREE.Vector3(139.2, -124.7, -31.7),
+          1.30,
           2200
         );
       }
     }
   }
 
-  // Función de vista inicial en Humedal El Burro
+  // Función de vista inicial en Humedal El Burro (1950)
   function setAxonometricView(distance) {
-    camera.position.set(87.96, 630.7, 734.67);
-    controls.target.set(209.56, -124.7, -10.93);
-    camera.zoom = 2.45;
+    camera.position.set(117.21, 724.68, 628.88);
+    controls.target.set(219.64, -56.32, -92.84);
+    camera.zoom = 1.95;
     camera.updateProjectionMatrix();
     controls.update();
+    if (typeof updateLiveCameraCoordsUI === "function") updateLiveCameraCoordsUI();
   }
     // 7. Event listeners de la línea de tiempo histórica
   document.querySelectorAll(".year-btn").forEach(btn => {
@@ -516,10 +1017,13 @@
     });
   });
 
+  const histYears = [1950, 1956, 1972, 1988, 2024];
   const histSlider = document.getElementById("histYearSlider");
   if (histSlider) {
     histSlider.addEventListener("input", () => {
-      setHistoricalYear(parseInt(histSlider.value, 10), true);
+      const idx = parseInt(histSlider.value, 10);
+      const y = histYears[idx] || 1950;
+      setHistoricalYear(y, true);
     });
   }
 
@@ -531,8 +1035,9 @@
       histPlayBtn.innerHTML = histPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
       if (histPlaying) {
         histPlayTimer = setInterval(() => {
-          const next = currentHistoricalYear === 1950 ? 1956 : 1950;
-          setHistoricalYear(next, true);
+          const curIdx = histYears.indexOf(currentHistoricalYear);
+          const nextIdx = (curIdx + 1) % histYears.length;
+          setHistoricalYear(histYears[nextIdx], true);
         }, 5500);
       } else {
         clearInterval(histPlayTimer);
@@ -924,9 +1429,18 @@
     trees.forEach((t, i) => {
       const [x, y, hMeters, especieStr, code] = t;
       const p = toScene(x, y);
+
+      // Quitar árboles que caen sobre la pista o la vía del aeropuerto
+      if (typeof isPointInRunway === "function" && (isPointInRunway(p.x, p.z) || isPointNearRoad(p.x, p.z, 3.8))) {
+        treeInstanceData[i] = { x: p.x, z: p.z, w: 0, h: 0, baseScale: 0, removed: true };
+        mesh.setColorAt(i, new THREE.Color(0x000000));
+        return;
+      }
+
       const h = Math.max(0.3, hMeters * SCALE);
       const w = h * (1.1 + (hash2(code) % 20) / 100 - 0.1);
-      treeInstanceData[i] = { x: p.x, z: p.z, w, h };
+      const baseVar = 0.95 + ((hash2(code + "v") % 25) / 100);
+      treeInstanceData[i] = { x: p.x, z: p.z, w, h, baseScale: baseVar, removed: false };
       
       let c = colorNormal;
       if (especieStr.includes("Sauco")) c = colorAlimento2;
@@ -938,12 +1452,28 @@
     mesh.instanceColor.needsUpdate = true;
     sceneRoot.add(mesh);
     treeMeshes = [{ mesh, data: trees }];
+    pickProminentTrees(24);
     updateTreeBillboards();
   }
-  // Recalcula la rotacion de TODAS las tarjetas para que miren hacia la
-  // camara actual. Con camara ortografica la direccion hacia la camara es
-  // la misma sin importar la posicion en el suelo, asi que un solo angulo
-  // (el acimut actual de la camara) sirve para todas las instancias.
+  // Control de árboles grandes destacados individuales (~24 aleatorios)
+  let prominentTreeIndices = new Set();
+  let prominentTreeScale = 2.2;
+
+  function pickProminentTrees(count = 24) {
+    prominentTreeIndices.clear();
+    if (!treeInstanceData || !treeInstanceData.length) return;
+    const total = treeInstanceData.length;
+    const targetCount = Math.min(count, total);
+    while (prominentTreeIndices.size < targetCount) {
+      const idx = Math.floor(Math.random() * total);
+      if (!treeInstanceData[idx].removed) {
+        prominentTreeIndices.add(idx);
+      }
+    }
+    updateTreeBillboards();
+  }
+
+  // Recalcula la rotacion y escala individual de las tarjetas de arboles
   const dummyT = new THREE.Object3D();
   function updateTreeBillboards() {
     if (!treeMesh || !treeInstanceData) return;
@@ -951,8 +1481,17 @@
     const faceAngle = Math.atan2(dx, dz);
     for (let i = 0; i < treeInstanceData.length; i++) {
       const d = treeInstanceData[i];
+      if (d.removed || d.h === 0) {
+        dummyT.position.set(0, -9999, 0);
+        dummyT.scale.set(0, 0, 0);
+        dummyT.updateMatrix();
+        treeMesh.setMatrixAt(i, dummyT.matrix);
+        continue;
+      }
+      const isProminent = prominentTreeIndices.has(i);
+      const s = isProminent ? prominentTreeScale : (d.baseScale || 1.0);
       dummyT.position.set(d.x, 0, d.z);
-      dummyT.scale.set(d.w, d.h, d.w);
+      dummyT.scale.set(d.w * s, d.h * s, d.w * s);
       dummyT.rotation.set(0, faceAngle, 0);
       dummyT.updateMatrix();
       treeMesh.setMatrixAt(i, dummyT.matrix);
@@ -1329,29 +1868,11 @@
     geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
-    const waterTex = new THREE.TextureLoader().load("./assets/textura_agua2.jpg");
-    waterTex.wrapS = THREE.RepeatWrapping;
-    waterTex.wrapT = THREE.RepeatWrapping;
-    waterTexRef = waterTex;
-    // Segunda copia de la misma textura, usada como relieve (bump map) en
-    // vez de color: le da micro-relieve a la superficie para que capte
-    // la luz de forma irregular (brillos/reflejos que cambian segun el
-    // angulo), como agua real — una superficie perfectamente lisa se ve
-    // "plana"/pintada, no renderizada. Se anima a otra velocidad/escala
-    // que la capa de color, simulando dos capas de oleaje superpuestas.
-    const bumpTex = new THREE.TextureLoader().load("./assets/textura_agua2.jpg");
-    bumpTex.wrapS = THREE.RepeatWrapping;
-    bumpTex.wrapT = THREE.RepeatWrapping;
-    bumpTex.repeat.set(2.3, 2.3);
-    waterBumpRef = bumpTex;
-    const mat = new THREE.MeshStandardMaterial({
-      map: waterTex, bumpMap: bumpTex, bumpScale: 0.12,
-      color: 0x97a5af, roughness: 0.18, metalness: 0.15,
-      transparent: true, opacity: 0.82, side: THREE.DoubleSide,
-    });
+    const mat = sharedWaterMat;
     waterMat = mat;
     const waterMesh = new THREE.Mesh(geo, mat);
     waterMesh.receiveShadow = false; // sin sombras encima (se veian como parches/bloques feos sobre el agua)
+    modernWaterMesh = waterMesh;
     sceneRoot.add(waterMesh);
     elBurroMat = mat; // El Burro comparte la misma textura/material que el resto del agua
     rebuildElBurro(HUMEDAL_CICLO[0].expansion_pct); // arranca en Enero, igual que el valor por defecto del deslizador
@@ -1773,6 +2294,10 @@
       setStatus("", false); // ocultar overlay de inmediato
       createCows();
       buildAeropuertoTecho();
+      buildCorabastosModel();
+      buildRoads1972();
+      buildAvCaliModel();
+      buildProtechoModel();
       loadWaterBodies();
       loadBuildings();
       loadTrees();
@@ -1808,11 +2333,12 @@
 
   // ---- Vista axonometrica fija con las coordenadas de la usuaria ----
   function setAxonometricView(distance) {
-    camera.position.set(17.6, 630.7, 713.9);
-    controls.target.set(139.2, -124.7, -31.7);
-    camera.zoom = 2.39;
+    camera.position.set(117.21, 724.68, 628.88);
+    controls.target.set(219.64, -56.32, -92.84);
+    camera.zoom = 1.95;
     camera.updateProjectionMatrix();
     controls.update();
+    if (typeof updateLiveCameraCoordsUI === "function") updateLiveCameraCoordsUI();
   }
 
   // ---- Botones de vista ----
@@ -1919,18 +2445,111 @@
   const treeInfoCloseBtn = document.getElementById("treeInfoClose");
   if (treeInfoCloseBtn && treeInfo) treeInfoCloseBtn.addEventListener("click", () => treeInfo.classList.remove("show"));
 
+  let isBrushPainting = false;
+  let lastPlantedPoint = null;
+
+  function getRaycastGroundPoint(clientX, clientY) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouseNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    mouseNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouseNdc, camera);
+
+    const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const intersectPt = new THREE.Vector3();
+    if (raycaster.ray.intersectPlane(groundPlane, intersectPt)) {
+      return intersectPt;
+    }
+    if (groundMesh) {
+      const gh = raycaster.intersectObject(groundMesh);
+      if (gh.length > 0) return gh[0].point;
+    }
+    return null;
+  }
+
+  function handleBrushPaint(clientX, clientY, force = false) {
+    if (!currentActiveTool) return;
+    const pt = getRaycastGroundPoint(clientX, clientY);
+    if (!pt) return;
+
+    if (currentActiveTool === "tree") {
+      const minDistance = 2.2; // Espaciado ágil para poblar rápidamente
+      if (force || !lastPlantedPoint || lastPlantedPoint.distanceTo(pt) >= minDistance) {
+        // Plantar cluster denso de 3 a 5 árboles naturales por cada movimiento
+        const clusterCount = force ? 4 : 3;
+        for (let k = 0; k < clusterCount; k++) {
+          const ang = Math.random() * Math.PI * 2;
+          const rad = (k === 0 ? 0 : 0.8 + Math.random() * 2.6);
+          const h = 3.6 + Math.random() * 5.0;
+          plantSingleTree(pt.x + Math.cos(ang) * rad, pt.z + Math.sin(ang) * rad, h);
+        }
+        lastPlantedPoint = pt.clone();
+      }
+    } else if (currentActiveTool === "cow") {
+      const minDistance = 5.5; // Espaciado para vacas
+      if (force || !lastPlantedPoint || lastPlantedPoint.distanceTo(pt) >= minDistance) {
+        plantSingleCow(pt.x, pt.z);
+        if (Math.random() > 0.4) {
+          const ang = Math.random() * Math.PI * 2;
+          plantSingleCow(pt.x + Math.cos(ang) * 2.2, pt.z + Math.sin(ang) * 2.2);
+        }
+        lastPlantedPoint = pt.clone();
+      }
+    }
+  }
+
+  function handlePolyPointAdd(clientX, clientY) {
+    const pt = getRaycastGroundPoint(clientX, clientY);
+    if (!pt) return;
+    if (currentActiveTool === "road") {
+      customRoadPoints.push({ x: pt.x, z: pt.z });
+      buildRoadRibbon(customRoadPoints, false);
+      updatePolyCoordsUI();
+    } else if (currentActiveTool === "runway") {
+      customRunwayPoints.push({ x: pt.x, z: pt.z });
+      if (customRunwayPoints.length >= 3) {
+        buildRunwayPolygon(customRunwayPoints, false);
+      }
+      updatePolyCoordsUI();
+    }
+  }
+
   let downAt = null;
-  renderer.domElement.addEventListener("pointerdown", (e) => { downAt = { x: e.clientX, y: e.clientY }; });
+  renderer.domElement.addEventListener("pointerdown", (e) => {
+    downAt = { x: e.clientX, y: e.clientY };
+    if (currentActiveTool === "tree" || currentActiveTool === "cow") {
+      isBrushPainting = true;
+      lastPlantedPoint = null;
+      handleBrushPaint(e.clientX, e.clientY, true);
+    } else if (currentActiveTool === "road" || currentActiveTool === "runway") {
+      handlePolyPointAdd(e.clientX, e.clientY);
+    }
+  });
+
+  renderer.domElement.addEventListener("pointermove", (e) => {
+    if (isBrushPainting && (currentActiveTool === "tree" || currentActiveTool === "cow")) {
+      handleBrushPaint(e.clientX, e.clientY, false);
+    }
+  });
+
+  window.addEventListener("pointerup", () => {
+    isBrushPainting = false;
+    lastPlantedPoint = null;
+  });
+
   renderer.domElement.addEventListener("pointerup", (e) => {
     if (!downAt) return;
     const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y);
     downAt = null;
+    if (currentActiveTool) return; // si estaba pintando con la brocha, no abrir tarjeta de árbol
     if (moved > 6) return; // fue un arrastre de camara, no un clic
+
     if (!treeMeshes.length) return;
     const rect = renderer.domElement.getBoundingClientRect();
     mouseNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     mouseNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouseNdc, camera);
+
+    if (!treeMeshes.length) return;
     let best = null;
     treeMeshes.forEach(tm => {
       const hits = raycaster.intersectObject(tm.mesh);
@@ -2068,12 +2687,9 @@
       if (timeLabel) timeLabel.textContent = `${fmtTime(currentTime)} / ${fmtTime(maxT)}`;
       renderVehiclesAt(currentTime);
     }
-    // Lineas de borde de edificios: opacidad FIJA y baja, no cambia con
-    // el zoom (asi no se ven gruesas/densas cuando no se esta haciendo
-    // zoom, y no cambian de aspecto al acercar/alejar la camara).
     // Agua con movimiento: se desplaza lentamente la textura de color Y
     // la capa de relieve (bump) a velocidades/escalas DISTINTAS entre si,
-    // simulando dos capas de oleaje superpuestas.
+    // simulando dos capas de oleaje superpuestas (exacto a modulo-10-corte.html).
     if (waterTexRef) {
       waterTexRef.offset.x = (now * 0.000018) % 1;
       waterTexRef.offset.y = (now * 0.000012) % 1;
@@ -2207,8 +2823,511 @@
     });
   }
 
-  resize();
-  requestAnimationFrame(animate);
+  // =====================================================================
+  // HERRAMIENTAS DE COORDENADAS DE CÁMARA Y POBLACIÓN DE ELEMENTOS
+  // =====================================================================
 
+  // 1. Panel de Coordenadas de Cámara en Vivo
+  function updateLiveCameraCoordsUI() {
+    const box = document.getElementById("liveCamCoordsBox");
+    if (!box) return;
+    const p = camera.position;
+    const t = controls.target;
+    const z = camera.zoom;
+    box.innerHTML = `<b>pos:</b> [${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}]<br>` +
+                    `<b>target:</b> [${t.x.toFixed(2)}, ${t.y.toFixed(2)}, ${t.z.toFixed(2)}]<br>` +
+                    `<b>zoom:</b> ${z.toFixed(2)}`;
+  }
+
+  controls.addEventListener("change", updateLiveCameraCoordsUI);
+
+  const copyCamBtn = document.getElementById("copyCamCoordsBtn");
+  if (copyCamBtn) {
+    copyCamBtn.addEventListener("click", async () => {
+      const p = camera.position;
+      const t = controls.target;
+      const z = camera.zoom;
+      const snippet = `// Coordenadas de Vista seleccionadas:\ncamera.position.set(${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)});\ncontrols.target.set(${t.x.toFixed(2)}, ${t.y.toFixed(2)}, ${t.z.toFixed(2)});\ncamera.zoom = ${z.toFixed(2)};\ncamera.updateProjectionMatrix();\ncontrols.update();`;
+      try {
+        await navigator.clipboard.writeText(snippet);
+        copyCamBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+        setTimeout(() => { copyCamBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1800);
+      } catch (e) {}
+    });
+  }
+
+  const applyCamBtn = document.getElementById("applyCamCoordsBtn");
+  const pasteCamInput = document.getElementById("pasteCamCoordsInput");
+  if (applyCamBtn && pasteCamInput) {
+    applyCamBtn.addEventListener("click", () => {
+      const raw = pasteCamInput.value.trim();
+      if (!raw) return;
+      // Extrae números usando regex
+      const matches = raw.match(/[-+]?\d*\.?\d+/g);
+      if (matches && matches.length >= 6) {
+        const px = parseFloat(matches[0]), py = parseFloat(matches[1]), pz = parseFloat(matches[2]);
+        const tx = parseFloat(matches[3]), ty = parseFloat(matches[4]), tz = parseFloat(matches[5]);
+        const z = matches.length >= 7 ? parseFloat(matches[6]) : camera.zoom;
+
+        transitionCameraTo(
+          new THREE.Vector3(px, py, pz),
+          new THREE.Vector3(tx, ty, tz),
+          z,
+          1200
+        );
+      }
+    });
+  }
+
+  // 2. Población de Árboles y Vacas
+  function updateUserPlantedUI() {
+    const treeCountEl = document.getElementById("plantedTreesCount");
+    const cowCountEl = document.getElementById("plantedCowsCount");
+    const textarea = document.getElementById("elementsCoordsOutput");
+
+    const trees = userPlantedElements.filter(e => e.type === "arbol");
+    const cows = userPlantedElements.filter(e => e.type === "vaca");
+
+    if (treeCountEl) treeCountEl.textContent = `${trees.length} nuevos`;
+    if (cowCountEl) cowCountEl.textContent = `${cows.length} nuevas`;
+
+    if (textarea) {
+      const formatted = userPlantedElements.map((el, idx) => {
+        if (el.type === "arbol") {
+          return `{"id": ${idx + 1}, "tipo": "arbol", "x": ${el.x.toFixed(2)}, "z": ${el.z.toFixed(2)}, "altura": ${el.h.toFixed(2)}}`;
+        } else {
+          return `{"id": ${idx + 1}, "tipo": "vaca", "x": ${el.x.toFixed(2)}, "z": ${el.z.toFixed(2)}}`;
+        }
+      }).join(",\n");
+      textarea.value = formatted ? `[\n${formatted}\n]` : "";
+    }
+  }
+
+  function plantSingleTree(x, z, hMeters = null) {
+    const treeTex = new THREE.TextureLoader().load("./assets/arbol_real4.png");
+    const planeGeo = makePlaneGeometry();
+    const mat = new THREE.MeshStandardMaterial({
+      map: treeTex,
+      transparent: true,
+      alphaTest: 0.25,
+      side: THREE.DoubleSide,
+      roughness: 0.95
+    });
+    const mesh = new THREE.Mesh(planeGeo, mat);
+    mesh.renderOrder = 999;
+    
+    // Altura natural variada individual
+    const actualH = hMeters || (4.2 + Math.random() * 5.8);
+    const h = Math.max(0.3, actualH * SCALE);
+    const w = h * (1.05 + Math.random() * 0.25);
+    
+    // ~20% de árboles son ejemplares grandes y maduros
+    const isBig = Math.random() < 0.22;
+    const s = isBig ? (1.8 + Math.random() * 0.6) : (0.9 + Math.random() * 0.35);
+    
+    mesh.userData = { baseW: w, baseH: h, scale: s };
+    mesh.scale.set(w * s, h * s, w * s);
+    mesh.position.set(x, 0.05, z);
+
+    const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
+    mesh.rotation.y = Math.atan2(dx, dz);
+
+    userPlantedGroup.add(mesh);
+    userPlantedElements.push({ type: "arbol", x, z, h: actualH * s, mesh });
+    updateUserPlantedUI();
+  }
+
+  function plantSingleCow(x, z) {
+    const tex = cowTextures[Math.floor(Math.random() * cowTextures.length)];
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      side: THREE.DoubleSide,
+      alphaTest: 0.35,
+      depthWrite: false
+    });
+    const geo = new THREE.PlaneGeometry(1.6, 1.1);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.renderOrder = 999;
+
+    const shadowGeo = new THREE.PlaneGeometry(1.5, 0.8);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.38,
+      depthWrite: false
+    });
+    const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+    shadowMesh.rotation.x = -Math.PI / 2;
+    shadowMesh.position.set(0, -0.63, 0);
+    shadowMesh.renderOrder = 998;
+    mesh.add(shadowMesh);
+
+    mesh.position.set(x, 0.65, z);
+    mesh.rotation.x = -Math.PI / 4.2;
+    mesh.rotation.y = (Math.random() - 0.5) * 0.3;
+    const s = 0.85 + Math.random() * 0.3;
+    mesh.scale.set((Math.random() > 0.5 ? 1 : -1) * s, s, s);
+
+    userPlantedGroup.add(mesh);
+    userPlantedElements.push({ type: "vaca", x, z, mesh });
+    updateUserPlantedUI();
+  }
+
+  const USER_TREES_URL = "./assets/user_planted_trees.json";
+  let userTreesInstMesh = null;
+
+  function loadUserPlantedTrees() {
+    return fetch(USER_TREES_URL)
+      .then(r => { if (!r.ok) throw new Error("no user trees"); return r.json(); })
+      .then(items => {
+        if (!Array.isArray(items) || !items.length) return;
+        const treeTex = new THREE.TextureLoader().load("./assets/arbol_real4.png");
+        const planeGeo = makePlaneGeometry();
+        const mat = new THREE.MeshStandardMaterial({
+          map: treeTex,
+          transparent: true,
+          alphaTest: 0.25,
+          side: THREE.DoubleSide,
+          roughness: 0.95
+        });
+
+        const instMesh = new THREE.InstancedMesh(planeGeo, mat, items.length);
+        instMesh.renderOrder = 999;
+        const dummyU = new THREE.Object3D();
+        const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
+        const faceAngle = Math.atan2(dx, dz);
+
+        items.forEach((item, idx) => {
+          const h = Math.max(0.3, (item.altura || 7.0) * SCALE);
+          const w = h * 1.15;
+          dummyU.position.set(item.x, 0.05, item.z);
+          dummyU.scale.set(w, h, w);
+          dummyU.rotation.set(0, faceAngle, 0);
+          dummyU.updateMatrix();
+          instMesh.setMatrixAt(idx, dummyU.matrix);
+
+          userPlantedElements.push({
+            type: "arbol",
+            x: item.x,
+            z: item.z,
+            h: item.altura || 7.0,
+            mesh: null
+          });
+        });
+        instMesh.instanceMatrix.needsUpdate = true;
+        userTreesInstMesh = instMesh;
+        userPlantedGroup.add(instMesh);
+        updateUserPlantedUI();
+      })
+      .catch(err => console.warn("No se pudieron cargar árboles pre-plantados:", err));
+  }
+
+  function batchPopulateTrees(count = 48) {
+    const cx = controls.target.x;
+    const cz = controls.target.z;
+    const radius = 65;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.sqrt(Math.random()) * radius;
+      const x = cx + Math.cos(angle) * dist;
+      const z = cz + Math.sin(angle) * dist;
+      const h = 3.8 + Math.random() * 5.2;
+      plantSingleTree(x, z, h);
+    }
+  }
+
+  function batchPopulateCows(count = 8) {
+    const cx = controls.target.x;
+    const cz = controls.target.z;
+    const radius = 45;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.sqrt(Math.random()) * radius;
+      const x = cx + Math.cos(angle) * dist;
+      const z = cz + Math.sin(angle) * dist;
+      plantSingleCow(x, z);
+    }
+  }
+
+  // ---- Trazado de Vías (Ribbon con grosor) y Pistas (Polígono Relleno) ----
+  function updatePolyCoordsUI() {
+    const roadCountEl = document.getElementById("roadPointsCount");
+    const runwayCountEl = document.getElementById("runwayPointsCount");
+    const roadOut = document.getElementById("roadCoordsOutput");
+    const runwayOut = document.getElementById("runwayCoordsOutput");
+
+    if (roadCountEl) roadCountEl.textContent = `${customRoadPoints.length} pts`;
+    if (runwayCountEl) runwayCountEl.textContent = `${customRunwayPoints.length} pts`;
+
+    if (roadOut) {
+      if (customRoadPoints.length === 0) roadOut.value = "";
+      else {
+        roadOut.value = "[\n" + customRoadPoints.map(p => `  {"x": ${p.x.toFixed(2)}, "z": ${p.z.toFixed(2)}}`).join(",\n") + "\n]";
+      }
+    }
+
+    if (runwayOut) {
+      if (customRunwayPoints.length === 0) runwayOut.value = "";
+      else {
+        runwayOut.value = "[\n" + customRunwayPoints.map(p => `  {"x": ${p.x.toFixed(2)}, "z": ${p.z.toFixed(2)}}`).join(",\n") + "\n]";
+      }
+    }
+  }
+
+  function buildRoadRibbon(pts, isFinal = false) {
+    if (currentActiveRoadMesh) {
+      customPolysGroup.remove(currentActiveRoadMesh);
+      currentActiveRoadMesh.geometry.dispose();
+      currentActiveRoadMesh = null;
+    }
+    if (pts.length < 2) return;
+
+    const positions = [];
+    const uvs = [];
+    const HALF_W = 1.4; // Ancho natural de vía
+    const RIBBON_UV_SCALE = 0.08;
+
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i];
+      const b = pts[i + 1];
+      const dx = b.x - a.x, dz = b.z - a.z;
+      const len = Math.hypot(dx, dz) || 0.001;
+      const nx = -dz / len * HALF_W, nz = dx / len * HALF_W;
+
+      const y = 0.045; // Justo sobre el terreno
+      positions.push(
+        a.x - nx, y, a.z - nz,  a.x + nx, y, a.z + nz,  b.x + nx, y, b.z + nz,
+        a.x - nx, y, a.z - nz,  b.x + nx, y, b.z + nz,  b.x - nx, y, b.z - nz
+      );
+
+      [
+        [a.x - nx, a.z - nz], [a.x + nx, a.z + nz], [b.x + nx, b.z + nz],
+        [a.x - nx, a.z - nz], [b.x + nx, b.z + nz], [b.x - nx, b.z - nz]
+      ].forEach(([px, pz]) => uvs.push(px * RIBBON_UV_SCALE, pz * RIBBON_UV_SCALE));
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.computeVertexNormals();
+
+    const mesh = new THREE.Mesh(geo, customRoadMat);
+    mesh.renderOrder = 300;
+    mesh.receiveShadow = true;
+    customPolysGroup.add(mesh);
+    if (!isFinal) currentActiveRoadMesh = mesh;
+  }
+
+  function buildRunwayPolygon(pts, isFinal = false) {
+    if (currentActiveRunwayMesh) {
+      customPolysGroup.remove(currentActiveRunwayMesh);
+      currentActiveRunwayMesh.geometry.dispose();
+      currentActiveRunwayMesh = null;
+    }
+    if (pts.length < 3) return;
+
+    const pts2d = pts.map(p => new THREE.Vector2(p.x, p.z));
+    let tris = [];
+    try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
+    if (tris.length === 0 && pts.length >= 3) {
+      for (let i = 1; i < pts.length - 1; i++) tris.push([0, i, i + 1]);
+    }
+
+    const positions = [], uvs = [];
+    const UV_SCALE = 0.06;
+    const y = 0.038;
+    tris.forEach(([ia, ib, ic]) => {
+      [ia, ib, ic].forEach(idx => {
+        positions.push(pts[idx].x, y, pts[idx].z);
+        uvs.push(pts[idx].x * UV_SCALE, pts[idx].z * UV_SCALE);
+      });
+    });
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.computeVertexNormals();
+
+    const mesh = new THREE.Mesh(geo, customRunwayMat);
+    mesh.renderOrder = 290;
+    mesh.receiveShadow = true;
+    customPolysGroup.add(mesh);
+    if (!isFinal) currentActiveRunwayMesh = mesh;
+  }
+
+  const toolTreeBtn = document.getElementById("toolPlantTreeBtn");
+  const toolCowBtn = document.getElementById("toolPlantCowBtn");
+  const toolRoadBtn = document.getElementById("toolDrawRoadBtn");
+  const toolRunwayBtn = document.getElementById("toolDrawRunwayBtn");
+
+  function setToolMode(mode) {
+    currentActiveTool = (currentActiveTool === mode) ? null : mode;
+    
+    if (toolTreeBtn) toolTreeBtn.classList.toggle("active", currentActiveTool === "tree");
+    if (toolCowBtn) toolCowBtn.classList.toggle("cow-active", currentActiveTool === "cow");
+    if (toolRoadBtn) toolRoadBtn.classList.toggle("active", currentActiveTool === "road");
+    if (toolRunwayBtn) toolRunwayBtn.classList.toggle("active", currentActiveTool === "runway");
+
+    // Desactivar paneo de OrbitControls mientras alguna herramienta esté activa
+    controls.enabled = !currentActiveTool;
+    renderer.domElement.style.cursor = currentActiveTool ? "crosshair" : "grab";
+  }
+
+  if (toolTreeBtn) toolTreeBtn.addEventListener("click", () => setToolMode("tree"));
+  if (toolCowBtn) toolCowBtn.addEventListener("click", () => setToolMode("cow"));
+  if (toolRoadBtn) toolRoadBtn.addEventListener("click", () => setToolMode("road"));
+  if (toolRunwayBtn) toolRunwayBtn.addEventListener("click", () => setToolMode("runway"));
+
+  const finishRoadBtn = document.getElementById("finishRoadBtn");
+  if (finishRoadBtn) {
+    finishRoadBtn.addEventListener("click", () => {
+      buildRoadRibbon(customRoadPoints, true);
+      currentActiveRoadMesh = null;
+      setToolMode(null);
+    });
+  }
+
+  const finishRunwayBtn = document.getElementById("finishRunwayBtn");
+  if (finishRunwayBtn) {
+    finishRunwayBtn.addEventListener("click", () => {
+      buildRunwayPolygon(customRunwayPoints, true);
+      currentActiveRunwayMesh = null;
+      setToolMode(null);
+    });
+  }
+
+  const copyRoadCoordsBtn = document.getElementById("copyRoadCoordsBtn");
+  if (copyRoadCoordsBtn) {
+    copyRoadCoordsBtn.addEventListener("click", async () => {
+      const el = document.getElementById("roadCoordsOutput");
+      if (!el || !el.value) return;
+      try {
+        await navigator.clipboard.writeText(el.value);
+        copyRoadCoordsBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => { copyRoadCoordsBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1600);
+      } catch (e) {}
+    });
+  }
+
+  const copyRunwayCoordsBtn = document.getElementById("copyRunwayCoordsBtn");
+  if (copyRunwayCoordsBtn) {
+    copyRunwayCoordsBtn.addEventListener("click", async () => {
+      const el = document.getElementById("runwayCoordsOutput");
+      if (!el || !el.value) return;
+      try {
+        await navigator.clipboard.writeText(el.value);
+        copyRunwayCoordsBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => { copyRunwayCoordsBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1600);
+      } catch (e) {}
+    });
+  }
+
+  const clearPolysBtn = document.getElementById("clearPolysBtn");
+  if (clearPolysBtn) {
+    clearPolysBtn.addEventListener("click", () => {
+      customPolysGroup.clear();
+      customRoadPoints.length = 0;
+      customRunwayPoints.length = 0;
+      currentActiveRoadMesh = null;
+      currentActiveRunwayMesh = null;
+      updatePolyCoordsUI();
+    });
+  }
+
+  // Tecla Escape para cancelar cualquier herramienta activa
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && currentActiveTool) {
+      setToolMode(null);
+    }
+  });
+
+  const batchTreesBtn = document.getElementById("batchTreesBtn");
+  if (batchTreesBtn) {
+    batchTreesBtn.addEventListener("click", () => {
+      batchPopulateTrees(24);
+    });
+  }
+
+  const batchCowsBtn = document.getElementById("batchCowsBtn");
+  if (batchCowsBtn) {
+    batchCowsBtn.addEventListener("click", () => {
+      batchPopulateCows(10);
+    });
+  }
+
+  const copyElementsBtn = document.getElementById("copyElementsCoordsBtn");
+  if (copyElementsBtn) {
+    copyElementsBtn.addEventListener("click", async () => {
+      const textarea = document.getElementById("elementsCoordsOutput");
+      if (!textarea || !textarea.value) return;
+      try {
+        await navigator.clipboard.writeText(textarea.value);
+        copyElementsBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => { copyElementsBtn.innerHTML = '<i class="fa-solid fa-copy"></i>'; }, 1800);
+      } catch (e) {}
+    });
+  }
+
+  const clearElementsBtn = document.getElementById("clearElementsBtn");
+  if (clearElementsBtn) {
+    clearElementsBtn.addEventListener("click", () => {
+      userPlantedGroup.clear();
+      userPlantedElements.length = 0;
+      updateUserPlantedUI();
+    });
+  }
+
+  // 3. Controles en vivo del color y opacidad del pasto
+  const grassColorPicker = document.getElementById("grassColorPicker");
+  const grassColorHex = document.getElementById("grassColorHex");
+  const grassOpacitySlider = document.getElementById("grassOpacitySlider");
+  const grassOpacityVal = document.getElementById("grassOpacityVal");
+
+  if (grassColorPicker) {
+    grassColorPicker.addEventListener("input", (e) => {
+      const hex = e.target.value;
+      if (grassColorHex) grassColorHex.textContent = hex;
+      if (groundMesh && groundMesh.material) {
+        groundMesh.material.color.set(hex);
+      }
+    });
+  }
+
+  if (grassOpacitySlider) {
+    grassOpacitySlider.addEventListener("input", (e) => {
+      const op = parseFloat(e.target.value);
+      if (grassOpacityVal) grassOpacityVal.textContent = `${Math.round(op * 100)}%`;
+      if (groundMesh && groundMesh.material) {
+        groundMesh.material.opacity = op;
+        groundMesh.material.transparent = true;
+      }
+    });
+  }
+
+  // 4. Control de tamaño / escala de árboles individuales (24 destacados)
+  const treeScaleSlider = document.getElementById("treeScaleSlider");
+  const treeScaleVal = document.getElementById("treeScaleVal");
+  if (treeScaleSlider) {
+    treeScaleSlider.addEventListener("input", (e) => {
+      prominentTreeScale = parseFloat(e.target.value);
+      if (treeScaleVal) treeScaleVal.textContent = `${prominentTreeScale.toFixed(1)}x`;
+      updateTreeBillboards();
+    });
+  }
+
+  const randomizeTreesBtn = document.getElementById("randomizeTreesBtn");
+  if (randomizeTreesBtn) {
+    randomizeTreesBtn.addEventListener("click", () => {
+      pickProminentTrees(24);
+    });
+  }
+
+  resize();
+  updateLiveCameraCoordsUI();
+  updateUserPlantedUI();
+  updatePolyCoordsUI();
+  loadUserPlantedTrees();
+  requestAnimationFrame(animate);
 
 })();
