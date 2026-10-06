@@ -253,11 +253,11 @@
     
     const mat = new THREE.MeshStandardMaterial({
       map: histGrassTex,
-      color: 0xd4d5d3, // Tono pastizal suave #d4d5d3
-      roughness: 0.95,
+      color: 0x98b488, // Verde pasto natural de sabana del principio (#98b488)
+      roughness: 0.92,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.75
+      opacity: 0.85
     });
     groundMesh = new THREE.Mesh(geo, mat);
     groundMesh.rotation.x = -Math.PI / 2;
@@ -293,14 +293,14 @@
   waterBumpRef = bumpTex;
 
   const sharedWaterMat = new THREE.MeshStandardMaterial({
+    vertexColors: true,
     map: waterTex,
     bumpMap: bumpTex,
     bumpScale: 0.12,
-    color: 0x8f9498, // Color exacto de modulo-10-corte.html
-    roughness: 0.18,
+    roughness: 0.15,
     metalness: 0.15,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0.88,
     side: THREE.DoubleSide
   });
   waterMat = sharedWaterMat;
@@ -379,7 +379,7 @@
   function buildHistoricalWetlands(waterBodies, year = 1950) {
     if (!waterBodies || !waterBodies.length) return;
     historicalWetlandsGroup.clear();
-    const positions = [], uvs = [];
+    const positions = [], uvs = [], colors = [], linePositions = [];
     const UV_SCALE = 0.08;
 
     function polyArea(pts) {
@@ -510,10 +510,41 @@
       let tris = [];
       try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
 
+      const nPts = scenePts.length;
+      const polyCentroidX = scenePts.reduce((s, p) => s + p.x, 0) / nPts;
+      const polyCentroidZ = scenePts.reduce((s, p) => s + p.z, 0) / nPts;
+      
+      let maxDist = 0.001;
+      for (let i = 0; i < nPts; i++) {
+        const d = Math.hypot(scenePts[i].x - polyCentroidX, scenePts[i].z - polyCentroidZ);
+        if (d > maxDist) maxDist = d;
+      }
+
+      function getWetlandGradientColor(px, pz) {
+        const dist = Math.hypot(px - polyCentroidX, pz - polyCentroidZ);
+        const t = Math.min(1.0, Math.max(0.0, dist / maxDist));
+        // Difuminado orgánico: Centro = Azul acuático vivo (#0284c7), Bordes = Verde oscuro musgoso y profundo (#143522)
+        const tPow = Math.pow(t, 1.4);
+        const r = 0.01 + (0.07 - 0.01) * tPow;
+        const g = 0.52 + (0.21 - 0.52) * tPow;
+        const b = 0.82 + (0.13 - 0.82) * tPow;
+        return [r, g, b];
+      }
+
+      // Línea de orilla oscura verdosa
+      for (let i = 0; i < nPts; i++) {
+        const p1 = scenePts[i];
+        const p2 = scenePts[(i + 1) % nPts];
+        linePositions.push(p1.x, yLayer + 0.004, p1.z, p2.x, yLayer + 0.004, p2.z);
+      }
+
       tris.forEach(([a, b, c]) => {
         [a, b, c].forEach(idx => {
-          positions.push(scenePts[idx].x, yLayer, scenePts[idx].z);
-          uvs.push(scenePts[idx].x * UV_SCALE, scenePts[idx].z * UV_SCALE);
+          const pt = scenePts[idx];
+          positions.push(pt.x, yLayer, pt.z);
+          uvs.push(pt.x * UV_SCALE, pt.z * UV_SCALE);
+          const [cr, cg, cb] = getWetlandGradientColor(pt.x, pt.z);
+          colors.push(cr, cg, cb);
         });
       });
     });
@@ -521,12 +552,13 @@
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
     geo.computeVertexNormals();
 
     const bedGeo = geo.clone();
-    const bedMat = new THREE.MeshBasicMaterial({ color: 0xd8e2ec, side: THREE.DoubleSide });
+    const bedMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
     const bedMesh = new THREE.Mesh(bedGeo, bedMat);
-    bedMesh.position.y = -0.005;
+    bedMesh.position.y = -0.004;
     bedMesh.renderOrder = 10;
     historicalWetlandsGroup.add(bedMesh);
 
@@ -534,6 +566,15 @@
     mesh.renderOrder = 15;
     mesh.receiveShadow = false;
     historicalWetlandsGroup.add(mesh);
+
+    if (linePositions.length) {
+      const lineGeo = new THREE.BufferGeometry();
+      lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x143422, transparent: true, opacity: 0.65 });
+      const lineMesh = new THREE.LineSegments(lineGeo, lineMat);
+      lineMesh.renderOrder = 20;
+      historicalWetlandsGroup.add(lineMesh);
+    }
   }
   // ---- Modelos Históricos Documentados ----
   function buildCorabastosModel() {
@@ -868,8 +909,8 @@
         groundMesh.material.map = histGrassTex;
         groundMesh.material.needsUpdate = true;
       }
-      groundMesh.material.color.setHex(0xd4d5d3);
-      groundMesh.material.opacity = 0.75;
+      groundMesh.material.color.setHex(0x8ea082);
+      groundMesh.material.opacity = 0.85;
       groundMesh.material.transparent = true;
     }
 
