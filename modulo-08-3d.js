@@ -23,8 +23,8 @@
   const canvas = document.getElementById("sceneCanvas");
   const wrap = document.getElementById("sceneWrap");
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf3f4f5);
-  scene.fog = new THREE.Fog(0xf3f4f5, 900, 3200);
+  scene.background = new THREE.Color(0xdbe8d4);
+  scene.fog = new THREE.Fog(0xdbe8d4, 900, 3400);
   // Todo el contenido del mapa (vias, edificios, arboles, agua, vehiculos)
   // se agrega a este grupo, no directamente a la escena, para poder
   // rotarlo entero en X/Y/Z con los controles manuales de orientacion.
@@ -60,6 +60,11 @@
 
   const historicalTreesGroup = new THREE.Group();
   sceneRoot.add(historicalTreesGroup);
+
+  const userPlantedGroup = new THREE.Group();
+  sceneRoot.add(userPlantedGroup);
+  const userPlantedElements = [];
+  let currentActiveTool = null; // 'tree' | 'cow' | null
 
 
   let camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 2000);
@@ -191,9 +196,9 @@
     const h = (bbox[3] - bbox[1]) * SCALE * 1.4;
     const geo = new THREE.PlaneGeometry(w, h);
     const mat = new THREE.MeshStandardMaterial({
-      color: 0xebedee, // suelo arquitectónico claro, limpio y uniforme
-      roughness: 1,
-      metalness: 0
+      color: 0x789c68, // Verde pasto / sabana natural de humedales
+      roughness: 0.95,
+      metalness: 0.05
     });
     groundMesh = new THREE.Mesh(geo, mat);
     groundMesh.rotation.x = -Math.PI / 2;
@@ -467,7 +472,7 @@
     historicalWetlandsGroup.visible = true;
 
     if (groundMesh && groundMesh.material) {
-      groundMesh.material.color.setHex(0xebedee);
+      groundMesh.material.color.setHex(0x789c68);
     }
 
     if (year === 1950) {
@@ -1926,11 +1931,36 @@
     const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y);
     downAt = null;
     if (moved > 6) return; // fue un arrastre de camara, no un clic
-    if (!treeMeshes.length) return;
     const rect = renderer.domElement.getBoundingClientRect();
     mouseNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     mouseNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouseNdc, camera);
+
+    // Si hay una herramienta activa (plantar árbol o colocar vaca), raycastear al terreno
+    if (currentActiveTool === "tree" || currentActiveTool === "cow") {
+      let groundPt = null;
+      if (groundMesh) {
+        const gh = raycaster.intersectObject(groundMesh);
+        if (gh.length > 0) groundPt = gh[0].point;
+      }
+      if (!groundPt) {
+        const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const intersectPt = new THREE.Vector3();
+        if (raycaster.ray.intersectPlane(groundPlane, intersectPt)) {
+          groundPt = intersectPt;
+        }
+      }
+      if (groundPt) {
+        if (currentActiveTool === "tree") {
+          plantSingleTree(groundPt.x, groundPt.z);
+        } else {
+          plantSingleCow(groundPt.x, groundPt.z);
+        }
+      }
+      return;
+    }
+
+    if (!treeMeshes.length) return;
     let best = null;
     treeMeshes.forEach(tm => {
       const hits = raycaster.intersectObject(tm.mesh);
@@ -2207,8 +2237,230 @@
     });
   }
 
-  resize();
-  requestAnimationFrame(animate);
+  // =====================================================================
+  // HERRAMIENTAS DE COORDENADAS DE CÁMARA Y POBLACIÓN DE ELEMENTOS
+  // =====================================================================
 
+  // 1. Panel de Coordenadas de Cámara en Vivo
+  function updateLiveCameraCoordsUI() {
+    const box = document.getElementById("liveCamCoordsBox");
+    if (!box) return;
+    const p = camera.position;
+    const t = controls.target;
+    const z = camera.zoom;
+    box.innerHTML = `<b>pos:</b> [${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}]<br>` +
+                    `<b>target:</b> [${t.x.toFixed(2)}, ${t.y.toFixed(2)}, ${t.z.toFixed(2)}]<br>` +
+                    `<b>zoom:</b> ${z.toFixed(2)}`;
+  }
+
+  controls.addEventListener("change", updateLiveCameraCoordsUI);
+
+  const copyCamBtn = document.getElementById("copyCamCoordsBtn");
+  if (copyCamBtn) {
+    copyCamBtn.addEventListener("click", async () => {
+      const p = camera.position;
+      const t = controls.target;
+      const z = camera.zoom;
+      const snippet = `// Coordenadas de Vista seleccionadas:\ncamera.position.set(${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)});\ncontrols.target.set(${t.x.toFixed(2)}, ${t.y.toFixed(2)}, ${t.z.toFixed(2)});\ncamera.zoom = ${z.toFixed(2)};\ncamera.updateProjectionMatrix();\ncontrols.update();`;
+      try {
+        await navigator.clipboard.writeText(snippet);
+        copyCamBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+        setTimeout(() => { copyCamBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1800);
+      } catch (e) {}
+    });
+  }
+
+  const applyCamBtn = document.getElementById("applyCamCoordsBtn");
+  const pasteCamInput = document.getElementById("pasteCamCoordsInput");
+  if (applyCamBtn && pasteCamInput) {
+    applyCamBtn.addEventListener("click", () => {
+      const raw = pasteCamInput.value.trim();
+      if (!raw) return;
+      // Extrae números usando regex
+      const matches = raw.match(/[-+]?\d*\.?\d+/g);
+      if (matches && matches.length >= 6) {
+        const px = parseFloat(matches[0]), py = parseFloat(matches[1]), pz = parseFloat(matches[2]);
+        const tx = parseFloat(matches[3]), ty = parseFloat(matches[4]), tz = parseFloat(matches[5]);
+        const z = matches.length >= 7 ? parseFloat(matches[6]) : camera.zoom;
+
+        transitionCameraTo(
+          new THREE.Vector3(px, py, pz),
+          new THREE.Vector3(tx, ty, tz),
+          z,
+          1200
+        );
+      }
+    });
+  }
+
+  // 2. Población de Árboles y Vacas
+  function updateUserPlantedUI() {
+    const treeCountEl = document.getElementById("plantedTreesCount");
+    const cowCountEl = document.getElementById("plantedCowsCount");
+    const textarea = document.getElementById("elementsCoordsOutput");
+
+    const trees = userPlantedElements.filter(e => e.type === "arbol");
+    const cows = userPlantedElements.filter(e => e.type === "vaca");
+
+    if (treeCountEl) treeCountEl.textContent = `${trees.length} nuevos`;
+    if (cowCountEl) cowCountEl.textContent = `${cows.length} nuevas`;
+
+    if (textarea) {
+      const formatted = userPlantedElements.map((el, idx) => {
+        if (el.type === "arbol") {
+          return `{"id": ${idx + 1}, "tipo": "arbol", "x": ${el.x.toFixed(2)}, "z": ${el.z.toFixed(2)}, "altura": ${el.h.toFixed(2)}}`;
+        } else {
+          return `{"id": ${idx + 1}, "tipo": "vaca", "x": ${el.x.toFixed(2)}, "z": ${el.z.toFixed(2)}}`;
+        }
+      }).join(",\n");
+      textarea.value = formatted ? `[\n${formatted}\n]` : "";
+    }
+  }
+
+  function plantSingleTree(x, z, hMeters = 5.2) {
+    const treeTex = new THREE.TextureLoader().load("./assets/arbol_real4.png");
+    const planeGeo = makePlaneGeometry();
+    const mat = new THREE.MeshStandardMaterial({
+      map: treeTex,
+      transparent: true,
+      alphaTest: 0.3,
+      side: THREE.DoubleSide,
+      roughness: 0.95
+    });
+    const mesh = new THREE.Mesh(planeGeo, mat);
+    const h = Math.max(0.3, hMeters * SCALE);
+    const w = h * 1.15;
+    mesh.scale.set(w, h, w);
+    mesh.position.set(x, 0, z);
+
+    const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
+    mesh.rotation.y = Math.atan2(dx, dz);
+
+    userPlantedGroup.add(mesh);
+    userPlantedElements.push({ type: "arbol", x, z, h: hMeters, mesh });
+    updateUserPlantedUI();
+  }
+
+  function plantSingleCow(x, z) {
+    const tex = cowTextures[Math.floor(Math.random() * cowTextures.length)];
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      side: THREE.DoubleSide,
+      alphaTest: 0.35,
+      depthWrite: false
+    });
+    const geo = new THREE.PlaneGeometry(1.6, 1.1);
+    const mesh = new THREE.Mesh(geo, mat);
+
+    const shadowGeo = new THREE.PlaneGeometry(1.5, 0.8);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.38,
+      depthWrite: false
+    });
+    const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+    shadowMesh.rotation.x = -Math.PI / 2;
+    shadowMesh.position.set(0, -0.48, 0);
+    mesh.add(shadowMesh);
+
+    mesh.position.set(x, 0.55, z);
+    mesh.rotation.x = -Math.PI / 4.2;
+    mesh.rotation.y = (Math.random() - 0.5) * 0.3;
+    const s = 0.85 + Math.random() * 0.3;
+    mesh.scale.set((Math.random() > 0.5 ? 1 : -1) * s, s, s);
+
+    userPlantedGroup.add(mesh);
+    userPlantedElements.push({ type: "vaca", x, z, mesh });
+    updateUserPlantedUI();
+  }
+
+  function batchPopulateTrees(count = 15) {
+    const cx = controls.target.x;
+    const cz = controls.target.z;
+    const radius = 55;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.sqrt(Math.random()) * radius;
+      const x = cx + Math.cos(angle) * dist;
+      const z = cz + Math.sin(angle) * dist;
+      const h = 3.5 + Math.random() * 3.5;
+      plantSingleTree(x, z, h);
+    }
+  }
+
+  function batchPopulateCows(count = 8) {
+    const cx = controls.target.x;
+    const cz = controls.target.z;
+    const radius = 45;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.sqrt(Math.random()) * radius;
+      const x = cx + Math.cos(angle) * dist;
+      const z = cz + Math.sin(angle) * dist;
+      plantSingleCow(x, z);
+    }
+  }
+
+  const toolTreeBtn = document.getElementById("toolPlantTreeBtn");
+  const toolCowBtn = document.getElementById("toolPlantCowBtn");
+
+  if (toolTreeBtn) {
+    toolTreeBtn.addEventListener("click", () => {
+      currentActiveTool = currentActiveTool === "tree" ? null : "tree";
+      toolTreeBtn.classList.toggle("active", currentActiveTool === "tree");
+      if (toolCowBtn) toolCowBtn.classList.remove("active");
+    });
+  }
+
+  if (toolCowBtn) {
+    toolCowBtn.addEventListener("click", () => {
+      currentActiveTool = currentActiveTool === "cow" ? null : "cow";
+      toolCowBtn.classList.toggle("active", currentActiveTool === "cow");
+      if (toolTreeBtn) toolTreeBtn.classList.remove("active");
+    });
+  }
+
+  const batchTreesBtn = document.getElementById("batchTreesBtn");
+  if (batchTreesBtn) {
+    batchTreesBtn.addEventListener("click", () => {
+      batchPopulateTrees(15);
+    });
+  }
+
+  const batchCowsBtn = document.getElementById("batchCowsBtn");
+  if (batchCowsBtn) {
+    batchCowsBtn.addEventListener("click", () => {
+      batchPopulateCows(8);
+    });
+  }
+
+  const copyElementsBtn = document.getElementById("copyElementsCoordsBtn");
+  if (copyElementsBtn) {
+    copyElementsBtn.addEventListener("click", async () => {
+      const textarea = document.getElementById("elementsCoordsOutput");
+      if (!textarea || !textarea.value) return;
+      try {
+        await navigator.clipboard.writeText(textarea.value);
+        copyElementsBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => { copyElementsBtn.innerHTML = '<i class="fa-solid fa-copy"></i>'; }, 1800);
+      } catch (e) {}
+    });
+  }
+
+  const clearElementsBtn = document.getElementById("clearElementsBtn");
+  if (clearElementsBtn) {
+    clearElementsBtn.addEventListener("click", () => {
+      userPlantedGroup.clear();
+      userPlantedElements.length = 0;
+      updateUserPlantedUI();
+    });
+  }
+
+  resize();
+  updateLiveCameraCoordsUI();
+  updateUserPlantedUI();
+  requestAnimationFrame(animate);
 
 })();
