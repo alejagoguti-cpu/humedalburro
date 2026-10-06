@@ -1,0 +1,632 @@
+[
+  {
+    "id": 1,
+    "tipo": "vaca",
+    "x": 203.3,
+    "z": -11.59,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 2,
+    "tipo": "vaca",
+    "x": 226.86,
+    "z": 17.11,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 3,
+    "tipo": "vaca",
+    "x": 225.93,
+    "z": 1.2,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 4,
+    "tipo": "vaca",
+    "x": 222.88,
+    "z": 20.19,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 5,
+    "tipo": "vaca",
+    "x": 162.14,
+    "z": -46.94,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 6,
+    "tipo": "vaca",
+    "x": 224.28,
+    "z": 11.13,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 7,
+    "tipo": "vaca",
+    "x": 218.48,
+    "z": -18.99,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 8,
+    "tipo": "vaca",
+    "x": 224.04,
+    "z": 4.67,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 9,
+    "tipo": "vaca",
+    "x": 257.26,
+    "z": 28.87,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 10,
+    "tipo": "vaca",
+    "x": 183.77,
+    "z": -24.79,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 11,
+    "tipo": "vaca",
+    "x": 249.99,
+    "z": -31.76,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 12,
+    "tipo": "vaca",
+    "x": 242.46,
+    "z": -1.42,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 13,
+    "tipo": "vaca",
+    "x": 162.09,
+    "z": 23.34,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 14,
+    "tipo": "vaca",
+    "x": 190.92,
+    "z": -5.67,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 15,
+    "tipo": "vaca",
+    "x": 194.14,
+    "z": 25.97,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 16,
+    "tipo": "vaca",
+    "x": 191.05,
+    "z": 21.91,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 17,
+    "tipo": "vaca",
+    "x": 240.14,
+    "z": 1.61,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 18,
+    "tipo": "vaca",
+    "x": 181.93,
+    "z": -20.03,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 19,
+    "tipo": "vaca",
+    "x": 173.12,
+    "z": 6.46,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 20,
+    "tipo": "vaca",
+    "x": 233.06,
+    "z": -31.21,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 21,
+    "tipo": "vaca",
+    "x": 203.02,
+    "z": -5.59,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 22,
+    "tipo": "vaca",
+    "x": 199.7,
+    "z": -39.85,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 23,
+    "tipo": "vaca",
+    "x": 263.51,
+    "z": -30.86,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 24,
+    "tipo": "vaca",
+    "x": 220.51,
+    "z": -1.33,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 25,
+    "tipo": "vaca",
+    "x": 242.55,
+    "z": -19.48,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 26,
+    "tipo": "vaca",
+    "x": 227.2,
+    "z": -37.53,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 27,
+    "tipo": "vaca",
+    "x": 216.56,
+    "z": -4.96,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 28,
+    "tipo": "vaca",
+    "x": 199.29,
+    "z": -19.54,
+    "zona": "Humedal El Burro"
+  },
+  {
+    "id": 29,
+    "tipo": "vaca",
+    "x": 80.91,
+    "z": 133.08,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 30,
+    "tipo": "vaca",
+    "x": 106.6,
+    "z": 84.87,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 31,
+    "tipo": "vaca",
+    "x": 56.98,
+    "z": 104.68,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 32,
+    "tipo": "vaca",
+    "x": 100.39,
+    "z": 109.16,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 33,
+    "tipo": "vaca",
+    "x": 95.63,
+    "z": 106.59,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 34,
+    "tipo": "vaca",
+    "x": 44.41,
+    "z": 97.8,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 35,
+    "tipo": "vaca",
+    "x": 37.6,
+    "z": 144.78,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 36,
+    "tipo": "vaca",
+    "x": 39.05,
+    "z": 91.63,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 37,
+    "tipo": "vaca",
+    "x": 52.44,
+    "z": 97.41,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 38,
+    "tipo": "vaca",
+    "x": 57.15,
+    "z": 100.59,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 39,
+    "tipo": "vaca",
+    "x": 82.41,
+    "z": 105.38,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 40,
+    "tipo": "vaca",
+    "x": 99.53,
+    "z": 131.95,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 41,
+    "tipo": "vaca",
+    "x": 73.39,
+    "z": 108.23,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 42,
+    "tipo": "vaca",
+    "x": 94.44,
+    "z": 130.21,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 43,
+    "tipo": "vaca",
+    "x": 44.48,
+    "z": 130.83,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 44,
+    "tipo": "vaca",
+    "x": 85.61,
+    "z": 131.53,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 45,
+    "tipo": "vaca",
+    "x": 97.01,
+    "z": 124.91,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 46,
+    "tipo": "vaca",
+    "x": 60.5,
+    "z": 128.52,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 47,
+    "tipo": "vaca",
+    "x": 89.89,
+    "z": 106.31,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 48,
+    "tipo": "vaca",
+    "x": 54.07,
+    "z": 124.19,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 49,
+    "tipo": "vaca",
+    "x": 113.77,
+    "z": 140.74,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 50,
+    "tipo": "vaca",
+    "x": 89.7,
+    "z": 89.91,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 51,
+    "tipo": "vaca",
+    "x": 86.92,
+    "z": 131.28,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 52,
+    "tipo": "vaca",
+    "x": 60.21,
+    "z": 124.55,
+    "zona": "Humedal La Vaca"
+  },
+  {
+    "id": 53,
+    "tipo": "vaca",
+    "x": 246.44,
+    "z": 101.9,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 54,
+    "tipo": "vaca",
+    "x": 251.12,
+    "z": 103.49,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 55,
+    "tipo": "vaca",
+    "x": 301.73,
+    "z": 65.85,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 56,
+    "tipo": "vaca",
+    "x": 258.56,
+    "z": 106.92,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 57,
+    "tipo": "vaca",
+    "x": 283.66,
+    "z": 74.94,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 58,
+    "tipo": "vaca",
+    "x": 259.27,
+    "z": 86.31,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 59,
+    "tipo": "vaca",
+    "x": 256.94,
+    "z": 104.29,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 60,
+    "tipo": "vaca",
+    "x": 283.06,
+    "z": 56.93,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 61,
+    "tipo": "vaca",
+    "x": 254.31,
+    "z": 127.75,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 62,
+    "tipo": "vaca",
+    "x": 284.84,
+    "z": 80.53,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 63,
+    "tipo": "vaca",
+    "x": 311.3,
+    "z": 104.14,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 64,
+    "tipo": "vaca",
+    "x": 295.88,
+    "z": 106.62,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 65,
+    "tipo": "vaca",
+    "x": 296.53,
+    "z": 128.32,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 66,
+    "tipo": "vaca",
+    "x": 287.37,
+    "z": 84.44,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 67,
+    "tipo": "vaca",
+    "x": 292.84,
+    "z": 81.37,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 68,
+    "tipo": "vaca",
+    "x": 296.29,
+    "z": 108.02,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 69,
+    "tipo": "vaca",
+    "x": 258.56,
+    "z": 100.5,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 70,
+    "tipo": "vaca",
+    "x": 289.48,
+    "z": 72.67,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 71,
+    "tipo": "vaca",
+    "x": 255.22,
+    "z": 94.52,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 72,
+    "tipo": "vaca",
+    "x": 299.72,
+    "z": 96.99,
+    "zona": "Pasturas Orientales / Techo"
+  },
+  {
+    "id": 73,
+    "tipo": "vaca",
+    "x": 140.15,
+    "z": -89.3,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 74,
+    "tipo": "vaca",
+    "x": 168.97,
+    "z": -48.88,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 75,
+    "tipo": "vaca",
+    "x": 109.1,
+    "z": -61.89,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 76,
+    "tipo": "vaca",
+    "x": 139.75,
+    "z": -88.08,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 77,
+    "tipo": "vaca",
+    "x": 102.96,
+    "z": -109.96,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 78,
+    "tipo": "vaca",
+    "x": 157.07,
+    "z": -49.28,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 79,
+    "tipo": "vaca",
+    "x": 82.21,
+    "z": -50.16,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 80,
+    "tipo": "vaca",
+    "x": 104.17,
+    "z": -65.77,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 81,
+    "tipo": "vaca",
+    "x": 146.0,
+    "z": -61.63,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 82,
+    "tipo": "vaca",
+    "x": 156.05,
+    "z": -59.01,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 83,
+    "tipo": "vaca",
+    "x": 84.03,
+    "z": -45.0,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 84,
+    "tipo": "vaca",
+    "x": 131.28,
+    "z": -78.93,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 85,
+    "tipo": "vaca",
+    "x": 137.24,
+    "z": -95.59,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 86,
+    "tipo": "vaca",
+    "x": 126.41,
+    "z": -83.78,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 87,
+    "tipo": "vaca",
+    "x": 181.33,
+    "z": -104.57,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 88,
+    "tipo": "vaca",
+    "x": 120.07,
+    "z": -70.73,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 89,
+    "tipo": "vaca",
+    "x": 154.9,
+    "z": -65.33,
+    "zona": "Zona Rural Norte"
+  },
+  {
+    "id": 90,
+    "tipo": "vaca",
+    "x": 90.5,
+    "z": -101.98,
+    "zona": "Zona Rural Norte"
+  }
+]

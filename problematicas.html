@@ -324,22 +324,34 @@
         </div>
       </div>
 
-      <!-- Sección 4: Coordenadas de Elementos y Cámara -->
+      <!-- Sección 4: Registro de Árboles (JSON) -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-code"></i> Registro de Elementos</span>
+          <span><i class="fa-solid fa-tree" style="color:#4ade80;"></i> Coordenadas Árboles</span>
           <div style="display:flex; gap:4px;">
-            <button type="button" class="btn-action-sm" id="copyElementsCoordsBtn" title="Copiar lista de coordenadas de árboles y vacas">
-              <i class="fa-solid fa-copy"></i>
+            <button type="button" class="btn-action-sm" id="copyElementsCoordsBtn" title="Copiar coordenadas de árboles">
+              <i class="fa-solid fa-copy"></i> Copiar
             </button>
-            <button type="button" class="btn-action-sm" id="clearElementsBtn" title="Limpiar elementos agregados">
+            <button type="button" class="btn-action-sm" id="clearElementsBtn" title="Limpiar árboles agregados">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
         </div>
-        <textarea class="elements-textarea" id="elementsCoordsOutput" readonly placeholder="// Aquí se registrarán las coordenadas de los nuevos árboles y vacas al pintar..."></textarea>
+        <textarea class="elements-textarea" id="elementsCoordsOutput" readonly placeholder="// Aquí se registran las coordenadas de los árboles..." style="height:65px;"></textarea>
       </div>
 
+      <!-- Sección 5: Registro de Vacas (JSON) -->
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-cow" style="color:#fbbf24;"></i> Coordenadas Vacas</span>
+          <button type="button" class="btn-action-sm" id="copyCowsCoordsBtn" title="Copiar coordenadas de vacas">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+        </div>
+        <textarea class="elements-textarea" id="cowsCoordsOutput" readonly placeholder="// Aquí se registran las coordenadas de las vacas..." style="height:65px; color:#fde68a;"></textarea>
+      </div>
+
+      <!-- Sección 6: Coordenadas de Vista -->
       <div class="section-card">
         <div class="section-title">
           <span><i class="fa-solid fa-video"></i> Coordenadas de Vista</span>
@@ -366,6 +378,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=251"></script>
+<script src="modulo-08-3d.js?v=252"></script>
 </body>
 </html>

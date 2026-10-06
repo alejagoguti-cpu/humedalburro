@@ -2661,22 +2661,34 @@
     const treeCountEl = document.getElementById("plantedTreesCount");
     const cowCountEl = document.getElementById("plantedCowsCount");
     const textarea = document.getElementById("elementsCoordsOutput");
+    const cowsTextarea = document.getElementById("cowsCoordsOutput");
 
     const trees = userPlantedElements.filter(e => e.type === "arbol");
     const cows = userPlantedElements.filter(e => e.type === "vaca");
 
-    if (treeCountEl) treeCountEl.textContent = `${trees.length} nuevos`;
-    if (cowCountEl) cowCountEl.textContent = `${cows.length} nuevas`;
+    if (treeCountEl) treeCountEl.textContent = `${trees.length} árboles`;
+    const totalCowsCount = cows.length || cowInstances.length;
+    if (cowCountEl) cowCountEl.textContent = `${totalCowsCount} vacas`;
 
     if (textarea) {
-      const formatted = userPlantedElements.map((el, idx) => {
-        if (el.type === "arbol") {
-          return `{"id": ${idx + 1}, "tipo": "arbol", "x": ${el.x.toFixed(2)}, "z": ${el.z.toFixed(2)}, "altura": ${el.h.toFixed(2)}}`;
-        } else {
-          return `{"id": ${idx + 1}, "tipo": "vaca", "x": ${el.x.toFixed(2)}, "z": ${el.z.toFixed(2)}}`;
-        }
+      const formatted = trees.map((el, idx) => {
+        const alt = el.h ? el.h.toFixed(2) : "7.00";
+        return `{"id": ${idx + 1}, "tipo": "arbol", "x": ${el.x.toFixed(2)}, "z": ${el.z.toFixed(2)}, "altura": ${alt}}`;
       }).join(",\n");
       textarea.value = formatted ? `[\n${formatted}\n]` : "";
+    }
+
+    if (cowsTextarea) {
+      const cowList = cows.length ? cows : cowInstances.map((ci, idx) => ({
+        id: idx + 1,
+        tipo: "vaca",
+        x: ci.baseX,
+        z: ci.baseZ
+      }));
+      const formattedCows = cowList.map((c, idx) => {
+        return `{"id": ${idx + 1}, "tipo": "vaca", "x": ${c.x.toFixed(2)}, "z": ${c.z.toFixed(2)}}`;
+      }).join(",\n");
+      cowsTextarea.value = formattedCows ? `[\n${formattedCows}\n]` : "";
     }
   }
 
@@ -2752,9 +2764,20 @@
   }
 
   const USER_TREES_URL = "./assets/user_planted_trees.json";
+  const USER_COWS_URL = "./assets/user_planted_cows.json";
   let userTreesInstMesh = null;
 
   function loadUserPlantedTrees() {
+    // Cargar vacas registradas
+    fetch(USER_COWS_URL)
+      .then(r => r.ok ? r.json() : [])
+      .then(cows => {
+        if (Array.isArray(cows) && cows.length) {
+          updateUserPlantedUI();
+        }
+      })
+      .catch(() => {});
+
     return fetch(USER_TREES_URL)
       .then(r => { if (!r.ok) throw new Error("no user trees"); return r.json(); })
       .then(items => {
@@ -3040,8 +3063,21 @@
       if (!textarea || !textarea.value) return;
       try {
         await navigator.clipboard.writeText(textarea.value);
-        copyElementsBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-        setTimeout(() => { copyElementsBtn.innerHTML = '<i class="fa-solid fa-copy"></i>'; }, 1800);
+        copyElementsBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+        setTimeout(() => { copyElementsBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1800);
+      } catch (e) {}
+    });
+  }
+
+  const copyCowsBtn = document.getElementById("copyCowsCoordsBtn");
+  if (copyCowsBtn) {
+    copyCowsBtn.addEventListener("click", async () => {
+      const textarea = document.getElementById("cowsCoordsOutput");
+      if (!textarea || !textarea.value) return;
+      try {
+        await navigator.clipboard.writeText(textarea.value);
+        copyCowsBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+        setTimeout(() => { copyCowsBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1800);
       } catch (e) {}
     });
   }
