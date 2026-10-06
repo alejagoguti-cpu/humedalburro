@@ -190,15 +190,27 @@
   let waterTexRef = null, waterBumpRef = null; // texturas de agua, animadas en el loop de render
   let buildingEdgeMat = null; // referencia para ajustar su opacidad segun el zoom
   let groundMesh = null;
+  const grassTexLoader = new THREE.TextureLoader();
+  const histGrassTex = grassTexLoader.load("./assets/textura_pasto.jpg");
+  histGrassTex.wrapS = THREE.RepeatWrapping;
+  histGrassTex.wrapT = THREE.RepeatWrapping;
+  histGrassTex.anisotropy = 16;
+  histGrassTex.minFilter = THREE.LinearMipmapLinearFilter;
+  histGrassTex.magFilter = THREE.LinearFilter;
 
   function buildGround(bbox) {
     const w = (bbox[2] - bbox[0]) * SCALE * 1.4;
     const h = (bbox[3] - bbox[1]) * SCALE * 1.4;
     const geo = new THREE.PlaneGeometry(w, h);
+    
+    // Repetición suave y amplia para evitar efecto cuadrícula/cuarteado
+    histGrassTex.repeat.set(Math.max(10, Math.round(w / 45)), Math.max(10, Math.round(h / 45)));
+    
     const mat = new THREE.MeshStandardMaterial({
-      color: 0x789c68, // Verde pasto / sabana natural de humedales
-      roughness: 0.95,
-      metalness: 0.05
+      map: histGrassTex,
+      color: 0x98b488, // Tinte verde pasto natural de sabana que empata armónicamente
+      roughness: 0.92,
+      metalness: 0.02
     });
     groundMesh = new THREE.Mesh(geo, mat);
     groundMesh.rotation.x = -Math.PI / 2;
@@ -472,7 +484,11 @@
     historicalWetlandsGroup.visible = true;
 
     if (groundMesh && groundMesh.material) {
-      groundMesh.material.color.setHex(0x789c68);
+      if (groundMesh.material.map !== histGrassTex) {
+        groundMesh.material.map = histGrassTex;
+        groundMesh.material.needsUpdate = true;
+      }
+      groundMesh.material.color.setHex(0x98b488);
     }
 
     if (year === 1950) {
