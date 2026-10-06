@@ -218,6 +218,7 @@
   // ---- Suelo ----
   let netCenter = { x: 0, y: 0 };
   let roadMat = null, waterMat = null, parqueMat = null; // referencias para los selectores de color en vivo
+  let modernWaterMesh = null;
   let waterTexRef = null, waterBumpRef = null; // texturas de agua, animadas en el loop de render
   let buildingEdgeMat = null; // referencia para ajustar su opacidad segun el zoom
   let groundMesh = null;
@@ -391,6 +392,14 @@
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
 
+    // Base de lecho clara para que la textura del pasto no oscurezca el agua transparente
+    const bedGeo = geo.clone();
+    const bedMat = new THREE.MeshBasicMaterial({ color: 0xd8e2ec, side: THREE.DoubleSide });
+    const bedMesh = new THREE.Mesh(bedGeo, bedMat);
+    bedMesh.position.y = -0.005;
+    bedMesh.renderOrder = 10;
+    historicalWetlandsGroup.add(bedMesh);
+
     const histWaterMat = new THREE.MeshStandardMaterial({
       map: histWaterTex,
       bumpMap: histWaterBump,
@@ -404,6 +413,7 @@
     });
 
     const mesh = new THREE.Mesh(geo, histWaterMat);
+    mesh.renderOrder = 15;
     mesh.receiveShadow = false;
     historicalWetlandsGroup.add(mesh);
   }
@@ -495,6 +505,7 @@
     if (modernManzanasMesh) modernManzanasMesh.visible = false;
     if (modernFacadesMesh) modernFacadesMesh.visible = false;
     if (elBurroMesh) elBurroMesh.visible = false;
+    if (modernWaterMesh) modernWaterMesh.visible = false;
     if (vehInstanced) vehInstanced.visible = false;
     if (intersectionMeshes && intersectionMeshes.length) {
       intersectionMeshes.forEach(m => { if (m) m.visible = false; });
@@ -1413,12 +1424,13 @@
     waterBumpRef = bumpTex;
     const mat = new THREE.MeshStandardMaterial({
       map: waterTex, bumpMap: bumpTex, bumpScale: 0.12,
-      color: 0x97a5af, roughness: 0.18, metalness: 0.15,
+      color: 0x8f9498, roughness: 0.18, metalness: 0.15,
       transparent: true, opacity: 0.82, side: THREE.DoubleSide,
     });
     waterMat = mat;
     const waterMesh = new THREE.Mesh(geo, mat);
     waterMesh.receiveShadow = false; // sin sombras encima (se veian como parches/bloques feos sobre el agua)
+    modernWaterMesh = waterMesh;
     sceneRoot.add(waterMesh);
     elBurroMat = mat; // El Burro comparte la misma textura/material que el resto del agua
     rebuildElBurro(HUMEDAL_CICLO[0].expansion_pct); // arranca en Enero, igual que el valor por defecto del deslizador
