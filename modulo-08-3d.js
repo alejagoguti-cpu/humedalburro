@@ -497,12 +497,12 @@
       aeropuertoTechoGroup.visible = false;
 
       if (animateCam) {
-        // Enfoque exacto en Humedal El Burro (GPS 4.64232, -74.15098 -> x: 209.56, z: -10.93)
+        // Enfoque exacto en Humedal El Burro (coordenadas seleccionadas por la usuaria)
         transitionCameraTo(
-          new THREE.Vector3(87.96, 630.7, 734.67),
-          new THREE.Vector3(209.56, -124.7, -10.93),
-          2.45,
-          1800
+          new THREE.Vector3(117.21, 724.68, 628.88),
+          new THREE.Vector3(219.64, -56.32, -92.84),
+          1.95,
+          2000
         );
       }
     } else if (year === 1956) {
@@ -511,24 +511,25 @@
       aeropuertoTechoGroup.visible = true;
 
       if (animateCam) {
-        // Paneo suave a Humedal La Vaca (x: 67.66, z: 118.17)
+        // Paneo suave a Humedal La Vaca y Aeropuerto de Techo (coordenadas seleccionadas por la usuaria)
         transitionCameraTo(
-          new THREE.Vector3(-71.6, 630.7, 870.6),
-          new THREE.Vector3(50.0, -124.7, 125.0),
-          2.60,
-          2200
+          new THREE.Vector3(50.39, 695.32, 825.02),
+          new THREE.Vector3(171.99, -60.08, 79.42),
+          2.23,
+          2400
         );
       }
     }
   }
 
-  // Función de vista inicial en Humedal El Burro
+  // Función de vista inicial en Humedal El Burro (1950)
   function setAxonometricView(distance) {
-    camera.position.set(87.96, 630.7, 734.67);
-    controls.target.set(209.56, -124.7, -10.93);
-    camera.zoom = 2.45;
+    camera.position.set(117.21, 724.68, 628.88);
+    controls.target.set(219.64, -56.32, -92.84);
+    camera.zoom = 1.95;
     camera.updateProjectionMatrix();
     controls.update();
+    if (typeof updateLiveCameraCoordsUI === "function") updateLiveCameraCoordsUI();
   }
     // 7. Event listeners de la línea de tiempo histórica
   document.querySelectorAll(".year-btn").forEach(btn => {
@@ -1829,11 +1830,12 @@
 
   // ---- Vista axonometrica fija con las coordenadas de la usuaria ----
   function setAxonometricView(distance) {
-    camera.position.set(17.6, 630.7, 713.9);
-    controls.target.set(139.2, -124.7, -31.7);
-    camera.zoom = 2.39;
+    camera.position.set(117.21, 724.68, 628.88);
+    controls.target.set(219.64, -56.32, -92.84);
+    camera.zoom = 1.95;
     camera.updateProjectionMatrix();
     controls.update();
+    if (typeof updateLiveCameraCoordsUI === "function") updateLiveCameraCoordsUI();
   }
 
   // ---- Botones de vista ----
