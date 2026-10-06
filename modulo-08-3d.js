@@ -2744,6 +2744,55 @@
     updateUserPlantedUI();
   }
 
+  const USER_TREES_URL = "./assets/user_planted_trees.json";
+  let userTreesInstMesh = null;
+
+  function loadUserPlantedTrees() {
+    return fetch(USER_TREES_URL)
+      .then(r => { if (!r.ok) throw new Error("no user trees"); return r.json(); })
+      .then(items => {
+        if (!Array.isArray(items) || !items.length) return;
+        const treeTex = new THREE.TextureLoader().load("./assets/arbol_real4.png");
+        const planeGeo = makePlaneGeometry();
+        const mat = new THREE.MeshStandardMaterial({
+          map: treeTex,
+          transparent: true,
+          alphaTest: 0.25,
+          side: THREE.DoubleSide,
+          roughness: 0.95
+        });
+
+        const instMesh = new THREE.InstancedMesh(planeGeo, mat, items.length);
+        instMesh.renderOrder = 999;
+        const dummyU = new THREE.Object3D();
+        const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
+        const faceAngle = Math.atan2(dx, dz);
+
+        items.forEach((item, idx) => {
+          const h = Math.max(0.3, (item.altura || 7.0) * SCALE);
+          const w = h * 1.15;
+          dummyU.position.set(item.x, 0.05, item.z);
+          dummyU.scale.set(w, h, w);
+          dummyU.rotation.set(0, faceAngle, 0);
+          dummyU.updateMatrix();
+          instMesh.setMatrixAt(idx, dummyU.matrix);
+
+          userPlantedElements.push({
+            type: "arbol",
+            x: item.x,
+            z: item.z,
+            h: item.altura || 7.0,
+            mesh: null
+          });
+        });
+        instMesh.instanceMatrix.needsUpdate = true;
+        userTreesInstMesh = instMesh;
+        userPlantedGroup.add(instMesh);
+        updateUserPlantedUI();
+      })
+      .catch(err => console.warn("No se pudieron cargar árboles pre-plantados:", err));
+  }
+
   function batchPopulateTrees(count = 48) {
     const cx = controls.target.x;
     const cz = controls.target.z;
@@ -3048,6 +3097,7 @@
   updateLiveCameraCoordsUI();
   updateUserPlantedUI();
   updatePolyCoordsUI();
+  loadUserPlantedTrees();
   requestAnimationFrame(animate);
 
 })();
