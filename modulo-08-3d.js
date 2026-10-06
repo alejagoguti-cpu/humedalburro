@@ -748,6 +748,13 @@
       groundMesh.material.transparent = true;
     }
 
+    // Control de visibilidad de paneles de edición (solo activos para 1950 y 1956)
+    const leftPolyPanel = document.getElementById("leftPolyPanel");
+    const toolsPanel = document.getElementById("toolsPanel");
+    const isEditEra = (year === 1950 || year === 1956);
+    if (leftPolyPanel) leftPolyPanel.style.display = isEditEra ? "flex" : "none";
+    if (toolsPanel) toolsPanel.style.display = isEditEra ? "flex" : "none";
+
     if (year === 1950) {
       if (badge) badge.textContent = "1950";
       if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha) y Sabana Rural (potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
@@ -756,9 +763,9 @@
       if (animateCam) {
         // Enfoque exacto en Humedal El Burro (coordenadas seleccionadas por la usuaria)
         transitionCameraTo(
-          new THREE.Vector3(117.21, 724.68, 628.88),
-          new THREE.Vector3(219.64, -56.32, -92.84),
-          1.95,
+          new THREE.Vector3(112.33, 735.04, 616.97),
+          new THREE.Vector3(214.76, -45.96, -104.75),
+          1.36,
           2000
         );
       }
@@ -770,9 +777,9 @@
       if (animateCam) {
         // Paneo suave a Humedal La Vaca y Aeropuerto de Techo (coordenadas seleccionadas por la usuaria)
         transitionCameraTo(
-          new THREE.Vector3(50.39, 695.32, 825.02),
-          new THREE.Vector3(171.99, -60.08, 79.42),
-          2.23,
+          new THREE.Vector3(55.57, 732.35, 788.35),
+          new THREE.Vector3(177.17, -23.05, 42.75),
+          1.41,
           2400
         );
       }
@@ -781,9 +788,9 @@
 
   // Función de vista inicial en Humedal El Burro (1950)
   function setAxonometricView(distance) {
-    camera.position.set(117.21, 724.68, 628.88);
-    controls.target.set(219.64, -56.32, -92.84);
-    camera.zoom = 1.95;
+    camera.position.set(112.33, 735.04, 616.97);
+    controls.target.set(214.76, -45.96, -104.75);
+    camera.zoom = 1.36;
     camera.updateProjectionMatrix();
     controls.update();
     if (typeof updateLiveCameraCoordsUI === "function") updateLiveCameraCoordsUI();
@@ -2103,9 +2110,9 @@
 
   // ---- Vista axonometrica fija con las coordenadas de la usuaria ----
   function setAxonometricView(distance) {
-    camera.position.set(117.21, 724.68, 628.88);
-    controls.target.set(219.64, -56.32, -92.84);
-    camera.zoom = 1.95;
+    camera.position.set(112.33, 735.04, 616.97);
+    controls.target.set(214.76, -45.96, -104.75);
+    camera.zoom = 1.36;
     camera.updateProjectionMatrix();
     controls.update();
     if (typeof updateLiveCameraCoordsUI === "function") updateLiveCameraCoordsUI();
