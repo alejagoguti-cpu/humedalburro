@@ -250,9 +250,12 @@
         <i class="fa-solid fa-play"></i>
       </button>
       <div style="display:flex; align-items:center; gap:6px;">
-        <button type="button" class="year-btn active" data-year="1950">1950</button>
-        <button type="button" class="year-btn" data-year="1956">1956</button>
-        <input type="range" id="histYearSlider" min="1950" max="1956" value="1950" step="1" style="width:100px; accent-color:var(--accent); cursor:pointer; margin-left:6px;">
+        <button type="button" class="year-btn active" data-year="1950" title="1950: Sabana Rural y Humedales Naturales (171 ha)">1950</button>
+        <button type="button" class="year-btn" data-year="1956" title="1956: Antiguo Aeropuerto de Techo y Sabana">1956</button>
+        <button type="button" class="year-btn" data-year="1972" title="1972: Inauguración de Corabastos en Potrero Alto Negro (38,5 ha)">1972</button>
+        <button type="button" class="year-btn" data-year="1988" title="1988: Bisección por Av. Ciudad de Cali y Planta Protecho (27,1 ha)">1988</button>
+        <button type="button" class="year-btn" data-year="2024" title="Actualidad: Modelo Axonométrico Moderno Completo de Kennedy">Actualidad</button>
+        <input type="range" id="histYearSlider" min="0" max="4" value="0" step="1" style="width:90px; accent-color:var(--accent); cursor:pointer; margin-left:6px;" title="Línea de tiempo histórica">
       </div>
     </div>
 
@@ -366,6 +369,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=265"></script>
+<script src="modulo-08-3d.js?v=266"></script>
 </body>
 </html>

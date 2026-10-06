@@ -38,6 +38,7 @@
 
   // Variables y grupos de la simulación histórica (1950 - 1956)
   let currentHistoricalYear = 1950;
+  let rawWaterData = null;
   let modernRoadLines = null;
   let modernRoadMesh = null;
   let modernManzanasMesh = null;
@@ -57,6 +58,18 @@
 
   const aeropuertoTechoGroup = new THREE.Group();
   sceneRoot.add(aeropuertoTechoGroup);
+
+  const corabastosGroup = new THREE.Group();
+  sceneRoot.add(corabastosGroup);
+
+  const roads1972Group = new THREE.Group();
+  sceneRoot.add(roads1972Group);
+
+  const avCaliGroup = new THREE.Group();
+  sceneRoot.add(avCaliGroup);
+
+  const protechoGroup = new THREE.Group();
+  sceneRoot.add(protechoGroup);
 
   const historicalTreesGroup = new THREE.Group();
   sceneRoot.add(historicalTreesGroup);
@@ -362,8 +375,8 @@
     });
   }
 
-  // 2. Construcción de humedales históricos con el área solicitada (El Burro: 171 ha, La Vaca: 181 ha hacia El Burro con curvas suaves, Techo: 120 ha)
-  function buildHistoricalWetlands(waterBodies) {
+  // 2. Construcción de humedales históricos con el área solicitada según la época
+  function buildHistoricalWetlands(waterBodies, year = 1950) {
     if (!waterBodies || !waterBodies.length) return;
     historicalWetlandsGroup.clear();
     const positions = [], uvs = [];
@@ -395,6 +408,20 @@
       return cur;
     }
 
+    let targetAreaBurro = 1710000;
+    let targetAreaVaca = 1810000;
+    let targetAreaTecho = 1200000;
+
+    if (year === 1972) {
+      targetAreaBurro = 385300;
+      targetAreaVaca = 800000;
+      targetAreaTecho = 300000;
+    } else if (year === 1988) {
+      targetAreaBurro = 271400;
+      targetAreaVaca = 300000;
+      targetAreaTecho = 100000;
+    }
+
     const burroObj = waterBodies.find(w => (w.nombre || "").includes("Burro"));
     let burroCx = 7436.96, burroCy = 3271.17;
     if (burroObj && burroObj.pts && burroObj.pts.length) {
@@ -410,36 +437,30 @@
       const ptsOriginal = w.pts;
       const baseArea = polyArea(ptsOriginal);
       if (baseArea <= 0) return;
-      // Para La Vaca, tomar el polígono principal sin fragmentos aislados que generen rayas extrañas
       if (name.includes("Vaca") && baseArea < 20000) return;
 
       const cx = ptsOriginal.reduce((s, p) => s + p[0], 0) / ptsOriginal.length;
       const cy = ptsOriginal.reduce((s, p) => s + p[1], 0) / ptsOriginal.length;
 
       let expandedPts = [];
-      let yLayer = 0.024; // Desfase infinitesimal entre capas para eliminar parpadeo / Z-fighting
+      let yLayer = 0.024;
 
       if (name.includes("Burro")) {
-        // Humedal El Burro: 171 hectáreas exactas
         yLayer = 0.024;
-        const targetArea = 1710000; // 171 ha en m2
-        const scale = Math.sqrt(targetArea / baseArea);
+        const scale = Math.sqrt(targetAreaBurro / baseArea);
         const unscaled = ptsOriginal.map(p => [cx + (p[0] - cx) * scale, cy + (p[1] - cy) * scale]);
         const smoothed = chaikinSmooth(unscaled, 1);
         const sArea = polyArea(smoothed);
-        const k = Math.sqrt(targetArea / (sArea || 1));
+        const k = Math.sqrt(targetAreaBurro / (sArea || 1));
         const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
         const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
         expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
       } else if (name.includes("Vaca")) {
-        // Humedal La Vaca: 181 hectáreas exactas, extendido limpiamente hacia El Burro con puntas curvas
         yLayer = 0.025;
-        const targetArea = 1810000; // 181 ha en m2
-        const scaleBase = Math.sqrt(targetArea / baseArea);
-
+        const scaleBase = Math.sqrt(targetAreaVaca / baseArea);
         const dx = burroCx - cx, dy = burroCy - cy;
         const dist = Math.hypot(dx, dy) || 1;
-        const ux = dx / dist, uy = dy / dist; // Vector unitario hacia El Burro
+        const ux = dx / dist, uy = dy / dist;
 
         const transformed = ptsOriginal.map(p => {
           const px = p[0] - cx, py = p[1] - cy;
@@ -453,19 +474,16 @@
 
         const smoothed = chaikinSmooth(transformed, 2);
         const sArea = polyArea(smoothed);
-        const k = Math.sqrt(targetArea / (sArea || 1));
+        const k = Math.sqrt(targetAreaVaca / (sArea || 1));
         const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
         const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
         expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
       } else if (name.includes("Techo")) {
-        // Laguna / Humedal de Techo: 120 hectáreas exactas, extendido hacia El Burro con puntas curvas
         yLayer = 0.026;
-        const targetArea = 1200000; // 120 ha en m2
-        const scaleBase = Math.sqrt(targetArea / baseArea);
-
+        const scaleBase = Math.sqrt(targetAreaTecho / baseArea);
         const dx = burroCx - cx, dy = burroCy - cy;
         const dist = Math.hypot(dx, dy) || 1;
-        const ux = dx / dist, uy = dy / dist; // Vector unitario hacia El Burro
+        const ux = dx / dist, uy = dy / dist;
 
         const transformed = ptsOriginal.map(p => {
           const px = p[0] - cx, py = p[1] - cy;
@@ -479,7 +497,7 @@
 
         const smoothed = chaikinSmooth(transformed, 1);
         const sArea = polyArea(smoothed);
-        const k = Math.sqrt(targetArea / (sArea || 1));
+        const k = Math.sqrt(targetAreaTecho / (sArea || 1));
         const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
         const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
         expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
@@ -505,7 +523,6 @@
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
 
-    // Base de lecho clara para que la textura del pasto no oscurezca el agua transparente
     const bedGeo = geo.clone();
     const bedMat = new THREE.MeshBasicMaterial({ color: 0xd8e2ec, side: THREE.DoubleSide });
     const bedMesh = new THREE.Mesh(bedGeo, bedMat);
@@ -518,6 +535,114 @@
     mesh.receiveShadow = false;
     historicalWetlandsGroup.add(mesh);
   }
+  // ---- Modelos Históricos Documentados ----
+  function buildCorabastosModel() {
+    corabastosGroup.clear();
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7, metalness: 0.1 });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.4 });
+    const bodegas = [
+      { x: 260, z: 45, w: 28, h: 4.5, d: 14 },
+      { x: 260, z: 65, w: 28, h: 4.5, d: 14 },
+      { x: 295, z: 45, w: 24, h: 4.5, d: 14 },
+      { x: 295, z: 65, w: 24, h: 4.5, d: 14 },
+      { x: 275, z: 88, w: 38, h: 5.0, d: 16 }
+    ];
+    bodegas.forEach(b => {
+      const bGeo = new THREE.BoxGeometry(b.w, b.h, b.d);
+      const mesh = new THREE.Mesh(bGeo, wallMat);
+      mesh.position.set(b.x, b.h / 2 + 0.05, b.z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      const eGeo = new THREE.EdgesGeometry(bGeo);
+      const eMesh = new THREE.LineSegments(eGeo, edgeMat);
+      mesh.add(eMesh);
+      corabastosGroup.add(mesh);
+    });
+  }
+
+  function buildRoads1972() {
+    roads1972Group.clear();
+    const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
+    viaTex.wrapS = THREE.RepeatWrapping; viaTex.wrapT = THREE.RepeatWrapping;
+    const avenues = [
+      { width: 2.2, pts: [{ x: 460, z: 48 }, { x: 380, z: 66 }, { x: 310, z: 85 }] },
+      { width: 1.8, pts: [{ x: 310, z: 15 }, { x: 310, z: 85 }, { x: 280, z: 125 }, { x: 260, z: 160 }] }
+    ];
+    avenues.forEach(ave => {
+      const pts = ave.pts;
+      const halfW = ave.width * 0.5;
+      const ribbonGeo = new THREE.BufferGeometry();
+      const ribbonPos = [], ribbonUv = [];
+      for (let i = 0; i < pts.length - 1; i++) {
+        const a = pts[i], b = pts[i + 1];
+        const dx = b.x - a.x, dz = b.z - a.z;
+        const len = Math.hypot(dx, dz) || 0.001;
+        const nx = -dz / len * halfW, nz = dx / len * halfW;
+        ribbonPos.push(
+          a.x - nx, 0.038, a.z - nz,  a.x + nx, 0.038, a.z + nz,  b.x + nx, 0.038, b.z + nz,
+          a.x - nx, 0.038, a.z - nz,  b.x + nx, 0.038, b.z + nz,  b.x - nx, 0.038, b.z - nz
+        );
+        [
+          [a.x - nx, a.z - nz], [a.x + nx, a.z + nz], [b.x + nx, b.z + nz],
+          [a.x - nx, a.z - nz], [b.x + nx, b.z + nz], [b.x - nx, b.z - nz]
+        ].forEach(([px, pz]) => ribbonUv.push(px * 0.06, pz * 0.06));
+      }
+      ribbonGeo.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPos, 3));
+      ribbonGeo.setAttribute("uv", new THREE.Float32BufferAttribute(ribbonUv, 2));
+      ribbonGeo.computeVertexNormals();
+      const roadMat = new THREE.MeshStandardMaterial({ map: viaTex, color: 0x94a3b8, roughness: 0.85, side: THREE.DoubleSide });
+      const rMesh = new THREE.Mesh(ribbonGeo, roadMat);
+      roads1972Group.add(rMesh);
+    });
+  }
+
+  function buildAvCaliModel() {
+    avCaliGroup.clear();
+    const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
+    viaTex.wrapS = THREE.RepeatWrapping; viaTex.wrapT = THREE.RepeatWrapping;
+    const pts = [
+      { x: 226, z: -120 }, { x: 220, z: -55 }, { x: 212, z: -10 }, { x: 206, z: 45 }, { x: 198, z: 120 }
+    ];
+    const ribbonGeo = new THREE.BufferGeometry();
+    const ribbonPos = [], ribbonUv = [];
+    const halfW = 1.35;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1];
+      const dx = b.x - a.x, dz = b.z - a.z;
+      const len = Math.hypot(dx, dz) || 0.001;
+      const nx = -dz / len * halfW, nz = dx / len * halfW;
+      ribbonPos.push(
+        a.x - nx, 0.042, a.z - nz,  a.x + nx, 0.042, a.z + nz,  b.x + nx, 0.042, b.z + nz,
+        a.x - nx, 0.042, a.z - nz,  b.x + nx, 0.042, b.z + nz,  b.x - nx, 0.042, b.z - nz
+      );
+      [
+        [a.x - nx, a.z - nz], [a.x + nx, a.z + nz], [b.x + nx, b.z + nz],
+        [a.x - nx, a.z - nz], [b.x + nx, b.z + nz], [b.x - nx, b.z - nz]
+      ].forEach(([px, pz]) => ribbonUv.push(px * 0.06, pz * 0.06));
+    }
+    ribbonGeo.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPos, 3));
+    ribbonGeo.setAttribute("uv", new THREE.Float32BufferAttribute(ribbonUv, 2));
+    ribbonGeo.computeVertexNormals();
+    const roadMat = new THREE.MeshStandardMaterial({ map: viaTex, color: 0x64748b, roughness: 0.85, side: THREE.DoubleSide });
+    const rMesh = new THREE.Mesh(ribbonGeo, roadMat);
+    avCaliGroup.add(rMesh);
+  }
+
+  function buildProtechoModel() {
+    protechoGroup.clear();
+    const facMat = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.85 });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x1c1917, transparent: true, opacity: 0.45 });
+    const pGeo = new THREE.BoxGeometry(22, 6.5, 16);
+    const pMesh = new THREE.Mesh(pGeo, facMat);
+    pMesh.position.set(168, 3.3, -38);
+    pMesh.castShadow = true;
+    pMesh.receiveShadow = true;
+    const eGeo = new THREE.EdgesGeometry(pGeo);
+    const eMesh = new THREE.LineSegments(eGeo, edgeMat);
+    pMesh.add(eMesh);
+    protechoGroup.add(pMesh);
+  }
+
 
   // 3. Modelo del Antiguo Aeropuerto de Techo (1956) con Pista y Vía trazadas en gris claro
   const AEROPUERTO_RUNWAY_PTS = [
@@ -749,12 +874,19 @@
     }
 
     if (year === 1950) {
-      if (badge) badge.textContent = "1950";
-      if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha) y Sabana Rural (potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
+      if (badge) badge.textContent = "1950 · Sabana Rural";
+      if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha), La Vaca (181 ha) y Sabana Rural con 210 vacas en pastoreo y senderos veredales.";
+      cowsGroup.visible = true;
+      historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = false;
+      roads1972Group.visible = false;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1950);
 
       if (animateCam) {
-        // Enfoque exacto en Humedal El Burro (coordenadas seleccionadas por la usuaria)
         transitionCameraTo(
           new THREE.Vector3(117.21, 724.68, 628.88),
           new THREE.Vector3(219.64, -56.32, -92.84),
@@ -763,17 +895,107 @@
         );
       }
     } else if (year === 1956) {
-      if (badge) badge.textContent = "1956";
-      if (desc) desc.textContent = "1956 · Humedal La Vaca (181 ha) y Laguna de Techo (120 ha) extendidos hacia El Burro, Antiguo Aeropuerto de Techo y Sabana Rural.";
+      if (badge) badge.textContent = "1956 · Aeropuerto Techo";
+      if (desc) desc.textContent = "1956 · Humedal La Vaca y Laguna de Techo extendidos hacia El Burro, Antiguo Aeropuerto de Techo con pista y vías de conexión.";
+      cowsGroup.visible = true;
+      historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = true;
+      corabastosGroup.visible = false;
+      roads1972Group.visible = false;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1956);
 
       if (animateCam) {
-        // Paneo suave a Humedal La Vaca y Aeropuerto de Techo (coordenadas seleccionadas por la usuaria)
         transitionCameraTo(
           new THREE.Vector3(50.39, 695.32, 825.02),
           new THREE.Vector3(171.99, -60.08, 79.42),
           2.23,
           2400
+        );
+      }
+    } else if (year === 1972) {
+      if (badge) badge.textContent = "1972 · Corabastos";
+      if (desc) desc.textContent = "1972 · Inauguración de Corabastos en Potrero Alto Negro y acceso por Av. Las Américas. Humedales reducidos a 38,5 ha.";
+      cowsGroup.visible = false;
+      historicalWetlandsGroup.visible = true;
+      aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = true;
+      roads1972Group.visible = true;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1972);
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(135.0, 710.0, 690.0),
+          new THREE.Vector3(240.0, -30.0, 35.0),
+          1.80,
+          2200
+        );
+      }
+    } else if (year === 1988) {
+      if (badge) badge.textContent = "1988 · Bisección Av. Cali";
+      if (desc) desc.textContent = "1988 · Construcción de Av. Ciudad de Cali que divide el humedal en dos sectores y Planta de basuras Protecho (EDIS).";
+      cowsGroup.visible = false;
+      historicalWetlandsGroup.visible = true;
+      aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = true;
+      roads1972Group.visible = true;
+      avCaliGroup.visible = true;
+      protechoGroup.visible = true;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1988);
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(155.0, 680.0, 620.0),
+          new THREE.Vector3(210.0, -25.0, -10.0),
+          1.75,
+          2200
+        );
+      }
+    } else if (year >= 2024) {
+      if (badge) badge.textContent = "Actualidad (2024)";
+      if (desc) desc.textContent = "Actualidad · Modelo axonométrico arquitectónico urbano completo de Kennedy con el Humedal El Burro protegido de 18,8 ha.";
+      
+      if (currentBuildingMesh) currentBuildingMesh.visible = true;
+      if (buildingEdgeMat) buildingEdgeMat.visible = true;
+      if (modernBuildingEdges) modernBuildingEdges.visible = true;
+      if (modernRoadLines) modernRoadLines.visible = true;
+      if (modernRoadMesh) modernRoadMesh.visible = true;
+      if (modernManzanasMesh) modernManzanasMesh.visible = true;
+      if (modernFacadesMesh) modernFacadesMesh.visible = true;
+      if (elBurroMesh) elBurroMesh.visible = true;
+      if (modernWaterMesh) modernWaterMesh.visible = true;
+      if (modernParquesMesh) modernParquesMesh.visible = true;
+      if (treeMesh) treeMesh.visible = true;
+      if (vehInstanced) vehInstanced.visible = true;
+
+      cowsGroup.visible = false;
+      historicalWetlandsGroup.visible = false;
+      aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = false;
+      roads1972Group.visible = false;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (groundMesh && groundMesh.material) {
+        groundMesh.material.map = null;
+        groundMesh.material.color.setHex(0xebedee);
+        groundMesh.material.opacity = 1.0;
+        groundMesh.material.transparent = false;
+        groundMesh.material.needsUpdate = true;
+      }
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(17.6, 630.7, 713.9),
+          new THREE.Vector3(139.2, -124.7, -31.7),
+          1.30,
+          2200
         );
       }
     }
@@ -795,10 +1017,13 @@
     });
   });
 
+  const histYears = [1950, 1956, 1972, 1988, 2024];
   const histSlider = document.getElementById("histYearSlider");
   if (histSlider) {
     histSlider.addEventListener("input", () => {
-      setHistoricalYear(parseInt(histSlider.value, 10), true);
+      const idx = parseInt(histSlider.value, 10);
+      const y = histYears[idx] || 1950;
+      setHistoricalYear(y, true);
     });
   }
 
@@ -810,8 +1035,9 @@
       histPlayBtn.innerHTML = histPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
       if (histPlaying) {
         histPlayTimer = setInterval(() => {
-          const next = currentHistoricalYear === 1950 ? 1956 : 1950;
-          setHistoricalYear(next, true);
+          const curIdx = histYears.indexOf(currentHistoricalYear);
+          const nextIdx = (curIdx + 1) % histYears.length;
+          setHistoricalYear(histYears[nextIdx], true);
         }, 5500);
       } else {
         clearInterval(histPlayTimer);
@@ -2068,6 +2294,10 @@
       setStatus("", false); // ocultar overlay de inmediato
       createCows();
       buildAeropuertoTecho();
+      buildCorabastosModel();
+      buildRoads1972();
+      buildAvCaliModel();
+      buildProtechoModel();
       loadWaterBodies();
       loadBuildings();
       loadTrees();
