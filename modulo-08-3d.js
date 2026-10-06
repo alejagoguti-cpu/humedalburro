@@ -36,14 +36,24 @@
   const sceneRoot = new THREE.Group();
   scene.add(sceneRoot);
 
-  // Variables y grupos de la simulación histórica (1950 - 1956)
+  // Variables globales y capas de la simulación histórica (1950 - 2024)
   let currentHistoricalYear = 1950;
+  let rawWaterData = null;
+  let rawEdgesData = null;
+  let rawBuildingsData = null;
+  let elBurroMesh = null;
+  let currentBuildingMesh = null;
+  let modernBuildingEdges = null;
   let modernRoadLines = null;
   let modernRoadMesh = null;
   let modernManzanasMesh = null;
-  let modernBuildingEdges = null;
-  let modernParquesMesh = null;
   let modernFacadesMesh = null;
+  // modernWaterMesh declared at top
+  let modernParquesMesh = null;
+  let treeMesh = null;
+  let vehInstanced = null;
+  let groundMesh = null;
+  let buildingEdgeMat = null;
   let camAnim = null;
 
   const cowsGroup = new THREE.Group();
@@ -102,7 +112,7 @@
     { x: 235.0, z: 105.0 }
   ];
 
-  let rawBuildingsData = [];
+  rawBuildingsData = [];
   let anim1970Buildings = [];
   let is1970AnimRunning = false;
   let anim1970StartTime = 0;
@@ -250,8 +260,7 @@
   let roadMat = null, waterMat = null, parqueMat = null; // referencias para los selectores de color en vivo
   let modernWaterMesh = null;
   let waterTexRef = null, waterBumpRef = null; // texturas de agua, animadas en el loop de render
-  let buildingEdgeMat = null; // referencia para ajustar su opacidad segun el zoom
-  let groundMesh = null;
+  // buildingEdgeMat and groundMesh declared at top
   const grassTexLoader = new THREE.TextureLoader();
   const histGrassTex = grassTexLoader.load("./assets/textura_pasto.jpg");
   histGrassTex.wrapS = THREE.RepeatWrapping;
@@ -1271,7 +1280,7 @@
     return out;
   }
 
-  let currentBuildingMesh = null;
+  // currentBuildingMesh declared at top
   let buildingRanges = [];
   let buildingStarts = [];
   let selectedBuildingRange = null;
@@ -1484,7 +1493,7 @@
 
   let treeMeshes = [];
   let treeInstanceData = null; // {x,z,w,h} por instancia, para recalcular el billboard al girar la camara
-  let treeMesh = null; // la tarjeta con la foto (para el detalle realista)
+  // treeMesh declared at top
   function makePlaneGeometry() {
     const geo = new THREE.BufferGeometry();
     const positions = [-0.5, 0, 0, 0.5, 0, 0, 0.5, 1, 0, -0.5, 0, 0, 0.5, 1, 0, -0.5, 1, 0];
@@ -2039,9 +2048,10 @@
     return fetch(WATER_URL)
       .then(r => { if (!r.ok) throw new Error("no se pudo cargar " + WATER_URL); return r.json(); })
       .then(data => {
+        rawWaterData = data;
         buildWaterBodies(data);
-        buildHistoricalWetlands(data);
-        setHistoricalYear(1950, false);
+        buildHistoricalWetlands(data, currentHistoricalYear);
+        setHistoricalYear(currentHistoricalYear, false);
       })
       .catch(err => console.warn("No se pudieron cargar los cuerpos de agua:", err));
   }
@@ -2277,7 +2287,7 @@
   const vehMeshes = [];
   const vehMat = new THREE.MeshStandardMaterial({ color: 0xe2635a, roughness: 0.5, metalness: 0.15 });
   const vehGeo = new THREE.BoxGeometry(0.18, 0.15, 0.45);
-  const vehInstanced = new THREE.InstancedMesh(vehGeo, vehMat, VEH_POOL_SIZE);
+  vehInstanced = new THREE.InstancedMesh(vehGeo, vehMat, VEH_POOL_SIZE);
   vehInstanced.count = 0;
   vehInstanced.castShadow = true;
   sceneRoot.add(vehInstanced);
