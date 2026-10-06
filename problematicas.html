@@ -183,10 +183,10 @@
       <p id="eraDesc">1950 · Humedal El Burro y Sabana Rural (89% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).</p>
     </div>
 
-    <!-- Panel Izquierdo: Trazado de Vías y Pista de Aeropuerto -->
+    <!-- Panel Izquierdo: Trazado de Vías, Pistas y Urbanización 1970 -->
     <div class="left-poly-panel" id="leftPolyPanel">
       <div class="panel-header">
-        <h2><i class="fa-solid fa-draw-polygon"></i> Trazado Aeropuerto / Vías</h2>
+        <h2><i class="fa-solid fa-draw-polygon"></i> Trazado Aeropuerto / Vías / 1970</h2>
       </div>
 
       <!-- Sección Vía con Grosor -->
@@ -210,7 +210,7 @@
             <i class="fa-solid fa-copy"></i> Copiar
           </button>
         </div>
-        <textarea class="elements-textarea" id="roadCoordsOutput" readonly placeholder="// Coordenadas de los puntos de la vía..." style="height:60px;"></textarea>
+        <textarea class="elements-textarea" id="roadCoordsOutput" readonly placeholder="// Coordenadas de los puntos de la vía..." style="height:50px;"></textarea>
       </div>
 
       <!-- Sección Pista Polígono Relleno -->
@@ -234,12 +234,36 @@
             <i class="fa-solid fa-copy"></i> Copiar
           </button>
         </div>
-        <textarea class="elements-textarea" id="runwayCoordsOutput" readonly placeholder="// Coordenadas del polígono relleno de la pista..." style="height:60px;"></textarea>
+        <textarea class="elements-textarea" id="runwayCoordsOutput" readonly placeholder="// Coordenadas del polígono relleno de la pista..." style="height:50px;"></textarea>
+      </div>
+
+      <!-- Sección Polígono Urbanización 1970 -->
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-city" style="color:#a855f7;"></i> Urbanización 1970</span>
+          <span id="poly1970PointsCount" style="font-size:10px; color:#a855f7; font-weight:700;">0 pts</span>
+        </div>
+        <p class="brush-hint">Haz clic para delimitar el sector de 1970. Los edificios dentro surgirán con animación.</p>
+        <div class="btn-group">
+          <button type="button" class="btn-tool" id="toolDraw1970PolyBtn" title="Activar modo para trazar polígono de 1970">
+            <i class="fa-solid fa-draw-polygon"></i> Trazar 1970
+          </button>
+          <button type="button" class="btn-tool" id="finish1970PolyBtn" title="Cerrar polígono de 1970 y generar edificios">
+            <i class="fa-solid fa-check"></i> Cerrar 1970
+          </button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+          <span style="font-size:10px; color:var(--ink-dim);">Coordenadas 1970:</span>
+          <button type="button" class="btn-action-sm" id="copy1970CoordsBtn" title="Copiar coordenadas del polígono de 1970">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+        </div>
+        <textarea class="elements-textarea" id="poly1970CoordsOutput" readonly placeholder="// Coordenadas del polígono de urbanización 1970..." style="height:50px; color:#d8b4fe;"></textarea>
       </div>
 
       <div style="display:flex; justify-content:flex-end;">
         <button type="button" class="btn-action-sm" id="clearPolysBtn" style="color:#ef4444;" title="Borrar vías y pistas trazadas">
-          <i class="fa-solid fa-trash"></i> Limpiar Vías / Pistas
+          <i class="fa-solid fa-trash"></i> Limpiar Trazados
         </button>
       </div>
     </div>
@@ -252,7 +276,9 @@
       <div style="display:flex; align-items:center; gap:6px;">
         <button type="button" class="year-btn active" data-year="1950">1950</button>
         <button type="button" class="year-btn" data-year="1956">1956</button>
-        <input type="range" id="histYearSlider" min="1950" max="1956" value="1950" step="1" style="width:100px; accent-color:var(--accent); cursor:pointer; margin-left:6px;">
+        <button type="button" class="year-btn" data-year="1970">1970</button>
+        <button type="button" class="year-btn" data-year="2024">Actualidad</button>
+        <input type="range" id="histYearSlider" min="1950" max="2024" value="1950" step="1" style="width:110px; accent-color:var(--accent); cursor:pointer; margin-left:6px;">
       </div>
     </div>
 
@@ -378,6 +404,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=252"></script>
+<script src="modulo-08-3d.js?v=253"></script>
 </body>
 </html>

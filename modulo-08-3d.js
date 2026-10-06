@@ -58,6 +58,9 @@
   const aeropuertoTechoGroup = new THREE.Group();
   sceneRoot.add(aeropuertoTechoGroup);
 
+  const buildings1970Group = new THREE.Group();
+  sceneRoot.add(buildings1970Group);
+
   const historicalTreesGroup = new THREE.Group();
   sceneRoot.add(historicalTreesGroup);
 
@@ -65,17 +68,32 @@
   userPlantedGroup.renderOrder = 999;
   sceneRoot.add(userPlantedGroup);
   const userPlantedElements = [];
-  let currentActiveTool = null; // 'tree' | 'cow' | 'road' | 'runway' | null
+  let currentActiveTool = null; // 'tree' | 'cow' | 'road' | 'runway' | 'poly1970' | null
 
-  // Grupo para polígonos personalizados de vía y pista de aterrizaje
+  // Grupo para polígonos personalizados de vía, pista y urbanización 1970
   const customPolysGroup = new THREE.Group();
   customPolysGroup.renderOrder = 300;
   sceneRoot.add(customPolysGroup);
 
   const customRoadPoints = [];
   const customRunwayPoints = [];
+  const custom1970PolyPoints = [];
   let currentActiveRoadMesh = null;
   let currentActiveRunwayMesh = null;
+  let currentActive1970PolyMesh = null;
+
+  // Polígono por defecto de la primera fase urbana de Ciudad Kennedy (1970)
+  const default1970Polygon = [
+    { x: 315.0, z: 15.0 },
+    { x: 420.0, z: 105.0 },
+    { x: 345.0, z: 195.0 },
+    { x: 235.0, z: 105.0 }
+  ];
+
+  let rawBuildingsData = [];
+  let anim1970Buildings = [];
+  let is1970AnimRunning = false;
+  let anim1970StartTime = 0;
 
   const viaTexLoader = new THREE.TextureLoader();
   const roadTexture = viaTexLoader.load("./assets/textura_via.jpg");
@@ -748,10 +766,10 @@
       groundMesh.material.transparent = true;
     }
 
-    // Control de visibilidad de paneles de edición (solo activos para 1950 y 1956)
+    // Control de visibilidad de paneles de edición (solo activos para 1950, 1956 y 1970)
     const leftPolyPanel = document.getElementById("leftPolyPanel");
     const toolsPanel = document.getElementById("toolsPanel");
-    const isEditEra = (year === 1950 || year === 1956);
+    const isEditEra = (year === 1950 || year === 1956 || year === 1970);
     if (leftPolyPanel) leftPolyPanel.style.display = isEditEra ? "flex" : "none";
     if (toolsPanel) toolsPanel.style.display = isEditEra ? "flex" : "none";
 
@@ -759,6 +777,7 @@
       if (badge) badge.textContent = "1950";
       if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha) y Sabana Rural (potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
       aeropuertoTechoGroup.visible = false;
+      buildings1970Group.visible = false;
 
       if (animateCam) {
         // Enfoque exacto en Humedal El Burro (coordenadas seleccionadas por la usuaria)
@@ -773,6 +792,7 @@
       if (badge) badge.textContent = "1956";
       if (desc) desc.textContent = "1956 · Humedal La Vaca (181 ha) y Laguna de Techo (120 ha) extendidos hacia El Burro, Antiguo Aeropuerto de Techo y Sabana Rural.";
       aeropuertoTechoGroup.visible = true;
+      buildings1970Group.visible = false;
 
       if (animateCam) {
         // Paneo suave a Humedal La Vaca y Aeropuerto de Techo (coordenadas seleccionadas por la usuaria)
@@ -780,6 +800,58 @@
           new THREE.Vector3(55.57, 732.35, 788.35),
           new THREE.Vector3(177.17, -23.05, 42.75),
           1.41,
+          2400
+        );
+      }
+    } else if (year === 1970) {
+      if (badge) badge.textContent = "1970";
+      if (desc) desc.textContent = "1970 · Primeros barrios de Ciudad Kennedy: Comienza la urbanización progresiva sobre la sabana, primeros conjuntos residenciales y reducción inicial de humedales.";
+      aeropuertoTechoGroup.visible = true;
+      buildings1970Group.visible = true;
+      start1970UrbanizationAnimation();
+
+      if (animateCam) {
+        // Paneo hacia el sector de urbanización inicial de Kennedy
+        transitionCameraTo(
+          new THREE.Vector3(120.50, 725.00, 710.00),
+          new THREE.Vector3(220.00, -30.00, 25.00),
+          1.38,
+          2200
+        );
+      }
+    } else if (year >= 2024) {
+      if (badge) badge.textContent = "Actualidad (2024)";
+      if (desc) desc.textContent = "Actualidad · Paisaje urbano completamente consolidado: Corabastos, red vial Kennedy con tránsito vehicular SUMO, manzanas residenciales e industriales, y humedales El Burro y La Vaca reducidos y fragmentados.";
+      
+      // Mostrar capas urbanas completas
+      if (currentBuildingMesh) currentBuildingMesh.visible = true;
+      if (buildingEdgeMat) buildingEdgeMat.visible = true;
+      if (modernBuildingEdges) modernBuildingEdges.visible = true;
+      if (modernRoadLines) modernRoadLines.visible = true;
+      if (modernRoadMesh) modernRoadMesh.visible = true;
+      if (modernManzanasMesh) modernManzanasMesh.visible = true;
+      if (modernFacadesMesh) modernFacadesMesh.visible = true;
+      if (elBurroMesh) elBurroMesh.visible = true;
+      if (modernWaterMesh) modernWaterMesh.visible = true;
+      if (vehInstanced) {
+        vehInstanced.visible = true;
+        vehInstanced.count = timesteps.length > 0 ? (vehInstanced.geometry ? vehInstanced.geometry.instanceCount || 300 : 0) : 0;
+      }
+      if (intersectionMeshes && intersectionMeshes.length) {
+        intersectionMeshes.forEach(m => { if (m) m.visible = true; });
+      }
+
+      aeropuertoTechoGroup.visible = false;
+      buildings1970Group.visible = false;
+      cowsGroup.visible = false;
+      historicalWetlandsGroup.visible = false;
+
+      if (animateCam) {
+        // Vista general panorámica de Kennedy moderna
+        transitionCameraTo(
+          new THREE.Vector3(100.00, 730.00, 680.00),
+          new THREE.Vector3(200.00, -35.00, -10.00),
+          1.30,
           2400
         );
       }
@@ -795,7 +867,8 @@
     controls.update();
     if (typeof updateLiveCameraCoordsUI === "function") updateLiveCameraCoordsUI();
   }
-    // 7. Event listeners de la línea de tiempo histórica
+
+  // 7. Event listeners de la línea de tiempo histórica
   document.querySelectorAll(".year-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       setHistoricalYear(parseInt(btn.dataset.year, 10), true);
@@ -810,6 +883,7 @@
   }
 
   let histPlaying = false, histPlayTimer = null;
+  const histYears = [1950, 1956, 1970, 2024];
   const histPlayBtn = document.getElementById("histPlayPause");
   if (histPlayBtn) {
     histPlayBtn.addEventListener("click", () => {
@@ -817,8 +891,9 @@
       histPlayBtn.innerHTML = histPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
       if (histPlaying) {
         histPlayTimer = setInterval(() => {
-          const next = currentHistoricalYear === 1950 ? 1956 : 1950;
-          setHistoricalYear(next, true);
+          const currIdx = histYears.indexOf(currentHistoricalYear);
+          const nextIdx = (currIdx === -1 ? 0 : (currIdx + 1) % histYears.length);
+          setHistoricalYear(histYears[nextIdx], true);
         }, 5500);
       } else {
         clearInterval(histPlayTimer);
@@ -1148,7 +1223,11 @@
   function loadBuildings() {
     return fetch(BUILDINGS_URL)
       .then(r => { if (!r.ok) throw new Error("no se pudo cargar " + BUILDINGS_URL); return r.json(); })
-      .then(data => { buildBuildings(data); })
+      .then(data => {
+        rawBuildingsData = data;
+        buildBuildings(data);
+        build1970Buildings();
+      })
       .catch(err => console.warn("No se pudieron cargar los edificios:", err));
   }
 
@@ -2475,6 +2554,7 @@
       waterBumpRef.offset.x = (now * -0.000027) % 1;
       waterBumpRef.offset.y = (now * 0.000021) % 1;
     }
+    update1970UrbanizationAnimation(now);
     updateBirds(now);
     controls.update();
     renderer.render(scene, camera);
@@ -2850,15 +2930,191 @@
     }
   }
 
-  // ---- Trazado de Vías (Ribbon con grosor) y Pistas (Polígono Relleno) ----
+  // Material y funciones para polígono de urbanización 1970
+  const custom1970PolyMat = new THREE.MeshStandardMaterial({
+    color: 0xa855f7,
+    transparent: true,
+    opacity: 0.28,
+    side: THREE.DoubleSide
+  });
+
+  function isPointInPoly(pt, poly) {
+    if (!poly || poly.length < 3) return false;
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const xi = poly[i].x, zi = poly[i].z;
+      const xj = poly[j].x, zj = poly[j].z;
+      const intersect = ((zi > pt.z) !== (zj > pt.z)) &&
+        (pt.x < (xj - xi) * (pt.z - zi) / (zj - zi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  function build1970PolygonMesh(pts, isFinal = false) {
+    if (currentActive1970PolyMesh) {
+      customPolysGroup.remove(currentActive1970PolyMesh);
+      currentActive1970PolyMesh.geometry.dispose();
+      currentActive1970PolyMesh = null;
+    }
+    if (pts.length < 3) return;
+
+    const pts2d = pts.map(p => new THREE.Vector2(p.x, p.z));
+    let tris = [];
+    try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
+    if (tris.length === 0 && pts.length >= 3) {
+      for (let i = 1; i < pts.length - 1; i++) tris.push([0, i, i + 1]);
+    }
+
+    const positions = [];
+    const y = 0.042;
+    tris.forEach(([ia, ib, ic]) => {
+      [ia, ib, ic].forEach(idx => {
+        positions.push(pts[idx].x, y, pts[idx].z);
+      });
+    });
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.computeVertexNormals();
+
+    const mesh = new THREE.Mesh(geo, custom1970PolyMat);
+    mesh.renderOrder = 310;
+    customPolysGroup.add(mesh);
+    if (!isFinal) currentActive1970PolyMesh = mesh;
+  }
+
+  function build1970Buildings() {
+    buildings1970Group.clear();
+    anim1970Buildings = [];
+    if (!rawBuildingsData || !rawBuildingsData.length) return;
+
+    const activePoly = custom1970PolyPoints.length >= 3 ? custom1970PolyPoints : default1970Polygon;
+
+    const bMat = new THREE.MeshStandardMaterial({
+      color: 0xd9e2ec,
+      roughness: 0.7,
+      metalness: 0.05,
+      side: THREE.DoubleSide
+    });
+    const edgeMat = new THREE.LineBasicMaterial({
+      color: 0x334155,
+      transparent: true,
+      opacity: 0.4
+    });
+
+    let count = 0;
+    rawBuildingsData.forEach((b, idx) => {
+      const pts = b.pts.map(p => toScene(p[0], p[1]));
+      if (pts.length < 4) return;
+
+      // Centroide del edificio
+      let cx = 0, cz = 0;
+      pts.forEach(p => { cx += p.x; cz += p.z; });
+      cx /= pts.length;
+      cz /= pts.length;
+
+      if (!isPointInPoly({ x: cx, z: cz }, activePoly)) return;
+
+      count++;
+      const h = b.h * SCALE;
+
+      const positions = [];
+      const edgePositions = [];
+      for (let i = 0; i < pts.length - 1; i++) {
+        const a = pts[i], cSeg = pts[i + 1];
+        positions.push(
+          a.x - cx, 0, a.z - cz,  cSeg.x - cx, 0, cSeg.z - cz,  cSeg.x - cx, h, cSeg.z - cz,
+          a.x - cx, 0, a.z - cz,  cSeg.x - cx, h, cSeg.z - cz,  a.x - cx, h, a.z - cz
+        );
+        edgePositions.push(a.x - cx, h, a.z - cz, cSeg.x - cx, h, cSeg.z - cz);
+      }
+
+      const pts2d = pts.map(p => new THREE.Vector2(p.x - cx, p.z - cz));
+      let tris = [];
+      try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
+      tris.forEach(([ia, ib, ic]) => {
+        positions.push(
+          pts[ia].x - cx, h, pts[ia].z - cz,
+          pts[ib].x - cx, h, pts[ib].z - cz,
+          pts[ic].x - cx, h, pts[ic].z - cz
+        );
+      });
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      geo.computeVertexNormals();
+
+      const bMesh = new THREE.Mesh(geo, bMat);
+      bMesh.position.set(cx, 0.02, cz);
+      bMesh.castShadow = true;
+      bMesh.receiveShadow = true;
+
+      const eGeo = new THREE.BufferGeometry();
+      eGeo.setAttribute("position", new THREE.Float32BufferAttribute(edgePositions, 3));
+      const eMesh = new THREE.LineSegments(eGeo, edgeMat);
+      bMesh.add(eMesh);
+
+      bMesh.scale.set(1, 0.001, 1);
+      buildings1970Group.add(bMesh);
+
+      const distFromCenter = Math.hypot(cx - 300, cz - 100);
+      anim1970Buildings.push({
+        mesh: bMesh,
+        delay: (distFromCenter * 0.01) + (Math.random() * 0.35),
+        duration: 0.65 + Math.random() * 0.35
+      });
+    });
+
+    const polyCountEl = document.getElementById("poly1970PointsCount");
+    if (polyCountEl) {
+      polyCountEl.textContent = `${custom1970PolyPoints.length} pts (${count} edifs)`;
+    }
+  }
+
+  function start1970UrbanizationAnimation() {
+    is1970AnimRunning = true;
+    anim1970StartTime = performance.now();
+    anim1970Buildings.forEach(b => {
+      if (b.mesh) b.mesh.scale.set(1, 0.001, 1);
+    });
+  }
+
+  function update1970UrbanizationAnimation(now) {
+    if (!is1970AnimRunning || currentHistoricalYear !== 1970) return;
+    const elapsed = (now - anim1970StartTime) / 1000;
+    let allFinished = true;
+
+    anim1970Buildings.forEach(item => {
+      if (elapsed < item.delay) {
+        item.mesh.scale.set(1, 0.001, 1);
+        allFinished = false;
+      } else {
+        const t = Math.min(1, (elapsed - item.delay) / item.duration);
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        const ease = 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+        const sy = Math.max(0.001, Math.min(1.05, ease));
+        item.mesh.scale.set(1, sy, 1);
+        if (t < 1) allFinished = false;
+      }
+    });
+
+    if (allFinished) is1970AnimRunning = false;
+  }
+
+  // ---- Trazado de Vías (Ribbon con grosor), Pistas y Urbanización 1970 ----
   function updatePolyCoordsUI() {
     const roadCountEl = document.getElementById("roadPointsCount");
     const runwayCountEl = document.getElementById("runwayPointsCount");
+    const poly1970CountEl = document.getElementById("poly1970PointsCount");
     const roadOut = document.getElementById("roadCoordsOutput");
     const runwayOut = document.getElementById("runwayCoordsOutput");
+    const poly1970Out = document.getElementById("poly1970CoordsOutput");
 
     if (roadCountEl) roadCountEl.textContent = `${customRoadPoints.length} pts`;
     if (runwayCountEl) runwayCountEl.textContent = `${customRunwayPoints.length} pts`;
+    if (poly1970CountEl) poly1970CountEl.textContent = `${custom1970PolyPoints.length} pts (${anim1970Buildings.length} edifs)`;
 
     if (roadOut) {
       if (customRoadPoints.length === 0) roadOut.value = "";
@@ -2871,6 +3127,13 @@
       if (customRunwayPoints.length === 0) runwayOut.value = "";
       else {
         runwayOut.value = "[\n" + customRunwayPoints.map(p => `  {"x": ${p.x.toFixed(2)}, "z": ${p.z.toFixed(2)}}`).join(",\n") + "\n]";
+      }
+    }
+
+    if (poly1970Out) {
+      if (custom1970PolyPoints.length === 0) poly1970Out.value = "";
+      else {
+        poly1970Out.value = "[\n" + custom1970PolyPoints.map(p => `  {"x": ${p.x.toFixed(2)}, "z": ${p.z.toFixed(2)}}`).join(",\n") + "\n]";
       }
     }
   }
@@ -2960,6 +3223,7 @@
   const toolCowBtn = document.getElementById("toolPlantCowBtn");
   const toolRoadBtn = document.getElementById("toolDrawRoadBtn");
   const toolRunwayBtn = document.getElementById("toolDrawRunwayBtn");
+  const tool1970Btn = document.getElementById("toolDraw1970PolyBtn");
 
   function setToolMode(mode) {
     currentActiveTool = (currentActiveTool === mode) ? null : mode;
@@ -2968,6 +3232,7 @@
     if (toolCowBtn) toolCowBtn.classList.toggle("cow-active", currentActiveTool === "cow");
     if (toolRoadBtn) toolRoadBtn.classList.toggle("active", currentActiveTool === "road");
     if (toolRunwayBtn) toolRunwayBtn.classList.toggle("active", currentActiveTool === "runway");
+    if (tool1970Btn) tool1970Btn.classList.toggle("active", currentActiveTool === "poly1970");
 
     // Desactivar paneo de OrbitControls mientras alguna herramienta esté activa
     controls.enabled = !currentActiveTool;
@@ -2978,6 +3243,7 @@
   if (toolCowBtn) toolCowBtn.addEventListener("click", () => setToolMode("cow"));
   if (toolRoadBtn) toolRoadBtn.addEventListener("click", () => setToolMode("road"));
   if (toolRunwayBtn) toolRunwayBtn.addEventListener("click", () => setToolMode("runway"));
+  if (tool1970Btn) tool1970Btn.addEventListener("click", () => setToolMode("poly1970"));
 
   const finishRoadBtn = document.getElementById("finishRoadBtn");
   if (finishRoadBtn) {
@@ -2994,6 +3260,17 @@
       buildRunwayPolygon(customRunwayPoints, true);
       currentActiveRunwayMesh = null;
       setToolMode(null);
+    });
+  }
+
+  const finish1970PolyBtn = document.getElementById("finish1970PolyBtn");
+  if (finish1970PolyBtn) {
+    finish1970PolyBtn.addEventListener("click", () => {
+      build1970PolygonMesh(custom1970PolyPoints, true);
+      build1970Buildings();
+      currentActive1970PolyMesh = null;
+      setToolMode(null);
+      start1970UrbanizationAnimation();
     });
   }
 
@@ -3023,14 +3300,30 @@
     });
   }
 
+  const copy1970CoordsBtn = document.getElementById("copy1970CoordsBtn");
+  if (copy1970CoordsBtn) {
+    copy1970CoordsBtn.addEventListener("click", async () => {
+      const el = document.getElementById("poly1970CoordsOutput");
+      if (!el || !el.value) return;
+      try {
+        await navigator.clipboard.writeText(el.value);
+        copy1970CoordsBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => { copy1970CoordsBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1600);
+      } catch (e) {}
+    });
+  }
+
   const clearPolysBtn = document.getElementById("clearPolysBtn");
   if (clearPolysBtn) {
     clearPolysBtn.addEventListener("click", () => {
       customPolysGroup.clear();
       customRoadPoints.length = 0;
       customRunwayPoints.length = 0;
+      custom1970PolyPoints.length = 0;
       currentActiveRoadMesh = null;
       currentActiveRunwayMesh = null;
+      currentActive1970PolyMesh = null;
+      build1970Buildings();
       updatePolyCoordsUI();
     });
   }
