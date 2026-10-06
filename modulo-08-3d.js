@@ -681,135 +681,60 @@
 
     aeropuertoTechoGroup.add(group);
 
-    // D. Aviones de época (Douglas DC-3 de los años 50 en la pista y plataforma de Techo)
+    // D. Aviones de época (Douglas DC-3 auténticos de los años 50 en la pista y plataforma de Techo)
     function buildVintageAirplanes() {
-      const bodyMat = new THREE.MeshStandardMaterial({
-        color: 0xe2e8f0,
-        metalness: 0.75,
-        roughness: 0.28
-      });
-      const wingMat = new THREE.MeshStandardMaterial({
-        color: 0xcfd8dc,
-        metalness: 0.7,
-        roughness: 0.32
-      });
-      const glassMat = new THREE.MeshStandardMaterial({
-        color: 0x0f172a,
-        metalness: 0.3,
-        roughness: 0.1
-      });
-      const darkMat = new THREE.MeshStandardMaterial({
-        color: 0x1e293b,
-        roughness: 0.9
-      });
-      const propMat = new THREE.MeshBasicMaterial({
-        color: 0x111111,
+      const planeTex = new THREE.TextureLoader().load("./assets/avion_dc3.png");
+      const mat = new THREE.MeshBasicMaterial({
+        map: planeTex,
         transparent: true,
-        opacity: 0.45,
-        side: THREE.DoubleSide
-      });
-      const shadowMat = new THREE.MeshBasicMaterial({
-        color: 0x000000,
-        transparent: true,
-        opacity: 0.42,
+        side: THREE.DoubleSide,
+        alphaTest: 0.2,
         depthWrite: false
       });
 
-      function makeAirplane() {
-        const planeGroup = new THREE.Group();
+      const shadowMat = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false
+      });
 
-        // Fuselaje cilíndrico aerodinámico
-        const fuseGeo = new THREE.CylinderGeometry(0.52, 0.38, 5.8, 16);
-        fuseGeo.rotateZ(Math.PI / 2);
-        const fuse = new THREE.Mesh(fuseGeo, bodyMat);
-        fuse.position.set(0, 0.75, 0);
-        fuse.castShadow = true;
-        planeGroup.add(fuse);
+      function createPlaneInstance(x, z, scale = 1.0, rotY = 0, shadowOffset = { x: 0.4, z: 0.5 }) {
+        const group = new THREE.Group();
+        group.position.set(x, 0, z);
+        group.rotation.y = rotY;
 
-        // Nariz redondeada
-        const noseGeo = new THREE.SphereGeometry(0.52, 16, 12);
-        noseGeo.scale(1.2, 1, 1);
-        const nose = new THREE.Mesh(noseGeo, bodyMat);
-        nose.position.set(2.9, 0.75, 0);
-        nose.castShadow = true;
-        planeGroup.add(nose);
+        const w = 15.0 * scale;
+        const h = 10.4 * scale;
+        const geo = new THREE.PlaneGeometry(w, h);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = -Math.PI / 2.35; // Ángulo isométrico aéreo
+        mesh.position.set(0, 1.4 * scale, 0);
+        mesh.renderOrder = 330;
+        group.add(mesh);
 
-        // Cabina con parabrisas
-        const cockpitGeo = new THREE.BoxGeometry(0.65, 0.32, 0.62);
-        const cockpit = new THREE.Mesh(cockpitGeo, glassMat);
-        cockpit.position.set(2.25, 1.05, 0);
-        planeGroup.add(cockpit);
+        // Sombra suave proyectada sobre la pista
+        const sGeo = new THREE.PlaneGeometry(w * 0.9, h * 0.85);
+        const sMesh = new THREE.Mesh(sGeo, shadowMat);
+        sMesh.rotation.x = -Math.PI / 2;
+        sMesh.position.set(shadowOffset.x, 0.045, shadowOffset.z);
+        sMesh.renderOrder = 305;
+        group.add(sMesh);
 
-        // Alas principales extendidas (envergadura de 8.2m)
-        const wingGeo = new THREE.BoxGeometry(1.5, 0.08, 8.4);
-        const wing = new THREE.Mesh(wingGeo, wingMat);
-        wing.position.set(0.5, 0.65, 0);
-        wing.castShadow = true;
-        planeGroup.add(wing);
-
-        // Motores gemelos con hélices en las alas
-        [-2.0, 2.0].forEach(offsetZ => {
-          const nacelleGeo = new THREE.CylinderGeometry(0.26, 0.26, 1.1, 12);
-          nacelleGeo.rotateZ(Math.PI / 2);
-          const nacelle = new THREE.Mesh(nacelleGeo, darkMat);
-          nacelle.position.set(0.95, 0.55, offsetZ);
-          planeGroup.add(nacelle);
-
-          // Disco de hélice girando
-          const propGeo = new THREE.CircleGeometry(0.52, 12);
-          propGeo.rotateY(Math.PI / 2);
-          const prop = new THREE.Mesh(propGeo, propMat);
-          prop.position.set(1.55, 0.55, offsetZ);
-          planeGroup.add(prop);
-        });
-
-        // Estabilizador horizontal de cola
-        const tailWingGeo = new THREE.BoxGeometry(0.85, 0.06, 3.0);
-        const tailWing = new THREE.Mesh(tailWingGeo, wingMat);
-        tailWing.position.set(-2.6, 0.95, 0);
-        planeGroup.add(tailWing);
-
-        // Deriva vertical de cola (aleta)
-        const finGeo = new THREE.BoxGeometry(0.75, 0.92, 0.08);
-        const fin = new THREE.Mesh(finGeo, bodyMat);
-        fin.position.set(-2.5, 1.32, 0);
-        planeGroup.add(fin);
-
-        // Tren de aterrizaje
-        [-1.7, 1.7].forEach(offsetZ => {
-          const wheelGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.12, 10);
-          const wheel = new THREE.Mesh(wheelGeo, darkMat);
-          wheel.position.set(0.75, 0.2, offsetZ);
-          planeGroup.add(wheel);
-        });
-
-        // Sombra suave en la pista
-        const shadowGeo = new THREE.PlaneGeometry(6.5, 8.2);
-        const shadow = new THREE.Mesh(shadowGeo, shadowMat);
-        shadow.rotation.x = -Math.PI / 2;
-        shadow.position.set(0, 0.04, 0);
-        shadow.renderOrder = 305;
-        planeGroup.add(shadow);
-
-        return planeGroup;
+        return group;
       }
 
-      const p1 = makeAirplane();
-      p1.position.set(252.0, 0, 108.0);
-      p1.rotation.y = -0.45;
-      aeropuertoTechoGroup.add(p1);
+      // Avión 1: En la plataforma frente al terminal de Techo
+      const plane1 = createPlaneInstance(252.0, 108.0, 1.0, -0.35, { x: 0.4, z: 0.6 });
+      aeropuertoTechoGroup.add(plane1);
 
-      const p2 = makeAirplane();
-      p2.position.set(286.0, 0, 122.0);
-      p2.rotation.y = -0.75;
-      p2.scale.set(1.05, 1.05, 1.05);
-      aeropuertoTechoGroup.add(p2);
+      // Avión 2: En la pista de rodaje
+      const plane2 = createPlaneInstance(288.0, 122.0, 1.05, -0.7, { x: 0.5, z: 0.7 });
+      aeropuertoTechoGroup.add(plane2);
 
-      const p3 = makeAirplane();
-      p3.position.set(310.0, 0, 112.0);
-      p3.rotation.y = -2.25;
-      p3.scale.set(0.92, 0.92, 0.92);
-      aeropuertoTechoGroup.add(p3);
+      // Avión 3: Estacionado en la cabecera
+      const plane3 = createPlaneInstance(315.0, 114.0, 0.9, -2.1, { x: -0.4, z: 0.5 });
+      aeropuertoTechoGroup.add(plane3);
     }
 
     buildVintageAirplanes();
@@ -1069,45 +994,88 @@
   // ---- Red vial: una sola geometria de lineas fusionada (19 mil tramos,
   // asi que se combina TODO en un unico BufferGeometry por rendimiento) ----
   
-  // Función para construir la red vial de acceso y avenidas principales de 1970
-  function build1970Roads(edges) {
+  // Función para construir las avenidas principales y red arterial de Ciudad Kennedy (1970)
+  function build1970Roads() {
     roads1970Group.clear();
-    if (!edges || !edges.length) return;
 
     const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
     viaTex.wrapS = THREE.RepeatWrapping;
     viaTex.wrapT = THREE.RepeatWrapping;
+
+    const HISTORICAL_AVENUES_1970 = [
+      // 1. Avenida de Las Américas (Troncal de acceso desde Bogotá Oriental hacia Techo y Kennedy)
+      {
+        width: 2.2,
+        pts: [
+          { x: 480.0, z: 50.0 },
+          { x: 410.0, z: 68.0 },
+          { x: 330.0, z: 90.0 },
+          { x: 250.0, z: 110.0 },
+          { x: 170.0, z: 125.0 }
+        ]
+      },
+      // 2. Avenida Primero de Mayo / Transversal Kennedy (Eje axial norte-sur)
+      {
+        width: 2.0,
+        pts: [
+          { x: 395.0, z: -35.0 },
+          { x: 360.0, z: 55.0 },
+          { x: 330.0, z: 135.0 },
+          { x: 295.0, z: 220.0 }
+        ]
+      },
+      // 3. Anillo y Boulevard Perimetral de las Primeras Supermánzanas de Kennedy (1970)
+      {
+        width: 1.6,
+        pts: [
+          { x: 360.0, z: 55.0 },
+          { x: 420.0, z: 100.0 },
+          { x: 365.0, z: 180.0 },
+          { x: 305.0, z: 135.0 },
+          { x: 360.0, z: 55.0 }
+        ]
+      },
+      // 4. Eje Transversal Interno de Supermánzanas
+      {
+        width: 1.4,
+        pts: [
+          { x: 305.0, z: 135.0 },
+          { x: 360.0, z: 105.0 },
+          { x: 420.0, z: 100.0 }
+        ]
+      },
+      // 5. Conexión hacia el Humedal La Vaca / El Burro
+      {
+        width: 1.4,
+        pts: [
+          { x: 250.0, z: 110.0 },
+          { x: 215.0, z: 155.0 },
+          { x: 180.0, z: 190.0 }
+        ]
+      }
+    ];
 
     const ribbonGeo = new THREE.BufferGeometry();
     const ribbonPos = [];
     const ribbonUv = [];
     const linePos = [];
     const RIBBON_UV_SCALE = 0.06;
-    const HALF_W = 0.85;
 
-    edges.forEach(([kind, pts], edgeIdx) => {
-      const scenePts = pts.map(p => toScene(p[0], p[1]));
-      let in1970Zone = false;
-      for (let p of scenePts) {
-        if (p.x >= 210 && p.x <= 440 && p.z >= 10 && p.z <= 210) {
-          in1970Zone = true;
-          break;
-        }
-      }
-      if (!in1970Zone) return;
-
-      const n = scenePts.length;
+    HISTORICAL_AVENUES_1970.forEach(ave => {
+      const pts = ave.pts;
+      const halfW = ave.width * 0.5;
+      const n = pts.length;
       if (n < 2) return;
 
       for (let i = 0; i < n - 1; i++) {
-        const a = scenePts[i], b = scenePts[i + 1];
+        const a = pts[i], b = pts[i + 1];
         linePos.push(a.x, 0.038, a.z, b.x, 0.038, b.z);
         const dx = b.x - a.x, dz = b.z - a.z;
         const len = Math.hypot(dx, dz) || 0.001;
-        const nx = -dz / len * HALF_W, nz = dx / len * HALF_W;
+        const nx = -dz / len * halfW, nz = dx / len * halfW;
         ribbonPos.push(
-          a.x - nx, 0.036, a.z - nz,  a.x + nx, 0.036, a.z + nz,  b.x + nx, 0.036, b.z + nz,
-          a.x - nx, 0.036, a.z - nz,  b.x + nx, 0.036, b.z + nz,  b.x - nx, 0.036, b.z - nz
+          a.x - nx, 0.035, a.z - nz,  a.x + nx, 0.035, a.z + nz,  b.x + nx, 0.035, b.z + nz,
+          a.x - nx, 0.035, a.z - nz,  b.x + nx, 0.035, b.z + nz,  b.x - nx, 0.035, b.z - nz
         );
         [
           [a.x - nx, a.z - nz], [a.x + nx, a.z + nz], [b.x + nx, b.z + nz],
@@ -1132,7 +1100,7 @@
 
       const lGeo = new THREE.BufferGeometry();
       lGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePos, 3));
-      const lMat = new THREE.LineBasicMaterial({ color: 0x334155, transparent: true, opacity: 0.6 });
+      const lMat = new THREE.LineBasicMaterial({ color: 0x334155, transparent: true, opacity: 0.5 });
       const lMesh = new THREE.LineSegments(lGeo, lMat);
       roads1970Group.add(lMesh);
     }
@@ -2377,7 +2345,7 @@
       buildGround(data.bbox);
       buildNoiseGround(data.bbox);
       buildRoads(data.edges);
-        build1970Roads(data.edges);
+        build1970Roads();
       const w = (data.bbox[2] - data.bbox[0]) * SCALE;
       const h = (data.bbox[3] - data.bbox[1]) * SCALE;
       sceneExtentW = w; sceneExtentH = h;
