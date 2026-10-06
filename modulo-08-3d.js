@@ -110,18 +110,20 @@
   window.addEventListener("resize", resize);
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  canvas.addEventListener("contextmenu", (e) => e.preventDefault()); // sin esto, el navegador abre su menu contextual con el clic derecho en vez de dejarlo mover (panear) la vista
+  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  // Antes el angulo de camara quedaba fijo en 45 grados (solo se podia
-  // orbitar en horizontal). Ahora se puede inclinar la vista libremente,
-  // para poder ver el corte de la caja de seccion desde el angulo que se
-  // quiera, no solo desde arriba.
-  controls.minPolarAngle = Math.PI / 12;   // casi cenital
-  controls.maxPolarAngle = Math.PI / 2.05; // casi al ras del horizonte
+  controls.enableRotate = false; // Vista axonométrica fija: no rota, solo se desplaza y hace zoom
+  controls.enablePan = true;
+  controls.screenSpacePanning = true;
+  controls.enableZoom = true;
   controls.minZoom = 0.15;
   controls.maxZoom = 30;
-  controls.enablePan = true;
+  controls.mouseButtons = {
+    LEFT: THREE.MOUSE.PAN,
+    MIDDLE: THREE.MOUSE.DOLLY,
+    RIGHT: THREE.MOUSE.PAN
+  };
 
   // ---- Cambiar entre proyeccion ortografica (axonometrica, la de
   // siempre) y perspectiva (con fuga real, como ve un ojo humano). Al
@@ -208,9 +210,11 @@
     
     const mat = new THREE.MeshStandardMaterial({
       map: histGrassTex,
-      color: 0x98b488, // Tinte verde pasto natural de sabana que empata armónicamente
-      roughness: 0.92,
-      metalness: 0.02
+      color: 0xc2cb8e, // Tono pastizal amarillito / sabana cálida natural
+      roughness: 0.95,
+      metalness: 0.0,
+      transparent: true,
+      opacity: 0.75
     });
     groundMesh = new THREE.Mesh(geo, mat);
     groundMesh.rotation.x = -Math.PI / 2;
@@ -488,7 +492,9 @@
         groundMesh.material.map = histGrassTex;
         groundMesh.material.needsUpdate = true;
       }
-      groundMesh.material.color.setHex(0x98b488);
+      groundMesh.material.color.setHex(0xc2cb8e);
+      groundMesh.material.opacity = 0.75;
+      groundMesh.material.transparent = true;
     }
 
     if (year === 1950) {
@@ -1942,41 +1948,81 @@
   const treeInfoCloseBtn = document.getElementById("treeInfoClose");
   if (treeInfoCloseBtn && treeInfo) treeInfoCloseBtn.addEventListener("click", () => treeInfo.classList.remove("show"));
 
+  let isBrushPainting = false;
+  let lastPlantedPoint = null;
+
+  function getRaycastGroundPoint(clientX, clientY) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouseNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    mouseNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouseNdc, camera);
+
+    if (groundMesh) {
+      const gh = raycaster.intersectObject(groundMesh);
+      if (gh.length > 0) return gh[0].point;
+    }
+    const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const intersectPt = new THREE.Vector3();
+    if (raycaster.ray.intersectPlane(groundPlane, intersectPt)) {
+      return intersectPt;
+    }
+    return null;
+  }
+
+  function handleBrushPaint(clientX, clientY, force = false) {
+    if (!currentActiveTool) return;
+    const pt = getRaycastGroundPoint(clientX, clientY);
+    if (!pt) return;
+
+    if (currentActiveTool === "tree") {
+      const minDistance = 5.2; // Espaciado natural entre árboles al arrastrar
+      if (force || !lastPlantedPoint || lastPlantedPoint.distanceTo(pt) >= minDistance) {
+        const h = 4.0 + Math.random() * 2.8;
+        plantSingleTree(pt.x, pt.z, h);
+        lastPlantedPoint = pt.clone();
+      }
+    } else if (currentActiveTool === "cow") {
+      const minDistance = 11.0; // Espaciado natural entre vacas al arrastrar
+      if (force || !lastPlantedPoint || lastPlantedPoint.distanceTo(pt) >= minDistance) {
+        plantSingleCow(pt.x, pt.z);
+        lastPlantedPoint = pt.clone();
+      }
+    }
+  }
+
   let downAt = null;
-  renderer.domElement.addEventListener("pointerdown", (e) => { downAt = { x: e.clientX, y: e.clientY }; });
+  renderer.domElement.addEventListener("pointerdown", (e) => {
+    downAt = { x: e.clientX, y: e.clientY };
+    if (currentActiveTool) {
+      isBrushPainting = true;
+      lastPlantedPoint = null;
+      handleBrushPaint(e.clientX, e.clientY, true);
+    }
+  });
+
+  renderer.domElement.addEventListener("pointermove", (e) => {
+    if (isBrushPainting && currentActiveTool) {
+      handleBrushPaint(e.clientX, e.clientY, false);
+    }
+  });
+
+  window.addEventListener("pointerup", () => {
+    isBrushPainting = false;
+    lastPlantedPoint = null;
+  });
+
   renderer.domElement.addEventListener("pointerup", (e) => {
     if (!downAt) return;
     const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y);
     downAt = null;
+    if (currentActiveTool) return; // si estaba pintando con la brocha, no abrir tarjeta de árbol
     if (moved > 6) return; // fue un arrastre de camara, no un clic
+
+    if (!treeMeshes.length) return;
     const rect = renderer.domElement.getBoundingClientRect();
     mouseNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     mouseNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouseNdc, camera);
-
-    // Si hay una herramienta activa (plantar árbol o colocar vaca), raycastear al terreno
-    if (currentActiveTool === "tree" || currentActiveTool === "cow") {
-      let groundPt = null;
-      if (groundMesh) {
-        const gh = raycaster.intersectObject(groundMesh);
-        if (gh.length > 0) groundPt = gh[0].point;
-      }
-      if (!groundPt) {
-        const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-        const intersectPt = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(groundPlane, intersectPt)) {
-          groundPt = intersectPt;
-        }
-      }
-      if (groundPt) {
-        if (currentActiveTool === "tree") {
-          plantSingleTree(groundPt.x, groundPt.z);
-        } else {
-          plantSingleCow(groundPt.x, groundPt.z);
-        }
-      }
-      return;
-    }
 
     if (!treeMeshes.length) return;
     let best = null;
@@ -2424,33 +2470,43 @@
   const toolTreeBtn = document.getElementById("toolPlantTreeBtn");
   const toolCowBtn = document.getElementById("toolPlantCowBtn");
 
+  function setToolMode(mode) {
+    currentActiveTool = (currentActiveTool === mode) ? null : mode;
+    
+    if (toolTreeBtn) toolTreeBtn.classList.toggle("active", currentActiveTool === "tree");
+    if (toolCowBtn) toolCowBtn.classList.toggle("cow-active", currentActiveTool === "cow");
+
+    // Desactivar paneo de OrbitControls mientras el pincel está activo para pintar arrastrando
+    controls.enabled = !currentActiveTool;
+    renderer.domElement.style.cursor = currentActiveTool ? "crosshair" : "grab";
+  }
+
   if (toolTreeBtn) {
-    toolTreeBtn.addEventListener("click", () => {
-      currentActiveTool = currentActiveTool === "tree" ? null : "tree";
-      toolTreeBtn.classList.toggle("active", currentActiveTool === "tree");
-      if (toolCowBtn) toolCowBtn.classList.remove("active");
-    });
+    toolTreeBtn.addEventListener("click", () => setToolMode("tree"));
   }
 
   if (toolCowBtn) {
-    toolCowBtn.addEventListener("click", () => {
-      currentActiveTool = currentActiveTool === "cow" ? null : "cow";
-      toolCowBtn.classList.toggle("active", currentActiveTool === "cow");
-      if (toolTreeBtn) toolTreeBtn.classList.remove("active");
-    });
+    toolCowBtn.addEventListener("click", () => setToolMode("cow"));
   }
+
+  // Tecla Escape para cancelar pincel y volver a modo paneo
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && currentActiveTool) {
+      setToolMode(null);
+    }
+  });
 
   const batchTreesBtn = document.getElementById("batchTreesBtn");
   if (batchTreesBtn) {
     batchTreesBtn.addEventListener("click", () => {
-      batchPopulateTrees(15);
+      batchPopulateTrees(25);
     });
   }
 
   const batchCowsBtn = document.getElementById("batchCowsBtn");
   if (batchCowsBtn) {
     batchCowsBtn.addEventListener("click", () => {
-      batchPopulateCows(8);
+      batchPopulateCows(10);
     });
   }
 
@@ -2473,6 +2529,33 @@
       userPlantedGroup.clear();
       userPlantedElements.length = 0;
       updateUserPlantedUI();
+    });
+  }
+
+  // 3. Controles en vivo del color y opacidad del pasto
+  const grassColorPicker = document.getElementById("grassColorPicker");
+  const grassColorHex = document.getElementById("grassColorHex");
+  const grassOpacitySlider = document.getElementById("grassOpacitySlider");
+  const grassOpacityVal = document.getElementById("grassOpacityVal");
+
+  if (grassColorPicker) {
+    grassColorPicker.addEventListener("input", (e) => {
+      const hex = e.target.value;
+      if (grassColorHex) grassColorHex.textContent = hex;
+      if (groundMesh && groundMesh.material) {
+        groundMesh.material.color.set(hex);
+      }
+    });
+  }
+
+  if (grassOpacitySlider) {
+    grassOpacitySlider.addEventListener("input", (e) => {
+      const op = parseFloat(e.target.value);
+      if (grassOpacityVal) grassOpacityVal.textContent = `${Math.round(op * 100)}%`;
+      if (groundMesh && groundMesh.material) {
+        groundMesh.material.opacity = op;
+        groundMesh.material.transparent = true;
+      }
     });
   }
 

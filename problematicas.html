@@ -10,9 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0c0f; --panel:rgba(20,24,28,.94); --panel-border:rgba(255,255,255,.14);
+    --bg:#0b0c0f; --panel:rgba(20,24,28,.95); --panel-border:rgba(255,255,255,.14);
     --ink:#e8ecf1; --ink-dim:#8b96a5; --accent:#24c8bd; --accent-hover:#1fb0a6;
-    --grass:#689354;
+    --grass:#b8c582;
   }
   *{box-sizing:border-box;}
   html,body{height:100%;margin:0;}
@@ -59,13 +59,13 @@
     border-color:var(--accent); background:rgba(36,200,189,.25); color:var(--accent); font-weight:700;
   }
 
-  /* Panel lateral de herramientas de cámara y población */
+  /* Panel lateral de herramientas de cámara, pasto y población */
   .tools-panel{
-    position:absolute; top:18px; right:18px; z-index:10; width:310px;
+    position:absolute; top:18px; right:18px; z-index:10; width:320px;
     max-height:calc(100vh - 36px); overflow-y:auto;
     background:var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:14px;
     box-shadow:0 8px 30px rgba(0,0,0,.45); backdrop-filter:blur(10px);
-    display:flex; flex-direction:column; gap:12px;
+    display:flex; flex-direction:column; gap:11px;
   }
   .panel-header{
     display:flex; align-items:center; justify-content:space-between;
@@ -92,13 +92,19 @@
     display:flex; gap:6px; flex-wrap:wrap;
   }
   .btn-tool{
-    flex:1; min-width:120px; padding:7px 10px; border-radius:7px; border:1px solid var(--panel-border);
+    flex:1; min-width:130px; padding:7px 10px; border-radius:7px; border:1px solid var(--panel-border);
     background:rgba(255,255,255,.07); color:var(--ink); font-size:11px; font-weight:600; cursor:pointer;
     display:flex; align-items:center; justify-content:center; gap:6px; transition: all .15s ease;
+    user-select:none;
   }
   .btn-tool:hover{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.25); }
   .btn-tool.active{
-    background:var(--accent); color:#0b0c0f; border-color:var(--accent); font-weight:700;
+    background:#10b981; color:#0b0c0f; border-color:#10b981; font-weight:700;
+    box-shadow:0 0 12px rgba(16,185,129,.4);
+  }
+  .btn-tool.cow-active{
+    background:#f59e0b; color:#0b0c0f; border-color:#f59e0b; font-weight:700;
+    box-shadow:0 0 12px rgba(245,158,11,.4);
   }
   .btn-action-sm{
     padding:5px 9px; border-radius:6px; border:1px solid var(--panel-border);
@@ -108,20 +114,27 @@
   .btn-action-sm:hover{ background:rgba(255,255,255,.16); }
 
   .elements-textarea{
-    width:100%; height:85px; resize:vertical; font-family:'IBM Plex Mono',monospace; font-size:9.5px; line-height:1.35;
+    width:100%; height:80px; resize:vertical; font-family:'IBM Plex Mono',monospace; font-size:9.5px; line-height:1.35;
     background:#08090b; color:#a7f3d0; border:1px solid rgba(255,255,255,.12); border-radius:6px; padding:6px;
     outline:none;
   }
   .elements-textarea:focus{ border-color:var(--accent); }
 
-  .input-coord-row{
-    display:flex; gap:6px;
+  .brush-hint{
+    font-size:10px; color:#94a3b8; line-height:1.35; margin:0;
   }
-  .input-coord-row input{
-    flex:1; font-family:'IBM Plex Mono',monospace; font-size:10px; padding:6px 8px; border-radius:6px;
-    border:1px solid rgba(255,255,255,.12); background:#08090b; color:var(--ink); outline:none;
+
+  /* Controles de color y opacidad de pasto */
+  .grass-ctrl-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; color:var(--ink-dim);
   }
-  .input-coord-row input:focus{ border-color:var(--accent); }
+  .grass-ctrl-row input[type=color]{
+    width:36px; height:24px; padding:0; border:1px solid var(--panel-border); border-radius:5px;
+    background:none; cursor:pointer;
+  }
+  .grass-ctrl-row input[type=range]{
+    flex:1; accent-color:var(--accent); cursor:pointer;
+  }
 
   /* Tree info */
   .tree-info{
@@ -174,68 +187,68 @@
       </div>
     </div>
 
-    <!-- Panel Lateral: Coordenadas de Vista y Población de Elementos -->
+    <!-- Panel Lateral: Herramientas 3D -->
     <div class="tools-panel" id="toolsPanel">
       <div class="panel-header">
         <h2><i class="fa-solid fa-sliders"></i> Herramientas 3D</h2>
-        <span style="font-size:10px; color:var(--ink-dim);"><i class="fa-solid fa-circle-check" style="color:#10b981;"></i> Activo</span>
+        <span style="font-size:10px; color:#38bdf8;"><i class="fa-solid fa-lock"></i> Axo Fija</span>
       </div>
 
-      <!-- Sección 1: Coordenadas de Cámara en Vivo -->
+      <!-- Sección 1: Ajuste de Pasto / Sabana -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-video"></i> Vista / Cámara</span>
-          <button type="button" class="btn-action-sm" id="copyCamCoordsBtn" title="Copiar coordenadas de la vista actual">
-            <i class="fa-solid fa-copy"></i> Copiar
-          </button>
+          <span><i class="fa-solid fa-seedling" style="color:#a3e635;"></i> Ajuste de Pasto</span>
+          <span id="grassColorHex" style="font-size:10px; font-family:monospace; color:var(--accent);">#c2cb8e</span>
         </div>
-        <div class="coords-box" id="liveCamCoordsBox">
-          Cargando coordenadas...
+        <div class="grass-ctrl-row">
+          <span>Color / Tono:</span>
+          <input type="color" id="grassColorPicker" value="#c2cb8e" title="Elegir tono de pasto">
         </div>
-        <div class="input-coord-row">
-          <input type="text" id="pasteCamCoordsInput" placeholder="pos: [x,y,z], target: [x,y,z]...">
-          <button type="button" class="btn-action-sm" id="applyCamCoordsBtn" title="Aplicar vista ingresada">
-            <i class="fa-solid fa-crosshairs"></i> Ir
-          </button>
+        <div class="grass-ctrl-row">
+          <span>Opacidad textura:</span>
+          <input type="range" id="grassOpacitySlider" min="0.1" max="1" step="0.05" value="0.75" title="Opacidad de la textura de pasto">
+          <span id="grassOpacityVal" style="font-size:10px; width:26px; text-align:right;">75%</span>
         </div>
       </div>
 
-      <!-- Sección 2: Población de Árboles -->
+      <!-- Sección 2: Pincel de Árboles -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-tree" style="color:#4ade80;"></i> Poblar Árboles</span>
+          <span><i class="fa-solid fa-tree" style="color:#4ade80;"></i> Pincel de Árboles</span>
           <span id="plantedTreesCount" style="font-size:10px; color:#4ade80; font-weight:700;">0 nuevos</span>
         </div>
+        <p class="brush-hint">Activa el pincel y <b>arrastra el cursor sobre el mapa</b> para pintar un trazo continuo de árboles.</p>
         <div class="btn-group">
-          <button type="button" class="btn-tool" id="toolPlantTreeBtn" title="Activa modo clic en mapa para sembrar un árbol">
-            <i class="fa-solid fa-hand-pointer"></i> Clic en mapa
+          <button type="button" class="btn-tool" id="toolPlantTreeBtn" title="Activa pincel para pintar árboles arrastrando">
+            <i class="fa-solid fa-paintbrush"></i> Pincel Árboles
           </button>
-          <button type="button" class="btn-tool" id="batchTreesBtn" title="Pobla automáticamente un lote de 15 árboles en la zona visible">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> +15 Árboles
+          <button type="button" class="btn-tool" id="batchTreesBtn" title="Pobla automáticamente un lote de 25 árboles en el encuadre">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> +25 Árboles
           </button>
         </div>
       </div>
 
-      <!-- Sección 3: Población de Vacas -->
+      <!-- Sección 3: Pincel de Vacas -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-cow" style="color:#fbbf24;"></i> Poblar Vacas</span>
+          <span><i class="fa-solid fa-cow" style="color:#fbbf24;"></i> Pincel de Vacas</span>
           <span id="plantedCowsCount" style="font-size:10px; color:#fbbf24; font-weight:700;">0 nuevas</span>
         </div>
+        <p class="brush-hint">Activa el pincel y haz clic o arrastra para colocar vacas en pastoreo con su sombra.</p>
         <div class="btn-group">
-          <button type="button" class="btn-tool" id="toolPlantCowBtn" title="Activa modo clic en mapa para colocar una vaca">
-            <i class="fa-solid fa-hand-pointer"></i> Clic en mapa
+          <button type="button" class="btn-tool" id="toolPlantCowBtn" title="Activa pincel para colocar vacas arrastrando">
+            <i class="fa-solid fa-paintbrush"></i> Pincel Vacas
           </button>
-          <button type="button" class="btn-tool" id="batchCowsBtn" title="Pobla automáticamente un lote de 8 vacas en la zona visible">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> +8 Vacas
+          <button type="button" class="btn-tool" id="batchCowsBtn" title="Pobla automáticamente un lote de 10 vacas en el encuadre">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> +10 Vacas
           </button>
         </div>
       </div>
 
-      <!-- Sección 4: Coordenadas de Elementos Creados -->
+      <!-- Sección 4: Coordenadas de Elementos y Cámara -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-code"></i> Registro de Coordenadas</span>
+          <span><i class="fa-solid fa-code"></i> Registro de Elementos</span>
           <div style="display:flex; gap:4px;">
             <button type="button" class="btn-action-sm" id="copyElementsCoordsBtn" title="Copiar lista de coordenadas de árboles y vacas">
               <i class="fa-solid fa-copy"></i>
@@ -245,7 +258,19 @@
             </button>
           </div>
         </div>
-        <textarea class="elements-textarea" id="elementsCoordsOutput" readonly placeholder="// Aquí se registrarán las coordenadas de los nuevos árboles y vacas..."></textarea>
+        <textarea class="elements-textarea" id="elementsCoordsOutput" readonly placeholder="// Aquí se registrarán las coordenadas de los nuevos árboles y vacas al pintar..."></textarea>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <span><i class="fa-solid fa-video"></i> Coordenadas de Vista</span>
+          <button type="button" class="btn-action-sm" id="copyCamCoordsBtn" title="Copiar coordenadas de la vista actual">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+        </div>
+        <div class="coords-box" id="liveCamCoordsBox">
+          Cargando coordenadas...
+        </div>
       </div>
     </div>
 
@@ -262,6 +287,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=208"></script>
+<script src="modulo-08-3d.js?v=209"></script>
 </body>
 </html>
