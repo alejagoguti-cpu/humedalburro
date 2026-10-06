@@ -364,16 +364,17 @@
     const histWaterMat = new THREE.MeshStandardMaterial({
       map: histWaterTex,
       bumpMap: histWaterBump,
-      bumpScale: 0.28,
-      color: 0x6e9cb0, // Color agua de humedal realista con relieve y reflejo
-      roughness: 0.12,
-      metalness: 0.22,
+      bumpScale: 0.12,
+      color: 0x8f9498, // Color exacto de modulo-10-corte.html
+      roughness: 0.18,
+      metalness: 0.15,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.82,
       side: THREE.DoubleSide
     });
 
     const mesh = new THREE.Mesh(geo, histWaterMat);
+    mesh.receiveShadow = false;
     historicalWetlandsGroup.add(mesh);
   }
 
@@ -954,7 +955,8 @@
       const p = toScene(x, y);
       const h = Math.max(0.3, hMeters * SCALE);
       const w = h * (1.1 + (hash2(code) % 20) / 100 - 0.1);
-      treeInstanceData[i] = { x: p.x, z: p.z, w, h };
+      const baseVar = 0.95 + ((hash2(code + "v") % 25) / 100);
+      treeInstanceData[i] = { x: p.x, z: p.z, w, h, baseScale: baseVar };
       
       let c = colorNormal;
       if (especieStr.includes("Sauco")) c = colorAlimento2;
@@ -966,13 +968,26 @@
     mesh.instanceColor.needsUpdate = true;
     sceneRoot.add(mesh);
     treeMeshes = [{ mesh, data: trees }];
+    pickProminentTrees(24);
     updateTreeBillboards();
   }
-  // Recalcula la rotacion de TODAS las tarjetas para que miren hacia la
-  // camara actual. Con camara ortografica la direccion hacia la camara es
-  // la misma sin importar la posicion en el suelo, asi que un solo angulo
-  // (el acimut actual de la camara) sirve para todas las instancias.
-  let currentTreeScaleMultiplier = 1.4;
+  // Control de árboles grandes destacados individuales (~24 aleatorios)
+  let prominentTreeIndices = new Set();
+  let prominentTreeScale = 2.2;
+
+  function pickProminentTrees(count = 24) {
+    prominentTreeIndices.clear();
+    if (!treeInstanceData || !treeInstanceData.length) return;
+    const total = treeInstanceData.length;
+    const targetCount = Math.min(count, total);
+    while (prominentTreeIndices.size < targetCount) {
+      const idx = Math.floor(Math.random() * total);
+      prominentTreeIndices.add(idx);
+    }
+    updateTreeBillboards();
+  }
+
+  // Recalcula la rotacion y escala individual de las tarjetas de arboles
   const dummyT = new THREE.Object3D();
   function updateTreeBillboards() {
     if (!treeMesh || !treeInstanceData) return;
@@ -980,8 +995,10 @@
     const faceAngle = Math.atan2(dx, dz);
     for (let i = 0; i < treeInstanceData.length; i++) {
       const d = treeInstanceData[i];
+      const isProminent = prominentTreeIndices.has(i);
+      const s = isProminent ? prominentTreeScale : (d.baseScale || 1.0);
       dummyT.position.set(d.x, 0, d.z);
-      dummyT.scale.set(d.w * currentTreeScaleMultiplier, d.h * currentTreeScaleMultiplier, d.w * currentTreeScaleMultiplier);
+      dummyT.scale.set(d.w * s, d.h * s, d.w * s);
       dummyT.rotation.set(0, faceAngle, 0);
       dummyT.updateMatrix();
       treeMesh.setMatrixAt(i, dummyT.matrix);
@@ -2142,14 +2159,14 @@
     requestAnimationFrame(animate);
     if (camAnim) camAnim.update(now);
 
-    // Ondas y movimiento realista del agua generado por viento
+    // Ondas y movimiento suave del agua (igual a modulo-10-corte.html)
     if (waterTexRef) {
-      waterTexRef.offset.x = (now * 0.000045) % 1;
-      waterTexRef.offset.y = (now * 0.000035) % 1;
+      waterTexRef.offset.x = (now * 0.00003) % 1;
+      waterTexRef.offset.y = (now * 0.00002) % 1;
     }
     if (waterBumpRef) {
-      waterBumpRef.offset.x = -(now * 0.000055) % 1;
-      waterBumpRef.offset.y = (now * 0.000045) % 1;
+      waterBumpRef.offset.x = -(now * 0.00004) % 1;
+      waterBumpRef.offset.y = (now * 0.00003) % 1;
     }
 
     // Animación de las vacas caminando en el terreno sin flotar
@@ -2392,7 +2409,7 @@
     }
   }
 
-  function plantSingleTree(x, z, hMeters = 5.2) {
+  function plantSingleTree(x, z, hMeters = null) {
     const treeTex = new THREE.TextureLoader().load("./assets/arbol_real4.png");
     const planeGeo = makePlaneGeometry();
     const mat = new THREE.MeshStandardMaterial({
@@ -2402,17 +2419,26 @@
       side: THREE.DoubleSide,
       roughness: 0.95
     });
-    const h = Math.max(0.3, hMeters * SCALE);
-    const w = h * 1.15;
-    mesh.userData = { baseW: w, baseH: h };
-    mesh.scale.set(w * currentTreeScaleMultiplier, h * currentTreeScaleMultiplier, w * currentTreeScaleMultiplier);
+    const mesh = new THREE.Mesh(planeGeo, mat);
+    
+    // Altura natural variada individual
+    const actualH = hMeters || (4.2 + Math.random() * 5.8);
+    const h = Math.max(0.3, actualH * SCALE);
+    const w = h * (1.05 + Math.random() * 0.25);
+    
+    // ~20% de árboles son ejemplares grandes y maduros
+    const isBig = Math.random() < 0.22;
+    const s = isBig ? (1.8 + Math.random() * 0.6) : (0.9 + Math.random() * 0.35);
+    
+    mesh.userData = { baseW: w, baseH: h, scale: s };
+    mesh.scale.set(w * s, h * s, w * s);
     mesh.position.set(x, 0, z);
 
     const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
     mesh.rotation.y = Math.atan2(dx, dz);
 
     userPlantedGroup.add(mesh);
-    userPlantedElements.push({ type: "arbol", x, z, h: hMeters, mesh });
+    userPlantedElements.push({ type: "arbol", x, z, h: actualH * s, mesh });
     updateUserPlantedUI();
   }
 
@@ -2451,16 +2477,16 @@
     updateUserPlantedUI();
   }
 
-  function batchPopulateTrees(count = 15) {
+  function batchPopulateTrees(count = 24) {
     const cx = controls.target.x;
     const cz = controls.target.z;
-    const radius = 55;
+    const radius = 60;
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const dist = Math.sqrt(Math.random()) * radius;
       const x = cx + Math.cos(angle) * dist;
       const z = cz + Math.sin(angle) * dist;
-      const h = 3.5 + Math.random() * 3.5;
+      const h = 3.8 + Math.random() * 5.2;
       plantSingleTree(x, z, h);
     }
   }
@@ -2570,23 +2596,21 @@
     });
   }
 
-  // 4. Control de tamaño / escala de árboles
+  // 4. Control de tamaño / escala de árboles individuales (24 destacados)
   const treeScaleSlider = document.getElementById("treeScaleSlider");
   const treeScaleVal = document.getElementById("treeScaleVal");
   if (treeScaleSlider) {
     treeScaleSlider.addEventListener("input", (e) => {
-      currentTreeScaleMultiplier = parseFloat(e.target.value);
-      if (treeScaleVal) treeScaleVal.textContent = `${currentTreeScaleMultiplier.toFixed(1)}x`;
+      prominentTreeScale = parseFloat(e.target.value);
+      if (treeScaleVal) treeScaleVal.textContent = `${prominentTreeScale.toFixed(1)}x`;
       updateTreeBillboards();
-      userPlantedGroup.children.forEach(mesh => {
-        if (mesh.userData && mesh.userData.baseW) {
-          mesh.scale.set(
-            mesh.userData.baseW * currentTreeScaleMultiplier,
-            mesh.userData.baseH * currentTreeScaleMultiplier,
-            mesh.userData.baseW * currentTreeScaleMultiplier
-          );
-        }
-      });
+    });
+  }
+
+  const randomizeTreesBtn = document.getElementById("randomizeTreesBtn");
+  if (randomizeTreesBtn) {
+    randomizeTreesBtn.addEventListener("click", () => {
+      pickProminentTrees(24);
     });
   }
 
