@@ -732,40 +732,6 @@
     const badge = document.getElementById("eraBadge");
     const desc = document.getElementById("eraDesc");
 
-    // Ocultar capas urbanas modernas en 1950 y 1956
-    if (currentBuildingMesh) currentBuildingMesh.visible = false;
-    if (buildingEdgeMat) buildingEdgeMat.visible = false;
-    if (modernBuildingEdges) modernBuildingEdges.visible = false;
-    if (modernRoadLines) modernRoadLines.visible = false;
-    if (modernRoadMesh) modernRoadMesh.visible = false;
-    if (modernManzanasMesh) modernManzanasMesh.visible = false;
-    if (modernFacadesMesh) modernFacadesMesh.visible = false;
-    if (elBurroMesh) elBurroMesh.visible = false;
-    if (modernWaterMesh) modernWaterMesh.visible = false;
-    if (vehInstanced) vehInstanced.visible = false;
-    if (intersectionMeshes && intersectionMeshes.length) {
-      intersectionMeshes.forEach(m => { if (m) m.visible = false; });
-    }
-
-    // Mantener árboles reales y zonas verdes visibles
-    if (treeMesh) treeMesh.visible = true;
-    if (modernParquesMesh) modernParquesMesh.visible = true;
-
-    cowsGroup.visible = true;
-    historicalWetlandsGroup.visible = true;
-    userPlantedGroup.visible = true;
-    customPolysGroup.visible = true;
-
-    if (groundMesh && groundMesh.material) {
-      if (groundMesh.material.map !== histGrassTex) {
-        groundMesh.material.map = histGrassTex;
-        groundMesh.material.needsUpdate = true;
-      }
-      groundMesh.material.color.setHex(0xd4d5d3);
-      groundMesh.material.opacity = 0.75;
-      groundMesh.material.transparent = true;
-    }
-
     // Control de visibilidad de paneles de edición (solo activos para 1950, 1956 y 1970)
     const leftPolyPanel = document.getElementById("leftPolyPanel");
     const toolsPanel = document.getElementById("toolsPanel");
@@ -773,11 +739,45 @@
     if (leftPolyPanel) leftPolyPanel.style.display = isEditEra ? "flex" : "none";
     if (toolsPanel) toolsPanel.style.display = isEditEra ? "flex" : "none";
 
+    userPlantedGroup.visible = isEditEra;
+    customPolysGroup.visible = isEditEra;
+
     if (year === 1950) {
       if (badge) badge.textContent = "1950";
       if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha) y Sabana Rural (potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
+      
+      // Ocultar capas urbanas modernas
+      if (currentBuildingMesh) currentBuildingMesh.visible = false;
+      if (buildingEdgeMat) buildingEdgeMat.visible = false;
+      if (modernBuildingEdges) modernBuildingEdges.visible = false;
+      if (modernRoadLines) modernRoadLines.visible = false;
+      if (modernRoadMesh) modernRoadMesh.visible = false;
+      if (modernManzanasMesh) modernManzanasMesh.visible = false;
+      if (modernFacadesMesh) modernFacadesMesh.visible = false;
+      if (elBurroMesh) elBurroMesh.visible = false;
+      if (modernWaterMesh) modernWaterMesh.visible = false;
+      if (vehInstanced) vehInstanced.visible = false;
+      if (intersectionMeshes && intersectionMeshes.length) {
+        intersectionMeshes.forEach(m => { if (m) m.visible = false; });
+      }
+
+      if (treeMesh) treeMesh.visible = true;
+      if (modernParquesMesh) modernParquesMesh.visible = true;
+
+      cowsGroup.visible = true;
+      historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = false;
       buildings1970Group.visible = false;
+
+      if (groundMesh && groundMesh.material) {
+        if (groundMesh.material.map !== histGrassTex) {
+          groundMesh.material.map = histGrassTex;
+        }
+        groundMesh.material.color.setHex(0xd4d5d3);
+        groundMesh.material.opacity = 0.75;
+        groundMesh.material.transparent = true;
+        groundMesh.material.needsUpdate = true;
+      }
 
       if (animateCam) {
         // Enfoque exacto en Humedal El Burro (coordenadas seleccionadas por la usuaria)
@@ -791,8 +791,39 @@
     } else if (year === 1956) {
       if (badge) badge.textContent = "1956";
       if (desc) desc.textContent = "1956 · Humedal La Vaca (181 ha) y Laguna de Techo (120 ha) extendidos hacia El Burro, Antiguo Aeropuerto de Techo y Sabana Rural.";
+      
+      // Ocultar capas urbanas modernas
+      if (currentBuildingMesh) currentBuildingMesh.visible = false;
+      if (buildingEdgeMat) buildingEdgeMat.visible = false;
+      if (modernBuildingEdges) modernBuildingEdges.visible = false;
+      if (modernRoadLines) modernRoadLines.visible = false;
+      if (modernRoadMesh) modernRoadMesh.visible = false;
+      if (modernManzanasMesh) modernManzanasMesh.visible = false;
+      if (modernFacadesMesh) modernFacadesMesh.visible = false;
+      if (elBurroMesh) elBurroMesh.visible = false;
+      if (modernWaterMesh) modernWaterMesh.visible = false;
+      if (vehInstanced) vehInstanced.visible = false;
+      if (intersectionMeshes && intersectionMeshes.length) {
+        intersectionMeshes.forEach(m => { if (m) m.visible = false; });
+      }
+
+      if (treeMesh) treeMesh.visible = true;
+      if (modernParquesMesh) modernParquesMesh.visible = true;
+
+      cowsGroup.visible = true;
+      historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = true;
       buildings1970Group.visible = false;
+
+      if (groundMesh && groundMesh.material) {
+        if (groundMesh.material.map !== histGrassTex) {
+          groundMesh.material.map = histGrassTex;
+        }
+        groundMesh.material.color.setHex(0xd4d5d3);
+        groundMesh.material.opacity = 0.75;
+        groundMesh.material.transparent = true;
+        groundMesh.material.needsUpdate = true;
+      }
 
       if (animateCam) {
         // Paneo suave a Humedal La Vaca y Aeropuerto de Techo (coordenadas seleccionadas por la usuaria)
@@ -806,9 +837,40 @@
     } else if (year === 1970) {
       if (badge) badge.textContent = "1970";
       if (desc) desc.textContent = "1970 · Primeros barrios de Ciudad Kennedy: Comienza la urbanización progresiva sobre la sabana, primeros conjuntos residenciales y reducción inicial de humedales.";
-      aeropuertoTechoGroup.visible = true;
+      
+      // Ocultar capas urbanas modernas
+      if (currentBuildingMesh) currentBuildingMesh.visible = false;
+      if (buildingEdgeMat) buildingEdgeMat.visible = false;
+      if (modernBuildingEdges) modernBuildingEdges.visible = false;
+      if (modernRoadLines) modernRoadLines.visible = false;
+      if (modernRoadMesh) modernRoadMesh.visible = false;
+      if (modernManzanasMesh) modernManzanasMesh.visible = false;
+      if (modernFacadesMesh) modernFacadesMesh.visible = false;
+      if (elBurroMesh) elBurroMesh.visible = false;
+      if (modernWaterMesh) modernWaterMesh.visible = false;
+      if (vehInstanced) vehInstanced.visible = false;
+      if (intersectionMeshes && intersectionMeshes.length) {
+        intersectionMeshes.forEach(m => { if (m) m.visible = false; });
+      }
+
+      if (treeMesh) treeMesh.visible = true;
+      if (modernParquesMesh) modernParquesMesh.visible = true;
+
+      cowsGroup.visible = false;
+      aeropuertoTechoGroup.visible = false;
       buildings1970Group.visible = true;
+      historicalWetlandsGroup.visible = true;
       start1970UrbanizationAnimation();
+
+      if (groundMesh && groundMesh.material) {
+        if (groundMesh.material.map !== histGrassTex) {
+          groundMesh.material.map = histGrassTex;
+        }
+        groundMesh.material.color.setHex(0xd4d5d3);
+        groundMesh.material.opacity = 0.75;
+        groundMesh.material.transparent = true;
+        groundMesh.material.needsUpdate = true;
+      }
 
       if (animateCam) {
         // Paneo hacia el sector de urbanización inicial de Kennedy
@@ -823,7 +885,7 @@
       if (badge) badge.textContent = "Actualidad (2024)";
       if (desc) desc.textContent = "Actualidad · Paisaje urbano completamente consolidado: Corabastos, red vial Kennedy con tránsito vehicular SUMO, manzanas residenciales e industriales, y humedales El Burro y La Vaca reducidos y fragmentados.";
       
-      // Mostrar capas urbanas completas
+      // Mostrar capas urbanas modernas completas con sus edificios y colores originales
       if (currentBuildingMesh) currentBuildingMesh.visible = true;
       if (buildingEdgeMat) buildingEdgeMat.visible = true;
       if (modernBuildingEdges) modernBuildingEdges.visible = true;
@@ -833,6 +895,8 @@
       if (modernFacadesMesh) modernFacadesMesh.visible = true;
       if (elBurroMesh) elBurroMesh.visible = true;
       if (modernWaterMesh) modernWaterMesh.visible = true;
+      if (modernParquesMesh) modernParquesMesh.visible = true;
+      if (treeMesh) treeMesh.visible = true;
       if (vehInstanced) {
         vehInstanced.visible = true;
         vehInstanced.count = timesteps.length > 0 ? (vehInstanced.geometry ? vehInstanced.geometry.instanceCount || 300 : 0) : 0;
@@ -841,18 +905,30 @@
         intersectionMeshes.forEach(m => { if (m) m.visible = true; });
       }
 
+      // Ocultar capas históricas
       aeropuertoTechoGroup.visible = false;
       buildings1970Group.visible = false;
       cowsGroup.visible = false;
       historicalWetlandsGroup.visible = false;
+      userPlantedGroup.visible = false;
+      customPolysGroup.visible = false;
+
+      // Restaurar el suelo arquitectónico original (#ebedee)
+      if (groundMesh && groundMesh.material) {
+        groundMesh.material.map = null;
+        groundMesh.material.color.setHex(0xebedee);
+        groundMesh.material.opacity = 1.0;
+        groundMesh.material.transparent = false;
+        groundMesh.material.needsUpdate = true;
+      }
 
       if (animateCam) {
-        // Vista general panorámica de Kennedy moderna
+        // Vista axonométrica general original de Kennedy
         transitionCameraTo(
-          new THREE.Vector3(100.00, 730.00, 680.00),
-          new THREE.Vector3(200.00, -35.00, -10.00),
+          new THREE.Vector3(17.6, 630.7, 713.9),
+          new THREE.Vector3(139.2, -124.7, -31.7),
           1.30,
-          2400
+          2200
         );
       }
     }
