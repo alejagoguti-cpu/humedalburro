@@ -587,7 +587,7 @@
       const cy = ptsOriginal.reduce((s, p) => s + p[1], 0) / ptsOriginal.length;
 
       let expandedPts = ptsOriginal;
-      const yLayer = 0.045; // Ligeramente elevado sobre el suelo para total claridad
+      const yLayer = 0.055; // Altura limpia y definida sobre el terreno
 
       if (name.includes("Burro")) {
         const scale = Math.sqrt(targetAreaBurro / baseArea);
@@ -606,16 +606,19 @@
         }
       }
 
+      // Convertir a coordenadas 3D de escena
       const scenePts = expandedPts.map(p => toScene(p[0], p[1]));
       if (scenePts.length < 3) return;
 
-      // Línea de orilla / contorno del humedal
-      for (let i = 0; i < scenePts.length; i++) {
+      // Línea de orilla / ribera perimetral nítida
+      const nPts = scenePts.length;
+      for (let i = 0; i < nPts; i++) {
         const p1 = scenePts[i];
-        const p2 = scenePts[(i + 1) % scenePts.length];
-        linePositions.push(p1.x, yLayer + 0.005, p1.z, p2.x, yLayer + 0.005, p2.z);
+        const p2 = scenePts[(i + 1) % nPts];
+        linePositions.push(p1.x, yLayer + 0.006, p1.z, p2.x, yLayer + 0.006, p2.z);
       }
 
+      // Triangulación robusta: primero ear-clipping de Three.js, con fallback infalible de abanico centroidal
       const pts2d = scenePts.map(p => new THREE.Vector2(p.x, p.z));
       let tris = [];
       try {
@@ -624,12 +627,32 @@
         tris = [];
       }
 
-      tris.forEach(([a, b, c]) => {
-        [a, b, c].forEach(idx => {
-          positions.push(scenePts[idx].x, yLayer, scenePts[idx].z);
-          uvs.push(scenePts[idx].x * UV_SCALE, scenePts[idx].z * UV_SCALE);
+      if (tris && tris.length > 0) {
+        tris.forEach(([a, b, c]) => {
+          [a, b, c].forEach(idx => {
+            positions.push(scenePts[idx].x, yLayer, scenePts[idx].z);
+            uvs.push(scenePts[idx].x * UV_SCALE, scenePts[idx].z * UV_SCALE);
+          });
         });
-      });
+      } else {
+        // Fallback de abanico centroidal: conecta el centroide con cada segmento perimetral
+        const scx = scenePts.reduce((s, p) => s + p.x, 0) / nPts;
+        const scz = scenePts.reduce((s, p) => s + p.z, 0) / nPts;
+        for (let i = 0; i < nPts; i++) {
+          const p1 = scenePts[i];
+          const p2 = scenePts[(i + 1) % nPts];
+          positions.push(
+            scx, yLayer, scz,
+            p1.x, yLayer, p1.z,
+            p2.x, yLayer, p2.z
+          );
+          uvs.push(
+            scx * UV_SCALE, scz * UV_SCALE,
+            p1.x * UV_SCALE, p1.z * UV_SCALE,
+            p2.x * UV_SCALE, p2.z * UV_SCALE
+          );
+        }
+      }
     });
 
     if (positions.length === 0) return;
@@ -639,24 +662,24 @@
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
 
-    // 1. Lecho base sólido azul marino profundo para evitar que el pasto traspase el agua
-    const bedMat = new THREE.MeshBasicMaterial({ color: 0x0369a1, side: THREE.DoubleSide });
+    // 1. Lecho base sólido azul marino profundo para opacidad total frente al pasto
+    const bedMat = new THREE.MeshBasicMaterial({ color: 0x026597, side: THREE.DoubleSide });
     const bedMesh = new THREE.Mesh(geo.clone(), bedMat);
-    bedMesh.position.y = -0.01;
+    bedMesh.position.y = -0.008;
     bedMesh.renderOrder = 10;
     historicalWetlandsGroup.add(bedMesh);
 
-    // 2. Capa de agua animada con textura y reflejos
+    // 2. Capa de agua animada con textura, relieve y reflejos vivos
     const mesh = new THREE.Mesh(geo, sharedWaterMat);
     mesh.renderOrder = 15;
     mesh.receiveShadow = false;
     historicalWetlandsGroup.add(mesh);
 
-    // 3. Orilla perimetral nítida azul cian
+    // 3. Orilla perimetral luminosa azul cian (#38bdf8)
     if (linePositions.length) {
       const lineGeo = new THREE.BufferGeometry();
       lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
-      const lineMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 });
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.95 });
       const lineMesh = new THREE.LineSegments(lineGeo, lineMat);
       lineMesh.renderOrder = 20;
       historicalWetlandsGroup.add(lineMesh);
