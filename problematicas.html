@@ -178,9 +178,16 @@
       </a>
       <h1>
         Problemáticas — Evolución Histórica
-        <span id="eraBadge" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(36,200,189,.2); border:1px solid var(--accent); color:var(--accent);">1950</span>
+        <span id="eraBadge" style="font-size:11.5px; font-weight:700; padding:4px 12px; border-radius:12px; background:rgba(36,200,189,.2); border:1px solid var(--accent); color:var(--accent);">1950 · Sabana Rural</span>
       </h1>
-      <p id="eraDesc">1950 · Humedal El Burro y Sabana Rural (89% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).</p>
+      <div style="display:flex; align-items:center; gap:12px; margin:5px 0 4px; pointer-events:auto;">
+        <div style="padding:4px 10px; border-radius:8px; background:rgba(15,23,42,.85); border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; gap:8px;">
+          <span style="font-size:11px; color:#94a3b8;">Área Humedal El Burro:</span>
+          <strong id="histAreaHa" style="font-size:13px; color:#38bdf8; font-family:'IBM Plex Mono',monospace;">71,54 ha</strong>
+          <span id="histLossPct" style="font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:rgba(74,222,128,.2); color:#4ade80;">100% Extensión</span>
+        </div>
+      </div>
+      <p id="eraDesc" style="font-size:11.5px; line-height:1.45; color:#cbd5e1; max-width:620px;">1950 – 1956 · Humedal El Burro con 71,54 ha en la ribera de inundación del río Bogotá (subcuenca El Tintal). Entorno rural de alta biodiversidad con 210 vacas en pastoreo, senderos veredales y Antiguo Aeropuerto de Techo.</p>
     </div>
 
     <!-- Panel Izquierdo: Trazado de Vías, Pistas y Urbanización 1970 -->
@@ -274,11 +281,12 @@
         <i class="fa-solid fa-play"></i>
       </button>
       <div style="display:flex; align-items:center; gap:6px;">
-        <button type="button" class="year-btn active" data-year="1950">1950</button>
-        <button type="button" class="year-btn" data-year="1956">1956</button>
-        <button type="button" class="year-btn" data-year="1970">1970</button>
-        <button type="button" class="year-btn" data-year="2024">Actualidad</button>
-        <input type="range" id="histYearSlider" min="1950" max="2024" value="1950" step="1" style="width:110px; accent-color:var(--accent); cursor:pointer; margin-left:6px;">
+        <button type="button" class="year-btn active" data-year="1950" title="1950-1956: Sabana Rural y Humedal Natural (71,54 ha)">1950 (71.5 ha)</button>
+        <button type="button" class="year-btn" data-year="1972" title="1972: Nacimiento de Corabastos en Potrero Alto Negro (38,53 ha)">1972 (38.5 ha)</button>
+        <button type="button" class="year-btn" data-year="1988" title="1988: Bisección por Av. Ciudad de Cali y Planta Protecho (27,14 ha)">1988 (27.1 ha)</button>
+        <button type="button" class="year-btn" data-year="2000" title="2000: Punto Crítico Histórico (14,00 ha) y Declaratoria POT">2000 (14.0 ha)</button>
+        <button type="button" class="year-btn" data-year="2024" title="Actualidad: Restauración Hidrogeomorfológica EAAB y Ciudad Consolidada (18,80 ha)">Actualidad (18.8 ha)</button>
+        <input type="range" id="histYearSlider" min="0" max="4" value="0" step="1" style="width:100px; accent-color:var(--accent); cursor:pointer; margin-left:6px;" title="Deslizar entre las 5 etapas históricas">
       </div>
     </div>
 
@@ -404,6 +412,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=258"></script>
+<script src="modulo-08-3d.js?v=260"></script>
 </body>
 </html>
