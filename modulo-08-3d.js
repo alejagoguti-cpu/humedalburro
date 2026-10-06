@@ -362,40 +362,122 @@
     });
   }
 
-  // 2. Construcción de humedales históricos con el mismo color y textura de agua
+  // 2. Construcción de humedales históricos con el área solicitada (El Burro: 171 ha, La Vaca: 181 ha hacia El Burro, Techo: 120 ha hacia El Burro)
   function buildHistoricalWetlands(waterBodies) {
     if (!waterBodies || !waterBodies.length) return;
     historicalWetlandsGroup.clear();
     const positions = [], uvs = [];
     const UV_SCALE = 0.08;
 
-    waterBodies.forEach(w => {
+    function polyArea(pts) {
+      let a = 0;
+      for (let i = 0; i < pts.length; i++) {
+        const p1 = pts[i], p2 = pts[(i + 1) % pts.length];
+        a += p1[0] * p2[1] - p2[0] * p1[1];
+      }
+      return Math.abs(a) / 2;
+    }
+
+    const burroObj = waterBodies.find(w => (w.nombre || "").includes("Burro"));
+    let burroCx = 7436.96, burroCy = 3271.17;
+    if (burroObj && burroObj.pts && burroObj.pts.length) {
+      burroCx = burroObj.pts.reduce((s, p) => s + p[0], 0) / burroObj.pts.length;
+      burroCy = burroObj.pts.reduce((s, p) => s + p[1], 0) / burroObj.pts.length;
+    }
+
+    waterBodies.forEach((w) => {
       const name = w.nombre || "";
       if (!name.includes("Burro") && !name.includes("Vaca") && !name.includes("Techo")) return;
-      let scale = 1.0;
-      if (name.includes("Burro")) scale = 2.0;  // Humedal El Burro expandido
-      else if (name.includes("Vaca")) scale = 1.95; // Humedal La Vaca expandido
-      else if (name.includes("Techo")) scale = 1.85;
-      else scale = 1.3;
+      if (!w.pts || w.pts.length < 3) return;
 
-      const cx = w.pts.reduce((s, p) => s + p[0], 0) / w.pts.length;
-      const cy = w.pts.reduce((s, p) => s + p[1], 0) / w.pts.length;
+      const ptsOriginal = w.pts;
+      const baseArea = polyArea(ptsOriginal);
+      if (baseArea <= 0) return;
 
-      const pts = w.pts.map(p => {
-        const ex = cx + (p[0] - cx) * scale;
-        const ey = cy + (p[1] - cy) * scale;
-        return toScene(ex, ey);
-      });
+      const cx = ptsOriginal.reduce((s, p) => s + p[0], 0) / ptsOriginal.length;
+      const cy = ptsOriginal.reduce((s, p) => s + p[1], 0) / ptsOriginal.length;
 
-      if (pts.length < 3) return;
-      const pts2d = pts.map(p => new THREE.Vector2(p.x, p.z));
+      let expandedPts = [];
+
+      if (name.includes("Burro")) {
+        // Humedal El Burro: 171 hectáreas exactas
+        const targetArea = 1710000; // 171 ha en m2
+        const scale = Math.sqrt(targetArea / baseArea);
+        expandedPts = ptsOriginal.map(p => {
+          const ex = cx + (p[0] - cx) * scale;
+          const ey = cy + (p[1] - cy) * scale;
+          return [ex, ey];
+        });
+      } else if (name.includes("Vaca")) {
+        // Humedal La Vaca: 181 hectáreas en total, orientado y extendido hacia El Burro
+        const isSectorMayor = baseArea > 20000;
+        const targetArea = isSectorMayor ? 1450000 : 360000;
+        const scaleBase = Math.sqrt(targetArea / baseArea);
+
+        const dx = burroCx - cx, dy = burroCy - cy;
+        const dist = Math.hypot(dx, dy) || 1;
+        const ux = dx / dist, uy = dy / dist; // Vector unitario hacia El Burro
+
+        const s_u = scaleBase * 1.35;
+        const s_perp = scaleBase * 0.74;
+        const shift = dist * 0.28;
+
+        const transformed = ptsOriginal.map(p => {
+          const px = p[0] - cx, py = p[1] - cy;
+          const proj = px * ux + py * uy;
+          const perp_x = px - proj * ux, perp_y = py - proj * uy;
+          const fwdFactor = 1.0 + Math.max(0, proj / 100) * 0.5;
+          const newProj = proj * s_u * fwdFactor + shift;
+          return [cx + newProj * ux + perp_x * s_perp, cy + newProj * uy + perp_y * s_perp];
+        });
+
+        const currArea = polyArea(transformed);
+        const k = Math.sqrt(targetArea / (currArea || 1));
+        const ncx = transformed.reduce((s, p) => s + p[0], 0) / transformed.length;
+        const ncy = transformed.reduce((s, p) => s + p[1], 0) / transformed.length;
+
+        expandedPts = transformed.map(p => [ncx + (p[0] - ncx) * k, ncy + (p[1] - ncy) * k]);
+      } else if (name.includes("Techo")) {
+        // Laguna / Humedal de Techo: 120 hectáreas exactas, extendido hacia El Burro
+        const targetArea = 1200000; // 120 ha en m2
+        const scaleBase = Math.sqrt(targetArea / baseArea);
+
+        const dx = burroCx - cx, dy = burroCy - cy;
+        const dist = Math.hypot(dx, dy) || 1;
+        const ux = dx / dist, uy = dy / dist; // Vector unitario hacia El Burro
+
+        const s_u = scaleBase * 1.25;
+        const s_perp = scaleBase * 0.80;
+        const shift = dist * 0.22;
+
+        const transformed = ptsOriginal.map(p => {
+          const px = p[0] - cx, py = p[1] - cy;
+          const proj = px * ux + py * uy;
+          const perp_x = px - proj * ux, perp_y = py - proj * uy;
+          const fwdFactor = 1.0 + Math.max(0, proj / 100) * 0.4;
+          const newProj = proj * s_u * fwdFactor + shift;
+          return [cx + newProj * ux + perp_x * s_perp, cy + newProj * uy + perp_y * s_perp];
+        });
+
+        const currArea = polyArea(transformed);
+        const k = Math.sqrt(targetArea / (currArea || 1));
+        const ncx = transformed.reduce((s, p) => s + p[0], 0) / transformed.length;
+        const ncy = transformed.reduce((s, p) => s + p[1], 0) / transformed.length;
+
+        expandedPts = transformed.map(p => [ncx + (p[0] - ncx) * k, ncy + (p[1] - ncy) * k]);
+      }
+
+      const scenePts = expandedPts.map(p => toScene(p[0], p[1]));
+      if (scenePts.length < 3) return;
+
+      const pts2d = scenePts.map(p => new THREE.Vector2(p.x, p.z));
       let tris = [];
       try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
 
       tris.forEach(([a, b, c]) => {
         [a, b, c].forEach(idx => {
-          positions.push(pts[idx].x, 0.024, pts[idx].z);
-          uvs.push(pts[idx].x * UV_SCALE, pts[idx].z * UV_SCALE);
+          positions.push(scenePts[idx].x, 0.024, scenePts[idx].z);
+          uvs.push(scenePts[idx].x * UV_SCALE, scenePts[idx].z * UV_SCALE);
         });
       });
     });
@@ -533,7 +615,7 @@
 
     if (year === 1950) {
       if (badge) badge.textContent = "1950";
-      if (desc) desc.textContent = "1950 · Humedal El Burro y Sabana Rural (89% a 98% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
+      if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha) y Sabana Rural (potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).";
       aeropuertoTechoGroup.visible = false;
 
       if (animateCam) {
@@ -547,7 +629,7 @@
       }
     } else if (year === 1956) {
       if (badge) badge.textContent = "1956";
-      if (desc) desc.textContent = "1956 · Humedal La Vaca (+90% extensión), Antiguo Aeropuerto de Techo y Sabana Rural con potreros.";
+      if (desc) desc.textContent = "1956 · Humedal La Vaca (181 ha) y Laguna de Techo (120 ha) extendidos hacia El Burro, Antiguo Aeropuerto de Techo y Sabana Rural.";
       aeropuertoTechoGroup.visible = true;
 
       if (animateCam) {
