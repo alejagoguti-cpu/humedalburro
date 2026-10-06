@@ -1,0 +1,29 @@
+Fotos de iNaturalist usadas en la red de interacciones del corte dinamico (especies observadas en el humedal El Burro, Kennedy)
+Rectangulo de busqueda: 4.6410N a 4.6452N, -74.1523 a -74.1491. Total: 260 especies, 975 observaciones (consulta a la API de iNaturalist).
+
+- Monjita cabeciamarilla (Chrysomus icterocephalus): (c) David F. Belmonte, some rights reserved (CC BY), uploaded by David F. Belmonte | https://www.inaturalist.org/taxa/69688
+- Gallineta frente roja (Gallinula galeata): (c) uzun, some rights reserved (CC BY-NC), uploaded by uzun | https://www.inaturalist.org/taxa/144479
+- Gallineta morada (tingua azul) (Porphyrio martinica): (c) Bert Filemyr, some rights reserved (CC BY-NC), uploaded by Bert Filemyr | https://www.inaturalist.org/taxa/519
+- Gallareta americana (Fulica americana): (c) Pierce Louderback, some rights reserved (CC BY-NC), uploaded by Pierce Louderback | https://www.inaturalist.org/taxa/473
+- Pato zambullidor grande (Oxyura ferruginea): (c) jose_balderrama, some rights reserved (CC BY-NC), uploaded by jose_balderrama | https://www.inaturalist.org/taxa/827374
+- Mirla patinaranja (Turdus fuscater): (c) brewmaster, some rights reserved (CC BY-NC), uploaded by brewmaster | https://www.inaturalist.org/taxa/12781
+- Chamón (tordo sudamericano) (Molothrus bonariensis): (c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17 | https://www.inaturalist.org/taxa/10371
+- Copetón (Zonotrichia capensis): (c) Esteban Poveda, some rights reserved (CC BY), uploaded by Esteban Poveda | https://www.inaturalist.org/taxa/9183
+- Milano cola blanca (Elanus leucurus): (c) Bryan Caro San Martin, some rights reserved (CC BY-NC), uploaded by Bryan Caro San Martin | https://www.inaturalist.org/taxa/5277
+- Garza real (Ardea alba): (c) daverowe, some rights reserved (CC BY-NC) | https://www.inaturalist.org/taxa/144455
+- Colibrí chillón (Colibri coruscans): (c) Tony Iwane, some rights reserved (CC BY-NC), uploaded by Tony Iwane | https://www.inaturalist.org/taxa/6072
+- Moscas de las flores (Syrphidae · Palpada, Toxomerus): (c) mikelchap, some rights reserved (CC BY-NC), uploaded by mikelchap | https://www.inaturalist.org/taxa/55265
+- Mariposa blanca de la col (Leptophobia aripa): (c) alessandradalia, some rights reserved (CC BY-SA), uploaded by alessandradalia | https://www.inaturalist.org/taxa/62500
+- Libélulas y caballitos del diablo (Odonata · Ischnura): (c) davidenesti, some rights reserved (CC BY-NC) | https://www.inaturalist.org/taxa/52054
+- Rata gris (Rattus norvegicus): (c) Mark Philpott, some rights reserved (CC BY-NC) | https://www.inaturalist.org/taxa/44576
+- Rana sabanera (Dendropsophus molitor): (c) Mauricio Rivera Correa, some rights reserved (CC BY-SA) | https://www.inaturalist.org/taxa/1595931
+- Juncal: junco y tule (Schoenoplectus californicus · Typha latifolia): (c) Tina Reimer, some rights reserved (CC BY-NC), uploaded by Tina Reimer | https://www.inaturalist.org/taxa/47159
+- Capulí (Prunus serotina): (c) allysonv, some rights reserved (CC BY-NC), uploaded by allysonv | https://www.inaturalist.org/taxa/54834
+- Saúco (Sambucus nigra): (c) Attila Oláh, some rights reserved (CC BY), uploaded by Attila Oláh | https://www.inaturalist.org/taxa/765394
+- Chilca y ciro (Baccharis latifolia · B. macrantha): (c) Daniel Arias-Cruzatty, some rights reserved (CC BY-NC), uploaded by Daniel Arias-Cruzatty | https://www.inaturalist.org/taxa/534316
+- Espino (Duranta mutisii): (c) daniela_156, some rights reserved (CC BY-NC) | https://www.inaturalist.org/taxa/327786
+- Mastuerzo (Tropaeolum majus): (c) nicoleftr, some rights reserved (CC BY-NC) | https://www.inaturalist.org/taxa/54329
+- Timboco (Tecoma stans): (c) lyndahicklin_05, some rights reserved (CC BY-NC), uploaded by lyndahicklin_05 | https://www.inaturalist.org/taxa/48363
+- Lenteja de agua (Lemna minuta): (c) Bas Kers, some rights reserved (CC BY-NC-SA) | https://www.inaturalist.org/taxa/59076
+
+Nutrientes y disminucion de oxigeno: fotos de Wikimedia Commons (ver CREDITOS-fotos.txt).

@@ -12,64 +12,58 @@
   const TXT = { ave: "#b98a00", dep: "#d62f35", inv: "#c42eb4", anf: "#2a6fd6", flora: "#16883b", micro: "#0a8f9c" };
   const MULT = { urapan: 1.25, capuli: 1.15, sauce: 1.1, enea: 1.05, garza: 1.1, escarabajos: 0.95, mirla: 1.0 };
   const NODOS = [
-    { id: "mirla", t: "Mirla común", s: "Turdus fuscater", cat: "ave", img: "assets/cx_mirla.png", kind: "cut", w: 240, h: 214, pos: [0.1654, 0.5242] },
-    { id: "chamon", t: "Chamón", s: "Molothrus bonariensis", cat: "ave", img: "assets/cx_chamon.png", kind: "cut", w: 233, h: 240, pos: [0.2882, 0.3979] },
-    { id: "tingua_azul", t: "Tingua azul", s: "Porphyrio martinica", cat: "ave", img: "assets/tingua.png", kind: "cut", w: 166, h: 200, pos: [0.2841, 0.6614] },
-    { id: "tingua_bogotana", t: "Tingua bogotana", s: "Rallus semiplumbeus", cat: "ave", img: "assets/cx_tingua_bogotana.png", kind: "cut", w: 260, h: 165, pos: [0.4303, 0.6781] },
-    { id: "monjita", t: "Monjita", s: "Chrysomus icterocephalus", cat: "ave", img: "assets/cx_monjita.png", kind: "cut", w: 195, h: 260, pos: [0.7635, 0.5753] },
-    { id: "cucarachero", t: "Cucarachero de pantano", s: "Cistothorus apolinari", cat: "ave", img: "assets/cx_cucarachero.png", kind: "cut", w: 170, h: 240, pos: [0.545, 0.4464] },
-    { id: "garza", t: "Garza real", s: "Ardea alba", cat: "ave", img: "assets/cx_garza.png", kind: "cut", w: 148, h: 240, pos: [0.379, 0.33] },
-    { id: "perros_gatos", t: "Perros y gatos asilvestrados", s: "", cat: "dep", img: "assets/cx_perro.png", kind: "cut", w: 130, h: 260, pos: [0.2417, 0.775] },
-    { id: "libelulas", t: "Libélulas", s: "Odonata", cat: "inv", img: "assets/cx_libelula.png", kind: "cut", w: 240, h: 216, pos: [0.4907, 0.775], anim: "alas" },
-    { id: "mariposas", t: "Mariposas", s: "Lepidoptera", cat: "inv", img: "assets/cx_mariposa.png", kind: "cut", w: 219, h: 260, pos: [0.3568, 0.775] },
-    { id: "escarabajos", t: "Escarabajos coprófagos", s: "descomponedores", cat: "inv", img: "assets/cx_escarabajo.png", kind: "cut", w: 260, h: 190, pos: [0.6839, 0.6571] },
-    { id: "rana", t: "Rana sabanera", s: "Dendropsophus labialis", cat: "anf", img: "assets/cx_rana.png", kind: "cut", w: 240, h: 153, pos: [0.4984, 0.5543] },
-    { id: "enea", t: "Enea / Junco", s: "Typha latifolia", cat: "flora", img: "assets/cx_enea.png", kind: "cut", w: 215, h: 240, pos: [0.6045, 0.775] },
-    { id: "capuli", t: "Capulí", s: "Prunus serotina", cat: "flora", img: "assets/cx_capuli.png", kind: "cut", w: 214, h: 240, pos: [0.4105, 0.45] },
-    { id: "sauco", t: "Saúco", s: "Sambucus nigra", cat: "flora", img: "assets/cx_sauco.png", kind: "cut", w: 240, h: 234, pos: [0.14, 0.647] },
-    { id: "urapan", t: "Urapán", s: "Fraxinus chinensis", cat: "flora", img: "assets/cx_urapan.png", kind: "cut", w: 240, h: 217, pos: [0.5017, 0.33] },
-    { id: "sauce", t: "Sauce llorón", s: "Salix humboldtiana", cat: "flora", img: "assets/cx_sauce.png", kind: "cut", w: 150, h: 260, pos: [0.14, 0.775] },
-    { id: "chilco", t: "Chilco", s: "Baccharis bogotensis", cat: "flora", img: "assets/cx_chilco.png", kind: "cut", w: 240, h: 156, pos: [0.2761, 0.5309] },
-    { id: "buchon", t: "Buchón de agua", s: "Eichhornia crassipes", cat: "flora", img: "assets/cx_buchon.png", kind: "circle", w: 240, h: 240, pos: [0.6419, 0.5105] },
-    { id: "nutrientes", t: "Nutrientes: nitrógeno y fósforo", s: "N y P", cat: "flora", img: "assets/cx_nutrientes.png", kind: "circle", w: 240, h: 240, pos: [0.6447, 0.3523] },
-    { id: "fitoplancton", t: "Fitoplancton y lenteja de agua", s: "Lemna gibba", cat: "micro", img: "assets/cx_fitoplancton.png", kind: "circle", w: 240, h: 240, pos: [0.7354, 0.775] },
-    { id: "lixiviados", t: "Lixiviados y materia orgánica", s: "DQO / DBO", cat: "micro", img: "assets/cx_lixiviados.png", kind: "circle", w: 240, h: 240, pos: [0.86, 0.6152] },
-    { id: "anoxia", t: "Disminución de oxígeno", s: "anoxia · OD ≈ 0 mg/L", cat: "micro", img: "assets/cx_anoxia.png", kind: "circle", w: 240, h: 240, pos: [0.5659, 0.6433] },
-    { id: "bacterias", t: "Bacterias anaerobias", s: "ácido sulfhídrico (H₂S)", cat: "micro", img: "assets/cx_bacterias.png", kind: "circle", w: 240, h: 240, pos: [0.3795, 0.573] },
-    { id: "hongos", t: "Hongos y materia orgánica del suelo", s: "", cat: "micro", img: "assets/cx_hongos.png", kind: "circle", w: 240, h: 240, pos: [0.86, 0.775] },
-    { id: "colibries", t: "Colibríes", s: "Colibri coruscans · Trochilidae", cat: "inv", img: "assets/cx_colibri.png", kind: "cut", w: 260, h: 191, pos: [0.7795, 0.6803] },
-    { id: "hibisco", t: "Hibisco", s: "Hibiscus rosa-sinensis", cat: "flora", img: "assets/cx_hibisco.png", kind: "cut", w: 260, h: 224, pos: [0.6308, 0.5905] },
-    { id: "tritoma", t: "Tritoma", s: "Kniphofia uvaria", cat: "flora", img: "assets/cx_tritoma.png", kind: "cut", w: 90, h: 260, pos: [0.62, 0.6951] }
+    { id: "monjita", t: "Monjita cabeciamarilla", s: "Chrysomus icterocephalus", cat: "ave", img: "assets/inat_monjita.png", kind: "circle", w: 240, h: 240, obs: 42, pos: [0.2481, 0.775] },
+    { id: "gallineta_roja", t: "Gallineta frente roja", s: "Gallinula galeata", cat: "ave", img: "assets/inat_gallineta_roja.png", kind: "circle", w: 240, h: 240, obs: 33, pos: [0.3571, 0.775] },
+    { id: "gallineta_morada", t: "Gallineta morada (tingua azul)", s: "Porphyrio martinica", cat: "ave", img: "assets/inat_gallineta_morada.png", kind: "circle", w: 240, h: 240, obs: 23, pos: [0.6303, 0.33] },
+    { id: "gallareta", t: "Gallareta americana", s: "Fulica americana", cat: "ave", img: "assets/inat_gallareta.png", kind: "circle", w: 240, h: 240, obs: 32, pos: [0.5063, 0.33] },
+    { id: "oxyura", t: "Pato zambullidor grande", s: "Oxyura ferruginea", cat: "ave", img: "assets/inat_oxyura.png", kind: "circle", w: 240, h: 240, obs: 33, pos: [0.14, 0.775] },
+    { id: "mirla", t: "Mirla patinaranja", s: "Turdus fuscater", cat: "ave", img: "assets/inat_mirla.png", kind: "circle", w: 240, h: 240, obs: 18, pos: [0.2883, 0.3326] },
+    { id: "chamon", t: "Chamón (tordo sudamericano)", s: "Molothrus bonariensis", cat: "ave", img: "assets/inat_chamon.png", kind: "circle", w: 240, h: 240, obs: 17, pos: [0.215, 0.575] },
+    { id: "copeton", t: "Copetón", s: "Zonotrichia capensis", cat: "ave", img: "assets/inat_copeton.png", kind: "circle", w: 240, h: 240, obs: 15, pos: [0.481, 0.775] },
+    { id: "milano", t: "Milano cola blanca", s: "Elanus leucurus", cat: "ave", img: "assets/inat_milano.png", kind: "circle", w: 240, h: 240, obs: 18, pos: [0.14, 0.641] },
+    { id: "garza", t: "Garza real", s: "Ardea alba", cat: "ave", img: "assets/inat_garza.png", kind: "circle", w: 240, h: 240, obs: 6, pos: [0.7474, 0.775] },
+    { id: "colibri", t: "Colibrí chillón", s: "Colibri coruscans", cat: "ave", img: "assets/inat_colibri.png", kind: "circle", w: 240, h: 240, obs: 17, pos: [0.86, 0.775] },
+    { id: "sirfidos", t: "Moscas de las flores", s: "Syrphidae · Palpada, Toxomerus", cat: "inv", img: "assets/inat_sirfidos.png", kind: "circle", w: 240, h: 240, obs: 36, pos: [0.5425, 0.4546] },
+    { id: "mariposa", t: "Mariposa blanca de la col", s: "Leptophobia aripa", cat: "inv", img: "assets/inat_mariposa.png", kind: "circle", w: 240, h: 240, obs: 15, pos: [0.3895, 0.33] },
+    { id: "libelulas", t: "Libélulas y caballitos del diablo", s: "Odonata · Ischnura", cat: "inv", img: "assets/inat_libelulas.png", kind: "circle", w: 240, h: 240, obs: 3, pos: [0.5567, 0.6671] },
+    { id: "rata", t: "Rata gris", s: "Rattus norvegicus", cat: "dep", img: "assets/inat_rata.png", kind: "circle", w: 240, h: 240, obs: 9, pos: [0.4182, 0.4461] },
+    { id: "rana", t: "Rana sabanera", s: "Dendropsophus molitor", cat: "anf", img: "assets/inat_rana.png", kind: "circle", w: 240, h: 240, obs: 2, pos: [0.6321, 0.5677] },
+    { id: "juncal", t: "Juncal: junco y tule", s: "Schoenoplectus californicus · Typha latifolia", cat: "flora", img: "assets/inat_juncal.png", kind: "circle", w: 240, h: 240, obs: 4, pos: [0.4163, 0.6605] },
+    { id: "capulin", t: "Capulí", s: "Prunus serotina", cat: "flora", img: "assets/inat_capulin.png", kind: "circle", w: 240, h: 240, obs: 6, pos: [0.2866, 0.4721] },
+    { id: "sauco", t: "Saúco", s: "Sambucus nigra", cat: "flora", img: "assets/inat_sauco.png", kind: "circle", w: 240, h: 240, obs: 3, pos: [0.2757, 0.6313] },
+    { id: "chilca", t: "Chilca y ciro", s: "Baccharis latifolia · B. macrantha", cat: "flora", img: "assets/inat_chilca.png", kind: "circle", w: 240, h: 240, obs: 3, pos: [0.86, 0.6242] },
+    { id: "espino", t: "Espino", s: "Duranta mutisii", cat: "flora", img: "assets/inat_espino.png", kind: "circle", w: 240, h: 240, obs: 9, pos: [0.4957, 0.5624] },
+    { id: "mastuerzo", t: "Mastuerzo", s: "Tropaeolum majus", cat: "flora", img: "assets/inat_mastuerzo.png", kind: "circle", w: 240, h: 240, obs: 1, pos: [0.3687, 0.5554] },
+    { id: "timboco", t: "Timboco", s: "Tecoma stans", cat: "flora", img: "assets/inat_timboco.png", kind: "circle", w: 240, h: 240, obs: 2, pos: [0.6184, 0.775] },
+    { id: "lenteja", t: "Lenteja de agua", s: "Lemna minuta", cat: "flora", img: "assets/inat_lenteja.png", kind: "circle", w: 240, h: 240, obs: 1, pos: [0.6439, 0.4484] },
+    { id: "nutrientes", t: "Nutrientes: nitrógeno y fósforo", s: "N y P", cat: "flora", img: "assets/cx_nutrientes.png", kind: "circle", w: 240, h: 240, pos: [0.7637, 0.579] },
+    { id: "anoxia", t: "Disminución de oxígeno", s: "anoxia · OD ≈ 0 mg/L", cat: "micro", img: "assets/cx_anoxia.png", kind: "circle", w: 240, h: 240, pos: [0.6934, 0.6715] }
   ];
   const ENLACES = [
-    ["mirla", "urapan", "verde", "Nidificación", "La mirla común anida en la copa alta del urapán.", "Red de interacciones del documento"],
-    ["mirla", "capuli", "verde", "Frugivoría y dispersión de semillas", "La mirla común come los frutos del capulí y dispersa sus semillas.", "Red de interacciones del documento"],
-    ["mirla", "sauco", "verde", "Alimentación y refugio", "La mirla común se alimenta de los frutos del saúco y se refugia en su follaje.", "Red de interacciones del documento"],
-    ["chamon", "mirla", "rojo", "Parasitismo de nido", "El chamón pone sus huevos en el nido de la mirla común: la mirla incuba y cría un polluelo que no es suyo.", "Red de interacciones del documento"],
-    ["tingua_azul", "enea", "verde", "Nidificación y refugio", "La tingua azul anida y se refugia en el juncal de enea.", "Red de interacciones del documento"],
-    ["tingua_azul", "libelulas", "amarillo", "Depredación", "La tingua azul caza libélulas y otros invertebrados.", "Red de interacciones del documento"],
-    ["perros_gatos", "tingua_azul", "rojo", "Depredación exótica", "Los perros y gatos asilvestrados depredan los nidos y los huevos de la tingua azul, que están en el suelo del juncal.", "Red de interacciones del documento"],
-    ["tingua_bogotana", "enea", "verde", "Nidificación exclusiva", "La tingua bogotana (endémica y en peligro) anida únicamente en juncales densos de enea.", "Red de interacciones del documento"],
-    ["perros_gatos", "tingua_bogotana", "rojo", "Depredación exótica", "Los perros y gatos asilvestrados depredan los nidos y los huevos de la tingua bogotana, que están en el suelo del juncal.", "Red de interacciones del documento"],
-    ["monjita", "enea", "verde", "Nidificación y posadero", "La monjita anida y se posa en la enea.", "Red de interacciones del documento"],
-    ["cucarachero", "enea", "verde", "Refugio y hábitat exclusivo", "El cucarachero de pantano (endémico) usa el juncal de enea como refugio y como hábitat exclusivo.", "Red de interacciones del documento"],
-    ["chamon", "cucarachero", "rojo", "Parasitismo de nido", "El chamón pone sus huevos en el nido del cucarachero de pantano: el cucarachero cría un polluelo que no es suyo.", "Red de interacciones del documento"],
-    ["garza", "rana", "amarillo", "Depredación", "La garza real caza ranas sabaneras en la orilla del humedal.", "Red de interacciones del documento"],
-    ["garza", "libelulas", "amarillo", "Depredación de larvas acuáticas", "La garza real se come las larvas acuáticas de las libélulas.", "Red de interacciones del documento"],
-    ["libelulas", "fitoplancton", "azul", "Alimentación en fase acuática", "En su fase acuática, las ninfas de libélula se alimentan de pequeños organismos del agua (larvas y zooplancton) que a su vez viven del fitoplancton.", "Red de interacciones del documento"],
-    ["mariposas", "chilco", "verde", "Polinización y visita floral", "Las mariposas toman néctar de las flores del chilco (Baccharis), una de las plantas más visitadas por mariposas, y transportan su polen.", "Literatura: el género Baccharis es fuente de néctar para muchas mariposas"],
-    ["mariposas", "sauce", "verde", "Herbivoría", "Las orugas de los cargapalitos (polillas del género Oiketicus, orden Lepidoptera) se alimentan de las hojas del sauce.", "Registro real en Kennedy (Jardín Botánico de Bogotá, 2023)"],
-    ["colibries", "hibisco", "verde", "Visita floral", "El colibrí chillón toma el néctar de las flores del hibisco y, al hacerlo, transporta su polen. Registrado en el Corredor La Magdalena.", "Registro real en Kennedy (Jardín Botánico de Bogotá, 2023)"],
-    ["colibries", "tritoma", "verde", "Visita floral", "El colibrí chillón toma el néctar de las flores de la tritoma (Kniphofia uvaria) y transporta su polen.", "Registro real en Kennedy (Jardín Botánico de Bogotá, 2023)"],
-    ["escarabajos", "hongos", "turquesa", "Descomposición", "Los escarabajos cobrófagos desmenuzan el estiércol y la materia orgánica y la dejan lista para los hongos y microorganismos del suelo, que completan la descomposición.", "Red de interacciones del documento"],
-    ["rana", "libelulas", "azul", "Consumo de insectos", "La rana sabanera se alimenta de insectos, entre ellos las libélulas.", "Red de interacciones del documento"],
-    ["anoxia", "rana", "rojo", "Mortalidad por asfixia", "Cuando el oxígeno disuelto cae casi a cero, la rana sabanera sufre estrés metabólico y muere por asfixia: se pierde biodiversidad acuática.", "Red de interacciones del documento"],
-    ["buchon", "nutrientes", "turquesa", "Absorción y proliferación", "El buchón de agua absorbe grandes cantidades de nitrógeno y fósforo y se multiplica de forma masiva.", "Red de interacciones del documento"],
-    ["buchon", "anoxia", "turquesa", "Bloqueo de luz y descomposición", "El tapete de buchón bloquea la luz y, al morir, se descompone en el fondo gastando el oxígeno del agua.", "Red de interacciones del documento"],
-    ["nutrientes", "buchon", "verde", "Eutrofización", "Cuando el agua recibe demasiado nitrógeno y fósforo (eutrofización), el buchón de agua crece sin control.", "Red de interacciones del documento"],
-    ["nutrientes", "fitoplancton", "verde", "Eutrofización", "El nitrógeno y el fósforo alimentan el crecimiento masivo del fitoplancton y de la lenteja de agua.", "Red de interacciones del documento"],
-    ["lixiviados", "nutrientes", "turquesa", "Enriquecimiento orgánico", "Los lixiviados y la materia orgánica (alta DQO y DBO) aportan nutrientes al agua.", "Red de interacciones del documento"],
-    ["anoxia", "bacterias", "turquesa", "Putrefacción", "Sin oxígeno proliferan las bacterias anaerobias, que producen ácido sulfhídrico (H₂S): mal olor y putrefacción del fondo.", "Red de interacciones del documento"]
+    ["mirla", "capulin", "verde", "Frugivoría y dispersión de semillas", "La mirla patinaranja come los frutos del capulí y dispersa sus semillas.", "Red de interacciones del documento", null],
+    ["mirla", "sauco", "verde", "Alimentación y refugio", "La mirla patinaranja se alimenta de los frutos del saúco y se refugia en su follaje.", "Red de interacciones del documento", null],
+    ["chamon", "mirla", "rojo", "Parasitismo de nido", "El chamón pone sus huevos en el nido de la mirla: la mirla incuba y cría un polluelo que no es suyo.", "Red de interacciones del documento", null],
+    ["chamon", "copeton", "rojo", "Parasitismo de nido", "El chamón pone sus huevos en nidos del copetón, su hospedero más estudiado en Bogotá: allí el chamón ha aumentado mientras el copetón ha disminuido.", "Estudio en Bogotá sobre el parasitismo del chamón en el copetón (Universidad Nacional de Colombia)", "https://revistas.unal.edu.co/index.php/cal/article/view/117202"],
+    ["monjita", "juncal", "verde", "Nidificación", "La monjita cabeciamarilla anida y se posa en el juncal de junco y tule.", "Red de interacciones del documento", null],
+    ["gallineta_morada", "juncal", "verde", "Nidificación y refugio", "La gallineta morada (tingua azul) anida y se refugia en el juncal.", "Red de interacciones del documento", null],
+    ["gallineta_roja", "juncal", "verde", "Nidificación", "La gallineta frente roja construye su nido entre la vegetación emergente del juncal.", "Ecología documentada de la especie", null],
+    ["oxyura", "juncal", "verde", "Nidificación", "El pato zambullidor grande anida escondido en la vegetación densa del juncal.", "Ecología documentada de la especie", null],
+    ["gallareta", "juncal", "verde", "Nidificación", "La gallareta americana construye nidos flotantes anclados a la vegetación del juncal.", "Ecología documentada de la especie", null],
+    ["gallareta", "lenteja", "verde", "Alimentación", "La gallareta americana se alimenta de plantas acuáticas y algas, entre ellas la lenteja de agua.", "Ecología documentada de la especie", null],
+    ["gallineta_morada", "libelulas", "amarillo", "Depredación", "La gallineta morada (tingua azul) caza libélulas y otros invertebrados.", "Red de interacciones del documento", null],
+    ["rata", "gallineta_morada", "rojo", "Depredación exótica", "Las ratas introducidas depredan huevos y polluelos de aves que anidan cerca del agua, como la gallineta morada.", "Ecología documentada de la especie", null],
+    ["milano", "rata", "amarillo", "Depredación", "El milano cola blanca caza roedores, como las ratas, en los pastizales y bordes del humedal.", "Ecología documentada de la especie", null],
+    ["garza", "rana", "amarillo", "Depredación", "La garza real caza ranas sabaneras en la orilla del humedal.", "Red de interacciones del documento", null],
+    ["garza", "libelulas", "amarillo", "Depredación de larvas acuáticas", "La garza real se come las larvas acuáticas de las libélulas.", "Red de interacciones del documento", null],
+    ["rana", "libelulas", "azul", "Consumo de insectos", "La rana sabanera se alimenta de insectos, entre ellos las libélulas.", "Red de interacciones del documento", null],
+    ["anoxia", "rana", "rojo", "Mortalidad por asfixia", "Cuando el oxígeno disuelto cae casi a cero, la rana sabanera sufre estrés metabólico y muere por asfixia: se pierde biodiversidad acuática.", "Red de interacciones del documento", null],
+    ["sirfidos", "chilca", "verde", "Visita floral", "Las moscas de felpa (género Palpada) se posan en las flores del ciro (Baccharis macrantha) y las visitan en busca de polen y néctar.", "Observación de iNaturalist en el humedal El Burro (Kennedy), 2024", "https://www.inaturalist.org/observations/208201772"],
+    ["sirfidos", "espino", "verde", "Visita floral", "Las moscas de las flores (sírfidos) se posan en las flores del espino (Duranta mutisii).", "Observación de iNaturalist en el humedal El Burro (Kennedy), 2023", "https://www.inaturalist.org/observations/184402286"],
+    ["sirfidos", "sauco", "verde", "Polinización", "Las flores del saúco no tienen néctar: las visitan sobre todo moscas, escarabajos y abejas, que las polinizan.", "Literatura sobre la polinización de Sambucus nigra", null],
+    ["mariposa", "mastuerzo", "verde", "Herbivoría y puesta de huevos", "La mariposa blanca de la col pone sus huevos en las hojas del mastuerzo, que alimentan a sus orugas.", "Registro real en Kennedy (Jardín Botánico de Bogotá, 2023)", null],
+    ["colibri", "timboco", "verde", "Visita floral y polinización", "El colibrí chillón toma néctar de las flores del timboco y transporta su polen. El timboco está entre los arbustos más visitados por colibríes, y el colibrí chillón fue la especie con más interacciones.", "Estudio de colibríes y sus flores en Cajamarca, Perú (El Hornero, 2025)", "https://elhornero.avesargentinas.org.ar/home/article/download/1522/1497/2374"],
+    ["nutrientes", "lenteja", "verde", "Eutrofización", "Cuando el agua recibe demasiado nitrógeno y fósforo (eutrofización), la lenteja de agua y las algas se multiplican.", "Red de interacciones del documento", null],
+    ["lenteja", "anoxia", "turquesa", "Cobertura y descomposición", "Un tapete denso de lenteja de agua bloquea la luz y, al descomponerse, gasta el oxígeno del agua.", "Ecología documentada de la especie", null]
   ];
 
   // Posiciones fijas: aqui se pegan las que mande la usuaria con "Copiar posiciones".
@@ -101,7 +95,7 @@
     svg.appendChild(gLines); svg.appendChild(gHits); svg.appendChild(gNodes); host.appendChild(svg);
     const byId = {}; NODOS.forEach(n => { byId[n.id] = n; });
     // ---- enlaces ----
-    const lineEls = ENLACES.map(([a, b, c, tipo, frase, fuente]) => {
+    const lineEls = ENLACES.map(([a, b, c, tipo, frase, fuente, url]) => {
       const ln = el("line", { stroke: COL[c], "stroke-linecap": "round", "marker-end": "url(#cxFlecha-" + c + ")" });
       ln.style.pointerEvents = "none";
       // zona de clic ancha e invisible para poder tocar la linea con facilidad
@@ -109,7 +103,7 @@
       hit.style.cssText = "pointer-events:stroke; cursor:pointer;";
       const t = el("title"); t.textContent = byId[a].t + " \u2192 " + byId[b].t + " (" + tipo + "). Haz clic para ver qu\u00e9 significa."; hit.appendChild(t);
       gLines.appendChild(ln); gHits.appendChild(hit);
-      const L = { a, b, c, ln, hit, tipo, frase, fuente, recip: ENLACES.some(x => x[0] === b && x[1] === a) };
+      const L = { a, b, c, ln, hit, tipo, frase, fuente, url, recip: ENLACES.some(x => x[0] === b && x[1] === a) };
       hit.addEventListener("click", e => { e.stopPropagation(); sel = L; resalta(); mostrarTarjeta(L, e); });
       return L;
     });
@@ -118,7 +112,7 @@
     const nodeEls = {};
     NODOS.forEach(n => {
       const g = el("g"); g.style.cssText = "cursor:grab; pointer-events:all;";
-      const t = el("title"); t.textContent = n.t + (n.s ? " (" + n.s + ")" : ""); g.appendChild(t);
+      const t = el("title"); t.textContent = n.t + (n.s ? " (" + n.s + ")" : "") + (n.obs ? " \u00b7 " + n.obs + " observaciones en iNaturalist (humedal El Burro)" : ""); g.appendChild(t);
       const ring = n.kind === "circle" ? el("circle", { fill: "none", stroke: TXT[n.cat], "stroke-width": "2" }) : null;
       if (ring) g.appendChild(ring);
       const im = el("image", { href: n.img, preserveAspectRatio: "xMidYMid meet" });
@@ -165,19 +159,25 @@
         + '<div style="font:800 10px \'Segoe UI\',sans-serif; letter-spacing:.06em; text-transform:uppercase; color:' + COL[l.c] + '; margin-bottom:3px; padding-right:18px;">' + l.tipo + '</div>'
         + '<div style="font:800 13px \'Segoe UI\',sans-serif; margin-bottom:5px; padding-right:14px;">' + A.t + ' \u2192 ' + B.t + '</div>'
         + '<div style="margin-bottom:7px;">' + l.frase + '</div>'
-        + '<div style="font:500 10.5px/1.35 \'Segoe UI\',sans-serif; color:#64748b; border-top:1px solid #e5e9ee; padding-top:6px;">Fuente: ' + l.fuente + '</div>';
+        + '<div style="font:500 10.5px/1.35 \'Segoe UI\',sans-serif; color:#64748b; border-top:1px solid #e5e9ee; padding-top:6px;">Fuente: ' + l.fuente + (l.url ? ' \u00b7 <a href="' + l.url + '" target="_blank" rel="noopener" style="color:#2f6fe0; text-decoration:underline;">ver la fuente</a>' : '') + '</div>';
       card.addEventListener("pointerdown", ev => ev.stopPropagation());
       card.querySelector("button").addEventListener("click", cerrarTarjeta);
       host.appendChild(card);
       const cw = card.offsetWidth, ch = card.offsetHeight;
-      card.style.left = Math.max(8, Math.min(e.clientX - hr.left + 14, hr.width - cw - 8)) + "px";
-      card.style.top = Math.max(8, Math.min(e.clientY - hr.top + 14, hr.height - ch - 8)) + "px";
+      // la tarjeta se coloca junto al clic, pero en el lado donde NO tape ninguna de las dos bolitas de la conexion
+      const bx = cfg.getBox(), cx = e.clientX - hr.left, cy = e.clientY - hr.top, rad = 44;
+      const pa = [bx.l + pos[l.a][0] * bx.w, bx.t + pos[l.a][1] * bx.h], pb = [bx.l + pos[l.b][0] * bx.w, bx.t + pos[l.b][1] * bx.h];
+      const fit = (x, y) => [Math.max(8, Math.min(x, hr.width - cw - 8)), Math.max(8, Math.min(y, hr.height - ch - 8))];
+      const tapa = r => [pa, pb].some(p => p[0] > r[0] - rad && p[0] < r[0] + cw + rad && p[1] > r[1] - rad && p[1] < r[1] + ch + rad);
+      const cands = [fit(cx + 14, cy + 14), fit(cx - cw - 14, cy + 14), fit(cx + 14, cy - ch - 14), fit(cx - cw - 14, cy - ch - 14), fit(cx - cw / 2, cy + 40), fit(cx - cw / 2, cy - ch - 40)];
+      const pick = cands.find(r => !tapa(r)) || cands[0];
+      card.style.left = pick[0] + "px"; card.style.top = pick[1] + "px";
     }
     document.addEventListener("pointerdown", e => { if (card && !card.contains(e.target) && !(e.target.getAttribute && e.target.getAttribute("class") === "cx-hit")) cerrarTarjeta(); });
     document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarTarjeta(); });
     function size(n, b) {
       const base = b.w * 0.037 * (MULT[n.id] || 1);
-      if (n.kind === "circle") return [base * 0.95, base * 0.95];
+      if (n.kind === "circle") return [base * 1.08, base * 1.08];
       const k = base / Math.max(n.w, n.h); return [n.w * k, n.h * k];
     }
     function place(b) {
@@ -218,7 +218,7 @@
       ui.innerHTML = '<div style="font:800 11px \'Segoe UI\',sans-serif; letter-spacing:.05em; text-transform:uppercase; color:#475569; margin-bottom:6px;">Red de interacciones</div>'
         + '<div style="color:#64748b; line-height:1.4; margin-bottom:8px;">Arrastra las bolitas donde quieras y copia las posiciones para dejarlas fijas. Haz clic en una l\u00ednea para ver qu\u00e9 significa esa conexi\u00f3n.</div>'
         + '<div style="display:flex; gap:6px; margin-bottom:9px;"><button type="button" data-a="copiar" style="' + BTN + '">Copiar posiciones</button><button type="button" data-a="reset" style="' + BTN + '">Restablecer</button></div>'
-        + leyenda.map(l => '<div style="display:flex; align-items:center; gap:7px; margin-top:4px;"><span style="flex:none; width:20px; height:3px; border-radius:2px; background:' + COL[l[0]] + ';"></span><span style="color:#475569;">' + l[1] + '</span></div>').join("");
+        + '<div style="color:#64748b; margin:0 0 7px; font-size:10.5px;">Especies observadas en iNaturalist en el humedal El Burro.</div>' + leyenda.map(l => '<div style="display:flex; align-items:center; gap:7px; margin-top:4px;"><span style="flex:none; width:20px; height:3px; border-radius:2px; background:' + COL[l[0]] + ';"></span><span style="color:#475569;">' + l[1] + '</span></div>').join("");
       ui.addEventListener("pointerdown", e => e.stopPropagation());
       ui.addEventListener("click", e => {
         const a = e.target.closest("[data-a]"); if (!a) return;
