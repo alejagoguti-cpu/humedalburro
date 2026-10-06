@@ -362,7 +362,7 @@
     });
   }
 
-  // 2. Construcción de humedales históricos con el área solicitada (El Burro: 171 ha, La Vaca: 181 ha hacia El Burro, Techo: 120 ha hacia El Burro)
+  // 2. Construcción de humedales históricos con el área solicitada (El Burro: 171 ha, La Vaca: 181 ha hacia El Burro con curvas suaves, Techo: 120 ha)
   function buildHistoricalWetlands(waterBodies) {
     if (!waterBodies || !waterBodies.length) return;
     historicalWetlandsGroup.clear();
@@ -376,6 +376,23 @@
         a += p1[0] * p2[1] - p2[0] * p1[1];
       }
       return Math.abs(a) / 2;
+    }
+
+    // Suavizado de esquinas curvas (Algoritmo de Chaikin)
+    function chaikinSmooth(pts, iterations = 2) {
+      let cur = pts;
+      for (let iter = 0; iter < iterations; iter++) {
+        const n = cur.length;
+        const res = [];
+        for (let i = 0; i < n; i++) {
+          const p0 = cur[i];
+          const p1 = cur[(i + 1) % n];
+          res.push([0.75 * p0[0] + 0.25 * p1[0], 0.75 * p0[1] + 0.25 * p1[1]]);
+          res.push([0.25 * p0[0] + 0.75 * p1[0], 0.25 * p0[1] + 0.75 * p1[1]]);
+        }
+        cur = res;
+      }
+      return cur;
     }
 
     const burroObj = waterBodies.find(w => (w.nombre || "").includes("Burro"));
@@ -393,52 +410,56 @@
       const ptsOriginal = w.pts;
       const baseArea = polyArea(ptsOriginal);
       if (baseArea <= 0) return;
+      // Para La Vaca, tomar el polígono principal sin fragmentos aislados que generen rayas extrañas
+      if (name.includes("Vaca") && baseArea < 20000) return;
 
       const cx = ptsOriginal.reduce((s, p) => s + p[0], 0) / ptsOriginal.length;
       const cy = ptsOriginal.reduce((s, p) => s + p[1], 0) / ptsOriginal.length;
 
       let expandedPts = [];
+      let yLayer = 0.024; // Desfase infinitesimal entre capas para eliminar parpadeo / Z-fighting
 
       if (name.includes("Burro")) {
         // Humedal El Burro: 171 hectáreas exactas
+        yLayer = 0.024;
         const targetArea = 1710000; // 171 ha en m2
         const scale = Math.sqrt(targetArea / baseArea);
-        expandedPts = ptsOriginal.map(p => {
-          const ex = cx + (p[0] - cx) * scale;
-          const ey = cy + (p[1] - cy) * scale;
-          return [ex, ey];
-        });
+        const unscaled = ptsOriginal.map(p => [cx + (p[0] - cx) * scale, cy + (p[1] - cy) * scale]);
+        const smoothed = chaikinSmooth(unscaled, 1);
+        const sArea = polyArea(smoothed);
+        const k = Math.sqrt(targetArea / (sArea || 1));
+        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
+        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
+        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
       } else if (name.includes("Vaca")) {
-        // Humedal La Vaca: 181 hectáreas en total, orientado y extendido hacia El Burro
-        const isSectorMayor = baseArea > 20000;
-        const targetArea = isSectorMayor ? 1450000 : 360000;
+        // Humedal La Vaca: 181 hectáreas exactas, extendido limpiamente hacia El Burro con puntas curvas
+        yLayer = 0.025;
+        const targetArea = 1810000; // 181 ha en m2
         const scaleBase = Math.sqrt(targetArea / baseArea);
 
         const dx = burroCx - cx, dy = burroCy - cy;
         const dist = Math.hypot(dx, dy) || 1;
         const ux = dx / dist, uy = dy / dist; // Vector unitario hacia El Burro
 
-        const s_u = scaleBase * 1.35;
-        const s_perp = scaleBase * 0.74;
-        const shift = dist * 0.28;
-
         const transformed = ptsOriginal.map(p => {
           const px = p[0] - cx, py = p[1] - cy;
           const proj = px * ux + py * uy;
           const perp_x = px - proj * ux, perp_y = py - proj * uy;
-          const fwdFactor = 1.0 + Math.max(0, proj / 100) * 0.5;
-          const newProj = proj * s_u * fwdFactor + shift;
-          return [cx + newProj * ux + perp_x * s_perp, cy + newProj * uy + perp_y * s_perp];
+          const newProj = proj * (scaleBase * 1.30) + dist * 0.25;
+          const newPerpX = perp_x * (scaleBase * 0.769);
+          const newPerpY = perp_y * (scaleBase * 0.769);
+          return [cx + newProj * ux + newPerpX, cy + newProj * uy + newPerpY];
         });
 
-        const currArea = polyArea(transformed);
-        const k = Math.sqrt(targetArea / (currArea || 1));
-        const ncx = transformed.reduce((s, p) => s + p[0], 0) / transformed.length;
-        const ncy = transformed.reduce((s, p) => s + p[1], 0) / transformed.length;
-
-        expandedPts = transformed.map(p => [ncx + (p[0] - ncx) * k, ncy + (p[1] - ncy) * k]);
+        const smoothed = chaikinSmooth(transformed, 2);
+        const sArea = polyArea(smoothed);
+        const k = Math.sqrt(targetArea / (sArea || 1));
+        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
+        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
+        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
       } else if (name.includes("Techo")) {
-        // Laguna / Humedal de Techo: 120 hectáreas exactas, extendido hacia El Burro
+        // Laguna / Humedal de Techo: 120 hectáreas exactas, extendido hacia El Burro con puntas curvas
+        yLayer = 0.026;
         const targetArea = 1200000; // 120 ha en m2
         const scaleBase = Math.sqrt(targetArea / baseArea);
 
@@ -446,25 +467,22 @@
         const dist = Math.hypot(dx, dy) || 1;
         const ux = dx / dist, uy = dy / dist; // Vector unitario hacia El Burro
 
-        const s_u = scaleBase * 1.25;
-        const s_perp = scaleBase * 0.80;
-        const shift = dist * 0.22;
-
         const transformed = ptsOriginal.map(p => {
           const px = p[0] - cx, py = p[1] - cy;
           const proj = px * ux + py * uy;
           const perp_x = px - proj * ux, perp_y = py - proj * uy;
-          const fwdFactor = 1.0 + Math.max(0, proj / 100) * 0.4;
-          const newProj = proj * s_u * fwdFactor + shift;
-          return [cx + newProj * ux + perp_x * s_perp, cy + newProj * uy + perp_y * s_perp];
+          const newProj = proj * (scaleBase * 1.22) + dist * 0.20;
+          const newPerpX = perp_x * (scaleBase * 0.82);
+          const newPerpY = perp_y * (scaleBase * 0.82);
+          return [cx + newProj * ux + newPerpX, cy + newProj * uy + newPerpY];
         });
 
-        const currArea = polyArea(transformed);
-        const k = Math.sqrt(targetArea / (currArea || 1));
-        const ncx = transformed.reduce((s, p) => s + p[0], 0) / transformed.length;
-        const ncy = transformed.reduce((s, p) => s + p[1], 0) / transformed.length;
-
-        expandedPts = transformed.map(p => [ncx + (p[0] - ncx) * k, ncy + (p[1] - ncy) * k]);
+        const smoothed = chaikinSmooth(transformed, 1);
+        const sArea = polyArea(smoothed);
+        const k = Math.sqrt(targetArea / (sArea || 1));
+        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
+        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
+        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
       }
 
       const scenePts = expandedPts.map(p => toScene(p[0], p[1]));
@@ -476,7 +494,7 @@
 
       tris.forEach(([a, b, c]) => {
         [a, b, c].forEach(idx => {
-          positions.push(scenePts[idx].x, 0.024, scenePts[idx].z);
+          positions.push(scenePts[idx].x, yLayer, scenePts[idx].z);
           uvs.push(scenePts[idx].x * UV_SCALE, scenePts[idx].z * UV_SCALE);
         });
       });
@@ -501,14 +519,131 @@
     historicalWetlandsGroup.add(mesh);
   }
 
-  // 3. Modelo arquitectónico limpio del Predio del Antiguo Aeropuerto de Techo (1956)
+  // 3. Modelo del Antiguo Aeropuerto de Techo (1956) con Pista y Vía trazadas en gris claro
+  const AEROPUERTO_RUNWAY_PTS = [
+    { x: 235.83, z: 96.00 },
+    { x: 231.51, z: 98.92 },
+    { x: 228.91, z: 103.03 },
+    { x: 228.24, z: 107.15 },
+    { x: 230.23, z: 112.00 },
+    { x: 233.77, z: 116.51 },
+    { x: 259.94, z: 144.64 },
+    { x: 264.32, z: 146.57 },
+    { x: 269.91, z: 145.06 },
+    { x: 273.99, z: 143.61 },
+    { x: 322.12, z: 120.95 },
+    { x: 332.93, z: 113.64 },
+    { x: 329.58, z: 107.96 },
+    { x: 328.33, z: 103.83 },
+    { x: 324.59, z: 103.22 },
+    { x: 234.95, z: 96.15 }
+  ];
+
+  const AEROPUERTO_ROAD_PTS = [
+    { x: 393.48, z: 107.81 },
+    { x: 235.46, z: 95.63 }
+  ];
+
+  function isPointInRunway(px, pz) {
+    let inside = false;
+    const n = AEROPUERTO_RUNWAY_PTS.length;
+    for (let i = 0; i < n; i++) {
+      const p1 = AEROPUERTO_RUNWAY_PTS[i], p2 = AEROPUERTO_RUNWAY_PTS[(i + 1) % n];
+      if (((p1.z > pz) !== (p2.z > pz)) && (px < (p2.x - p1.x) * (pz - p1.z) / (p2.z - p1.z + 1e-9) + p1.x)) {
+        inside = !inside;
+      }
+    }
+    return inside;
+  }
+
+  function isPointNearRoad(px, pz, maxDist = 3.8) {
+    const a = AEROPUERTO_ROAD_PTS[0], b = AEROPUERTO_ROAD_PTS[1];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const l2 = dx * dx + dz * dz;
+    if (l2 === 0) return Math.hypot(px - a.x, pz - a.z) < maxDist;
+    const t = Math.max(0, Math.min(1, ((px - a.x) * dx + (pz - a.z) * dz) / l2));
+    const projX = a.x + t * dx, projZ = a.z + t * dz;
+    return Math.hypot(px - projX, pz - projZ) < maxDist;
+  }
+
   function buildAeropuertoTecho() {
     aeropuertoTechoGroup.clear();
-    const pos = toScene(8180.94, 2102.08); // Coordenadas exactas en Techo { x: ~283.96, z: ~105.98 }
+
+    const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
+    viaTex.wrapS = THREE.RepeatWrapping;
+    viaTex.wrapT = THREE.RepeatWrapping;
+
+    // A. Pista de Techo (polígono relleno con textura de vía en gris claro)
+    const pts2d = AEROPUERTO_RUNWAY_PTS.map(p => new THREE.Vector2(p.x, p.z));
+    let tris = [];
+    try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
+
+    const runwayPos = [], runwayUv = [];
+    const RUNWAY_UV_SCALE = 0.05;
+    tris.forEach(([ia, ib, ic]) => {
+      [ia, ib, ic].forEach(idx => {
+        const pt = AEROPUERTO_RUNWAY_PTS[idx];
+        runwayPos.push(pt.x, 0.032, pt.z);
+        runwayUv.push(pt.x * RUNWAY_UV_SCALE, pt.z * RUNWAY_UV_SCALE);
+      });
+    });
+
+    const runwayGeo = new THREE.BufferGeometry();
+    runwayGeo.setAttribute("position", new THREE.Float32BufferAttribute(runwayPos, 3));
+    runwayGeo.setAttribute("uv", new THREE.Float32BufferAttribute(runwayUv, 2));
+    runwayGeo.computeVertexNormals();
+
+    const runwayMat = new THREE.MeshStandardMaterial({
+      map: viaTex,
+      color: 0xd2d6da, // Gris más claro
+      roughness: 0.85,
+      metalness: 0.02,
+      side: THREE.DoubleSide
+    });
+
+    const runwayMesh = new THREE.Mesh(runwayGeo, runwayMat);
+    runwayMesh.receiveShadow = true;
+    aeropuertoTechoGroup.add(runwayMesh);
+
+    // B. Vía de conexión (ribbon continuo en gris más claro)
+    const roadPos = [], roadUv = [];
+    const a = AEROPUERTO_ROAD_PTS[0], b = AEROPUERTO_ROAD_PTS[1];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const len = Math.hypot(dx, dz) || 1;
+    const nx = -dz / len, nz = dx / len;
+    const halfW = 1.35;
+    const ax = nx * halfW, az = nz * halfW;
+
+    roadPos.push(
+      a.x - ax, 0.035, a.z - az,  a.x + ax, 0.035, a.z + az,  b.x + ax, 0.035, b.z + az,
+      a.x - ax, 0.035, a.z - az,  b.x + ax, 0.035, b.z + az,  b.x - ax, 0.035, b.z - az
+    );
+    [
+      [a.x - ax, a.z - az], [a.x + ax, a.z + az], [b.x + ax, b.z + az],
+      [a.x - ax, a.z - az], [b.x + ax, b.z + az], [b.x - ax, b.z - az]
+    ].forEach(([px, pz]) => roadUv.push(px * 0.06, pz * 0.06));
+
+    const roadGeo = new THREE.BufferGeometry();
+    roadGeo.setAttribute("position", new THREE.Float32BufferAttribute(roadPos, 3));
+    roadGeo.setAttribute("uv", new THREE.Float32BufferAttribute(roadUv, 2));
+    roadGeo.computeVertexNormals();
+
+    const roadMatTecho = new THREE.MeshStandardMaterial({
+      map: viaTex,
+      color: 0xd2d6da, // Gris más claro idéntico
+      roughness: 0.85,
+      side: THREE.DoubleSide
+    });
+
+    const roadMesh = new THREE.Mesh(roadGeo, roadMatTecho);
+    roadMesh.receiveShadow = true;
+    aeropuertoTechoGroup.add(roadMesh);
+
+    // C. Edificio Terminal y torre
+    const pos = toScene(8180.94, 2102.08); // Coordenadas en Techo
     const group = new THREE.Group();
     group.position.set(pos.x, 0, pos.z);
 
-    // Terminal limpia (sin plataforma cuadrada gris debajo)
     const wallMat = new THREE.MeshStandardMaterial({
       color: 0xf4f1ea,
       roughness: 0.85,
@@ -1068,10 +1203,18 @@
     trees.forEach((t, i) => {
       const [x, y, hMeters, especieStr, code] = t;
       const p = toScene(x, y);
+
+      // Quitar árboles que caen sobre la pista o la vía del aeropuerto
+      if (typeof isPointInRunway === "function" && (isPointInRunway(p.x, p.z) || isPointNearRoad(p.x, p.z, 3.8))) {
+        treeInstanceData[i] = { x: p.x, z: p.z, w: 0, h: 0, baseScale: 0, removed: true };
+        mesh.setColorAt(i, new THREE.Color(0x000000));
+        return;
+      }
+
       const h = Math.max(0.3, hMeters * SCALE);
       const w = h * (1.1 + (hash2(code) % 20) / 100 - 0.1);
       const baseVar = 0.95 + ((hash2(code + "v") % 25) / 100);
-      treeInstanceData[i] = { x: p.x, z: p.z, w, h, baseScale: baseVar };
+      treeInstanceData[i] = { x: p.x, z: p.z, w, h, baseScale: baseVar, removed: false };
       
       let c = colorNormal;
       if (especieStr.includes("Sauco")) c = colorAlimento2;
@@ -1097,7 +1240,9 @@
     const targetCount = Math.min(count, total);
     while (prominentTreeIndices.size < targetCount) {
       const idx = Math.floor(Math.random() * total);
-      prominentTreeIndices.add(idx);
+      if (!treeInstanceData[idx].removed) {
+        prominentTreeIndices.add(idx);
+      }
     }
     updateTreeBillboards();
   }
@@ -1110,6 +1255,13 @@
     const faceAngle = Math.atan2(dx, dz);
     for (let i = 0; i < treeInstanceData.length; i++) {
       const d = treeInstanceData[i];
+      if (d.removed || d.h === 0) {
+        dummyT.position.set(0, -9999, 0);
+        dummyT.scale.set(0, 0, 0);
+        dummyT.updateMatrix();
+        treeMesh.setMatrixAt(i, dummyT.matrix);
+        continue;
+      }
       const isProminent = prominentTreeIndices.has(i);
       const s = isProminent ? prominentTreeScale : (d.baseScale || 1.0);
       dummyT.position.set(d.x, 0, d.z);
@@ -2090,15 +2242,26 @@
     if (!pt) return;
 
     if (currentActiveTool === "tree") {
-      const minDistance = 4.8; // Espaciado natural entre árboles al arrastrar
+      const minDistance = 2.2; // Espaciado ágil para poblar rápidamente
       if (force || !lastPlantedPoint || lastPlantedPoint.distanceTo(pt) >= minDistance) {
-        plantSingleTree(pt.x, pt.z);
+        // Plantar cluster denso de 3 a 5 árboles naturales por cada movimiento
+        const clusterCount = force ? 4 : 3;
+        for (let k = 0; k < clusterCount; k++) {
+          const ang = Math.random() * Math.PI * 2;
+          const rad = (k === 0 ? 0 : 0.8 + Math.random() * 2.6);
+          const h = 3.6 + Math.random() * 5.0;
+          plantSingleTree(pt.x + Math.cos(ang) * rad, pt.z + Math.sin(ang) * rad, h);
+        }
         lastPlantedPoint = pt.clone();
       }
     } else if (currentActiveTool === "cow") {
-      const minDistance = 9.5; // Espaciado natural entre vacas al arrastrar
+      const minDistance = 5.5; // Espaciado para vacas
       if (force || !lastPlantedPoint || lastPlantedPoint.distanceTo(pt) >= minDistance) {
         plantSingleCow(pt.x, pt.z);
+        if (Math.random() > 0.4) {
+          const ang = Math.random() * Math.PI * 2;
+          plantSingleCow(pt.x + Math.cos(ang) * 2.2, pt.z + Math.sin(ang) * 2.2);
+        }
         lastPlantedPoint = pt.clone();
       }
     }
@@ -2581,10 +2744,10 @@
     updateUserPlantedUI();
   }
 
-  function batchPopulateTrees(count = 24) {
+  function batchPopulateTrees(count = 48) {
     const cx = controls.target.x;
     const cz = controls.target.z;
-    const radius = 60;
+    const radius = 65;
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const dist = Math.sqrt(Math.random()) * radius;
