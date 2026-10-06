@@ -258,7 +258,7 @@
   // ---- Suelo ----
   let netCenter = { x: 0, y: 0 };
   let roadMat = null, waterMat = null, parqueMat = null; // referencias para los selectores de color en vivo
-  let modernWaterMesh = null;
+  // modernWaterMesh declared at top
   let waterTexRef = null, waterBumpRef = null; // texturas de agua, animadas en el loop de render
   // buildingEdgeMat and groundMesh declared at top
   const grassTexLoader = new THREE.TextureLoader();
@@ -554,122 +554,55 @@
       return Math.abs(a) / 2;
     }
 
-    function chaikinSmooth(pts, iterations = 2) {
-      let cur = pts;
-      for (let iter = 0; iter < iterations; iter++) {
-        const n = cur.length;
-        const res = [];
-        for (let i = 0; i < n; i++) {
-          const p0 = cur[i];
-          const p1 = cur[(i + 1) % n];
-          res.push([0.75 * p0[0] + 0.25 * p1[0], 0.75 * p0[1] + 0.25 * p1[1]]);
-          res.push([0.25 * p0[0] + 0.75 * p1[0], 0.25 * p0[1] + 0.75 * p1[1]]);
-        }
-        cur = res;
-      }
-      return cur;
-    }
-
     // Áreas exactas documentadas por época para Humedal El Burro:
     // 1950: 71.54 ha | 1972: 38.53 ha | 1988: 27.14 ha | 2000: 14.00 ha | 2024: 18.80 ha
     let targetAreaBurro = 715400;
-    let targetAreaVaca = 1810000;
-    let targetAreaTecho = 1200000;
+    let targetAreaVaca = 800000;
+    let targetAreaTecho = 600000;
 
     if (year === 1972) {
       targetAreaBurro = 385300;
-      targetAreaVaca = 800000;
-      targetAreaTecho = 300000;
+      targetAreaVaca = 450000;
+      targetAreaTecho = 250000;
     } else if (year === 1988) {
       targetAreaBurro = 271400;
-      targetAreaVaca = 300000;
-      targetAreaTecho = 100000;
+      targetAreaVaca = 200000;
+      targetAreaTecho = 80000;
     } else if (year === 2000) {
       targetAreaBurro = 140000;
-      targetAreaVaca = 80000;
+      targetAreaVaca = 60000;
       targetAreaTecho = 0;
-    }
-
-    const burroObj = waterBodies.find(w => (w.nombre || "").includes("Burro"));
-    let burroCx = 7436.96, burroCy = 3271.17;
-    if (burroObj && burroObj.pts && burroObj.pts.length) {
-      burroCx = burroObj.pts.reduce((s, p) => s + p[0], 0) / burroObj.pts.length;
-      burroCy = burroObj.pts.reduce((s, p) => s + p[1], 0) / burroObj.pts.length;
     }
 
     waterBodies.forEach((w) => {
       const name = w.nombre || "";
-      if (!name.includes("Burro") && !name.includes("Vaca") && !name.includes("Techo")) return;
       if (!w.pts || w.pts.length < 3) return;
 
       const ptsOriginal = w.pts;
       const baseArea = polyArea(ptsOriginal);
       if (baseArea <= 0) return;
-      if (name.includes("Vaca") && baseArea < 20000) return;
-      if (name.includes("Techo") && targetAreaTecho <= 0) return;
 
       const cx = ptsOriginal.reduce((s, p) => s + p[0], 0) / ptsOriginal.length;
       const cy = ptsOriginal.reduce((s, p) => s + p[1], 0) / ptsOriginal.length;
 
-      let expandedPts = [];
-      let yLayer = 0.024;
+      let expandedPts = ptsOriginal;
+      const yLayer = 0.024;
 
       if (name.includes("Burro")) {
-        yLayer = 0.024;
         const scale = Math.sqrt(targetAreaBurro / baseArea);
-        const unscaled = ptsOriginal.map(p => [cx + (p[0] - cx) * scale, cy + (p[1] - cy) * scale]);
-        const smoothed = chaikinSmooth(unscaled, 1);
-        const sArea = polyArea(smoothed);
-        const k = Math.sqrt(targetAreaBurro / (sArea || 1));
-        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
-        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
-        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
+        expandedPts = ptsOriginal.map(p => [cx + (p[0] - cx) * scale, cy + (p[1] - cy) * scale]);
       } else if (name.includes("Vaca")) {
-        yLayer = 0.025;
-        const scaleBase = Math.sqrt(targetAreaVaca / baseArea);
-        const dx = burroCx - cx, dy = burroCy - cy;
-        const dist = Math.hypot(dx, dy) || 1;
-        const ux = dx / dist, uy = dy / dist;
-
-        const transformed = ptsOriginal.map(p => {
-          const px = p[0] - cx, py = p[1] - cy;
-          const proj = px * ux + py * uy;
-          const perp_x = px - proj * ux, perp_y = py - proj * uy;
-          const newProj = proj * (scaleBase * 1.15) + dist * 0.18;
-          const newPerpX = perp_x * (scaleBase * 0.85);
-          const newPerpY = perp_y * (scaleBase * 0.85);
-          return [cx + newProj * ux + newPerpX, cy + newProj * uy + newPerpY];
-        });
-
-        const smoothed = chaikinSmooth(transformed, 2);
-        const sArea = polyArea(smoothed);
-        const k = Math.sqrt(targetAreaVaca / (sArea || 1));
-        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
-        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
-        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
+        if (targetAreaVaca > 0) {
+          const scale = Math.sqrt(targetAreaVaca / baseArea);
+          expandedPts = ptsOriginal.map(p => [cx + (p[0] - cx) * scale, cy + (p[1] - cy) * scale]);
+        }
       } else if (name.includes("Techo")) {
-        yLayer = 0.026;
-        const scaleBase = Math.sqrt(targetAreaTecho / baseArea);
-        const dx = burroCx - cx, dy = burroCy - cy;
-        const dist = Math.hypot(dx, dy) || 1;
-        const ux = dx / dist, uy = dy / dist;
-
-        const transformed = ptsOriginal.map(p => {
-          const px = p[0] - cx, py = p[1] - cy;
-          const proj = px * ux + py * uy;
-          const perp_x = px - proj * ux, perp_y = py - proj * uy;
-          const newProj = proj * (scaleBase * 1.15) + dist * 0.18;
-          const newPerpX = perp_x * (scaleBase * 0.85);
-          const newPerpY = perp_y * (scaleBase * 0.85);
-          return [cx + newProj * ux + newPerpX, cy + newProj * uy + newPerpY];
-        });
-
-        const smoothed = chaikinSmooth(transformed, 1);
-        const sArea = polyArea(smoothed);
-        const k = Math.sqrt(targetAreaTecho / (sArea || 1));
-        const scx = smoothed.reduce((s, p) => s + p[0], 0) / smoothed.length;
-        const scy = smoothed.reduce((s, p) => s + p[1], 0) / smoothed.length;
-        expandedPts = smoothed.map(p => [scx + (p[0] - scx) * k, scy + (p[1] - scy) * k]);
+        if (targetAreaTecho > 0) {
+          const scale = Math.sqrt(targetAreaTecho / baseArea);
+          expandedPts = ptsOriginal.map(p => [cx + (p[0] - cx) * scale, cy + (p[1] - cy) * scale]);
+        } else {
+          return; // En el 2000 Techo estaba prácticamente desaparecido
+        }
       }
 
       const scenePts = expandedPts.map(p => toScene(p[0], p[1]));
@@ -677,7 +610,19 @@
 
       const pts2d = scenePts.map(p => new THREE.Vector2(p.x, p.z));
       let tris = [];
-      try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
+      try {
+        tris = THREE.ShapeUtils.triangulateShape(pts2d, []);
+      } catch (e) {
+        tris = [];
+      }
+
+      // Fallback si la triangulación del polígono complejo falla: triangulación en abanico
+      if (!tris || tris.length === 0) {
+        tris = [];
+        for (let i = 1; i < scenePts.length - 1; i++) {
+          tris.push([0, i, i + 1]);
+        }
+      }
 
       tris.forEach(([a, b, c]) => {
         [a, b, c].forEach(idx => {
@@ -687,17 +632,12 @@
       });
     });
 
+    if (positions.length === 0) return;
+
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
-
-    const bedGeo = geo.clone();
-    const bedMat = new THREE.MeshBasicMaterial({ color: 0xd8e2ec, side: THREE.DoubleSide });
-    const bedMesh = new THREE.Mesh(bedGeo, bedMat);
-    bedMesh.position.y = -0.005;
-    bedMesh.renderOrder = 10;
-    historicalWetlandsGroup.add(bedMesh);
 
     const mesh = new THREE.Mesh(geo, sharedWaterMat);
     mesh.renderOrder = 15;
@@ -1919,7 +1859,7 @@
   // ---- Cuerpos de agua: poligonos planos (fan de triangulos) apenas
   // levantados del suelo, con un material azul semi-transparente. ----
   const EL_BURRO_NOMBRE = "Humedal El Burro";
-  let elBurroPts = null, elBurroCentro = null, elBurroMesh = null, elBurroBaseAreaHa = null;
+  let elBurroPts = null, elBurroCentro = null, elBurroBaseAreaHa = null;
   function buildWaterBodies(bodies) {
     const positions = [];
     const uvs = [];
