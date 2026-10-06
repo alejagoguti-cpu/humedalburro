@@ -62,10 +62,39 @@
   sceneRoot.add(historicalTreesGroup);
 
   const userPlantedGroup = new THREE.Group();
+  userPlantedGroup.renderOrder = 999;
   sceneRoot.add(userPlantedGroup);
   const userPlantedElements = [];
-  let currentActiveTool = null; // 'tree' | 'cow' | null
+  let currentActiveTool = null; // 'tree' | 'cow' | 'road' | 'runway' | null
 
+  // Grupo para polígonos personalizados de vía y pista de aterrizaje
+  const customPolysGroup = new THREE.Group();
+  customPolysGroup.renderOrder = 300;
+  sceneRoot.add(customPolysGroup);
+
+  const customRoadPoints = [];
+  const customRunwayPoints = [];
+  let currentActiveRoadMesh = null;
+  let currentActiveRunwayMesh = null;
+
+  const viaTexLoader = new THREE.TextureLoader();
+  const roadTexture = viaTexLoader.load("./assets/textura_via.jpg");
+  roadTexture.wrapS = THREE.RepeatWrapping;
+  roadTexture.wrapT = THREE.RepeatWrapping;
+
+  const customRoadMat = new THREE.MeshStandardMaterial({
+    map: roadTexture,
+    color: 0x9099a3,
+    roughness: 0.85,
+    side: THREE.DoubleSide
+  });
+
+  const customRunwayMat = new THREE.MeshStandardMaterial({
+    map: roadTexture,
+    color: 0x727982,
+    roughness: 0.85,
+    side: THREE.DoubleSide
+  });
 
   let camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 2000);
   const orthoCameraRef = camera; // referencia estable a la ortografica, para poder volver a ella
@@ -210,7 +239,7 @@
     
     const mat = new THREE.MeshStandardMaterial({
       map: histGrassTex,
-      color: 0xbabe97, // Tono pastizal amarillito exacto solicitado
+      color: 0xd4d5d3, // Tono pastizal suave #d4d5d3
       roughness: 0.95,
       metalness: 0.0,
       transparent: true,
@@ -328,6 +357,7 @@
 
     waterBodies.forEach(w => {
       const name = w.nombre || "";
+      if (!name.includes("Burro") && !name.includes("Vaca") && !name.includes("Techo")) return;
       let scale = 1.0;
       if (name.includes("Burro")) scale = 2.0;  // Humedal El Burro expandido
       else if (name.includes("Vaca")) scale = 1.95; // Humedal La Vaca expandido
@@ -385,18 +415,7 @@
     const group = new THREE.Group();
     group.position.set(pos.x, 0, pos.z);
 
-    // Plataforma / predio en el terreno
-    const apronMat = new THREE.MeshStandardMaterial({
-      color: 0x686c72,
-      roughness: 0.95
-    });
-    const apronGeo = new THREE.PlaneGeometry(50, 24);
-    const apron = new THREE.Mesh(apronGeo, apronMat);
-    apron.rotation.x = -Math.PI / 2;
-    apron.position.set(0, 0.015, 6);
-    group.add(apron);
-
-    // Terminal limpia
+    // Terminal limpia (sin plataforma cuadrada gris debajo)
     const wallMat = new THREE.MeshStandardMaterial({
       color: 0xf4f1ea,
       roughness: 0.85,
@@ -487,13 +506,15 @@
 
     cowsGroup.visible = true;
     historicalWetlandsGroup.visible = true;
+    userPlantedGroup.visible = true;
+    customPolysGroup.visible = true;
 
     if (groundMesh && groundMesh.material) {
       if (groundMesh.material.map !== histGrassTex) {
         groundMesh.material.map = histGrassTex;
         groundMesh.material.needsUpdate = true;
       }
-      groundMesh.material.color.setHex(0xbabe97);
+      groundMesh.material.color.setHex(0xd4d5d3);
       groundMesh.material.opacity = 0.75;
       groundMesh.material.transparent = true;
     }
@@ -1975,14 +1996,14 @@
     mouseNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouseNdc, camera);
 
-    if (groundMesh) {
-      const gh = raycaster.intersectObject(groundMesh);
-      if (gh.length > 0) return gh[0].point;
-    }
     const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
     const intersectPt = new THREE.Vector3();
     if (raycaster.ray.intersectPlane(groundPlane, intersectPt)) {
       return intersectPt;
+    }
+    if (groundMesh) {
+      const gh = raycaster.intersectObject(groundMesh);
+      if (gh.length > 0) return gh[0].point;
     }
     return null;
   }
@@ -1993,14 +2014,13 @@
     if (!pt) return;
 
     if (currentActiveTool === "tree") {
-      const minDistance = 5.2; // Espaciado natural entre árboles al arrastrar
+      const minDistance = 4.8; // Espaciado natural entre árboles al arrastrar
       if (force || !lastPlantedPoint || lastPlantedPoint.distanceTo(pt) >= minDistance) {
-        const h = 4.0 + Math.random() * 2.8;
-        plantSingleTree(pt.x, pt.z, h);
+        plantSingleTree(pt.x, pt.z);
         lastPlantedPoint = pt.clone();
       }
     } else if (currentActiveTool === "cow") {
-      const minDistance = 11.0; // Espaciado natural entre vacas al arrastrar
+      const minDistance = 9.5; // Espaciado natural entre vacas al arrastrar
       if (force || !lastPlantedPoint || lastPlantedPoint.distanceTo(pt) >= minDistance) {
         plantSingleCow(pt.x, pt.z);
         lastPlantedPoint = pt.clone();
@@ -2008,18 +2028,36 @@
     }
   }
 
+  function handlePolyPointAdd(clientX, clientY) {
+    const pt = getRaycastGroundPoint(clientX, clientY);
+    if (!pt) return;
+    if (currentActiveTool === "road") {
+      customRoadPoints.push({ x: pt.x, z: pt.z });
+      buildRoadRibbon(customRoadPoints, false);
+      updatePolyCoordsUI();
+    } else if (currentActiveTool === "runway") {
+      customRunwayPoints.push({ x: pt.x, z: pt.z });
+      if (customRunwayPoints.length >= 3) {
+        buildRunwayPolygon(customRunwayPoints, false);
+      }
+      updatePolyCoordsUI();
+    }
+  }
+
   let downAt = null;
   renderer.domElement.addEventListener("pointerdown", (e) => {
     downAt = { x: e.clientX, y: e.clientY };
-    if (currentActiveTool) {
+    if (currentActiveTool === "tree" || currentActiveTool === "cow") {
       isBrushPainting = true;
       lastPlantedPoint = null;
       handleBrushPaint(e.clientX, e.clientY, true);
+    } else if (currentActiveTool === "road" || currentActiveTool === "runway") {
+      handlePolyPointAdd(e.clientX, e.clientY);
     }
   });
 
   renderer.domElement.addEventListener("pointermove", (e) => {
-    if (isBrushPainting && currentActiveTool) {
+    if (isBrushPainting && (currentActiveTool === "tree" || currentActiveTool === "cow")) {
       handleBrushPaint(e.clientX, e.clientY, false);
     }
   });
@@ -2415,11 +2453,12 @@
     const mat = new THREE.MeshStandardMaterial({
       map: treeTex,
       transparent: true,
-      alphaTest: 0.3,
+      alphaTest: 0.25,
       side: THREE.DoubleSide,
       roughness: 0.95
     });
     const mesh = new THREE.Mesh(planeGeo, mat);
+    mesh.renderOrder = 999;
     
     // Altura natural variada individual
     const actualH = hMeters || (4.2 + Math.random() * 5.8);
@@ -2432,7 +2471,7 @@
     
     mesh.userData = { baseW: w, baseH: h, scale: s };
     mesh.scale.set(w * s, h * s, w * s);
-    mesh.position.set(x, 0, z);
+    mesh.position.set(x, 0.05, z);
 
     const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
     mesh.rotation.y = Math.atan2(dx, dz);
@@ -2453,6 +2492,7 @@
     });
     const geo = new THREE.PlaneGeometry(1.6, 1.1);
     const mesh = new THREE.Mesh(geo, mat);
+    mesh.renderOrder = 999;
 
     const shadowGeo = new THREE.PlaneGeometry(1.5, 0.8);
     const shadowMat = new THREE.MeshBasicMaterial({
@@ -2463,10 +2503,11 @@
     });
     const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
     shadowMesh.rotation.x = -Math.PI / 2;
-    shadowMesh.position.set(0, -0.48, 0);
+    shadowMesh.position.set(0, -0.63, 0);
+    shadowMesh.renderOrder = 998;
     mesh.add(shadowMesh);
 
-    mesh.position.set(x, 0.55, z);
+    mesh.position.set(x, 0.65, z);
     mesh.rotation.x = -Math.PI / 4.2;
     mesh.rotation.y = (Math.random() - 0.5) * 0.3;
     const s = 0.85 + Math.random() * 0.3;
@@ -2504,29 +2545,192 @@
     }
   }
 
+  // ---- Trazado de Vías (Ribbon con grosor) y Pistas (Polígono Relleno) ----
+  function updatePolyCoordsUI() {
+    const roadCountEl = document.getElementById("roadPointsCount");
+    const runwayCountEl = document.getElementById("runwayPointsCount");
+    const roadOut = document.getElementById("roadCoordsOutput");
+    const runwayOut = document.getElementById("runwayCoordsOutput");
+
+    if (roadCountEl) roadCountEl.textContent = `${customRoadPoints.length} pts`;
+    if (runwayCountEl) runwayCountEl.textContent = `${customRunwayPoints.length} pts`;
+
+    if (roadOut) {
+      if (customRoadPoints.length === 0) roadOut.value = "";
+      else {
+        roadOut.value = "[\n" + customRoadPoints.map(p => `  {"x": ${p.x.toFixed(2)}, "z": ${p.z.toFixed(2)}}`).join(",\n") + "\n]";
+      }
+    }
+
+    if (runwayOut) {
+      if (customRunwayPoints.length === 0) runwayOut.value = "";
+      else {
+        runwayOut.value = "[\n" + customRunwayPoints.map(p => `  {"x": ${p.x.toFixed(2)}, "z": ${p.z.toFixed(2)}}`).join(",\n") + "\n]";
+      }
+    }
+  }
+
+  function buildRoadRibbon(pts, isFinal = false) {
+    if (currentActiveRoadMesh) {
+      customPolysGroup.remove(currentActiveRoadMesh);
+      currentActiveRoadMesh.geometry.dispose();
+      currentActiveRoadMesh = null;
+    }
+    if (pts.length < 2) return;
+
+    const positions = [];
+    const uvs = [];
+    const HALF_W = 1.4; // Ancho natural de vía
+    const RIBBON_UV_SCALE = 0.08;
+
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i];
+      const b = pts[i + 1];
+      const dx = b.x - a.x, dz = b.z - a.z;
+      const len = Math.hypot(dx, dz) || 0.001;
+      const nx = -dz / len * HALF_W, nz = dx / len * HALF_W;
+
+      const y = 0.045; // Justo sobre el terreno
+      positions.push(
+        a.x - nx, y, a.z - nz,  a.x + nx, y, a.z + nz,  b.x + nx, y, b.z + nz,
+        a.x - nx, y, a.z - nz,  b.x + nx, y, b.z + nz,  b.x - nx, y, b.z - nz
+      );
+
+      [
+        [a.x - nx, a.z - nz], [a.x + nx, a.z + nz], [b.x + nx, b.z + nz],
+        [a.x - nx, a.z - nz], [b.x + nx, b.z + nz], [b.x - nx, b.z - nz]
+      ].forEach(([px, pz]) => uvs.push(px * RIBBON_UV_SCALE, pz * RIBBON_UV_SCALE));
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.computeVertexNormals();
+
+    const mesh = new THREE.Mesh(geo, customRoadMat);
+    mesh.renderOrder = 300;
+    mesh.receiveShadow = true;
+    customPolysGroup.add(mesh);
+    if (!isFinal) currentActiveRoadMesh = mesh;
+  }
+
+  function buildRunwayPolygon(pts, isFinal = false) {
+    if (currentActiveRunwayMesh) {
+      customPolysGroup.remove(currentActiveRunwayMesh);
+      currentActiveRunwayMesh.geometry.dispose();
+      currentActiveRunwayMesh = null;
+    }
+    if (pts.length < 3) return;
+
+    const pts2d = pts.map(p => new THREE.Vector2(p.x, p.z));
+    let tris = [];
+    try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch (e) {}
+    if (tris.length === 0 && pts.length >= 3) {
+      for (let i = 1; i < pts.length - 1; i++) tris.push([0, i, i + 1]);
+    }
+
+    const positions = [], uvs = [];
+    const UV_SCALE = 0.06;
+    const y = 0.038;
+    tris.forEach(([ia, ib, ic]) => {
+      [ia, ib, ic].forEach(idx => {
+        positions.push(pts[idx].x, y, pts[idx].z);
+        uvs.push(pts[idx].x * UV_SCALE, pts[idx].z * UV_SCALE);
+      });
+    });
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.computeVertexNormals();
+
+    const mesh = new THREE.Mesh(geo, customRunwayMat);
+    mesh.renderOrder = 290;
+    mesh.receiveShadow = true;
+    customPolysGroup.add(mesh);
+    if (!isFinal) currentActiveRunwayMesh = mesh;
+  }
+
   const toolTreeBtn = document.getElementById("toolPlantTreeBtn");
   const toolCowBtn = document.getElementById("toolPlantCowBtn");
+  const toolRoadBtn = document.getElementById("toolDrawRoadBtn");
+  const toolRunwayBtn = document.getElementById("toolDrawRunwayBtn");
 
   function setToolMode(mode) {
     currentActiveTool = (currentActiveTool === mode) ? null : mode;
     
     if (toolTreeBtn) toolTreeBtn.classList.toggle("active", currentActiveTool === "tree");
     if (toolCowBtn) toolCowBtn.classList.toggle("cow-active", currentActiveTool === "cow");
+    if (toolRoadBtn) toolRoadBtn.classList.toggle("active", currentActiveTool === "road");
+    if (toolRunwayBtn) toolRunwayBtn.classList.toggle("active", currentActiveTool === "runway");
 
-    // Desactivar paneo de OrbitControls mientras el pincel está activo para pintar arrastrando
+    // Desactivar paneo de OrbitControls mientras alguna herramienta esté activa
     controls.enabled = !currentActiveTool;
     renderer.domElement.style.cursor = currentActiveTool ? "crosshair" : "grab";
   }
 
-  if (toolTreeBtn) {
-    toolTreeBtn.addEventListener("click", () => setToolMode("tree"));
+  if (toolTreeBtn) toolTreeBtn.addEventListener("click", () => setToolMode("tree"));
+  if (toolCowBtn) toolCowBtn.addEventListener("click", () => setToolMode("cow"));
+  if (toolRoadBtn) toolRoadBtn.addEventListener("click", () => setToolMode("road"));
+  if (toolRunwayBtn) toolRunwayBtn.addEventListener("click", () => setToolMode("runway"));
+
+  const finishRoadBtn = document.getElementById("finishRoadBtn");
+  if (finishRoadBtn) {
+    finishRoadBtn.addEventListener("click", () => {
+      buildRoadRibbon(customRoadPoints, true);
+      currentActiveRoadMesh = null;
+      setToolMode(null);
+    });
   }
 
-  if (toolCowBtn) {
-    toolCowBtn.addEventListener("click", () => setToolMode("cow"));
+  const finishRunwayBtn = document.getElementById("finishRunwayBtn");
+  if (finishRunwayBtn) {
+    finishRunwayBtn.addEventListener("click", () => {
+      buildRunwayPolygon(customRunwayPoints, true);
+      currentActiveRunwayMesh = null;
+      setToolMode(null);
+    });
   }
 
-  // Tecla Escape para cancelar pincel y volver a modo paneo
+  const copyRoadCoordsBtn = document.getElementById("copyRoadCoordsBtn");
+  if (copyRoadCoordsBtn) {
+    copyRoadCoordsBtn.addEventListener("click", async () => {
+      const el = document.getElementById("roadCoordsOutput");
+      if (!el || !el.value) return;
+      try {
+        await navigator.clipboard.writeText(el.value);
+        copyRoadCoordsBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => { copyRoadCoordsBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1600);
+      } catch (e) {}
+    });
+  }
+
+  const copyRunwayCoordsBtn = document.getElementById("copyRunwayCoordsBtn");
+  if (copyRunwayCoordsBtn) {
+    copyRunwayCoordsBtn.addEventListener("click", async () => {
+      const el = document.getElementById("runwayCoordsOutput");
+      if (!el || !el.value) return;
+      try {
+        await navigator.clipboard.writeText(el.value);
+        copyRunwayCoordsBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => { copyRunwayCoordsBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1600);
+      } catch (e) {}
+    });
+  }
+
+  const clearPolysBtn = document.getElementById("clearPolysBtn");
+  if (clearPolysBtn) {
+    clearPolysBtn.addEventListener("click", () => {
+      customPolysGroup.clear();
+      customRoadPoints.length = 0;
+      customRunwayPoints.length = 0;
+      currentActiveRoadMesh = null;
+      currentActiveRunwayMesh = null;
+      updatePolyCoordsUI();
+    });
+  }
+
+  // Tecla Escape para cancelar cualquier herramienta activa
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && currentActiveTool) {
       setToolMode(null);
@@ -2536,7 +2740,7 @@
   const batchTreesBtn = document.getElementById("batchTreesBtn");
   if (batchTreesBtn) {
     batchTreesBtn.addEventListener("click", () => {
-      batchPopulateTrees(25);
+      batchPopulateTrees(24);
     });
   }
 
@@ -2617,6 +2821,7 @@
   resize();
   updateLiveCameraCoordsUI();
   updateUserPlantedUI();
+  updatePolyCoordsUI();
   requestAnimationFrame(animate);
 
 })();
