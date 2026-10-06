@@ -268,16 +268,29 @@
 
   // Texturas de agua con relieve y movimiento (mismo color y textura que la axonometría)
   const waterTexLoader = new THREE.TextureLoader();
-  const histWaterTex = waterTexLoader.load("./assets/textura_agua2.jpg");
-  histWaterTex.wrapS = THREE.RepeatWrapping;
-  histWaterTex.wrapT = THREE.RepeatWrapping;
-  waterTexRef = histWaterTex;
+  const waterTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  waterTex.wrapS = THREE.RepeatWrapping;
+  waterTex.wrapT = THREE.RepeatWrapping;
+  waterTexRef = waterTex;
 
-  const histWaterBump = waterTexLoader.load("./assets/textura_agua2.jpg");
-  histWaterBump.wrapS = THREE.RepeatWrapping;
-  histWaterBump.wrapT = THREE.RepeatWrapping;
-  histWaterBump.repeat.set(2.3, 2.3);
-  waterBumpRef = histWaterBump;
+  const bumpTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  bumpTex.wrapS = THREE.RepeatWrapping;
+  bumpTex.wrapT = THREE.RepeatWrapping;
+  bumpTex.repeat.set(2.3, 2.3);
+  waterBumpRef = bumpTex;
+
+  const sharedWaterMat = new THREE.MeshStandardMaterial({
+    map: waterTex,
+    bumpMap: bumpTex,
+    bumpScale: 0.12,
+    color: 0x8f9498, // Color exacto de modulo-10-corte.html
+    roughness: 0.18,
+    metalness: 0.15,
+    transparent: true,
+    opacity: 0.82,
+    side: THREE.DoubleSide
+  });
+  waterMat = sharedWaterMat;
 
   // 1. Sprites de vacas en pastoreo con sombra negra en el suelo (caminando en el plano sin flotar)
   const cowTextures = [];
@@ -400,19 +413,7 @@
     bedMesh.renderOrder = 10;
     historicalWetlandsGroup.add(bedMesh);
 
-    const histWaterMat = new THREE.MeshStandardMaterial({
-      map: histWaterTex,
-      bumpMap: histWaterBump,
-      bumpScale: 0.12,
-      color: 0x8f9498, // Color exacto de modulo-10-corte.html
-      roughness: 0.18,
-      metalness: 0.15,
-      transparent: true,
-      opacity: 0.82,
-      side: THREE.DoubleSide
-    });
-
-    const mesh = new THREE.Mesh(geo, histWaterMat);
+    const mesh = new THREE.Mesh(geo, sharedWaterMat);
     mesh.renderOrder = 15;
     mesh.receiveShadow = false;
     historicalWetlandsGroup.add(mesh);
@@ -1407,26 +1408,7 @@
     geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
-    const waterTex = new THREE.TextureLoader().load("./assets/textura_agua2.jpg");
-    waterTex.wrapS = THREE.RepeatWrapping;
-    waterTex.wrapT = THREE.RepeatWrapping;
-    waterTexRef = waterTex;
-    // Segunda copia de la misma textura, usada como relieve (bump map) en
-    // vez de color: le da micro-relieve a la superficie para que capte
-    // la luz de forma irregular (brillos/reflejos que cambian segun el
-    // angulo), como agua real — una superficie perfectamente lisa se ve
-    // "plana"/pintada, no renderizada. Se anima a otra velocidad/escala
-    // que la capa de color, simulando dos capas de oleaje superpuestas.
-    const bumpTex = new THREE.TextureLoader().load("./assets/textura_agua2.jpg");
-    bumpTex.wrapS = THREE.RepeatWrapping;
-    bumpTex.wrapT = THREE.RepeatWrapping;
-    bumpTex.repeat.set(2.3, 2.3);
-    waterBumpRef = bumpTex;
-    const mat = new THREE.MeshStandardMaterial({
-      map: waterTex, bumpMap: bumpTex, bumpScale: 0.12,
-      color: 0x8f9498, roughness: 0.18, metalness: 0.15,
-      transparent: true, opacity: 0.82, side: THREE.DoubleSide,
-    });
+    const mat = sharedWaterMat;
     waterMat = mat;
     const waterMesh = new THREE.Mesh(geo, mat);
     waterMesh.receiveShadow = false; // sin sombras encima (se veian como parches/bloques feos sobre el agua)
@@ -2209,16 +2191,6 @@
     requestAnimationFrame(animate);
     if (camAnim) camAnim.update(now);
 
-    // Ondas y movimiento suave del agua (igual a modulo-10-corte.html)
-    if (waterTexRef) {
-      waterTexRef.offset.x = (now * 0.00003) % 1;
-      waterTexRef.offset.y = (now * 0.00002) % 1;
-    }
-    if (waterBumpRef) {
-      waterBumpRef.offset.x = -(now * 0.00004) % 1;
-      waterBumpRef.offset.y = (now * 0.00003) % 1;
-    }
-
     // Animación de las vacas caminando en el terreno sin flotar
     if (cowsGroup.visible && cowInstances.length) {
       const t = now * 0.001;
@@ -2240,12 +2212,9 @@
       if (timeLabel) timeLabel.textContent = `${fmtTime(currentTime)} / ${fmtTime(maxT)}`;
       renderVehiclesAt(currentTime);
     }
-    // Lineas de borde de edificios: opacidad FIJA y baja, no cambia con
-    // el zoom (asi no se ven gruesas/densas cuando no se esta haciendo
-    // zoom, y no cambian de aspecto al acercar/alejar la camara).
     // Agua con movimiento: se desplaza lentamente la textura de color Y
     // la capa de relieve (bump) a velocidades/escalas DISTINTAS entre si,
-    // simulando dos capas de oleaje superpuestas.
+    // simulando dos capas de oleaje superpuestas (exacto a modulo-10-corte.html).
     if (waterTexRef) {
       waterTexRef.offset.x = (now * 0.000018) % 1;
       waterTexRef.offset.y = (now * 0.000012) % 1;
