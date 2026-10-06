@@ -178,22 +178,15 @@
       </a>
       <h1>
         Problemáticas — Evolución Histórica
-        <span id="eraBadge" style="font-size:11.5px; font-weight:700; padding:4px 12px; border-radius:12px; background:rgba(36,200,189,.2); border:1px solid var(--accent); color:var(--accent);">1950 · Sabana Rural</span>
+        <span id="eraBadge" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(36,200,189,.2); border:1px solid var(--accent); color:var(--accent);">1950</span>
       </h1>
-      <div style="display:flex; align-items:center; gap:12px; margin:5px 0 4px; pointer-events:auto;">
-        <div style="padding:4px 10px; border-radius:8px; background:rgba(15,23,42,.85); border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; gap:8px;">
-          <span style="font-size:11px; color:#94a3b8;">Área Humedal El Burro:</span>
-          <strong id="histAreaHa" style="font-size:13px; color:#38bdf8; font-family:'IBM Plex Mono',monospace;">71,54 ha</strong>
-          <span id="histLossPct" style="font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:rgba(74,222,128,.2); color:#4ade80;">100% Extensión</span>
-        </div>
-      </div>
-      <p id="eraDesc" style="font-size:11.5px; line-height:1.45; color:#cbd5e1; max-width:620px;">1950 – 1956 · Humedal El Burro con 71,54 ha en la ribera de inundación del río Bogotá (subcuenca El Tintal). Entorno rural de alta biodiversidad con 210 vacas en pastoreo, senderos veredales y Antiguo Aeropuerto de Techo.</p>
+      <p id="eraDesc">1950 · Humedal El Burro y Sabana Rural (89% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).</p>
     </div>
 
-    <!-- Panel Izquierdo: Trazado de Vías, Pistas y Urbanización 1970 -->
+    <!-- Panel Izquierdo: Trazado de Vías y Pista de Aeropuerto -->
     <div class="left-poly-panel" id="leftPolyPanel">
       <div class="panel-header">
-        <h2><i class="fa-solid fa-draw-polygon"></i> Trazado Aeropuerto / Vías / 1970</h2>
+        <h2><i class="fa-solid fa-draw-polygon"></i> Trazado Aeropuerto / Vías</h2>
       </div>
 
       <!-- Sección Vía con Grosor -->
@@ -217,7 +210,7 @@
             <i class="fa-solid fa-copy"></i> Copiar
           </button>
         </div>
-        <textarea class="elements-textarea" id="roadCoordsOutput" readonly placeholder="// Coordenadas de los puntos de la vía..." style="height:50px;"></textarea>
+        <textarea class="elements-textarea" id="roadCoordsOutput" readonly placeholder="// Coordenadas de los puntos de la vía..." style="height:60px;"></textarea>
       </div>
 
       <!-- Sección Pista Polígono Relleno -->
@@ -241,36 +234,12 @@
             <i class="fa-solid fa-copy"></i> Copiar
           </button>
         </div>
-        <textarea class="elements-textarea" id="runwayCoordsOutput" readonly placeholder="// Coordenadas del polígono relleno de la pista..." style="height:50px;"></textarea>
-      </div>
-
-      <!-- Sección Polígono Urbanización 1970 -->
-      <div class="section-card">
-        <div class="section-title">
-          <span><i class="fa-solid fa-city" style="color:#a855f7;"></i> Urbanización 1970</span>
-          <span id="poly1970PointsCount" style="font-size:10px; color:#a855f7; font-weight:700;">0 pts</span>
-        </div>
-        <p class="brush-hint">Haz clic para delimitar el sector de 1970. Los edificios dentro surgirán con animación.</p>
-        <div class="btn-group">
-          <button type="button" class="btn-tool" id="toolDraw1970PolyBtn" title="Activar modo para trazar polígono de 1970">
-            <i class="fa-solid fa-draw-polygon"></i> Trazar 1970
-          </button>
-          <button type="button" class="btn-tool" id="finish1970PolyBtn" title="Cerrar polígono de 1970 y generar edificios">
-            <i class="fa-solid fa-check"></i> Cerrar 1970
-          </button>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
-          <span style="font-size:10px; color:var(--ink-dim);">Coordenadas 1970:</span>
-          <button type="button" class="btn-action-sm" id="copy1970CoordsBtn" title="Copiar coordenadas del polígono de 1970">
-            <i class="fa-solid fa-copy"></i> Copiar
-          </button>
-        </div>
-        <textarea class="elements-textarea" id="poly1970CoordsOutput" readonly placeholder="// Coordenadas del polígono de urbanización 1970..." style="height:50px; color:#d8b4fe;"></textarea>
+        <textarea class="elements-textarea" id="runwayCoordsOutput" readonly placeholder="// Coordenadas del polígono relleno de la pista..." style="height:60px;"></textarea>
       </div>
 
       <div style="display:flex; justify-content:flex-end;">
         <button type="button" class="btn-action-sm" id="clearPolysBtn" style="color:#ef4444;" title="Borrar vías y pistas trazadas">
-          <i class="fa-solid fa-trash"></i> Limpiar Trazados
+          <i class="fa-solid fa-trash"></i> Limpiar Vías / Pistas
         </button>
       </div>
     </div>
@@ -281,12 +250,9 @@
         <i class="fa-solid fa-play"></i>
       </button>
       <div style="display:flex; align-items:center; gap:6px;">
-        <button type="button" class="year-btn active" data-year="1950" title="1950-1956: Sabana Rural y Humedal Natural (71,54 ha)">1950 (71.5 ha)</button>
-        <button type="button" class="year-btn" data-year="1972" title="1972: Nacimiento de Corabastos en Potrero Alto Negro (38,53 ha)">1972 (38.5 ha)</button>
-        <button type="button" class="year-btn" data-year="1988" title="1988: Bisección por Av. Ciudad de Cali y Planta Protecho (27,14 ha)">1988 (27.1 ha)</button>
-        <button type="button" class="year-btn" data-year="2000" title="2000: Punto Crítico Histórico (14,00 ha) y Declaratoria POT">2000 (14.0 ha)</button>
-        <button type="button" class="year-btn" data-year="2024" title="Actualidad: Restauración Hidrogeomorfológica EAAB y Ciudad Consolidada (18,80 ha)">Actualidad (18.8 ha)</button>
-        <input type="range" id="histYearSlider" min="0" max="4" value="0" step="1" style="width:100px; accent-color:var(--accent); cursor:pointer; margin-left:6px;" title="Deslizar entre las 5 etapas históricas">
+        <button type="button" class="year-btn active" data-year="1950">1950</button>
+        <button type="button" class="year-btn" data-year="1956">1956</button>
+        <input type="range" id="histYearSlider" min="1950" max="1956" value="1950" step="1" style="width:100px; accent-color:var(--accent); cursor:pointer; margin-left:6px;">
       </div>
     </div>
 
@@ -358,34 +324,22 @@
         </div>
       </div>
 
-      <!-- Sección 4: Registro de Árboles (JSON) -->
+      <!-- Sección 4: Coordenadas de Elementos y Cámara -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-tree" style="color:#4ade80;"></i> Coordenadas Árboles</span>
+          <span><i class="fa-solid fa-code"></i> Registro de Elementos</span>
           <div style="display:flex; gap:4px;">
-            <button type="button" class="btn-action-sm" id="copyElementsCoordsBtn" title="Copiar coordenadas de árboles">
-              <i class="fa-solid fa-copy"></i> Copiar
+            <button type="button" class="btn-action-sm" id="copyElementsCoordsBtn" title="Copiar lista de coordenadas de árboles y vacas">
+              <i class="fa-solid fa-copy"></i>
             </button>
-            <button type="button" class="btn-action-sm" id="clearElementsBtn" title="Limpiar árboles agregados">
+            <button type="button" class="btn-action-sm" id="clearElementsBtn" title="Limpiar elementos agregados">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
         </div>
-        <textarea class="elements-textarea" id="elementsCoordsOutput" readonly placeholder="// Aquí se registran las coordenadas de los árboles..." style="height:65px;"></textarea>
+        <textarea class="elements-textarea" id="elementsCoordsOutput" readonly placeholder="// Aquí se registrarán las coordenadas de los nuevos árboles y vacas al pintar..."></textarea>
       </div>
 
-      <!-- Sección 5: Registro de Vacas (JSON) -->
-      <div class="section-card">
-        <div class="section-title">
-          <span><i class="fa-solid fa-cow" style="color:#fbbf24;"></i> Coordenadas Vacas</span>
-          <button type="button" class="btn-action-sm" id="copyCowsCoordsBtn" title="Copiar coordenadas de vacas">
-            <i class="fa-solid fa-copy"></i> Copiar
-          </button>
-        </div>
-        <textarea class="elements-textarea" id="cowsCoordsOutput" readonly placeholder="// Aquí se registran las coordenadas de las vacas..." style="height:65px; color:#fde68a;"></textarea>
-      </div>
-
-      <!-- Sección 6: Coordenadas de Vista -->
       <div class="section-card">
         <div class="section-title">
           <span><i class="fa-solid fa-video"></i> Coordenadas de Vista</span>
@@ -412,6 +366,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=264"></script>
+<script src="modulo-08-3d.js?v=265"></script>
 </body>
 </html>
