@@ -321,12 +321,12 @@
   const sharedWaterMat = new THREE.MeshStandardMaterial({
     map: waterTex,
     bumpMap: bumpTex,
-    bumpScale: 0.12,
-    color: 0x8f9498, // Color exacto de modulo-10-corte.html
-    roughness: 0.18,
-    metalness: 0.15,
+    bumpScale: 0.15,
+    color: 0x0284c7, // Azul acuático cristalino de humedal (altamente visible sobre el pasto)
+    roughness: 0.12,
+    metalness: 0.22,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0.92,
     side: THREE.DoubleSide
   });
   waterMat = sharedWaterMat;
@@ -543,6 +543,7 @@
     if (!waterBodies || !waterBodies.length) return;
     historicalWetlandsGroup.clear();
     const positions = [], uvs = [];
+    const linePositions = [];
     const UV_SCALE = 0.08;
 
     function polyArea(pts) {
@@ -586,7 +587,7 @@
       const cy = ptsOriginal.reduce((s, p) => s + p[1], 0) / ptsOriginal.length;
 
       let expandedPts = ptsOriginal;
-      const yLayer = 0.024;
+      const yLayer = 0.045; // Ligeramente elevado sobre el suelo para total claridad
 
       if (name.includes("Burro")) {
         const scale = Math.sqrt(targetAreaBurro / baseArea);
@@ -608,20 +609,19 @@
       const scenePts = expandedPts.map(p => toScene(p[0], p[1]));
       if (scenePts.length < 3) return;
 
+      // Línea de orilla / contorno del humedal
+      for (let i = 0; i < scenePts.length; i++) {
+        const p1 = scenePts[i];
+        const p2 = scenePts[(i + 1) % scenePts.length];
+        linePositions.push(p1.x, yLayer + 0.005, p1.z, p2.x, yLayer + 0.005, p2.z);
+      }
+
       const pts2d = scenePts.map(p => new THREE.Vector2(p.x, p.z));
       let tris = [];
       try {
         tris = THREE.ShapeUtils.triangulateShape(pts2d, []);
       } catch (e) {
         tris = [];
-      }
-
-      // Fallback si la triangulación del polígono complejo falla: triangulación en abanico
-      if (!tris || tris.length === 0) {
-        tris = [];
-        for (let i = 1; i < scenePts.length - 1; i++) {
-          tris.push([0, i, i + 1]);
-        }
       }
 
       tris.forEach(([a, b, c]) => {
@@ -639,10 +639,28 @@
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
 
+    // 1. Lecho base sólido azul marino profundo para evitar que el pasto traspase el agua
+    const bedMat = new THREE.MeshBasicMaterial({ color: 0x0369a1, side: THREE.DoubleSide });
+    const bedMesh = new THREE.Mesh(geo.clone(), bedMat);
+    bedMesh.position.y = -0.01;
+    bedMesh.renderOrder = 10;
+    historicalWetlandsGroup.add(bedMesh);
+
+    // 2. Capa de agua animada con textura y reflejos
     const mesh = new THREE.Mesh(geo, sharedWaterMat);
     mesh.renderOrder = 15;
     mesh.receiveShadow = false;
     historicalWetlandsGroup.add(mesh);
+
+    // 3. Orilla perimetral nítida azul cian
+    if (linePositions.length) {
+      const lineGeo = new THREE.BufferGeometry();
+      lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 });
+      const lineMesh = new THREE.LineSegments(lineGeo, lineMat);
+      lineMesh.renderOrder = 20;
+      historicalWetlandsGroup.add(lineMesh);
+    }
   }
 
   function buildAeropuertoTecho() {
