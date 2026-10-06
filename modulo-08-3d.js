@@ -263,7 +263,7 @@
     
     const mat = new THREE.MeshStandardMaterial({
       map: histGrassTex,
-      color: 0xd4d5d3, // Tono pastizal suave #d4d5d3
+      color: 0xd0d4cc, // Tono pastizal suave natural mate #d0d4cc
       roughness: 0.95,
       metalness: 0.0,
       transparent: true,
@@ -305,12 +305,12 @@
   const sharedWaterMat = new THREE.MeshStandardMaterial({
     map: waterTex,
     bumpMap: bumpTex,
-    bumpScale: 0.12,
-    color: 0x8f9498, // Color exacto de modulo-10-corte.html
-    roughness: 0.18,
-    metalness: 0.15,
+    bumpScale: 0.15,
+    color: 0x3d7e9a, // Azul cerúleo y pizarra vivo y realista (agua limpia de humedal)
+    roughness: 0.12,
+    metalness: 0.18,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0.86,
     side: THREE.DoubleSide
   });
   waterMat = sharedWaterMat;
@@ -519,7 +519,7 @@
 
     // Base de lecho clara para que la textura del pasto no oscurezca el agua transparente
     const bedGeo = geo.clone();
-    const bedMat = new THREE.MeshBasicMaterial({ color: 0xd8e2ec, side: THREE.DoubleSide });
+    const bedMat = new THREE.MeshBasicMaterial({ color: 0xa8c5dc, side: THREE.DoubleSide });
     const bedMesh = new THREE.Mesh(bedGeo, bedMat);
     bedMesh.position.y = -0.005;
     bedMesh.renderOrder = 10;
@@ -681,59 +681,187 @@
 
     aeropuertoTechoGroup.add(group);
 
-    // D. Aviones de época (Douglas DC-3 auténticos de los años 50 en la pista y plataforma de Techo)
+    // D. Aviones de época (Modelos 3D Douglas DC-3 auténticos de los años 50 estilo maqueta arquitectónica)
     function buildVintageAirplanes() {
-      const planeTex = new THREE.TextureLoader().load("./assets/avion_dc3.png");
-      const mat = new THREE.MeshBasicMaterial({
-        map: planeTex,
-        transparent: true,
-        side: THREE.DoubleSide,
-        alphaTest: 0.2,
-        depthWrite: false
+      const bodyMat = new THREE.MeshStandardMaterial({
+        color: 0xecf0f3,
+        metalness: 0.6,
+        roughness: 0.32
       });
-
+      const stripeMat = new THREE.MeshStandardMaterial({
+        color: 0x1e3a8a, // Franja azul clásica de aerolínea años 50
+        metalness: 0.4,
+        roughness: 0.3
+      });
+      const wingMat = new THREE.MeshStandardMaterial({
+        color: 0xdde3e8,
+        metalness: 0.65,
+        roughness: 0.35
+      });
+      const glassMat = new THREE.MeshStandardMaterial({
+        color: 0x0f172a,
+        metalness: 0.2,
+        roughness: 0.1
+      });
+      const darkMat = new THREE.MeshStandardMaterial({
+        color: 0x1e293b,
+        roughness: 0.9
+      });
+      const propBlurMat = new THREE.MeshBasicMaterial({
+        color: 0x111111,
+        transparent: true,
+        opacity: 0.4,
+        side: THREE.DoubleSide
+      });
       const shadowMat = new THREE.MeshBasicMaterial({
         color: 0x000000,
         transparent: true,
-        opacity: 0.35,
+        opacity: 0.38,
         depthWrite: false
       });
+      const edgeMat = new THREE.LineBasicMaterial({
+        color: 0x334155,
+        transparent: true,
+        opacity: 0.45
+      });
 
-      function createPlaneInstance(x, z, scale = 1.0, rotY = 0, shadowOffset = { x: 0.4, z: 0.5 }) {
+      function make3DDC3(x, z, scale = 1.0, rotY = 0) {
         const group = new THREE.Group();
         group.position.set(x, 0, z);
         group.rotation.y = rotY;
+        group.scale.set(scale, scale, scale);
 
-        const w = 15.0 * scale;
-        const h = 10.4 * scale;
-        const geo = new THREE.PlaneGeometry(w, h);
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.rotation.x = -Math.PI / 2.35; // Ángulo isométrico aéreo
-        mesh.position.set(0, 1.4 * scale, 0);
-        mesh.renderOrder = 330;
-        group.add(mesh);
+        // 1. Fuselaje principal estilizado
+        const fuseGeo = new THREE.CylinderGeometry(0.52, 0.28, 6.2, 16);
+        fuseGeo.rotateZ(Math.PI / 2);
+        const fuse = new THREE.Mesh(fuseGeo, bodyMat);
+        fuse.position.set(0, 0.72, 0);
+        fuse.castShadow = true;
+        group.add(fuse);
 
-        // Sombra suave proyectada sobre la pista
-        const sGeo = new THREE.PlaneGeometry(w * 0.9, h * 0.85);
+        // Franja decorativa lateral
+        const stripeGeo = new THREE.CylinderGeometry(0.53, 0.29, 3.8, 16, 1, true);
+        stripeGeo.rotateZ(Math.PI / 2);
+        const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+        stripe.position.set(0.3, 0.72, 0);
+        group.add(stripe);
+
+        // Nariz redondeada clásica DC-3
+        const noseGeo = new THREE.SphereGeometry(0.52, 16, 12);
+        noseGeo.scale(1.25, 0.95, 0.95);
+        const nose = new THREE.Mesh(noseGeo, bodyMat);
+        nose.position.set(3.1, 0.72, 0);
+        nose.castShadow = true;
+        group.add(nose);
+
+        // Cabina de mando tintada
+        const cockpitGeo = new THREE.BoxGeometry(0.7, 0.32, 0.64);
+        const cockpit = new THREE.Mesh(cockpitGeo, glassMat);
+        cockpit.position.set(2.35, 1.02, 0);
+        group.add(cockpit);
+
+        // 2. Alas principales (Envergadura DC-3 con flecha frontal y diedro sutil)
+        const wingLGeo = new THREE.BoxGeometry(1.6, 0.09, 4.4);
+        const wingL = new THREE.Mesh(wingLGeo, wingMat);
+        wingL.position.set(0.6, 0.62, 2.3);
+        wingL.rotation.x = 0.05; // Diedro alar
+        wingL.castShadow = true;
+        group.add(wingL);
+
+        const wingR = new THREE.Mesh(wingLGeo, wingMat);
+        wingR.position.set(0.6, 0.62, -2.3);
+        wingR.rotation.x = -0.05;
+        wingR.castShadow = true;
+        group.add(wingR);
+
+        // Sección central alar
+        const centerWingGeo = new THREE.BoxGeometry(1.7, 0.1, 1.4);
+        const centerWing = new THREE.Mesh(centerWingGeo, wingMat);
+        centerWing.position.set(0.6, 0.58, 0);
+        group.add(centerWing);
+
+        // 3. Motores radiales gemelos y hélices
+        [-2.1, 2.1].forEach(offsetZ => {
+          const nacelleGeo = new THREE.CylinderGeometry(0.28, 0.28, 1.25, 14);
+          nacelleGeo.rotateZ(Math.PI / 2);
+          const nacelle = new THREE.Mesh(nacelleGeo, darkMat);
+          nacelle.position.set(1.15, 0.52, offsetZ);
+          group.add(nacelle);
+
+          // Cono de hélice
+          const spinnerGeo = new THREE.ConeGeometry(0.12, 0.35, 10);
+          spinnerGeo.rotateZ(-Math.PI / 2);
+          const spinner = new THREE.Mesh(spinnerGeo, bodyMat);
+          spinner.position.set(1.9, 0.52, offsetZ);
+          group.add(spinner);
+
+          // Disco de hélice en rotación
+          const propGeo = new THREE.CircleGeometry(0.55, 14);
+          propGeo.rotateY(Math.PI / 2);
+          const prop = new THREE.Mesh(propGeo, propBlurMat);
+          prop.position.set(1.85, 0.52, offsetZ);
+          group.add(prop);
+        });
+
+        // 4. Cola y estabilizadores
+        const tailHorizGeo = new THREE.BoxGeometry(0.9, 0.07, 3.2);
+        const tailHoriz = new THREE.Mesh(tailHorizGeo, wingMat);
+        tailHoriz.position.set(-2.75, 0.95, 0);
+        group.add(tailHoriz);
+
+        const finGeo = new THREE.BoxGeometry(0.85, 0.95, 0.09);
+        const fin = new THREE.Mesh(finGeo, bodyMat);
+        fin.position.set(-2.6, 1.35, 0);
+        fin.rotation.z = -0.22; // Inclinación clásica del timón DC-3
+        group.add(fin);
+
+        // 5. Tren de aterrizaje apoyado firmemente en pista
+        [-1.8, 1.8].forEach(offsetZ => {
+          const strutGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.5, 8);
+          const strut = new THREE.Mesh(strutGeo, darkMat);
+          strut.position.set(0.95, 0.25, offsetZ);
+          group.add(strut);
+
+          const wheelGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.12, 12);
+          const wheel = new THREE.Mesh(wheelGeo, darkMat);
+          wheel.position.set(0.95, 0.18, offsetZ);
+          group.add(wheel);
+        });
+
+        // Rueda de cola
+        const tailWheelGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.08, 8);
+        const tailWheel = new THREE.Mesh(tailWheelGeo, darkMat);
+        tailWheel.position.set(-2.7, 0.08, 0);
+        group.add(tailWheel);
+
+        // 6. Líneas y bordes arquitectónicos limpios
+        [fuseGeo, wingLGeo, centerWingGeo, tailHorizGeo, finGeo].forEach(g => {
+          const eGeo = new THREE.EdgesGeometry(g);
+          const eMesh = new THREE.LineSegments(eGeo, edgeMat);
+          group.add(eMesh);
+        });
+
+        // 7. Sombra proyectada en el asfalto de la pista
+        const sGeo = new THREE.PlaneGeometry(6.6, 8.8);
         const sMesh = new THREE.Mesh(sGeo, shadowMat);
         sMesh.rotation.x = -Math.PI / 2;
-        sMesh.position.set(shadowOffset.x, 0.045, shadowOffset.z);
+        sMesh.position.set(0.2, 0.04, 0);
         sMesh.renderOrder = 305;
         group.add(sMesh);
 
         return group;
       }
 
-      // Avión 1: En la plataforma frente al terminal de Techo
-      const plane1 = createPlaneInstance(252.0, 108.0, 1.0, -0.35, { x: 0.4, z: 0.6 });
+      // Avión 1: En la plataforma de pasajeros frente al terminal de Techo
+      const plane1 = make3DDC3(252.0, 108.0, 1.0, -0.42);
       aeropuertoTechoGroup.add(plane1);
 
-      // Avión 2: En la pista de rodaje
-      const plane2 = createPlaneInstance(288.0, 122.0, 1.05, -0.7, { x: 0.5, z: 0.7 });
+      // Avión 2: En la pista de rodaje hacia la cabecera
+      const plane2 = make3DDC3(288.0, 122.0, 1.05, -0.72);
       aeropuertoTechoGroup.add(plane2);
 
-      // Avión 3: Estacionado en la cabecera
-      const plane3 = createPlaneInstance(315.0, 114.0, 0.9, -2.1, { x: -0.4, z: 0.5 });
+      // Avión 3: Estacionado en la zona de hangares / mantenimiento
+      const plane3 = make3DDC3(315.0, 114.0, 0.9, -2.15);
       aeropuertoTechoGroup.add(plane3);
     }
 
@@ -926,7 +1054,7 @@
 
       // Restaurar el color y opacidad vibrante del pasto moderno tal como estaba antes (#b8c582)
       if (groundMesh && groundMesh.material) {
-        groundMesh.material.color.setHex(0xb8c582);
+        groundMesh.material.color.setHex(0x8ea082); // Verde sabana mate natural, nunca neón
         groundMesh.material.opacity = 1.0;
         groundMesh.material.transparent = false;
         groundMesh.material.needsUpdate = true;
