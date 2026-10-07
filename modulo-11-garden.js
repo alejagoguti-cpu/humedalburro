@@ -1809,6 +1809,7 @@
     isTerritory = targetMorph > 0.45;
 
     sceneBaseGroup.visible = targetMorph > 0.10;
+    if (territoryBeaconsGroup) territoryBeaconsGroup.visible = targetMorph > 0.35;
     networkGroup.visible = true;
 
     if (btnActionText) {
@@ -2080,9 +2081,344 @@
       networkGroup.rotation.set(0, 0, 0);
     }
 
+    
+    if (territoryBeaconsGroup && territoryBeaconsGroup.visible) {
+      territoryBeacons.forEach(sp => {
+        sp.quaternion.copy(camera.quaternion);
+      });
+    }
+
     controls.update();
     renderer.render(scene, camera);
   }
 
   animate();
-})();
+})();// =====================================================================
+  // 5.B BALIZAS Y MARCADORES DE ESPECIES EN EL TERRITORIO 3D DE KENNEDY
+  // =====================================================================
+  const territoryBeaconsGroup = new THREE.Group();
+  territoryBeaconsGroup.visible = false;
+  sceneRoot.add(territoryBeaconsGroup);
+
+  const territoryBeacons = [];
+
+  // Categorías e íconos para Tooltips y Pop-ups
+  const CAT_EMOJIS = {
+    "Anfibios": "🟢 ANFIBIO",
+    "Aves": "🔵 AVE",
+    "Mamíferos": "🟡 MAMÍFERO",
+    "Moluscos": "🌸 MOLUSCO",
+    "Reptiles": "🟣 REPTIL",
+    "Flora SIGAU": "🌿 ÁRBOL / FLORA"
+  };
+
+  // Calcular Coordenada Territorial Real para cada una de las 181 Especies
+  function calculateTerritoryCoordinate(t, idx, total) {
+    const cat = t.cat;
+
+    if (cat === "Anfibios") {
+      const waterHubs = [
+        { x: 209.56, z: -10.93, name: "Humedal El Burro — Espejo Central" },
+        { x: 67.66, z: 118.17, name: "Humedal La Vaca — Sector Norte" },
+        { x: 291.67, z: -79.30, name: "Humedal de Techo — Espejo de Agua" },
+        { x: 166.64, z: 348.81, name: "Lago Parque Timiza" },
+        { x: 58.92, z: -417.76, name: "Humedal Meandro del Say" },
+        { x: 220.0, z: 15.0, name: "Humedal El Burro — Ribera Oriental" }
+      ];
+      const hub = waterHubs[idx % waterHubs.length];
+      const ang = (idx * 2.3) % (Math.PI * 2);
+      const rad = 5.0 + (idx % 4) * 3.5;
+      return { x: hub.x + Math.cos(ang) * rad, y: 1.2, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
+    } else if (cat === "Moluscos") {
+      const hubs = [
+        { x: 205.0, z: -15.0, name: "Humedal El Burro — Juncal de Ribera" },
+        { x: 72.0, z: 112.0, name: "Humedal La Vaca — Fango Húmedo" },
+        { x: 285.0, z: -75.0, name: "Humedal de Techo — Borde Vegetado" }
+      ];
+      const hub = hubs[idx % hubs.length];
+      const ang = (idx * 1.7) % (Math.PI * 2);
+      const rad = 6.0 + (idx % 3) * 4.0;
+      return { x: hub.x + Math.cos(ang) * rad, y: 0.9, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
+    } else if (cat === "Reptiles") {
+      const hubs = [
+        { x: 230.0, z: 5.0, name: "Humedal El Burro — Talud Soleado" },
+        { x: 275.0, z: -65.0, name: "Humedal de Techo — Matorral Pedregoso" },
+        { x: 55.0, z: 135.0, name: "Humedal La Vaca — Pastizal de Ronda" },
+        { x: 180.0, z: 330.0, name: "Parque Timiza — Pedregal Ripario" }
+      ];
+      const hub = hubs[idx % hubs.length];
+      const ang = (idx * 2.1) % (Math.PI * 2);
+      const rad = 10.0 + (idx % 4) * 5.0;
+      return { x: hub.x + Math.cos(ang) * rad, y: 1.4, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
+    } else if (cat === "Mamíferos") {
+      const hubs = [
+        { x: 195.0, z: -25.0, name: "Humedal El Burro — Matorral Denso" },
+        { x: 225.0, z: 30.0, name: "Humedal El Burro — Franja Protectora" },
+        { x: 80.0, z: 105.0, name: "Humedal La Vaca — Bosque de Borde" },
+        { x: 155.0, z: 325.0, name: "Ronda Río Fucha — Madriguera" }
+      ];
+      const hub = hubs[idx % hubs.length];
+      const ang = (idx * 1.9) % (Math.PI * 2);
+      const rad = 12.0 + (idx % 5) * 5.0;
+      return { x: hub.x + Math.cos(ang) * rad, y: 1.8, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
+    } else if (cat === "Aves") {
+      const hubs = [
+        { x: 209.56, z: -10.93, h: 4.5, name: "Humedal El Burro — Espejo de Agua" },
+        { x: 67.66, z: 118.17, h: 3.8, name: "Humedal La Vaca — Totoral" },
+        { x: 291.67, z: -79.30, h: 4.0, name: "Humedal de Techo — Espejo" },
+        { x: 166.64, z: 348.81, h: 5.0, name: "Lago Parque Timiza — Dosel" },
+        { x: 234.8, z: 102.9, h: 7.5, name: "Castilla / Ronda Fucha" },
+        { x: 188.7, z: 180.1, h: 6.2, name: "Corredor Tintal — Arbolado" },
+        { x: 251.2, z: 142.5, h: 8.0, name: "Kennedy Central — Dosel Urbano" },
+        { x: 172.3, z: 138.1, h: 7.0, name: "Bosque Urbano Timiza" }
+      ];
+      const hub = hubs[idx % hubs.length];
+      const ang = (idx * 1.4) % (Math.PI * 2);
+      const rad = 8.0 + (idx % 7) * 6.0;
+      return { x: hub.x + Math.cos(ang) * rad, y: hub.h || 4.5, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
+    } else {
+      // Flora & Árboles SIGAU
+      const sKey = matchSpeciesKey(t.name);
+      if (sKey && treeSpeciesClusters[sKey] && treeSpeciesClusters[sKey].length > 0) {
+        const cluster = treeSpeciesClusters[sKey];
+        const treeSample = cluster[idx % cluster.length];
+        return { x: treeSample.x, y: (treeSample.y || 3.0) + 1.2, z: treeSample.z, locName: `Censo SIGAU Kennedy · ${sKey.toUpperCase()}` };
+      }
+      const ang = (idx / total) * Math.PI * 2;
+      const rad = 25.0 + ((idx * 19) % 210);
+      return { x: Math.cos(ang) * rad + 140.0, y: 3.2, z: Math.sin(ang) * rad + 40.0, locName: "Arbolado Urbano de Kennedy" };
+    }
+  }
+
+  // Generar las Balizas Interactivas de las 181 Especies
+  rawTaxa.forEach((t, idx) => {
+    const geoPos = calculateTerritoryCoordinate(t, idx, rawTaxa.length);
+    t.territoryPos = geoPos;
+
+    const tex = generateSpeciesSvgDataUri(t.img, t.id, t.name, t.cat);
+    const spriteMat = new THREE.SpriteMaterial({
+      map: tex,
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.95
+    });
+
+    const sprite = new THREE.Sprite(spriteMat);
+    const baseScale = t.cat === "Anfibios" ? 4.6 : (t.cat === "Reptiles" ? 4.4 : (t.cat === "Mamíferos" ? 4.2 : 3.8));
+    sprite.scale.set(baseScale, baseScale, 1.0);
+    sprite.position.set(geoPos.x, geoPos.y, geoPos.z);
+    sprite.userData = { isTerritoryBeacon: true, taxonIndex: idx, taxonData: t, baseScale: baseScale };
+
+    // Anillo de pulso de suelo con color de categoría
+    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+    const ringGeo = new THREE.RingGeometry(0.8, 1.8, 16);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(catHex),
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending
+    });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = -Math.PI / 2;
+    ringMesh.position.set(geoPos.x, 0.22, geoPos.z);
+
+    const beaconGroup = new THREE.Group();
+    beaconGroup.add(sprite);
+    beaconGroup.add(ringMesh);
+    beaconGroup.userData = { taxonIndex: idx, taxonData: t, sprite: sprite, ring: ringMesh };
+
+    territoryBeaconsGroup.add(beaconGroup);
+    territoryBeacons.push(sprite);
+  });
+
+  // Elementos DOM del Tooltip y Pop-up de Territorio
+  const territoryTooltip = document.getElementById("territorySpeciesTooltip");
+  const ttImg = document.getElementById("ttSpeciesImg");
+  const ttBadge = document.getElementById("ttSpeciesBadge");
+  const ttName = document.getElementById("ttSpeciesName");
+  const ttSci = document.getElementById("ttSpeciesSci");
+  const ttLoc = document.getElementById("ttSpeciesLoc");
+  const ttRole = document.getElementById("ttSpeciesRole");
+
+  const territoryModal = document.getElementById("territorySpeciesModal");
+  const modalImg = document.getElementById("modalSpeciesImg");
+  const modalBadge = document.getElementById("modalSpeciesBadge");
+  const modalName = document.getElementById("modalSpeciesName");
+  const modalSci = document.getElementById("modalSpeciesSci");
+  const modalLoc = document.getElementById("modalSpeciesLoc");
+  const modalRole = document.getElementById("modalSpeciesRole");
+  const modalDesc = document.getElementById("modalSpeciesDesc");
+  const modalLinks = document.getElementById("modalSpeciesLinks");
+  const btnCloseModal = document.getElementById("btnCloseTerritoryModal");
+  const btnFlyToSpecies = document.getElementById("btnFlyToSpecies");
+
+  let activeTerritoryTaxon = null;
+  let hoveredTerritoryBeacon = null;
+
+  if (btnCloseModal) {
+    btnCloseModal.addEventListener("click", () => {
+      if (territoryModal) territoryModal.style.display = "none";
+    });
+  }
+
+  function openTerritorySpeciesModal(t) {
+    if (!t || !territoryModal) return;
+    activeTerritoryTaxon = t;
+
+    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+    territoryModal.style.setProperty("--cat-color", catHex);
+
+    if (modalImg) modalImg.src = t.img;
+    if (modalBadge) {
+      modalBadge.textContent = CAT_EMOJIS[t.cat] || t.cat;
+      modalBadge.style.color = catHex;
+      modalBadge.style.borderColor = catHex;
+    }
+    if (modalName) modalName.textContent = t.name;
+    if (modalSci) modalSci.textContent = t.sciname;
+    if (modalLoc) modalLoc.textContent = t.territoryPos.locName || t.loc || "Kennedy";
+    if (modalRole) modalRole.textContent = t.role || "Eslabón ecológico del territorio";
+    if (modalDesc) modalDesc.textContent = `${t.desc || 'Especie registrada en el sistema socioecológico de Kennedy.'} Taxón ID: ${t.id}. Registrado en monitoreo de biodiversidad urbana e iNaturalist.`;
+
+    if (modalLinks) {
+      modalLinks.innerHTML = "";
+      const node = rawNodes.find(n => n.taxaId === t.id);
+      if (node && node.neighbors && node.neighbors.length > 0) {
+        node.neighbors.slice(0, 6).forEach(nbId => {
+          const nb = rawNodes[nbId];
+          if (!nb) return;
+          const linkDiv = document.createElement("div");
+          linkDiv.style.display = "flex";
+          linkDiv.style.alignItems = "center";
+          linkDiv.style.justifyContent = "space-between";
+          linkDiv.style.padding = "4px 8px";
+          linkDiv.style.background = "rgba(255,255,255,0.04)";
+          linkDiv.style.borderRadius = "4px";
+          linkDiv.style.fontSize = "10.5px";
+          linkDiv.style.cursor = "pointer";
+          linkDiv.innerHTML = `<span><b>${nb.label}</b> (<i>${nb.sciname}</i>)</span> <span style="color:${palette.catColors[nb.cat]}; font-weight:700;">${palette.catNames[nb.cat]}</span>`;
+          linkDiv.addEventListener("click", () => {
+            const nbTaxon = rawTaxa.find(tx => tx.id === nb.taxaId);
+            if (nbTaxon) openTerritorySpeciesModal(nbTaxon);
+          });
+          modalLinks.appendChild(linkDiv);
+        });
+      } else {
+        modalLinks.innerHTML = '<div style="color:#94a3b8; font-size:10.5px; font-style:italic;">Conectado a la matriz ecológica de humedales y arbolado de Kennedy.</div>';
+      }
+    }
+
+    if (btnFlyToSpecies) {
+      btnFlyToSpecies.style.background = catHex;
+      btnFlyToSpecies.onclick = () => {
+        if (t.territoryPos && window.gsap) {
+          gsap.to(camera.position, {
+            x: t.territoryPos.x + 18,
+            y: t.territoryPos.y + 24,
+            z: t.territoryPos.z + 36,
+            duration: 2.2,
+            ease: "power2.inOut"
+          });
+          gsap.to(controls.target, {
+            x: t.territoryPos.x,
+            y: t.territoryPos.y,
+            z: t.territoryPos.z,
+            duration: 2.2,
+            ease: "power2.inOut"
+          });
+        }
+      };
+    }
+
+    territoryModal.style.display = "flex";
+    if (soundActive && typeof triggerHarmonicChime === "function") {
+      triggerHarmonicChime(0.75);
+    }
+  }
+
+  // Pointermove para Tooltip en Territorio
+  window.addEventListener("pointermove", (e) => {
+    if (currentMorph < 0.35) {
+      if (territoryTooltip) territoryTooltip.style.display = "none";
+      return;
+    }
+
+    mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouseVec, camera);
+
+    const intersects = raycaster.intersectObjects(territoryBeacons, false);
+    if (intersects.length > 0) {
+      const hitSprite = intersects[0].object;
+      const t = hitSprite.userData.taxonData;
+      if (!t) return;
+
+      canvas.style.cursor = "pointer";
+
+      if (hoveredTerritoryBeacon && hoveredTerritoryBeacon !== hitSprite) {
+        const base = hoveredTerritoryBeacon.userData.baseScale || 3.8;
+        hoveredTerritoryBeacon.scale.set(base, base, 1.0);
+      }
+      hoveredTerritoryBeacon = hitSprite;
+      const targetScale = (hitSprite.userData.baseScale || 3.8) * 1.35;
+      hitSprite.scale.set(targetScale, targetScale, 1.0);
+
+      if (territoryTooltip) {
+        const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+        territoryTooltip.style.setProperty("--cat-color", catHex);
+
+        if (ttImg) ttImg.src = t.img;
+        if (ttBadge) {
+          ttBadge.textContent = CAT_EMOJIS[t.cat] || t.cat;
+          ttBadge.style.color = catHex;
+        }
+        if (ttName) ttName.textContent = t.name;
+        if (ttSci) ttSci.textContent = t.sciname;
+        if (ttLoc) ttLoc.textContent = `📍 ${t.territoryPos.locName || t.loc || 'Kennedy'}`;
+        if (ttRole) ttRole.textContent = t.role || "Eslabón ecológico";
+
+        // Posicionar Tooltip cerca del cursor
+        let posX = e.clientX + 16;
+        let posY = e.clientY;
+        if (posX + 300 > window.innerWidth) posX = e.clientX - 310;
+        if (posY + 120 > window.innerHeight) posY = window.innerHeight - 130;
+        if (posY < 100) posY = 100;
+
+        territoryTooltip.style.left = `${posX}px`;
+        territoryTooltip.style.top = `${posY}px`;
+        territoryTooltip.style.display = "block";
+      }
+    } else {
+      if (hoveredTerritoryBeacon) {
+        const base = hoveredTerritoryBeacon.userData.baseScale || 3.8;
+        hoveredTerritoryBeacon.scale.set(base, base, 1.0);
+        hoveredTerritoryBeacon = null;
+      }
+      canvas.style.cursor = "crosshair";
+      if (territoryTooltip) territoryTooltip.style.display = "none";
+    }
+  });
+
+  // Pointerdown para Clic en Baliza de Territorio
+  window.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".glass-panel") || e.target.closest("#territorySpeciesModal") || e.target.closest(".welcome-modal") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#activeTreeChip")) return;
+
+    if (currentMorph > 0.35) {
+      mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouseVec, camera);
+
+      const intersects = raycaster.intersectObjects(territoryBeacons, false);
+      if (intersects.length > 0) {
+        const hitSprite = intersects[0].object;
+        const t = hitSprite.userData.taxonData;
+        if (t) {
+          openTerritorySpeciesModal(t);
+        }
+      }
+    }
+  });
+
+
+  
