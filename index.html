@@ -150,6 +150,11 @@ window.onerror = function(msg, url, line, col, error) {
     border-color: rgba(132, 164, 139, 0.4); background: rgba(15, 23, 42, 0.9);
     transform: translateX(3px);
   }
+  .cat-card.inactive {
+    opacity: 0.35;
+    filter: grayscale(0.8);
+    transform: none !important;
+  }
   .cat-label-wrap { display: flex; align-items: center; gap: 10px; }
   .cat-thumb {
     width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
@@ -163,10 +168,64 @@ window.onerror = function(msg, url, line, col, error) {
   .toggle-box {
     width: 17px; height: 17px; border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 4px; display: flex; align-items: center; justify-content: center;
-    background: rgba(0, 0, 0, 0.5); transition: all 0.15s;
+    background: rgba(0, 0, 0, 0.5); transition: all 0.15s; cursor: pointer;
   }
-  .toggle-box.checked { background: #84A48B; border-color: #84A48B; }
-  .toggle-box.checked::after { content: ""; width: 5px; height: 5px; background: #000000; }
+  .toggle-box.checked { background: var(--toggle-bg, #84A48B); border-color: var(--toggle-bg, #84A48B); }
+  .toggle-box.checked::after { content: ""; width: 5px; height: 5px; background: #000000; border-radius: 1px; }
+
+  /* Interaction Conventions Toggles */
+  .inter-toggle-item {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 6px 9px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+  }
+  .inter-toggle-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--inter-color, #84a48b);
+    transform: translateX(2px);
+  }
+  .inter-toggle-item.active {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  .inter-toggle-item.inactive {
+    opacity: 0.32;
+    filter: grayscale(0.7);
+  }
+  .inter-toggle-item .toggle-box.checked {
+    background: var(--inter-color, #84a48b);
+    border-color: var(--inter-color, #84a48b);
+  }
+  .inter-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--inter-color, #84a48b);
+    box-shadow: 0 0 8px var(--inter-color, #84a48b);
+    flex-shrink: 0;
+  }
+  .quick-toggle-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #cbd5e1;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .quick-toggle-btn:hover {
+    background: rgba(132, 164, 139, 0.25);
+    border-color: #84a48b;
+    color: #ffffff;
+  }
 
   /* Node Inspector */
   .node-inspector {
@@ -667,11 +726,14 @@ window.onerror = function(msg, url, line, col, error) {
 <!-- Side Drawer -->
 <div class="glass-panel side-drawer" id="sideDrawer">
   <div class="drawer-header">
-    <span>Capas Socioecológicas Kennedy</span>
-    <span style="color:#84A48B; font-size:9px;">DOBLE CLIC = OCULTAR NODO</span>
+    <span style="color:#84A48B; font-weight:800;">Capas Taxonómicas</span>
+    <div style="display:flex; gap:4px;">
+      <button class="quick-toggle-btn" onclick="toggleAllCats(true)" title="Encender todas las capas taxonómicas">Todas</button>
+      <button class="quick-toggle-btn" onclick="toggleAllCats(false)" title="Apagar todas las capas taxonómicas">Ninguna</button>
+    </div>
   </div>
 
-  <div class="cat-card" style="--cat-color:#84A48B;" onclick="toggleCat(0)">
+  <div class="cat-card" id="catCard0" style="--cat-color:#84A48B;" onclick="toggleCat(0)">
     <div class="cat-label-wrap">
       <img class="cat-thumb" style="--cat-color:#84A48B;" src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=100" alt="Flora">
       <div>
@@ -681,11 +743,11 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
       <span class="badge-count" id="badgeCat0">90</span>
-      <div class="toggle-box checked" id="toggleCat0"></div>
+      <div class="toggle-box checked" id="toggleCat0" style="--toggle-bg:#84A48B;"></div>
     </div>
   </div>
 
-  <div class="cat-card" style="--cat-color:#38BDF8;" onclick="toggleCat(1)">
+  <div class="cat-card" id="catCard1" style="--cat-color:#38BDF8;" onclick="toggleCat(1)">
     <div class="cat-label-wrap">
       <img class="cat-thumb" style="--cat-color:#38BDF8;" src="https://inaturalist-open-data.s3.amazonaws.com/photos/28830194/medium.jpeg" alt="Aves">
       <div>
@@ -695,11 +757,11 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
       <span class="badge-count" id="badgeCat1" style="color:#38BDF8;">57</span>
-      <div class="toggle-box checked" id="toggleCat1"></div>
+      <div class="toggle-box checked" id="toggleCat1" style="--toggle-bg:#38BDF8;"></div>
     </div>
   </div>
 
-  <div class="cat-card" style="--cat-color:#F59E0B;" onclick="toggleCat(2)">
+  <div class="cat-card" id="catCard2" style="--cat-color:#F59E0B;" onclick="toggleCat(2)">
     <div class="cat-label-wrap">
       <img class="cat-thumb" style="--cat-color:#F59E0B;" src="https://static.inaturalist.org/photos/89686567/medium.jpeg" alt="Mamíferos">
       <div>
@@ -709,11 +771,11 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
       <span class="badge-count" id="badgeCat2" style="color:#F59E0B;">10</span>
-      <div class="toggle-box checked" id="toggleCat2"></div>
+      <div class="toggle-box checked" id="toggleCat2" style="--toggle-bg:#F59E0B;"></div>
     </div>
   </div>
 
-  <div class="cat-card" style="--cat-color:#EC4899;" onclick="toggleCat(3)">
+  <div class="cat-card" id="catCard3" style="--cat-color:#EC4899;" onclick="toggleCat(3)">
     <div class="cat-label-wrap">
       <img class="cat-thumb" style="--cat-color:#EC4899;" src="https://inaturalist-open-data.s3.amazonaws.com/photos/717211012/medium.jpg" alt="Moluscos">
       <div>
@@ -723,11 +785,11 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
       <span class="badge-count" id="badgeCat3" style="color:#EC4899;">10</span>
-      <div class="toggle-box checked" id="toggleCat3"></div>
+      <div class="toggle-box checked" id="toggleCat3" style="--toggle-bg:#EC4899;"></div>
     </div>
   </div>
 
-  <div class="cat-card" style="--cat-color:#10B981;" onclick="toggleCat(4)">
+  <div class="cat-card" id="catCard4" style="--cat-color:#10B981;" onclick="toggleCat(4)">
     <div class="cat-label-wrap">
       <img class="cat-thumb" style="--cat-color:#10B981;" src="https://inaturalist-open-data.s3.amazonaws.com/photos/707895722/medium.jpg" alt="Anfibios">
       <div>
@@ -737,11 +799,11 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
       <span class="badge-count" id="badgeCat4" style="color:#10B981;">6</span>
-      <div class="toggle-box checked" id="toggleCat4"></div>
+      <div class="toggle-box checked" id="toggleCat4" style="--toggle-bg:#10B981;"></div>
     </div>
   </div>
 
-  <div class="cat-card" style="--cat-color:#A855F7;" onclick="toggleCat(5)">
+  <div class="cat-card" id="catCard5" style="--cat-color:#A855F7;" onclick="toggleCat(5)">
     <div class="cat-label-wrap">
       <img class="cat-thumb" style="--cat-color:#A855F7;" src="https://static.inaturalist.org/photos/703015442/medium.jpg" alt="Reptiles">
       <div>
@@ -751,91 +813,119 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
       <span class="badge-count" id="badgeCat5" style="color:#A855F7;">8</span>
-      <div class="toggle-box checked" id="toggleCat5"></div>
+      <div class="toggle-box checked" id="toggleCat5" style="--toggle-bg:#A855F7;"></div>
     </div>
   </div>
 
-  <!-- Interaction Legend Box -->
+  <!-- Interactive Ecological Interaction Conventions -->
   <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.12);">
-    <div style="font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#84A48B; margin-bottom:8px;">
-      Tipos de Interacción Evaluados:
-    </div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px 8px; font-size:9px;">
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#C96349;"></span><span>Depredación</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#84A48B;"></span><span>Herbivoría</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E69888;"></span><span>Dispersión</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E7C878;"></span><span>Mutualismo</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#F79E70;"></span><span>Nidificación</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#A386A9;"></span><span>Visita Floral</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#D1A996;"></span><span>Anidamiento</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#C6B3CA;"></span><span>Parasitismo</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#6B9080;"></span><span>Alelopatía</span></div>
-    </div>
-  </div>
-</div>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span class="badge-count" id="badgeCat0">108</span>
-      <div class="toggle-box checked" id="toggleCat0"></div>
-    </div>
-  </div>
-
-  <div class="cat-card" style="--cat-color:#6B9080;" onclick="toggleCat(1)">
-    <div class="cat-label-wrap">
-      <img class="cat-thumb" style="--cat-color:#6B9080;" src="https://images.unsplash.com/photo-1520808663317-647b476a81b9?w=100" alt="Avifauna">
-      <div>
-        <div style="font-weight:700; color:#f8fafc;">Avifauna Evaluada</div>
-        <div style="font-size:9.5px; color:#94a3b8;">38 Taxones Acuáticos & Dosel</div>
+    <div class="drawer-header" style="margin-bottom:8px; padding-bottom:6px;">
+      <span style="color:#84A48B; font-weight:800;">Tipos de Interacción</span>
+      <div style="display:flex; gap:4px;">
+        <button class="quick-toggle-btn" onclick="toggleAllInteractions(true)" title="Encender todas las interacciones">Todas</button>
+        <button class="quick-toggle-btn" onclick="toggleAllInteractions(false)" title="Apagar todas las interacciones">Ninguna</button>
       </div>
     </div>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span class="badge-count" id="badgeCat1">38</span>
-      <div class="toggle-box checked" id="toggleCat1"></div>
-    </div>
-  </div>
-
-  <div class="cat-card" style="--cat-color:#A386A9;" onclick="toggleCat(2)">
-    <div class="cat-label-wrap">
-      <img class="cat-thumb" style="--cat-color:#A386A9;" src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=100" alt="Micro">
-      <div>
-        <div style="font-weight:700; color:#f8fafc;">Microorganismos & Biota</div>
-        <div style="font-size:9.5px; color:#94a3b8;">15 Taxones Biofiltro & Suelo</div>
+    
+    <div style="display:flex; flex-direction:column; gap:5px;" id="interactionToggleList">
+      <div class="inter-toggle-item active" id="interItem0" style="--inter-color:#C96349;" onclick="toggleInteraction(0)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#C96349;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Depredación</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter0" style="color:#C96349; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter0" style="width:15px; height:15px; --toggle-bg:#C96349;"></div>
+        </div>
       </div>
-    </div>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span class="badge-count" id="badgeCat2">15</span>
-      <div class="toggle-box checked" id="toggleCat2"></div>
-    </div>
-  </div>
 
-  <div class="cat-card" style="--cat-color:#C96349;" onclick="toggleCat(3)">
-    <div class="cat-label-wrap">
-      <img class="cat-thumb" style="--cat-color:#C96349;" src="https://images.unsplash.com/photo-1559253664-ca249d4608c6?w=100" alt="Fauna">
-      <div>
-        <div style="font-weight:700; color:#f8fafc;">Herpetos, Mamíferos & MIA</div>
-        <div style="font-size:9.5px; color:#94a3b8;">12 Taxones Fauna & Bentos</div>
+      <div class="inter-toggle-item active" id="interItem1" style="--inter-color:#84A48B;" onclick="toggleInteraction(1)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#84A48B;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Herbivoría</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter1" style="color:#84A48B; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter1" style="width:15px; height:15px; --toggle-bg:#84A48B;"></div>
+        </div>
       </div>
-    </div>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span class="badge-count" id="badgeCat3">12</span>
-      <div class="toggle-box checked" id="toggleCat3"></div>
-    </div>
-  </div>
 
-  <!-- Interaction Legend Box -->
-  <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.12);">
-    <div style="font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#84A48B; margin-bottom:8px;">
-      Tipos de Interacción Evaluados:
-    </div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px 8px; font-size:9px;">
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#C96349;"></span><span>Depredación</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#84A48B;"></span><span>Herbivoría</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E69888;"></span><span>Dispersión</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E7C878;"></span><span>Mutualismo</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#F79E70;"></span><span>Nidificación</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#A386A9;"></span><span>Visita Floral</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#D1A996;"></span><span>Anidamiento</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#C6B3CA;"></span><span>Parasitismo</span></div>
-      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#6B9080;"></span><span>Alelopatía</span></div>
+      <div class="inter-toggle-item active" id="interItem2" style="--inter-color:#E69888;" onclick="toggleInteraction(2)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#E69888;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Dispersión de Semillas</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter2" style="color:#E69888; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter2" style="width:15px; height:15px; --toggle-bg:#E69888;"></div>
+        </div>
+      </div>
+
+      <div class="inter-toggle-item active" id="interItem3" style="--inter-color:#E7C878;" onclick="toggleInteraction(3)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#E7C878;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Mutualismo</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter3" style="color:#E7C878; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter3" style="width:15px; height:15px; --toggle-bg:#E7C878;"></div>
+        </div>
+      </div>
+
+      <div class="inter-toggle-item active" id="interItem4" style="--inter-color:#F79E70;" onclick="toggleInteraction(4)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#F79E70;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Nidificación & Refugio</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter4" style="color:#F79E70; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter4" style="width:15px; height:15px; --toggle-bg:#F79E70;"></div>
+        </div>
+      </div>
+
+      <div class="inter-toggle-item active" id="interItem5" style="--inter-color:#A386A9;" onclick="toggleInteraction(5)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#A386A9;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Visita Floral / Polinización</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter5" style="color:#A386A9; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter5" style="width:15px; height:15px; --toggle-bg:#A386A9;"></div>
+        </div>
+      </div>
+
+      <div class="inter-toggle-item active" id="interItem6" style="--inter-color:#D1A996;" onclick="toggleInteraction(6)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#D1A996;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Anidamiento de Dosel</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter6" style="color:#D1A996; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter6" style="width:15px; height:15px; --toggle-bg:#D1A996;"></div>
+        </div>
+      </div>
+
+      <div class="inter-toggle-item active" id="interItem7" style="--inter-color:#C6B3CA;" onclick="toggleInteraction(7)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#C6B3CA;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Parasitismo de Nido</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter7" style="color:#C6B3CA; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter7" style="width:15px; height:15px; --toggle-bg:#C6B3CA;"></div>
+        </div>
+      </div>
+
+      <div class="inter-toggle-item active" id="interItem8" style="--inter-color:#6B9080;" onclick="toggleInteraction(8)">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="inter-dot" style="--inter-color:#6B9080;"></span>
+          <span style="font-size:10px; font-weight:600; color:#f8fafc;">Competencia / Biofiltro</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge-count" id="badgeInter8" style="color:#6B9080; font-size:9px; padding:2px 6px;">--</span>
+          <div class="toggle-box checked" id="toggleInter8" style="width:15px; height:15px; --toggle-bg:#6B9080;"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1179,7 +1269,8 @@ window.onerror = function(msg, url, line, col, error) {
     autoRotate: true,
     pulseMotion: true,
     layoutMode: "hyperbolic",
-    cats: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }
+    cats: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true },
+    interactions: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true }
   };
 
     const TAXONOMIC_CONVENTIONS = {
@@ -1721,29 +1812,8 @@ window.onerror = function(msg, url, line, col, error) {
 
   buildConscientiousBioticNetwork();
 
-  // Mesh de Líneas de Interacción en Three.js
+  // Mesh de Líneas de Interacción Dinámicas en Three.js
   const edgeGeo = new THREE.BufferGeometry();
-  const edgePos = new Float32Array(rawEdges.length * 2 * 3);
-  const edgeCol = new Float32Array(rawEdges.length * 2 * 3);
-
-  for (let e = 0; e < rawEdges.length; e++) {
-    const { source, target } = rawEdges[e];
-    const na = rawNodes[source];
-    const nb = rawNodes[target];
-    const ptr = e * 6;
-
-    edgePos[ptr] = na.x; edgePos[ptr+1] = na.y; edgePos[ptr+2] = na.z;
-    edgePos[ptr+3] = nb.x; edgePos[ptr+4] = nb.y; edgePos[ptr+5] = nb.z;
-
-    const ca = new THREE.Color(palette.hexColors[na.cat] || 0x84A48B);
-    const cb = new THREE.Color(palette.hexColors[nb.cat] || 0x84A48B);
-    edgeCol[ptr] = ca.r * 0.75; edgeCol[ptr+1] = ca.g * 0.75; edgeCol[ptr+2] = ca.b * 0.75;
-    edgeCol[ptr+3] = cb.r * 0.75; edgeCol[ptr+4] = cb.g * 0.75; edgeCol[ptr+5] = cb.b * 0.75;
-  }
-
-  edgeGeo.setAttribute("position", new THREE.BufferAttribute(edgePos, 3));
-  edgeGeo.setAttribute("color", new THREE.BufferAttribute(edgeCol, 3));
-
   const edgeMat = new THREE.LineBasicMaterial({
     vertexColors: true,
     transparent: true,
@@ -1753,6 +1823,67 @@ window.onerror = function(msg, url, line, col, error) {
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
 
+  function updateEdgeLinesGeometry() {
+    const activeEdgesList = [];
+    const interCounts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+
+    rawEdges.forEach((e) => {
+      const na = rawNodes[e.source];
+      const nb = rawNodes[e.target];
+      if (!na || !nb) return;
+      const key = na.id < nb.id ? `${na.id}_${nb.id}` : `${nb.id}_${na.id}`;
+      const inter = edgeDetailsMap[key]?.type || getInteractionInfo(na, nb);
+      const typeId = inter.id;
+
+      if (interCounts[typeId] !== undefined) {
+        interCounts[typeId]++;
+      }
+
+      const isInterActive = (opts.interactions[typeId] !== false);
+      const isNodesActive = na.active && nb.active;
+
+      if (isInterActive && isNodesActive) {
+        activeEdgesList.push({ na, nb, inter });
+      }
+    });
+
+    // Actualizar contadores de interacciones en el panel lateral
+    for (let i = 0; i <= 8; i++) {
+      const badge = document.getElementById(`badgeInter${i}`);
+      if (badge) badge.innerText = interCounts[i] || 0;
+    }
+
+    const count = activeEdgesList.length;
+    const posArr = new Float32Array(count * 2 * 3);
+    const colArr = new Float32Array(count * 2 * 3);
+
+    for (let i = 0; i < count; i++) {
+      const { na, nb, inter } = activeEdgesList[i];
+      const ptr = i * 6;
+
+      const posA = na.sprite ? na.sprite.position : na;
+      const posB = nb.sprite ? nb.sprite.position : nb;
+
+      posArr[ptr]     = posA.x; posArr[ptr + 1] = posA.y; posArr[ptr + 2] = posA.z;
+      posArr[ptr + 3] = posB.x; posArr[ptr + 4] = posB.y; posArr[ptr + 5] = posB.z;
+
+      const interColor = new THREE.Color(inter.color || palette.catColors[na.cat] || "#84A48B");
+      const ca = new THREE.Color(palette.hexColors[na.cat] || 0x84A48B).lerp(interColor, 0.45);
+      const cb = new THREE.Color(palette.hexColors[nb.cat] || 0x84A48B).lerp(interColor, 0.45);
+
+      colArr[ptr]     = ca.r * 0.85; colArr[ptr + 1] = ca.g * 0.85; colArr[ptr + 2] = ca.b * 0.85;
+      colArr[ptr + 3] = cb.r * 0.85; colArr[ptr + 4] = cb.g * 0.85; colArr[ptr + 5] = cb.b * 0.85;
+    }
+
+    edgeGeo.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
+    edgeGeo.setAttribute("color", new THREE.BufferAttribute(colArr, 3));
+    edgeGeo.attributes.position.needsUpdate = true;
+    edgeGeo.attributes.color.needsUpdate = true;
+
+    const lblActiveEdges = document.getElementById("lblActiveEdges");
+    if (lblActiveEdges) lblActiveEdges.innerText = count;
+  }
+
   function recalculateDegreesAndSizes() {
     let activeNodesCount = 0;
     let hiddenCount = 0;
@@ -1761,7 +1892,15 @@ window.onerror = function(msg, url, line, col, error) {
     rawNodes.forEach(n => {
       n.active = (opts.cats[n.cat] === true) && !n.hiddenByUser;
       if (n.hiddenByUser) hiddenCount++;
-      n.degree = n.neighbors.filter(nb => nb.active).length;
+
+      // Calcular grado biológico activo considerando categorías e interacciones encendidas
+      n.degree = n.neighbors.filter(nb => {
+        if (!nb.active) return false;
+        const key = n.id < nb.id ? `${n.id}_${nb.id}` : `${nb.id}_${n.id}`;
+        const inter = edgeDetailsMap[key]?.type || getInteractionInfo(n, nb);
+        return opts.interactions[inter.id] !== false;
+      }).length;
+
       n.sprite.visible = n.active && (currentMorph < 0.35);
 
       if (n.active) {
@@ -1777,17 +1916,25 @@ window.onerror = function(msg, url, line, col, error) {
       if (el) el.innerText = catCounts[c];
     }
 
+    // Sincronizar balizas de territorio en Kennedy 3D con las capas activas
+    if (territoryBeaconsGroup) {
+      territoryBeaconsGroup.children.forEach(bg => {
+        const t = bg.userData.taxonData;
+        if (t) {
+          const cIdx = (typeof t.cat === 'number') ? t.cat : (TAXONOMIC_CONVENTIONS[t.cat]?.catIdx ?? 0);
+          bg.visible = (opts.cats[cIdx] !== false);
+        }
+      });
+    }
+
     const lblActive = document.getElementById("lblActiveNodes");
     if (lblActive) lblActive.innerText = activeNodesCount;
     const lblHidden = document.getElementById("lblHiddenCount");
     if (lblHidden) lblHidden.innerText = hiddenCount;
     const lblStatusHidden = document.getElementById("lblStatusHidden");
     if (lblStatusHidden) lblStatusHidden.innerText = hiddenCount;
-    const lblActiveEdges = document.getElementById("lblActiveEdges");
-    if (lblActiveEdges) {
-      const activeEdges = rawEdges.filter(e => rawNodes[e.source].active && rawNodes[e.target].active).length;
-      lblActiveEdges.innerText = activeEdges;
-    }
+
+    updateEdgeLinesGeometry();
   }
 
   recalculateDegreesAndSizes();
@@ -2752,7 +2899,49 @@ window.onerror = function(msg, url, line, col, error) {
   window.toggleCat = (catId) => {
     opts.cats[catId] = !opts.cats[catId];
     const toggleEl = document.getElementById(`toggleCat${catId}`);
+    const cardEl = document.getElementById(`catCard${catId}`);
     if (toggleEl) toggleEl.classList.toggle('checked', opts.cats[catId]);
+    if (cardEl) {
+      cardEl.classList.toggle('inactive', !opts.cats[catId]);
+    }
+    recalculateDegreesAndSizes();
+  };
+
+  window.toggleAllCats = (state) => {
+    for (let c = 0; c <= 5; c++) {
+      opts.cats[c] = state;
+      const toggleEl = document.getElementById(`toggleCat${c}`);
+      const cardEl = document.getElementById(`catCard${c}`);
+      if (toggleEl) toggleEl.classList.toggle('checked', state);
+      if (cardEl) cardEl.classList.toggle('inactive', !state);
+    }
+    recalculateDegreesAndSizes();
+  };
+
+  window.toggleInteraction = (typeId) => {
+    opts.interactions[typeId] = !opts.interactions[typeId];
+    const toggleEl = document.getElementById(`toggleInter${typeId}`);
+    const itemEl = document.getElementById(`interItem${typeId}`);
+    const isActive = !!opts.interactions[typeId];
+    if (toggleEl) toggleEl.classList.toggle('checked', isActive);
+    if (itemEl) {
+      itemEl.classList.toggle('active', isActive);
+      itemEl.classList.toggle('inactive', !isActive);
+    }
+    recalculateDegreesAndSizes();
+  };
+
+  window.toggleAllInteractions = (state) => {
+    for (let i = 0; i <= 8; i++) {
+      opts.interactions[i] = state;
+      const toggleEl = document.getElementById(`toggleInter${i}`);
+      const itemEl = document.getElementById(`interItem${i}`);
+      if (toggleEl) toggleEl.classList.toggle('checked', state);
+      if (itemEl) {
+        itemEl.classList.toggle('active', state);
+        itemEl.classList.toggle('inactive', !state);
+      }
+    }
     recalculateDegreesAndSizes();
   };
 
@@ -2827,7 +3016,10 @@ window.onerror = function(msg, url, line, col, error) {
       }
 
       if (window.gsap) {
-        gsap.to(n.sprite.position, { x: n.ox, y: n.oy, z: n.oz, duration: 2.2, ease: "power2.inOut" });
+        gsap.to(n.sprite.position, {
+          x: n.ox, y: n.oy, z: n.oz, duration: 2.2, ease: "power2.inOut",
+          onUpdate: (idx === 0 ? updateEdgeLinesGeometry : null)
+        });
       }
     });
   };
@@ -3460,65 +3652,5 @@ window.onerror = function(msg, url, line, col, error) {
   animate();
 })();
 </script>
-
-  <!-- Territory Hover Tooltip -->
-  <div id="territorySpeciesTooltip" style="position: fixed; display: none; z-index: 9999; pointer-events: none; transform: translate(14px, -50%); transition: opacity 0.15s ease;">
-    <div style="background: rgba(8, 12, 18, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--cat-color, #84A48B); border-radius: 12px; padding: 12px 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.85); width: 280px; display: flex; flex-direction: column; gap: 8px; color: #fff; font-family: 'Inter', sans-serif;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <img id="ttSpeciesImg" src="" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1.5px solid var(--cat-color, #84A48B); flex-shrink: 0; background: #000;">
-        <div style="display: flex; flex-direction: column; overflow: hidden;">
-          <span id="ttSpeciesBadge" style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cat-color, #84A48B); display: flex; align-items: center; gap: 4px;">🟢 ANFIBIO</span>
-          <span id="ttSpeciesName" style="font-size: 13px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rana sabanera</span>
-          <span id="ttSpeciesSci" style="font-size: 10.5px; font-style: italic; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dendropsophus labialis</span>
-        </div>
-      </div>
-      <div style="background: rgba(255, 255, 255, 0.04); border-radius: 6px; padding: 6px 8px; font-size: 10.5px; color: #cbd5e1; line-height: 1.35;">
-        <div id="ttSpeciesLoc" style="color: #38BDF8; font-weight: 600; margin-bottom: 2px;">📍 Humedal El Burro</div>
-        <div id="ttSpeciesRole" style="color: #94a3b8;">Insectívoro de orilla / Bioindicador</div>
-      </div>
-      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; color: var(--cat-color, #84A48B); font-weight: 700; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 6px;">
-        <span>✨ Coordenada Kennedy</span>
-        <span>👆 Clic para ver Pop-up ➔</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Territory Species Pop-up Modal -->
-  <div id="territorySpeciesModal" class="glass-panel" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 440px; max-width: 90vw; max-height: 85vh; z-index: 10000; display: none; flex-direction: column; overflow: hidden; border: 2px solid var(--cat-color, #84A48B); border-radius: 16px; box-shadow: 0 30px 90px rgba(0,0,0,0.95); background: #06090f; animation: fadeIn 0.25s ease-out; pointer-events: auto;">
-    <div style="position: relative; width: 100%; height: 180px; overflow: hidden; background: #000;">
-      <img id="modalSpeciesImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
-      <div style="position: absolute; inset: 0; background: linear-gradient(0deg, #06090f 5%, transparent 60%);"></div>
-      <div id="btnCloseTerritoryModal" style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 14px;">✕</div>
-      <div style="position: absolute; bottom: 10px; left: 16px; right: 16px;">
-        <span id="modalSpeciesBadge" style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 4px; background: rgba(0,0,0,0.7); border: 1px solid var(--cat-color, #84A48B); color: var(--cat-color, #84A48B);">🟢 ANFIBIO</span>
-        <h2 id="modalSpeciesName" style="font-size: 18px; font-weight: 800; color: #fff; margin-top: 4px;">Rana sabanera</h2>
-        <p id="modalSpeciesSci" style="font-size: 12px; font-style: italic; color: #94a3b8;">Dendropsophus labialis</p>
-      </div>
-    </div>
-    <div style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px;">
-          <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 700;">Ubicación en Kennedy</div>
-          <div id="modalSpeciesLoc" style="font-size: 11.5px; font-weight: 600; color: #38BDF8; margin-top: 2px;">Humedal El Burro</div>
-        </div>
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px;">
-          <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 700;">Gremio Ecológico</div>
-          <div id="modalSpeciesRole" style="font-size: 11.5px; font-weight: 600; color: #84A48B; margin-top: 2px;">Insectívoro / Bioindicador</div>
-        </div>
-      </div>
-      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px;">
-        <div style="font-size: 10px; color: var(--cat-color, #84A48B); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 4px;">Descripción & Evidencia iNaturalist</div>
-        <p id="modalSpeciesDesc" style="font-size: 11.5px; line-height: 1.45; color: #cbd5e1;">Especie clave bioindicadora de la salud del cuerpo de agua.</p>
-      </div>
-      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px;">
-        <div style="font-size: 10px; color: #38BDF8; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 6px;">🔗 Conexiones Bióticas en el Ecosistema</div>
-        <div id="modalSpeciesLinks" style="display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto;"></div>
-      </div>
-      <button id="btnFlyToSpecies" style="padding: 10px; border-radius: 8px; background: var(--cat-color, #84A48B); color: #000; font-weight: 800; font-size: 11px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-        <i class="fas fa-crosshairs"></i> Enfocar Cámara en Coordenada de Kennedy
-      </button>
-    </div>
-  </div>
-
 </body>
 </html>

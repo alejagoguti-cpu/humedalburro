@@ -153,7 +153,8 @@
     autoRotate: true,
     pulseMotion: true,
     layoutMode: "hyperbolic",
-    cats: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }
+    cats: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true },
+    interactions: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true }
   };
 
     const TAXONOMIC_CONVENTIONS = {
@@ -695,29 +696,8 @@
 
   buildConscientiousBioticNetwork();
 
-  // Mesh de Líneas de Interacción en Three.js
+  // Mesh de Líneas de Interacción Dinámicas en Three.js
   const edgeGeo = new THREE.BufferGeometry();
-  const edgePos = new Float32Array(rawEdges.length * 2 * 3);
-  const edgeCol = new Float32Array(rawEdges.length * 2 * 3);
-
-  for (let e = 0; e < rawEdges.length; e++) {
-    const { source, target } = rawEdges[e];
-    const na = rawNodes[source];
-    const nb = rawNodes[target];
-    const ptr = e * 6;
-
-    edgePos[ptr] = na.x; edgePos[ptr+1] = na.y; edgePos[ptr+2] = na.z;
-    edgePos[ptr+3] = nb.x; edgePos[ptr+4] = nb.y; edgePos[ptr+5] = nb.z;
-
-    const ca = new THREE.Color(palette.hexColors[na.cat] || 0x84A48B);
-    const cb = new THREE.Color(palette.hexColors[nb.cat] || 0x84A48B);
-    edgeCol[ptr] = ca.r * 0.75; edgeCol[ptr+1] = ca.g * 0.75; edgeCol[ptr+2] = ca.b * 0.75;
-    edgeCol[ptr+3] = cb.r * 0.75; edgeCol[ptr+4] = cb.g * 0.75; edgeCol[ptr+5] = cb.b * 0.75;
-  }
-
-  edgeGeo.setAttribute("position", new THREE.BufferAttribute(edgePos, 3));
-  edgeGeo.setAttribute("color", new THREE.BufferAttribute(edgeCol, 3));
-
   const edgeMat = new THREE.LineBasicMaterial({
     vertexColors: true,
     transparent: true,
@@ -727,6 +707,67 @@
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
 
+  function updateEdgeLinesGeometry() {
+    const activeEdgesList = [];
+    const interCounts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+
+    rawEdges.forEach((e) => {
+      const na = rawNodes[e.source];
+      const nb = rawNodes[e.target];
+      if (!na || !nb) return;
+      const key = na.id < nb.id ? `${na.id}_${nb.id}` : `${nb.id}_${na.id}`;
+      const inter = edgeDetailsMap[key]?.type || getInteractionInfo(na, nb);
+      const typeId = inter.id;
+
+      if (interCounts[typeId] !== undefined) {
+        interCounts[typeId]++;
+      }
+
+      const isInterActive = (opts.interactions[typeId] !== false);
+      const isNodesActive = na.active && nb.active;
+
+      if (isInterActive && isNodesActive) {
+        activeEdgesList.push({ na, nb, inter });
+      }
+    });
+
+    // Actualizar contadores de interacciones en el panel lateral
+    for (let i = 0; i <= 8; i++) {
+      const badge = document.getElementById(`badgeInter${i}`);
+      if (badge) badge.innerText = interCounts[i] || 0;
+    }
+
+    const count = activeEdgesList.length;
+    const posArr = new Float32Array(count * 2 * 3);
+    const colArr = new Float32Array(count * 2 * 3);
+
+    for (let i = 0; i < count; i++) {
+      const { na, nb, inter } = activeEdgesList[i];
+      const ptr = i * 6;
+
+      const posA = na.sprite ? na.sprite.position : na;
+      const posB = nb.sprite ? nb.sprite.position : nb;
+
+      posArr[ptr]     = posA.x; posArr[ptr + 1] = posA.y; posArr[ptr + 2] = posA.z;
+      posArr[ptr + 3] = posB.x; posArr[ptr + 4] = posB.y; posArr[ptr + 5] = posB.z;
+
+      const interColor = new THREE.Color(inter.color || palette.catColors[na.cat] || "#84A48B");
+      const ca = new THREE.Color(palette.hexColors[na.cat] || 0x84A48B).lerp(interColor, 0.45);
+      const cb = new THREE.Color(palette.hexColors[nb.cat] || 0x84A48B).lerp(interColor, 0.45);
+
+      colArr[ptr]     = ca.r * 0.85; colArr[ptr + 1] = ca.g * 0.85; colArr[ptr + 2] = ca.b * 0.85;
+      colArr[ptr + 3] = cb.r * 0.85; colArr[ptr + 4] = cb.g * 0.85; colArr[ptr + 5] = cb.b * 0.85;
+    }
+
+    edgeGeo.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
+    edgeGeo.setAttribute("color", new THREE.BufferAttribute(colArr, 3));
+    edgeGeo.attributes.position.needsUpdate = true;
+    edgeGeo.attributes.color.needsUpdate = true;
+
+    const lblActiveEdges = document.getElementById("lblActiveEdges");
+    if (lblActiveEdges) lblActiveEdges.innerText = count;
+  }
+
   function recalculateDegreesAndSizes() {
     let activeNodesCount = 0;
     let hiddenCount = 0;
@@ -735,7 +776,15 @@
     rawNodes.forEach(n => {
       n.active = (opts.cats[n.cat] === true) && !n.hiddenByUser;
       if (n.hiddenByUser) hiddenCount++;
-      n.degree = n.neighbors.filter(nb => nb.active).length;
+
+      // Calcular grado biológico activo considerando categorías e interacciones encendidas
+      n.degree = n.neighbors.filter(nb => {
+        if (!nb.active) return false;
+        const key = n.id < nb.id ? `${n.id}_${nb.id}` : `${nb.id}_${n.id}`;
+        const inter = edgeDetailsMap[key]?.type || getInteractionInfo(n, nb);
+        return opts.interactions[inter.id] !== false;
+      }).length;
+
       n.sprite.visible = n.active && (currentMorph < 0.35);
 
       if (n.active) {
@@ -751,17 +800,25 @@
       if (el) el.innerText = catCounts[c];
     }
 
+    // Sincronizar balizas de territorio en Kennedy 3D con las capas activas
+    if (territoryBeaconsGroup) {
+      territoryBeaconsGroup.children.forEach(bg => {
+        const t = bg.userData.taxonData;
+        if (t) {
+          const cIdx = (typeof t.cat === 'number') ? t.cat : (TAXONOMIC_CONVENTIONS[t.cat]?.catIdx ?? 0);
+          bg.visible = (opts.cats[cIdx] !== false);
+        }
+      });
+    }
+
     const lblActive = document.getElementById("lblActiveNodes");
     if (lblActive) lblActive.innerText = activeNodesCount;
     const lblHidden = document.getElementById("lblHiddenCount");
     if (lblHidden) lblHidden.innerText = hiddenCount;
     const lblStatusHidden = document.getElementById("lblStatusHidden");
     if (lblStatusHidden) lblStatusHidden.innerText = hiddenCount;
-    const lblActiveEdges = document.getElementById("lblActiveEdges");
-    if (lblActiveEdges) {
-      const activeEdges = rawEdges.filter(e => rawNodes[e.source].active && rawNodes[e.target].active).length;
-      lblActiveEdges.innerText = activeEdges;
-    }
+
+    updateEdgeLinesGeometry();
   }
 
   recalculateDegreesAndSizes();
@@ -1726,7 +1783,49 @@
   window.toggleCat = (catId) => {
     opts.cats[catId] = !opts.cats[catId];
     const toggleEl = document.getElementById(`toggleCat${catId}`);
+    const cardEl = document.getElementById(`catCard${catId}`);
     if (toggleEl) toggleEl.classList.toggle('checked', opts.cats[catId]);
+    if (cardEl) {
+      cardEl.classList.toggle('inactive', !opts.cats[catId]);
+    }
+    recalculateDegreesAndSizes();
+  };
+
+  window.toggleAllCats = (state) => {
+    for (let c = 0; c <= 5; c++) {
+      opts.cats[c] = state;
+      const toggleEl = document.getElementById(`toggleCat${c}`);
+      const cardEl = document.getElementById(`catCard${c}`);
+      if (toggleEl) toggleEl.classList.toggle('checked', state);
+      if (cardEl) cardEl.classList.toggle('inactive', !state);
+    }
+    recalculateDegreesAndSizes();
+  };
+
+  window.toggleInteraction = (typeId) => {
+    opts.interactions[typeId] = !opts.interactions[typeId];
+    const toggleEl = document.getElementById(`toggleInter${typeId}`);
+    const itemEl = document.getElementById(`interItem${typeId}`);
+    const isActive = !!opts.interactions[typeId];
+    if (toggleEl) toggleEl.classList.toggle('checked', isActive);
+    if (itemEl) {
+      itemEl.classList.toggle('active', isActive);
+      itemEl.classList.toggle('inactive', !isActive);
+    }
+    recalculateDegreesAndSizes();
+  };
+
+  window.toggleAllInteractions = (state) => {
+    for (let i = 0; i <= 8; i++) {
+      opts.interactions[i] = state;
+      const toggleEl = document.getElementById(`toggleInter${i}`);
+      const itemEl = document.getElementById(`interItem${i}`);
+      if (toggleEl) toggleEl.classList.toggle('checked', state);
+      if (itemEl) {
+        itemEl.classList.toggle('active', state);
+        itemEl.classList.toggle('inactive', !state);
+      }
+    }
     recalculateDegreesAndSizes();
   };
 
@@ -1801,7 +1900,10 @@
       }
 
       if (window.gsap) {
-        gsap.to(n.sprite.position, { x: n.ox, y: n.oy, z: n.oz, duration: 2.2, ease: "power2.inOut" });
+        gsap.to(n.sprite.position, {
+          x: n.ox, y: n.oy, z: n.oz, duration: 2.2, ease: "power2.inOut",
+          onUpdate: (idx === 0 ? updateEdgeLinesGeometry : null)
+        });
       }
     });
   };
