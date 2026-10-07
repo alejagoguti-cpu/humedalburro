@@ -195,42 +195,36 @@
   ];
 
   // =====================================================================
-  // 2. RED BIÓTICA ESFÉRICA 3D COMPLETA
+  // 2. RED BIÓTICA FLOTANTE ORGÁNICA (MISMO LENGUAJE DE PARTÍCULAS)
   // =====================================================================
   const SWARM_COUNT = 850;
   const swarmGroup = new THREE.Group();
   sceneRoot.add(swarmGroup);
 
-  function createNodeBadgeTexture() {
+  // Textura suave y etérea con núcleo luminoso (idéntica al lenguaje del territorio)
+  function createNodeGlowTexture() {
     const cvs = document.createElement("canvas");
     cvs.width = 64; cvs.height = 64;
     const ctx = cvs.getContext("2d");
 
-    const radGlow = ctx.createRadialGradient(32, 32, 10, 32, 32, 30);
-    radGlow.addColorStop(0, "rgba(234, 228, 218, 1.0)");
-    radGlow.addColorStop(0.35, "rgba(234, 193, 25, 0.6)");
-    radGlow.addColorStop(1, "rgba(29, 29, 27, 0)");
+    const radGlow = ctx.createRadialGradient(32, 32, 2, 32, 32, 30);
+    radGlow.addColorStop(0, "rgba(255, 255, 255, 1.0)");
+    radGlow.addColorStop(0.25, "rgba(234, 228, 218, 0.9)");
+    radGlow.addColorStop(0.55, "rgba(234, 193, 25, 0.45)");
+    radGlow.addColorStop(1, "rgba(24, 24, 27, 0)");
     ctx.fillStyle = radGlow;
     ctx.fillRect(0, 0, 64, 64);
-
-    ctx.beginPath();
-    ctx.arc(32, 32, 16, 0, Math.PI * 2);
-    ctx.fillStyle = "#EAE4DA";
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "#1D1D1B";
-    ctx.stroke();
 
     return new THREE.CanvasTexture(cvs);
   }
 
-  const nodeBadgeTex = createNodeBadgeTexture();
+  const nodeGlowTex = createNodeGlowTexture();
 
   const nodeMat = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0.0 },
       uMorph: { value: 0.0 },
-      uTexture: { value: nodeBadgeTex }
+      uTexture: { value: nodeGlowTex }
     },
     vertexShader: `
       attribute vec3 aNodeColor;
@@ -242,11 +236,11 @@
       
       void main() {
         vColor = aNodeColor;
-        vAlpha = max(0.0, 1.0 - uMorph * 3.5);
+        vAlpha = max(0.0, 1.0 - uMorph * 3.2);
         
         vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * mvPos;
-        gl_PointSize = aNodeScale * (420.0 / -mvPos.z) * vAlpha;
+        gl_PointSize = aNodeScale * (380.0 / -mvPos.z) * vAlpha;
       }
     `,
     fragmentShader: `
@@ -257,16 +251,16 @@
       void main() {
         if (vAlpha < 0.01) discard;
         vec4 texCol = texture2D(uTexture, gl_PointCoord);
-        if (texCol.a < 0.1) discard;
-        gl_FragColor = vec4(vColor * texCol.rgb, texCol.a * vAlpha);
+        if (texCol.a < 0.05) discard;
+        gl_FragColor = vec4(vColor * texCol.rgb, texCol.a * vAlpha * 0.92);
       }
     `,
     transparent: true,
     depthWrite: false,
-    blending: THREE.NormalBlending
+    blending: THREE.AdditiveBlending
   });
 
-  const SPHERE_RADIUS = 34.0;
+  const SPHERE_RADIUS = 36.0;
   const swarmNodes = [];
   const nodePositions = new Float32Array(SWARM_COUNT * 3);
   const nodeColors = new Float32Array(SWARM_COUNT * 3);
@@ -275,12 +269,14 @@
   for (let i = 0; i < SWARM_COUNT; i++) {
     const species = SPECIES_CATALOG[i % SPECIES_CATALOG.length];
 
+    // Distribución orgánica con volumen y micro-racimos fluidos
     const phi = Math.acos(1.0 - 2.0 * (i + 0.5) / SWARM_COUNT);
     const theta = Math.PI * (1.0 + Math.sqrt(5.0)) * i;
-    const r = SPHERE_RADIUS * (0.6 + 0.4 * Math.pow((i % 17) / 16.0, 0.5));
+    const radialVariation = 0.55 + 0.45 * Math.sin(i * 1.8 + Math.cos(i * 0.7));
+    const r = SPHERE_RADIUS * (0.65 + 0.35 * radialVariation);
 
     const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = r * Math.sin(phi) * Math.sin(theta);
+    const y = r * Math.sin(phi) * Math.sin(theta) * 0.95; // Ligera compresión orgánica
     const z = r * Math.cos(phi);
 
     const col = new THREE.Color(species.color);
@@ -293,7 +289,7 @@
     nodeColors[i * 3 + 1] = col.g;
     nodeColors[i * 3 + 2] = col.b;
 
-    nodeScales[i] = 1.25 + (i % 5 === 0 ? 0.35 : 0.0);
+    nodeScales[i] = 1.2 + (i % 4 === 0 ? 0.4 : 0.0);
 
     swarmNodes.push({
       id: i,
@@ -301,6 +297,10 @@
       baseX: x, baseY: y, baseZ: z,
       x: x, y: y, z: z,
       phase: Math.random() * Math.PI * 2,
+      freqX: 0.6 + Math.random() * 0.6,
+      freqY: 0.7 + Math.random() * 0.7,
+      freqZ: 0.5 + Math.random() * 0.5,
+      amp: 0.8 + Math.random() * 1.2,
       scale: nodeScales[i],
       color: col,
       neighbors: [],
@@ -316,7 +316,7 @@
   const nodePoints = new THREE.Points(nodeGeo, nodeMat);
   swarmGroup.add(nodePoints);
 
-  const MAX_LINKS_PER_NODE = 5;
+  const MAX_LINKS_PER_NODE = 4;
   const linkList = [];
 
   for (let i = 0; i < SWARM_COUNT; i++) {
@@ -332,7 +332,7 @@
 
     for (let k = 0; k < MAX_LINKS_PER_NODE; k++) {
       const neighbor = dists[k];
-      if (neighbor.dSq < 240) {
+      if (neighbor && neighbor.dSq < 220) {
         if (!ni.neighbors.includes(neighbor.id)) {
           ni.neighbors.push(neighbor.id);
           if (i < neighbor.id) {
@@ -358,8 +358,8 @@
 
     const c1 = ni.color;
     const c2 = nj.color;
-    linkCol[ptr]     = c1.r * 0.9; linkCol[ptr + 1] = c1.g * 0.9; linkCol[ptr + 2] = c1.b * 0.9;
-    linkCol[ptr + 3] = c2.r * 0.9; linkCol[ptr + 4] = c2.g * 0.9; linkCol[ptr + 5] = c2.b * 0.9;
+    linkCol[ptr]     = c1.r * 0.75; linkCol[ptr + 1] = c1.g * 0.75; linkCol[ptr + 2] = c1.b * 0.75;
+    linkCol[ptr + 3] = c2.r * 0.75; linkCol[ptr + 4] = c2.g * 0.75; linkCol[ptr + 5] = c2.b * 0.75;
   }
 
   const linkGeo = new THREE.BufferGeometry();
@@ -369,7 +369,7 @@
   const linkMat = new THREE.LineBasicMaterial({
     vertexColors: true,
     transparent: true,
-    opacity: 0.45,
+    opacity: 0.32,
     blending: THREE.AdditiveBlending
   });
   const linkLines = new THREE.LineSegments(linkGeo, linkMat);
@@ -382,21 +382,21 @@
     }
     swarmGroup.visible = true;
 
-    swarmGroup.rotation.y = time * 0.055;
-    swarmGroup.rotation.x = Math.sin(time * 0.04) * 0.04;
+    swarmGroup.rotation.y = time * 0.045;
+    swarmGroup.rotation.x = Math.sin(time * 0.03) * 0.035;
 
     nodeMat.uniforms.uTime.value = time;
     nodeMat.uniforms.uMorph.value = morphProgress;
-    linkMat.opacity = Math.max(0.0, (1.0 - morphProgress * 3.5) * 0.45);
+    linkMat.opacity = Math.max(0.0, (1.0 - morphProgress * 3.2) * 0.32);
 
     const posArr = nodeGeo.attributes.position.array;
     const lPosArr = linkGeo.attributes.position.array;
 
     for (let i = 0; i < SWARM_COUNT; i++) {
       const d = swarmNodes[i];
-      const waveY = Math.sin(time * 1.1 + d.phase) * 0.45;
-      const waveX = Math.cos(time * 0.9 + d.phase) * 0.35;
-      const waveZ = Math.sin(time * 1.0 + d.phase * 1.5) * 0.35;
+      const waveY = Math.sin(time * d.freqY + d.phase) * d.amp * 1.1 + Math.cos(time * 0.4 + d.baseX * 0.06) * 0.5;
+      const waveX = Math.cos(time * d.freqX + d.phase) * d.amp * 0.8 + Math.sin(time * 0.5 + d.baseZ * 0.06) * 0.5;
+      const waveZ = Math.sin(time * d.freqZ + d.phase * 1.3) * d.amp * 0.8 + Math.cos(time * 0.3 + d.baseY * 0.06) * 0.5;
 
       const curX = d.baseX + waveX;
       const curY = d.baseY + waveY;
@@ -571,9 +571,9 @@
     return fetch(WATER_URL)
       .then(r => r.json())
       .then(waterBodies => {
-        // Cuerpos de Agua: Azul nítido, luminoso y cristalino (Ocean Aqua & Sky Azure)
-        const colWaterMain = new THREE.Color(0x00B4D8); // Azul Humedal Brillante (#00B4D8)
-        const colWaterDeep = new THREE.Color(0x0077B6); // Azul Profundo (#0077B6)
+        // Cuerpos de Agua: Azul Cian Humedal Nítido y Cristalino
+        const colWaterMain = new THREE.Color(0x00A8CC); // Azul Humedal (#00A8CC)
+        const colWaterDeep = new THREE.Color(0x028090); // Azul Laguna Profunda (#028090)
 
         waterBodies.forEach(w => {
           const pts = w.pts;
@@ -628,24 +628,24 @@
     return fetch(TREES_URL)
       .then(r => r.json())
       .then(trees => {
-        // Vegetación en VERDE BOTÁNICO FRESCO Y VIBRANTE (Natural Leaf Green)
-        const colTreeLush = new THREE.Color(0x2E8B57);    // Verde Esmeralda / Bosque (#2E8B57)
-        const colTreeBright = new THREE.Color(0x48BB78);  // Verde Hoja Fresco (#48BB78)
-        const colTrunk = new THREE.Color(0x1A202C);       // Tronco oscuro (#1A202C)
+        // Vegetación en VERDE BOSQUE & MUSGO NATURAL (Cero neón, orgánico, profundo)
+        const colTreeForest = new THREE.Color(0x3B6E4C); // Verde Bosque Natural (#3B6E4C)
+        const colTreeMoss   = new THREE.Color(0x4D7C59); // Verde Musgo / Follaje (#4D7C59)
+        const colTrunk      = new THREE.Color(0x1F2421); // Base oscura
 
         trees.forEach((t, i) => {
           const [x, y, hMeters] = t;
           const p = toScene(x, y);
           const h = Math.max(0.7, (hMeters || 8) * SCALE);
 
-          const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
+          const folCol = (i % 2 === 0) ? colTreeForest : colTreeMoss;
 
           const crownY = h * 0.85;
           const swCrown = randomSwarmCluster(currentParticleIndex++);
           pTarget.push(p.x, crownY, p.z);
           pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
           pColor.push(folCol.r, folCol.g, folCol.b);
-          pSize.push(1.6);
+          pSize.push(1.55);
           pPhase.push(i * 0.25);
           pCat.push(1.0); // 1 = arbol
 
@@ -660,8 +660,8 @@
             const swSub = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(sx, sy, sz);
             pSwarm.push(swSub.x, swSub.y, swSub.z);
-            pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
-            pSize.push(1.4);
+            pColor.push(folCol.r * 1.04, folCol.g * 1.04, folCol.b * 1.04);
+            pSize.push(1.35);
             pPhase.push(i + k * 1.5);
             pCat.push(1.0);
           }
@@ -685,7 +685,7 @@
       .then(r => r.json())
       .then(edges => {
         const colRoad = new THREE.Color(0x27272A);        // Asfalto Grafito Muted
-        const colMajor = new THREE.Color(0x38BDF8);       // Vías Principales Sky Blue
+        const colMajor = new THREE.Color(0x00A8CC);       // Vías Principales Cyan Accent
 
         edges.forEach(([kind, pts], edgeIdx) => {
           const isMajor = (edgeIdx % 4 === 0);
@@ -712,10 +712,11 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta Arquitectónica: Slate Lavanda elegante y Grafito Urbano (Cero rosa, cero amarillo)
-        const colBldgLavender = new THREE.Color(0x6E78A8); // Lavanda Pizarra (#6E78A8)
-        const colBldgSlate = new THREE.Color(0x4A5568);    // Pizarra Grafito (#4A5568)
-        const colBaseGround = new THREE.Color(0x18181B);   // Fondo negro grafito
+        // Paleta Arquitectónica: Cal/Piedra Cálida y Mineral (Cero morado, cero rosado, súper sobrio)
+        const colBldgChalk = new THREE.Color(0xD2C9BD);  // Cal Arquitectónica (#D2C9BD)
+        const colBldgBone  = new THREE.Color(0x9E998E);  // Piedra Mineral (#9E998E)
+        const colRoofHighlight = new THREE.Color(0xEAE4DA); // Remate de cubierta blanco hueso
+        const colBaseGround = new THREE.Color(0x161618); // Fondo negro grafito
 
         buildings.forEach((b, bIdx) => {
           const pts = b.pts;
@@ -724,8 +725,8 @@
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.height || 10) * SCALE;
           
-          // Armonía arquitectónica homogénea
-          const bldgCol = (bIdx % 3 === 0) ? colBldgLavender : colBldgSlate;
+          // Estructura volumétrica arquitectónica homogénea
+          const bldgCol = (bIdx % 2 === 0) ? colBldgChalk : colBldgBone;
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
@@ -736,13 +737,10 @@
               pTarget.push(p.x, y, p.z);
               pSwarm.push(sw.x, sw.y, sw.z);
               
-              // Remates superiores nítidos
+              // Remates superiores nítidos y elegantes
               const isRoof = (step === steps);
-              pColor.push(
-                isRoof ? bldgCol.r * 1.2 : bldgCol.r,
-                isRoof ? bldgCol.g * 1.2 : bldgCol.g,
-                isRoof ? bldgCol.b * 1.2 : bldgCol.b
-              );
+              const c = isRoof ? colRoofHighlight : bldgCol;
+              pColor.push(c.r, c.g, c.b);
               pSize.push(isRoof ? 1.35 : 1.15);
               pPhase.push(bIdx + step);
               pCat.push(2.0); // 2 = edificio
