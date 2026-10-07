@@ -163,55 +163,55 @@
   // TANGERINE = 0xED773C, SKY = 0x9ED6DF, RED_PASSION = 0xC63F3E, MUTED_BLACK = 0x1D1D1B
 
   const SPECIES_CATALOG = [
-    // Flora: VERDE BOTÁNICO FRESCO & VERDE HOJA
-    { common: "Sauco del Humedal", scientific: "Sambucus nigra", taxon: "Plantae", icon: "fa-leaf", habitat: "Bosque ripario y orillas de El Burro", diet: "Fotosíntesis y nutrientes del humedal", relations: ["Frutos para aves migratorias", "Fijación de taludes", "Sombra y microclima"], color: 0x2E8B57 },
-    { common: "Junco de Agua", scientific: "Schoenoplectus californicus", taxon: "Plantae", icon: "fa-spa", habitat: "Zonas de inundación permanente", diet: "Filtración hídrica fitorremediadora", relations: ["Filtro de metales pesados", "Nidación de Tingua Bogotana", "Refugio de alevines"], color: 0x48BB78 },
-    { common: "Lenteja de Agua", scientific: "Lemna minor", taxon: "Plantae", icon: "fa-seedling", habitat: "Espejos de agua lénticos", diet: "Absorción de nitrógeno y fósforo", relations: ["Alimento de aves acuáticas", "Oxigenación", "Control de algas"], color: 0x52B788 },
-    { common: "Urapán", scientific: "Fraxinus chinensis", taxon: "Plantae", icon: "fa-tree", habitat: "Dosel urbano y rondas de canal", diet: "Nutrición edáfica y fotosíntesis", relations: ["Percha de rapaces", "Hábitat de murciélagos", "Captura de CO2"], color: 0x2E8B57 },
-    { common: "Capulí", scientific: "Prunus serotina", taxon: "Plantae", icon: "fa-tree", habitat: "Borde de quebradas y reservas", diet: "Nutrientes de suelo aluvial", relations: ["Alimento de cusumbos", "Polinización por abejas", "Corredor biológico"], color: 0x48BB78 },
-    { common: "Aliso Sabanero", scientific: "Alnus acuminata", taxon: "Plantae", icon: "fa-tree", habitat: "Ronda hidráulica Río Bogotá", diet: "Fijación biológica de nitrógeno", relations: ["Fijación de suelo", "Refugio de curíes", "Aporte de materia orgánica"], color: 0x2E8B57 },
+    // Flora: VERDE BOSQUE NATURAL & MUSGO (Territorio Green)
+    { common: "Sauco del Humedal", scientific: "Sambucus nigra", taxon: "Plantae", icon: "fa-leaf", habitat: "Bosque ripario y orillas de El Burro", diet: "Fotosíntesis y nutrientes del humedal", relations: ["Frutos para aves migratorias", "Fijación de taludes", "Sombra y microclima"], color: 0x3B6E4C },
+    { common: "Junco de Agua", scientific: "Schoenoplectus californicus", taxon: "Plantae", icon: "fa-spa", habitat: "Zonas de inundación permanente", diet: "Filtración hídrica fitorremediadora", relations: ["Filtro de metales pesados", "Nidación de Tingua Bogotana", "Refugio de alevines"], color: 0x4D7C59 },
+    { common: "Lenteja de Agua", scientific: "Lemna minor", taxon: "Plantae", icon: "fa-seedling", habitat: "Espejos de agua lénticos", diet: "Absorción de nitrógeno y fósforo", relations: ["Alimento de aves acuáticas", "Oxigenación", "Control de algas"], color: 0x588157 },
+    { common: "Urapán", scientific: "Fraxinus chinensis", taxon: "Plantae", icon: "fa-tree", habitat: "Dosel urbano y rondas de canal", diet: "Nutrición edáfica y fotosíntesis", relations: ["Percha de rapaces", "Hábitat de murciélagos", "Captura de CO2"], color: 0x3B6E4C },
+    { common: "Capulí", scientific: "Prunus serotina", taxon: "Plantae", icon: "fa-tree", habitat: "Borde de quebradas y reservas", diet: "Nutrientes de suelo aluvial", relations: ["Alimento de cusumbos", "Polinización por abejas", "Corredor biológico"], color: 0x4D7C59 },
+    { common: "Aliso Sabanero", scientific: "Alnus acuminata", taxon: "Plantae", icon: "fa-tree", habitat: "Ronda hidráulica Río Bogotá", diet: "Fijación biológica de nitrógeno", relations: ["Fijación de suelo", "Refugio de curíes", "Aporte de materia orgánica"], color: 0x3B6E4C },
 
-    // Invertebrados / Polinizadores: SLATE LAVENDER & CYAN AQUA
-    { common: "Abejorro Sabanero", scientific: "Bombus rubicundus", taxon: "Insecta", icon: "fa-clover", habitat: "Flores de Sauco, Tingua y Jardines", diet: "Néctar y polen silvestre", relations: ["Polinizador clave", "Zumbido de alta vibración", "Mutualismo floral"], color: 0x6E78A8 },
-    { common: "Murciélago Mastín", scientific: "Molossus molossus", taxon: "Mammalia", icon: "fa-bat", habitat: "Huecos de árboles y cielo nocturno", diet: "Insectos voladores nocturnos y polillas", relations: ["Control biológico de plagas", "Bioacústica ultrasónica", "Polinización nocturna"], color: 0x6E78A8 },
-    { common: "Libélula Azul", scientific: "Rhionaeschna marchali", taxon: "Insecta", icon: "fa-bug", habitat: "Ronda hidráulica y espejos de agua", diet: "Mosquitos adultos y moscas", relations: ["Depredador aéreo de plagas", "Fase larvaria bentónica", "Presa de aves"], color: 0x00B4D8 },
-    { common: "Mariposa Espejito", scientific: "Dione vanillae", taxon: "Insecta", icon: "fa-worm", habitat: "Jardines y enredaderas de pasiflora", diet: "Néctar floral y hojas nutricias", relations: ["Polinizadora diurna", "Metamorfosis en orillas", "Alimento de aves"], color: 0x00B4D8 },
-    { common: "Hongo Micorrícico", scientific: "Glomus intraradices", taxon: "Fungi", icon: "fa-cube", habitat: "Suelo rizosférico del humedal", diet: "Azúcares de raíces de sauce y junco", relations: ["Red de transporte de fósforo", "Biofiltro del suelo", "Conexión simbiótica"], color: 0x6E78A8 },
+    // Invertebrados / Polinizadores: ÁMBAR SOLAR TOUCHDESIGNER (Futuras partículas de arquitectura)
+    { common: "Abejorro Sabanero", scientific: "Bombus rubicundus", taxon: "Insecta", icon: "fa-clover", habitat: "Flores de Sauco, Tingua y Jardines", diet: "Néctar y polen silvestre", relations: ["Polinizador clave", "Zumbido de alta vibración", "Mutualismo floral"], color: 0xF59E0B },
+    { common: "Murciélago Mastín", scientific: "Molossus molossus", taxon: "Mammalia", icon: "fa-bat", habitat: "Huecos de árboles y cielo nocturno", diet: "Insectos voladores nocturnos y polillas", relations: ["Control biológico de plagas", "Bioacústica ultrasónica", "Polinización nocturna"], color: 0xD97706 },
+    { common: "Libélula Azul", scientific: "Rhionaeschna marchali", taxon: "Insecta", icon: "fa-bug", habitat: "Ronda hidráulica y espejos de agua", diet: "Mosquitos adultos y moscas", relations: ["Depredador aéreo de plagas", "Fase larvaria bentónica", "Presa de aves"], color: 0x00A8CC },
+    { common: "Mariposa Espejito", scientific: "Dione vanillae", taxon: "Insecta", icon: "fa-worm", habitat: "Jardines y enredaderas de pasiflora", diet: "Néctar floral y hojas nutricias", relations: ["Polinizadora diurna", "Metamorfosis en orillas", "Alimento de aves"], color: 0xF59E0B },
+    { common: "Hongo Micorrícico", scientific: "Glomus intraradices", taxon: "Fungi", icon: "fa-cube", habitat: "Suelo rizosférico del humedal", diet: "Azúcares de raíces de sauce y junco", relations: ["Red de transporte de fósforo", "Biofiltro del suelo", "Conexión simbiótica"], color: 0xF59E0B },
 
-    // Avifauna: AZUL HUMEDAL VIBRANTE
-    { common: "Tingua Azul", scientific: "Porphyrio martinica", taxon: "Aves", icon: "fa-feather", habitat: "Lámina de agua y vegetación flotante", diet: "Lenteja de agua, semillas y moluscos", relations: ["Ave migratoria", "Nidificación en juncales", "Dispersora de macrófitas"], color: 0x00B4D8 },
-    { common: "Tingua Bogotana", scientific: "Rallus semiplumbeus", taxon: "Aves", icon: "fa-dove", habitat: "Densos juncales del Humedal El Burro", diet: "Invertebrados acuáticos y brotes tiernos", relations: ["Especie endémica en peligro", "Bioindicador de conservación", "Nidos flotantes"], color: 0x00B4D8 },
-    { common: "Garza Real", scientific: "Ardea alba", taxon: "Aves", icon: "fa-dove", habitat: "Orillas abiertas del Humedal El Burro", diet: "Ranas sabaneras, peces y coleópteros", relations: ["Depredador acuático tope", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0x00B4D8 },
-    { common: "Pato Turrio", scientific: "Oxyura jamaicensis", taxon: "Aves", icon: "fa-water", habitat: "Lagunas profundas de Kennedy", diet: "Larvas de quironómidos y plantas sumergidas", relations: ["Buceo profundo", "Oxigenación de sedimentos", "Comensalismo con tinguas"], color: 0x6E78A8 },
-    { common: "Alcaraván Sabanero", scientific: "Vanellus chilensis", taxon: "Aves", icon: "fa-dove", habitat: "Campos abiertos y riberas secas", diet: "Gusanos, escarabajos y pequeños moluscos", relations: ["Guardián del territorio", "Alarma sonora comunitaria", "Nidos en suelo"], color: 0x00B4D8 },
+    // Avifauna: AZUL CIAN HUMEDAL (Territorio Water)
+    { common: "Tingua Azul", scientific: "Porphyrio martinica", taxon: "Aves", icon: "fa-feather", habitat: "Lámina de agua y vegetación flotante", diet: "Lenteja de agua, semillas y moluscos", relations: ["Ave migratoria", "Nidificación en juncales", "Dispersora de macrófitas"], color: 0x00A8CC },
+    { common: "Tingua Bogotana", scientific: "Rallus semiplumbeus", taxon: "Aves", icon: "fa-dove", habitat: "Densos juncales del Humedal El Burro", diet: "Invertebrados acuáticos y brotes tiernos", relations: ["Especie endémica en peligro", "Bioindicador de conservación", "Nidos flotantes"], color: 0x00A8CC },
+    { common: "Garza Real", scientific: "Ardea alba", taxon: "Aves", icon: "fa-dove", habitat: "Orillas abiertas del Humedal El Burro", diet: "Ranas sabaneras, peces y coleópteros", relations: ["Depredador acuático tope", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0x00A8CC },
+    { common: "Pato Turrio", scientific: "Oxyura jamaicensis", taxon: "Aves", icon: "fa-water", habitat: "Lagunas profundas de Kennedy", diet: "Larvas de quironómidos y plantas sumergidas", relations: ["Buceo profundo", "Oxigenación de sedimentos", "Comensalismo con tinguas"], color: 0x00A8CC },
+    { common: "Alcaraván Sabanero", scientific: "Vanellus chilensis", taxon: "Aves", icon: "fa-dove", habitat: "Campos abiertos y riberas secas", diet: "Gusanos, escarabajos y pequeños moluscos", relations: ["Guardián del territorio", "Alarma sonora comunitaria", "Nidos en suelo"], color: 0x00A8CC },
 
-    // Fauna / Mamíferos / Herpetos: TONOS NATURALES
-    { common: "Rana Sabanera", scientific: "Dendropsophus molitor", taxon: "Amphibia", icon: "fa-frog", habitat: "Espejos de agua y juncales de El Burro", diet: "Insectos acuáticos, larvas y dípteros", relations: ["Control de mosquitos", "Alimento de Garza Real", "Refugio en Juncos"], color: 0x00B4D8 },
-    { common: "Serpiente Sabanera", scientific: "Atractus crassicaudatus", taxon: "Reptilia", icon: "fa-staff-snake", habitat: "Suelo húmedo y pastizales de ribera", diet: "Lombrices de tierra y babosas", relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0x2E8B57 },
-    { common: "Cusumbo Andino", scientific: "Nasua olivacea", taxon: "Mammalia", icon: "fa-paw", habitat: "Reserva Umbral Horizontes / El Burro", diet: "Frutos de Sauco, semillas e invertebrados", relations: ["Dispersión de semillas", "Forrajeo en dosel", "Polinización indirecta"], color: 0x6E78A8 },
-    { common: "Comadreja Andina", scientific: "Neogale frenata", taxon: "Mammalia", icon: "fa-paw", habitat: "Ribera del Río Bogotá y canales", diet: "Pequeños roedores y anfibios", relations: ["Depredador tope", "Control poblacional", "Madrigueras en taludes"], color: 0x6E78A8 },
-    { common: "Hicotea del Humedal", scientific: "Trachemys callirostris", taxon: "Reptilia", icon: "fa-shield-halved", habitat: "Zonas de remanso y asoleaderos de agua", diet: "Vegetación sumergida y detritos acuáticos", relations: ["Limpieza de detritos", "Asoleo en troncos", "Nidación en ribera"], color: 0x00B4D8 },
-    { common: "Curí Sabanero", scientific: "Cavia aperea", taxon: "Mammalia", icon: "fa-paw", habitat: "Pastizales inundables y rondas", diet: "Gramíneas, pasto kikuyo y hojas", relations: ["Herbívoro primario", "Presa clave", "Túneles ecológicos"], color: 0x2E8B57 }
+    // Fauna / Mamíferos / Herpetos: ÁMBAR SOLAR & VERDE
+    { common: "Rana Sabanera", scientific: "Dendropsophus molitor", taxon: "Amphibia", icon: "fa-frog", habitat: "Espejos de agua y juncales de El Burro", diet: "Insectos acuáticos, larvas y dípteros", relations: ["Control de mosquitos", "Alimento de Garza Real", "Refugio en Juncos"], color: 0x00A8CC },
+    { common: "Serpiente Sabanera", scientific: "Atractus crassicaudatus", taxon: "Reptilia", icon: "fa-staff-snake", habitat: "Suelo húmedo y pastizales de ribera", diet: "Lombrices de tierra y babosas", relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0x3B6E4C },
+    { common: "Cusumbo Andino", scientific: "Nasua olivacea", taxon: "Mammalia", icon: "fa-paw", habitat: "Reserva Umbral Horizontes / El Burro", diet: "Frutos de Sauco, semillas e invertebrados", relations: ["Dispersión de semillas", "Forrajeo en dosel", "Polinización indirecta"], color: 0xF59E0B },
+    { common: "Comadreja Andina", scientific: "Neogale frenata", taxon: "Mammalia", icon: "fa-paw", habitat: "Ribera del Río Bogotá y canales", diet: "Pequeños roedores y anfibios", relations: ["Depredador tope", "Control poblacional", "Madrigueras en taludes"], color: 0xD97706 },
+    { common: "Hicotea del Humedal", scientific: "Trachemys callirostris", taxon: "Reptilia", icon: "fa-shield-halved", habitat: "Zonas de remanso y asoleaderos de agua", diet: "Vegetación sumergida y detritos acuáticos", relations: ["Limpieza de detritos", "Asoleo en troncos", "Nidación en ribera"], color: 0x00A8CC },
+    { common: "Curí Sabanero", scientific: "Cavia aperea", taxon: "Mammalia", icon: "fa-paw", habitat: "Pastizales inundables y rondas", diet: "Gramíneas, pasto kikuyo y hojas", relations: ["Herbívoro primario", "Presa clave", "Túneles ecológicos"], color: 0x3B6E4C }
   ];
 
   // =====================================================================
-  // 2. RED BIÓTICA FLOTANTE ORGÁNICA (MISMO LENGUAJE DE PARTÍCULAS)
+  // 2. RED BIÓTICA: ATRACTOR GENERATIVO FLUIDO (TOUCHDESIGNER VORTEX CLOUD)
   // =====================================================================
   const SWARM_COUNT = 850;
   const swarmGroup = new THREE.Group();
   sceneRoot.add(swarmGroup);
 
-  // Textura suave y etérea con núcleo luminoso (idéntica al lenguaje del territorio)
+  // Textura suave y etérea con núcleo luminoso tipo TouchDesigner
   function createNodeGlowTexture() {
     const cvs = document.createElement("canvas");
     cvs.width = 64; cvs.height = 64;
     const ctx = cvs.getContext("2d");
 
-    const radGlow = ctx.createRadialGradient(32, 32, 2, 32, 32, 30);
+    const radGlow = ctx.createRadialGradient(32, 32, 1, 32, 32, 30);
     radGlow.addColorStop(0, "rgba(255, 255, 255, 1.0)");
-    radGlow.addColorStop(0.25, "rgba(234, 228, 218, 0.9)");
-    radGlow.addColorStop(0.55, "rgba(234, 193, 25, 0.45)");
-    radGlow.addColorStop(1, "rgba(24, 24, 27, 0)");
+    radGlow.addColorStop(0.2, "rgba(245, 158, 11, 0.95)");
+    radGlow.addColorStop(0.55, "rgba(217, 119, 6, 0.4)");
+    radGlow.addColorStop(1, "rgba(20, 20, 22, 0)");
     ctx.fillStyle = radGlow;
     ctx.fillRect(0, 0, 64, 64);
 
@@ -236,11 +236,11 @@
       
       void main() {
         vColor = aNodeColor;
-        vAlpha = max(0.0, 1.0 - uMorph * 3.2);
+        vAlpha = max(0.0, 1.0 - uMorph * 3.0);
         
         vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * mvPos;
-        gl_PointSize = aNodeScale * (380.0 / -mvPos.z) * vAlpha;
+        gl_PointSize = aNodeScale * (400.0 / -mvPos.z) * vAlpha;
       }
     `,
     fragmentShader: `
@@ -251,8 +251,8 @@
       void main() {
         if (vAlpha < 0.01) discard;
         vec4 texCol = texture2D(uTexture, gl_PointCoord);
-        if (texCol.a < 0.05) discard;
-        gl_FragColor = vec4(vColor * texCol.rgb, texCol.a * vAlpha * 0.92);
+        if (texCol.a < 0.04) discard;
+        gl_FragColor = vec4(vColor * texCol.rgb, texCol.a * vAlpha * 0.95);
       }
     `,
     transparent: true,
@@ -260,24 +260,24 @@
     blending: THREE.AdditiveBlending
   });
 
-  const SPHERE_RADIUS = 36.0;
   const swarmNodes = [];
   const nodePositions = new Float32Array(SWARM_COUNT * 3);
   const nodeColors = new Float32Array(SWARM_COUNT * 3);
   const nodeScales = new Float32Array(SWARM_COUNT);
 
+  // Generación tipo Atractor Toroidal / Curl-Noise Nebula (TouchDesigner aesthetic)
   for (let i = 0; i < SWARM_COUNT; i++) {
     const species = SPECIES_CATALOG[i % SPECIES_CATALOG.length];
 
-    // Distribución orgánica con volumen y micro-racimos fluidos
-    const phi = Math.acos(1.0 - 2.0 * (i + 0.5) / SWARM_COUNT);
-    const theta = Math.PI * (1.0 + Math.sqrt(5.0)) * i;
-    const radialVariation = 0.55 + 0.45 * Math.sin(i * 1.8 + Math.cos(i * 0.7));
-    const r = SPHERE_RADIUS * (0.65 + 0.35 * radialVariation);
-
-    const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = r * Math.sin(phi) * Math.sin(theta) * 0.95; // Ligera compresión orgánica
-    const z = r * Math.cos(phi);
+    const u = (i / SWARM_COUNT) * Math.PI * 2 * 3.0;
+    const v = ((i % 31) / 31.0) * Math.PI * 2;
+    const R = 25.0 + 7.0 * Math.sin(i * 0.35);
+    const r = 10.5 + 4.5 * Math.cos(i * 0.45);
+    
+    // Nube orgánica toroidal con torsión espacial
+    const x = (R + r * Math.cos(v)) * Math.cos(u);
+    const z = (R + r * Math.cos(v)) * Math.sin(u);
+    const y = r * Math.sin(v) * 0.85 + Math.sin(u * 2.0) * 6.0;
 
     const col = new THREE.Color(species.color);
 
@@ -289,7 +289,7 @@
     nodeColors[i * 3 + 1] = col.g;
     nodeColors[i * 3 + 2] = col.b;
 
-    nodeScales[i] = 1.2 + (i % 4 === 0 ? 0.4 : 0.0);
+    nodeScales[i] = 1.35 + (i % 3 === 0 ? 0.45 : 0.0);
 
     swarmNodes.push({
       id: i,
@@ -297,10 +297,10 @@
       baseX: x, baseY: y, baseZ: z,
       x: x, y: y, z: z,
       phase: Math.random() * Math.PI * 2,
-      freqX: 0.6 + Math.random() * 0.6,
-      freqY: 0.7 + Math.random() * 0.7,
-      freqZ: 0.5 + Math.random() * 0.5,
-      amp: 0.8 + Math.random() * 1.2,
+      orbitSpeed: 0.25 + Math.random() * 0.35,
+      radius: Math.sqrt(x * x + z * z),
+      baseAngle: Math.atan2(z, x),
+      ampY: 2.0 + Math.random() * 3.5,
       scale: nodeScales[i],
       color: col,
       neighbors: [],
@@ -332,7 +332,7 @@
 
     for (let k = 0; k < MAX_LINKS_PER_NODE; k++) {
       const neighbor = dists[k];
-      if (neighbor && neighbor.dSq < 220) {
+      if (neighbor && neighbor.dSq < 200) {
         if (!ni.neighbors.includes(neighbor.id)) {
           ni.neighbors.push(neighbor.id);
           if (i < neighbor.id) {
@@ -358,8 +358,8 @@
 
     const c1 = ni.color;
     const c2 = nj.color;
-    linkCol[ptr]     = c1.r * 0.75; linkCol[ptr + 1] = c1.g * 0.75; linkCol[ptr + 2] = c1.b * 0.75;
-    linkCol[ptr + 3] = c2.r * 0.75; linkCol[ptr + 4] = c2.g * 0.75; linkCol[ptr + 5] = c2.b * 0.75;
+    linkCol[ptr]     = c1.r * 0.85; linkCol[ptr + 1] = c1.g * 0.85; linkCol[ptr + 2] = c1.b * 0.85;
+    linkCol[ptr + 3] = c2.r * 0.85; linkCol[ptr + 4] = c2.g * 0.85; linkCol[ptr + 5] = c2.b * 0.85;
   }
 
   const linkGeo = new THREE.BufferGeometry();
@@ -369,7 +369,7 @@
   const linkMat = new THREE.LineBasicMaterial({
     vertexColors: true,
     transparent: true,
-    opacity: 0.32,
+    opacity: 0.35,
     blending: THREE.AdditiveBlending
   });
   const linkLines = new THREE.LineSegments(linkGeo, linkMat);
@@ -382,25 +382,26 @@
     }
     swarmGroup.visible = true;
 
-    swarmGroup.rotation.y = time * 0.045;
-    swarmGroup.rotation.x = Math.sin(time * 0.03) * 0.035;
+    swarmGroup.rotation.y = time * 0.035;
+    swarmGroup.rotation.x = Math.sin(time * 0.02) * 0.03;
 
     nodeMat.uniforms.uTime.value = time;
     nodeMat.uniforms.uMorph.value = morphProgress;
-    linkMat.opacity = Math.max(0.0, (1.0 - morphProgress * 3.2) * 0.32);
+    linkMat.opacity = Math.max(0.0, (1.0 - morphProgress * 3.2) * 0.35);
 
     const posArr = nodeGeo.attributes.position.array;
     const lPosArr = linkGeo.attributes.position.array;
 
     for (let i = 0; i < SWARM_COUNT; i++) {
       const d = swarmNodes[i];
-      const waveY = Math.sin(time * d.freqY + d.phase) * d.amp * 1.1 + Math.cos(time * 0.4 + d.baseX * 0.06) * 0.5;
-      const waveX = Math.cos(time * d.freqX + d.phase) * d.amp * 0.8 + Math.sin(time * 0.5 + d.baseZ * 0.06) * 0.5;
-      const waveZ = Math.sin(time * d.freqZ + d.phase * 1.3) * d.amp * 0.8 + Math.cos(time * 0.3 + d.baseY * 0.06) * 0.5;
+      // Flujo de rotación toroidal continuo tipo TouchDesigner
+      const curAngle = d.baseAngle + time * d.orbitSpeed * 0.4;
+      const waveRadial = Math.sin(time * 1.1 + d.phase) * 2.5;
+      const r = d.radius + waveRadial;
 
-      const curX = d.baseX + waveX;
-      const curY = d.baseY + waveY;
-      const curZ = d.baseZ + waveZ;
+      const curX = Math.cos(curAngle) * r;
+      const curZ = Math.sin(curAngle) * r;
+      const curY = d.baseY + Math.sin(time * 1.3 + d.phase) * d.ampY + Math.cos(curAngle * 2.0) * 2.0;
 
       d.x = curX; d.y = curY; d.z = curZ;
 
@@ -424,7 +425,7 @@
   }
 
   // =====================================================================
-  // 3. GLSL SHADER DE EXPLOSIÓN EN VÓRTICE & ENSAMBLAJE DEL TERRITORIO
+  // 3. GLSL SHADER DE EXPLOSIÓN EN VÓRTICE & SIMULACIÓN TOUCHDESIGNER
   // =====================================================================
   const vertexShader = `
     uniform float uMorphProgress;
@@ -451,11 +452,12 @@
       float t = uMorphProgress;
       float ease = smoothstep(0.0, 1.0, t);
       
+      // Simulación generativa de fluidos tipo TouchDesigner (Vórtice advectivo)
       float explosionIntensity = sin(ease * 3.14159);
-      vec3 spiralVortex = vec3(
-        sin(uTime * 1.3 + aPhase * 3.14) * 36.0 * explosionIntensity + cos(uTime * 0.9 + position.z * 0.04) * 22.0 * explosionIntensity,
-        cos(uTime * 1.1 + aPhase * 2.0) * 32.0 * explosionIntensity + sin(uTime * 1.5 + position.x * 0.05) * 22.0 * explosionIntensity,
-        sin(uTime * 1.4 + aPhase * 4.2) * 36.0 * explosionIntensity + cos(uTime * 1.0 + position.y * 0.06) * 22.0 * explosionIntensity
+      vec3 curlVortex = vec3(
+        sin(uTime * 1.6 + position.y * 0.08 + aPhase * 2.0) * 46.0 * explosionIntensity + cos(uTime * 1.1 + position.z * 0.05) * 28.0 * explosionIntensity,
+        cos(uTime * 1.3 + position.x * 0.08 + aPhase * 2.0) * 38.0 * explosionIntensity + sin(uTime * 1.7 + position.z * 0.06) * 24.0 * explosionIntensity,
+        sin(uTime * 1.5 + position.x * 0.08 + aPhase * 3.0) * 46.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.05) * 28.0 * explosionIntensity
       );
       
       vec3 territorialIdle = vec3(0.0);
@@ -475,15 +477,15 @@
       
       vec3 swarmOrbit = aSwarmPos;
       vec3 targetPos = position + territorialIdle;
-      vec3 currentPos = mix(swarmOrbit, targetPos, ease) + spiralVortex;
+      vec3 currentPos = mix(swarmOrbit, targetPos, ease) + curlVortex;
       
       vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
       
       float distFactor = clamp(260.0 / -mvPosition.z, 0.35, 1.7);
-      gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.6) * uPixelRatio * distFactor;
+      gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.7) * uPixelRatio * distFactor;
       
-      vAlpha = smoothstep(0.06, 0.8, ease) * 0.95 + explosionIntensity * 0.3;
+      vAlpha = smoothstep(0.04, 0.8, ease) * 0.95 + explosionIntensity * 0.35;
     }
   `;
 
@@ -499,11 +501,11 @@
       float dist = length(coord);
       if (dist > 0.5) discard;
       
-      float edgeAlpha = smoothstep(0.5, 0.18, dist);
+      float edgeAlpha = smoothstep(0.5, 0.06, dist);
       
       vec3 col = vColor;
       if (vRippleBoost > 0.05) {
-        col = mix(col, vec3(0.619, 0.839, 0.874), vRippleBoost * 0.65); // SKY boost
+        col = mix(col, vec3(0.0, 0.66, 0.8), vRippleBoost * 0.65);
       }
       
       gl_FragColor = vec4(col, edgeAlpha * vAlpha);
@@ -524,7 +526,7 @@
     fragmentShader: fragmentShader,
     transparent: true,
     depthWrite: false,
-    blending: THREE.NormalBlending
+    blending: THREE.AdditiveBlending
   });
 
   const pTarget = [];
@@ -540,9 +542,9 @@
   function randomSwarmCluster(idx) {
     const node = swarmNodes[idx % SWARM_COUNT];
     return {
-      x: node.baseX + (Math.random() - 0.5) * 1.5,
-      y: node.baseY + (Math.random() - 0.5) * 1.5,
-      z: node.baseZ + (Math.random() - 0.5) * 1.5
+      x: node.baseX + (Math.random() - 0.5) * 2.0,
+      y: node.baseY + (Math.random() - 0.5) * 2.0,
+      z: node.baseZ + (Math.random() - 0.5) * 2.0
     };
   }
 
@@ -565,7 +567,7 @@
   }
 
   // =====================================================================
-  // 4. CARGA DE CAPAS GEOGRÁFICAS CON LA PALETA OFICIAL
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (TOUCHDESIGNER COHESIVE PALETTE)
   // =====================================================================
   function loadWater() {
     return fetch(WATER_URL)
@@ -712,11 +714,11 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta Arquitectónica: Cal/Piedra Cálida y Mineral (Cero morado, cero rosado, súper sobrio)
-        const colBldgChalk = new THREE.Color(0xD2C9BD);  // Cal Arquitectónica (#D2C9BD)
-        const colBldgBone  = new THREE.Color(0x9E998E);  // Piedra Mineral (#9E998E)
-        const colRoofHighlight = new THREE.Color(0xEAE4DA); // Remate de cubierta blanco hueso
-        const colBaseGround = new THREE.Color(0x161618); // Fondo negro grafito
+        // Paleta Arquitectónica TouchDesigner: Ámbar Solar & Oro Cálido (#F59E0B / #D97706)
+        const colBldgAmber = new THREE.Color(0xF59E0B);    // Ámbar Solar TouchDesigner (#F59E0B)
+        const colBldgAmberDeep = new THREE.Color(0xD97706);// Ámbar Profundo (#D97706)
+        const colRoofHighlight = new THREE.Color(0xFBBF24); // Remate superior oro brillante
+        const colBaseGround = new THREE.Color(0x161618);   // Fondo negro grafito
 
         buildings.forEach((b, bIdx) => {
           const pts = b.pts;
@@ -726,7 +728,7 @@
           const h = (b.height || 10) * SCALE;
           
           // Estructura volumétrica arquitectónica homogénea
-          const bldgCol = (bIdx % 2 === 0) ? colBldgChalk : colBldgBone;
+          const bldgCol = (bIdx % 2 === 0) ? colBldgAmber : colBldgAmberDeep;
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
@@ -737,11 +739,11 @@
               pTarget.push(p.x, y, p.z);
               pSwarm.push(sw.x, sw.y, sw.z);
               
-              // Remates superiores nítidos y elegantes
+              // Remates superiores nítidos
               const isRoof = (step === steps);
               const c = isRoof ? colRoofHighlight : bldgCol;
               pColor.push(c.r, c.g, c.b);
-              pSize.push(isRoof ? 1.35 : 1.15);
+              pSize.push(isRoof ? 1.4 : 1.2);
               pPhase.push(bIdx + step);
               pCat.push(2.0); // 2 = edificio
             }
