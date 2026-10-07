@@ -156,6 +156,16 @@
     cats: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }
   };
 
+    const TAXONOMIC_CONVENTIONS = {
+    "Flora SIGAU": { color: "#84A48B", hex: 0x84A48B, name: "Flora & Arbolado SIGAU", catIdx: 0 },
+    "Flora & Arbolado SIGAU": { color: "#84A48B", hex: 0x84A48B, name: "Flora & Arbolado SIGAU", catIdx: 0 },
+    "Aves": { color: "#38BDF8", hex: 0x38BDF8, name: "Aves", catIdx: 1 },
+    "Mamíferos": { color: "#F59E0B", hex: 0xF59E0B, name: "Mamíferos", catIdx: 2 },
+    "Moluscos": { color: "#EC4899", hex: 0xEC4899, name: "Moluscos", catIdx: 3 },
+    "Anfibios": { color: "#10B981", hex: 0x10B981, name: "Anfibios", catIdx: 4 },
+    "Reptiles": { color: "#A855F7", hex: 0xA855F7, name: "Reptiles", catIdx: 5 }
+  };
+
   const palette = {
     catColors: {
       0: '#84A48B', // Flora & Arbolado SIGAU (Sage Green)
@@ -1480,7 +1490,7 @@
     sprite.userData = { isTerritoryBeacon: true, taxonIndex: idx, taxonData: t, baseScale: baseScale };
 
     // Anillo de pulso de suelo con color de categoría
-    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && (TAXONOMIC_CONVENTIONS[t.cat] ? TAXONOMIC_CONVENTIONS[t.cat].color : "#84A48B")) || "#84A48B";
     const ringGeo = new THREE.RingGeometry(0.8, 1.8, 16);
     const ringMat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(catHex),
@@ -1536,7 +1546,7 @@
     if (!t || !territoryModal) return;
     activeTerritoryTaxon = t;
 
-    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && (TAXONOMIC_CONVENTIONS[t.cat] ? TAXONOMIC_CONVENTIONS[t.cat].color : "#84A48B")) || "#84A48B";
     territoryModal.style.setProperty("--cat-color", catHex);
 
     if (modalImg) modalImg.src = t.img;
@@ -1635,7 +1645,7 @@
       hitSprite.scale.set(targetScale, targetScale, 1.0);
 
       if (territoryTooltip) {
-        const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+        const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && (TAXONOMIC_CONVENTIONS[t.cat] ? TAXONOMIC_CONVENTIONS[t.cat].color : "#84A48B")) || "#84A48B";
         territoryTooltip.style.setProperty("--cat-color", catHex);
 
         if (ttImg) ttImg.src = t.img;

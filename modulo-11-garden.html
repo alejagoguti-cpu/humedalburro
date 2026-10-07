@@ -74,27 +74,29 @@ window.onerror = function(msg, url, line, col, error) {
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
   }
 
-  /* Top Header */
+    /* Top Header */
   .top-header {
-    position: absolute; top: 12px; left: 12px; right: 12px;
+    position: absolute; top: 8px; left: 8px; right: 8px;
     display: flex; align-items: center; justify-content: space-between;
     pointer-events: none; z-index: 100;
+    flex-wrap: wrap; gap: 6px;
     transition: opacity 0.4s ease, transform 0.4s ease;
   }
   .nav-group {
-    display: flex; align-items: center; gap: 8px; pointer-events: auto;
+    display: flex; align-items: center; gap: 5px; pointer-events: auto; flex-wrap: wrap;
   }
   .brand-title {
-    padding: 8px 14px; font-weight: 800; letter-spacing: 0.5px;
-    color: var(--accent); display: flex; align-items: center; gap: 8px;
-    font-size: 11.5px; text-transform: uppercase;
+    padding: 5px 10px; font-weight: 800; letter-spacing: 0.5px;
+    color: var(--accent); display: flex; align-items: center; gap: 6px;
+    font-size: 10.5px; text-transform: uppercase; white-space: nowrap;
   }
   .btn-flat {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #cbd5e1; padding: 7px 12px; border-radius: 6px;
-    font-size: 11px; font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
+    color: #cbd5e1; padding: 5px 9px; border-radius: 6px;
+    font-size: 10px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    white-space: nowrap;
     transition: all 0.15s ease; text-decoration: none;
   }
   .btn-flat:hover {
@@ -110,16 +112,16 @@ window.onerror = function(msg, url, line, col, error) {
   .search-box {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.18);
-    color: #84A48B; padding: 6px 12px; border-radius: 6px;
-    font-family: inherit; font-size: 11px; outline: none; width: 170px;
+    color: #84A48B; padding: 5px 10px; border-radius: 6px;
+    font-family: inherit; font-size: 10px; outline: none; width: 130px;
     transition: width 0.25s ease;
   }
-  .search-box:focus { width: 220px; border-color: #84A48B; }
+  .search-box:focus { width: 170px; border-color: #84A48B; }
 
   /* Side Drawer */
   .side-drawer {
-    position: absolute; top: 62px; left: 12px; width: 320px;
-    max-height: calc(100vh - 140px); overflow-y: auto; padding: 14px;
+    position: absolute; top: 48px; left: 8px; width: 300px;
+    max-height: calc(100vh - 120px); overflow-y: auto; padding: 12px;
     pointer-events: auto; z-index: 90;
     transition: opacity 0.3s ease, transform 0.3s ease;
     border: 1px solid rgba(132, 164, 139, 0.25);
@@ -1178,6 +1180,16 @@ window.onerror = function(msg, url, line, col, error) {
     pulseMotion: true,
     layoutMode: "hyperbolic",
     cats: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }
+  };
+
+    const TAXONOMIC_CONVENTIONS = {
+    "Flora SIGAU": { color: "#84A48B", hex: 0x84A48B, name: "Flora & Arbolado SIGAU", catIdx: 0 },
+    "Flora & Arbolado SIGAU": { color: "#84A48B", hex: 0x84A48B, name: "Flora & Arbolado SIGAU", catIdx: 0 },
+    "Aves": { color: "#38BDF8", hex: 0x38BDF8, name: "Aves", catIdx: 1 },
+    "Mamíferos": { color: "#F59E0B", hex: 0xF59E0B, name: "Mamíferos", catIdx: 2 },
+    "Moluscos": { color: "#EC4899", hex: 0xEC4899, name: "Moluscos", catIdx: 3 },
+    "Anfibios": { color: "#10B981", hex: 0x10B981, name: "Anfibios", catIdx: 4 },
+    "Reptiles": { color: "#A855F7", hex: 0xA855F7, name: "Reptiles", catIdx: 5 }
   };
 
   const palette = {
@@ -2504,7 +2516,7 @@ window.onerror = function(msg, url, line, col, error) {
     sprite.userData = { isTerritoryBeacon: true, taxonIndex: idx, taxonData: t, baseScale: baseScale };
 
     // Anillo de pulso de suelo con color de categoría
-    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && (TAXONOMIC_CONVENTIONS[t.cat] ? TAXONOMIC_CONVENTIONS[t.cat].color : "#84A48B")) || "#84A48B";
     const ringGeo = new THREE.RingGeometry(0.8, 1.8, 16);
     const ringMat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(catHex),
@@ -2560,7 +2572,7 @@ window.onerror = function(msg, url, line, col, error) {
     if (!t || !territoryModal) return;
     activeTerritoryTaxon = t;
 
-    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+    const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && (TAXONOMIC_CONVENTIONS[t.cat] ? TAXONOMIC_CONVENTIONS[t.cat].color : "#84A48B")) || "#84A48B";
     territoryModal.style.setProperty("--cat-color", catHex);
 
     if (modalImg) modalImg.src = t.img;
@@ -2659,7 +2671,7 @@ window.onerror = function(msg, url, line, col, error) {
       hitSprite.scale.set(targetScale, targetScale, 1.0);
 
       if (territoryTooltip) {
-        const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && TAXONOMIC_CONVENTIONS[t.cat].color) || "#84A48B";
+        const catHex = (TAXONOMIC_CONVENTIONS[t.cat] && (TAXONOMIC_CONVENTIONS[t.cat] ? TAXONOMIC_CONVENTIONS[t.cat].color : "#84A48B")) || "#84A48B";
         territoryTooltip.style.setProperty("--cat-color", catHex);
 
         if (ttImg) ttImg.src = t.img;
