@@ -1819,10 +1819,6 @@
   const mouseVec = new THREE.Vector2();
 
   window.openWelcomeModal = () => {
-    welcomeModalOverlay.style.display = "flex";
-  };
-  setTimeout(() => { if (welcomeModalOverlay) welcomeModalOverlay.style.display = "flex"; }, 150);
-
     const modal = document.getElementById('welcomeModalOverlay');
     if (modal) modal.style.display = 'flex';
   };
@@ -1861,13 +1857,23 @@
 
   window.toggleInteraction = (typeId) => {
     opts.interactions[typeId] = !opts.interactions[typeId];
-    const toggleEl = document.getElementById(`toggleInter${typeId}`);
     const itemEl = document.getElementById(`interItem${typeId}`);
-    const isActive = !!opts.interactions[typeId];
-    if (toggleEl) toggleEl.classList.toggle('checked', isActive);
     if (itemEl) {
+      const isActive = opts.interactions[typeId];
       itemEl.classList.toggle('active', isActive);
       itemEl.classList.toggle('inactive', !isActive);
+    }
+    recalculateDegreesAndSizes();
+  };
+
+  window.toggleAllInteractions = (state) => {
+    for (let i = 0; i <= 8; i++) {
+      opts.interactions[i] = state;
+      const itemEl = document.getElementById(`interItem${i}`);
+      if (itemEl) {
+        itemEl.classList.toggle('active', state);
+        itemEl.classList.toggle('inactive', !state);
+      }
     }
     recalculateDegreesAndSizes();
   };

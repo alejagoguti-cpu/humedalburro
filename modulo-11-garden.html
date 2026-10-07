@@ -31,7 +31,7 @@ window.onerror = function(msg, url, line, col, error) {
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Sistema Socioecológico de Kennedy — Red Biótica & Territorio 3D</title>
+<title>RED DE INTERACCIONES BIÓTICAS DE KENNEDY</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -544,6 +544,51 @@ window.onerror = function(msg, url, line, col, error) {
     color: #ffffff !important;
   }
 
+
+  /* Compact Interaction Chips Grid */
+  .inter-chip {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 5px 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #cbd5e1;
+    transition: all 0.15s ease;
+    user-select: none;
+    outline: none;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .inter-chip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--chip-color, #84a48b);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+  .inter-chip.active {
+    border-color: var(--chip-color, #84a48b);
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+  }
+  .inter-chip.inactive {
+    opacity: 0.28;
+    filter: grayscale(0.8);
+  }
+  .chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
+  }
+
 </style>
 
 <!-- Three.js, OrbitControls, GSAP -->
@@ -565,13 +610,13 @@ window.onerror = function(msg, url, line, col, error) {
 <div class="toast-notify" id="toastNotify">Nodo ocultado por doble clic</div>
 
 <!-- Welcome Modal Overlay: 3 Statistical Pie Charts -->
-<div class="welcome-overlay" id="welcomeModalOverlay">
+<div class="welcome-overlay" id="welcomeModalOverlay" style="display:none;">
   <div class="welcome-modal">
     <div class="welcome-header">
       <div>
         <div style="font-size:16px; font-weight:900; color:#84a48b; letter-spacing:0.5px; display:flex; align-items:center; gap:8px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#84a48b" stroke-width="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-          SISTEMA SOCIOECOLÓGICO DE KENNEDY — METRÍCAS ECOLÓGICAS Y MATRIZ DE EVIDENCIA
+          RED DE INTERACCIONES BIÓTICAS DE KENNEDY — METRÍCAS ECOLÓGICAS Y MATRIZ DE EVIDENCIA
         </div>
         <div style="font-size:11px; color:#94a3b8; margin-top:2px;">Distribución funcional, composición taxonómica y respaldo técnico del modelo (180 taxones)</div>
       </div>
@@ -618,18 +663,18 @@ window.onerror = function(msg, url, line, col, error) {
         </div>
       </div>
 
-            <!-- Torta B: Composición por Grupos Taxonómicos -->
+                  <!-- Torta B: Composición por Grupos Taxonómicos -->
       <div class="pie-card">
-        <div class="pie-card-title">🌿 2. Torta B: Convenciones Taxonómicas</div>
-        <div class="pie-card-desc">Distribución proporcional de Flora y los 5 grupos de Fauna de Kennedy.</div>
+        <div class="pie-card-title">2. Torta B: Convenciones Taxonómicas</div>
+        <div class="pie-card-desc">Distribución proporcional de Flora y los 5 grupos de Fauna de Kennedy (563 taxones).</div>
         
         <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
-          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.019 1.000 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.019 1.000 A 1 1 0 0 1 -0.925 -0.380 Z" fill="#38BDF8" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.925 -0.380 A 1 1 0 0 1 -0.675 -0.738 Z" fill="#F59E0B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.675 -0.738 A 1 1 0 0 1 -0.342 -0.940 Z" fill="#EC4899" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.342 -0.940 A 1 1 0 0 1 -0.118 -0.993 Z" fill="#10B981" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.118 -0.993 A 1 1 0 0 1 1 0 Z" fill="#A855F7" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.094 0.996 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.094 0.996 A 1 1 0 0 1 -0.925 -0.380 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.925 -0.380 A 1 1 0 0 1 -0.738 -0.675 Z" fill="#F79E70" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.738 -0.675 A 1 1 0 0 1 -0.463 -0.886 Z" fill="#E69888" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.463 -0.886 A 1 1 0 0 1 -0.259 -0.966 Z" fill="#6B9080" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.259 -0.966 A 1 1 0 0 1 1 0 Z" fill="#C96349" stroke="#000000" stroke-width="0.02"/>
         </svg>
 
         <div class="pie-legend">
@@ -638,56 +683,56 @@ window.onerror = function(msg, url, line, col, error) {
             <b style="color:#84A48B;">48.5% (273)</b>
           </div>
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#38BDF8;"></div>Aves (Avifauna)</div>
-            <b style="color:#38BDF8;">44.6% (251)</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>Aves (Avifauna)</div>
+            <b style="color:#A386A9;">44.6% (251)</b>
           </div>
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#F59E0B;"></div>Mamíferos (Mastofauna)</div>
-            <b style="color:#F59E0B;">1.8% (10)</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#F79E70;"></div>Mamíferos (Mastofauna)</div>
+            <b style="color:#F79E70;">1.8% (10)</b>
           </div>
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#EC4899;"></div>Moluscos (Gasterópodos)</div>
-            <b style="color:#EC4899;">2.5% (14)</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#E69888;"></div>Moluscos (Gasterópodos)</div>
+            <b style="color:#E69888;">2.5% (14)</b>
           </div>
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#10B981;"></div>Anfibios (Ranas/Sapos)</div>
-            <b style="color:#10B981;">1.1% (6)</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#6B9080;"></div>Anfibios (Ranas/Sapos)</div>
+            <b style="color:#6B9080;">1.1% (6)</b>
           </div>
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#A855F7;"></div>Reptiles (Serpientes/Lagartos)</div>
-            <b style="color:#A855F7;">1.6% (9)</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#C96349;"></div>Reptiles (Serpientes/Lagartos)</div>
+            <b style="color:#C96349;">1.6% (9)</b>
           </div>
         </div>
       </div>
 
-      <!-- Torta C: Origen y Soporte de Fuentes de Evidencia -->
+            <!-- Torta C: Origen y Soporte de Fuentes de Evidencia -->
       <div class="pie-card">
-        <div class="pie-card-title">3. Torta C: Fuentes de Evidencia y Respaldo</div>
+        <div class="pie-card-title">3. Torta C: Fuentes de Información y Respaldo</div>
         <div class="pie-card-desc">Respaldo técnico del modelo socioecológico de Kennedy con enlaces directos a las bases de datos.</div>
         
         <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
-          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.368 0.930 Z" fill="#38BDF8" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.368 0.930 A 1 1 0 0 1 -0.852 -0.523 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.852 -0.523 A 1 1 0 0 1 -0.998 -0.063 Z" fill="#F59E0B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.998 -0.063 A 1 1 0 0 1 1 0 Z" fill="#A855F7" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.368 0.930 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.368 0.930 A 1 1 0 0 1 -0.852 -0.523 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.852 -0.523 A 1 1 0 0 1 -0.998 -0.063 Z" fill="#F79E70" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.998 -0.063 A 1 1 0 0 1 1 0 Z" fill="#E7C878" stroke="#000000" stroke-width="0.02"/>
         </svg>
 
         <div class="pie-legend">
           <a href="https://www.inaturalist.org/observations?captive=false&nelat=4.645227988012021&nelng=-74.14909601914505&subview=table&swlat=4.6409505371905535&swlng=-74.15227175461868&iconic_taxa=Protozoa,Fungi,Plantae,Insecta,Arachnida,Aves,Amphibia,Reptilia,Mammalia,Actinopterygii,Mollusca" target="_blank" rel="noopener noreferrer" class="legend-row" style="text-decoration:none; cursor:pointer;">
-            <div class="legend-label"><div class="legend-dot" style="background:#38BDF8;"></div>iNaturalist Kennedy (Humedales & Ronda)</div>
-            <b style="color:#38BDF8;">68.8% ↗</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>iNaturalist Kennedy (Humedales & Ronda)</div>
+            <b style="color:#84A48B;">68.8% ↗</b>
           </a>
           <a href="https://redbiotica.jbb.gov.co/" target="_blank" rel="noopener noreferrer" class="legend-row" style="text-decoration:none; cursor:pointer;">
-            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Jardín Botánico de Bogotá (JBB / SIGAU / PEDH)</div>
-            <b style="color:#84A48B;">21.5% ↗</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>Jardín Botánico de Bogotá (JBB / SIGAU / PEDH)</div>
+            <b style="color:#A386A9;">21.5% ↗</b>
           </a>
           <a href="https://ebird.org/region/CO/hotspots" target="_blank" rel="noopener noreferrer" class="legend-row" style="text-decoration:none; cursor:pointer;">
-            <div class="legend-label"><div class="legend-dot" style="background:#F59E0B;"></div>eBird Hotspots Colombia (Avifauna)</div>
-            <b style="color:#F59E0B;">6.2% ↗</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#F79E70;"></div>eBird Hotspots Colombia (Avifauna)</div>
+            <b style="color:#F79E70;">6.2% ↗</b>
           </a>
           <a href="https://www.gbif.org/" target="_blank" rel="noopener noreferrer" class="legend-row" style="text-decoration:none; cursor:pointer;">
-            <div class="legend-label"><div class="legend-dot" style="background:#A855F7;"></div>GBIF Red Global de Biodiversidad</div>
-            <b style="color:#A855F7;">3.5% ↗</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#E7C878;"></div>GBIF Red Global de Biodiversidad</div>
+            <b style="color:#E7C878;">3.5% ↗</b>
           </a>
         </div>
       </div>
@@ -706,11 +751,11 @@ window.onerror = function(msg, url, line, col, error) {
 <div class="top-header" id="topHeader">
   <div class="nav-group">
     <div class="glass-panel brand-title">
-      <span>SISTEMA SOCIOECOLÓGICO KENNEDY</span>
+      <span>RED DE INTERACCIONES BIÓTICAS DE KENNEDY</span>
     </div>
 
     <button class="glass-panel btn-flat active" onclick="openWelcomeModal()">
-      <span>Métricas (Tortas A, B, C)</span>
+      <span>Ver de Dónde se Obtuvo la Información (Métricas)</span>
     </button>
 
     <button class="glass-panel btn-flat active" id="btnToggleSide" onclick="toggleSideDrawer()">
@@ -2961,10 +3006,6 @@ window.onerror = function(msg, url, line, col, error) {
   const mouseVec = new THREE.Vector2();
 
   window.openWelcomeModal = () => {
-    welcomeModalOverlay.style.display = "flex";
-  };
-  setTimeout(() => { if (welcomeModalOverlay) welcomeModalOverlay.style.display = "flex"; }, 150);
-
     const modal = document.getElementById('welcomeModalOverlay');
     if (modal) modal.style.display = 'flex';
   };
@@ -3003,13 +3044,23 @@ window.onerror = function(msg, url, line, col, error) {
 
   window.toggleInteraction = (typeId) => {
     opts.interactions[typeId] = !opts.interactions[typeId];
-    const toggleEl = document.getElementById(`toggleInter${typeId}`);
     const itemEl = document.getElementById(`interItem${typeId}`);
-    const isActive = !!opts.interactions[typeId];
-    if (toggleEl) toggleEl.classList.toggle('checked', isActive);
     if (itemEl) {
+      const isActive = opts.interactions[typeId];
       itemEl.classList.toggle('active', isActive);
       itemEl.classList.toggle('inactive', !isActive);
+    }
+    recalculateDegreesAndSizes();
+  };
+
+  window.toggleAllInteractions = (state) => {
+    for (let i = 0; i <= 8; i++) {
+      opts.interactions[i] = state;
+      const itemEl = document.getElementById(`interItem${i}`);
+      if (itemEl) {
+        itemEl.classList.toggle('active', state);
+        itemEl.classList.toggle('inactive', !state);
+      }
     }
     recalculateDegreesAndSizes();
   };
