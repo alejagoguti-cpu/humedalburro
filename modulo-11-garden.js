@@ -1,7 +1,7 @@
 // =====================================================================
 // El Jardín de las Aguas — Red Biótica & Territorio de Kennedy 3D
 // Digital Experience inspired by Penderecki's Garden (pendereckisgarden.pl)
-// 500 Interactive Species Nodes -> Shockwave Explosion -> 3D Territory
+// 500 Luminous Biotic Nodes -> Vortex Explosion -> 3D Territory
 // =====================================================================
 
 (() => {
@@ -35,8 +35,8 @@
   const cardRelations = document.getElementById("cardRelations");
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x020408);
-  scene.fog = new THREE.FogExp2(0x020408, 0.0008);
+  scene.background = new THREE.Color(0x020409);
+  scene.fog = new THREE.FogExp2(0x020409, 0.0006);
 
   const sceneRoot = new THREE.Group();
   scene.add(sceneRoot);
@@ -46,17 +46,17 @@
   const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 9500);
   
   // Posiciones de Cámara
-  const swarmCamPos = new THREE.Vector3(0, 30, 130);
+  const swarmCamPos = new THREE.Vector3(0, 24, 125);
   const swarmTarget = new THREE.Vector3(0, 0, 0);
 
-  const territoryCamPos = new THREE.Vector3(180, 275, 325);
+  const territoryCamPos = new THREE.Vector3(180, 260, 310);
   const territoryTarget = new THREE.Vector3(35, 0, 10);
 
   const waypoints = {
     overview: { pos: territoryCamPos, target: territoryTarget },
-    burro:    { pos: new THREE.Vector3(180, 105, 115), target: new THREE.Vector3(210, 0, -10) },
-    canopy:   { pos: new THREE.Vector3(90, 68, 85),    target: new THREE.Vector3(80, 5, 40) },
-    cali:     { pos: new THREE.Vector3(285, 120, -35), target: new THREE.Vector3(200, 0, -20) }
+    burro:    { pos: new THREE.Vector3(180, 95, 110),  target: new THREE.Vector3(210, 0, -10) },
+    canopy:   { pos: new THREE.Vector3(90, 60, 80),    target: new THREE.Vector3(80, 5, 40) },
+    cali:     { pos: new THREE.Vector3(285, 110, -30), target: new THREE.Vector3(200, 0, -20) }
   };
 
   camera.position.copy(swarmCamPos);
@@ -69,17 +69,30 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.35;
+  renderer.toneMappingExposure = 1.3;
 
-  // OrbitControls totalmente libre y suave para acomodar la vista al gusto del usuario
+  // OrbitControls suave y totalmente interactivo
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.screenSpacePanning = true;
   controls.maxDistance = 3500;
-  controls.minDistance = 10;
+  controls.minDistance = 8;
   controls.maxPolarAngle = Math.PI / 2 + 0.08;
   controls.target.copy(swarmTarget);
+
+  // Auto-fade del título inicial al interactuar con el mouse, scroll o tocar
+  let userHasInteracted = false;
+  function triggerTitleFadeOut() {
+    if (!userHasInteracted) {
+      userHasInteracted = true;
+      if (swarmIntroBox) swarmIntroBox.classList.add("fade-out");
+    }
+  }
+
+  controls.addEventListener("start", triggerTitleFadeOut);
+  window.addEventListener("wheel", triggerTitleFadeOut, { passive: true });
+  window.addEventListener("touchmove", triggerTitleFadeOut, { passive: true });
 
   // Resize handler
   window.addEventListener("resize", () => {
@@ -93,24 +106,24 @@
   });
 
   // ---- Luces Cinematográficas ----
-  const ambientLight = new THREE.AmbientLight(0xdff5ec, 0.9);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
   scene.add(ambientLight);
 
-  const keyLight = new THREE.DirectionalLight(0x10b981, 1.5);
+  const keyLight = new THREE.DirectionalLight(0x10b981, 1.8);
   keyLight.position.set(340, 640, 440);
   scene.add(keyLight);
 
-  const rimLight = new THREE.DirectionalLight(0x00f0ff, 1.1);
+  const rimLight = new THREE.DirectionalLight(0x00f0ff, 1.4);
   rimLight.position.set(-440, 340, -340);
   scene.add(rimLight);
 
   // Base Paisajística Amplia
   function createExpansiveBase() {
-    const discGeo = new THREE.RingGeometry(10, 1600, 80);
+    const discGeo = new THREE.RingGeometry(5, 1700, 80);
     const discMat = new THREE.MeshBasicMaterial({
-      color: 0x041118,
+      color: 0x020710,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.92,
       side: THREE.DoubleSide
     });
     const disc = new THREE.Mesh(discGeo, discMat);
@@ -118,9 +131,9 @@
     disc.position.y = -0.6;
     sceneRoot.add(disc);
 
-    const grid = new THREE.GridHelper(2600, 96, 0x10b981, 0x05131b);
+    const grid = new THREE.GridHelper(2800, 100, 0x0d9488, 0x041a24);
     grid.position.y = -0.55;
-    grid.material.opacity = 0.28;
+    grid.material.opacity = 0.22;
     grid.material.transparent = true;
     sceneRoot.add(grid);
   }
@@ -138,7 +151,7 @@
     {
       common: "Serpiente Sabanera", scientific: "Atractus crassicaudatus", taxon: "Reptilia", icon: "fa-staff-snake",
       habitat: "Suelo húmedo y pastizales de ribera", diet: "Lombrices de tierra y babosas",
-      relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0x059669
+      relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0x22c55e
     },
     {
       common: "Cusumbo Andino", scientific: "Nasua olivacea", taxon: "Mammalia", icon: "fa-paw",
@@ -148,7 +161,7 @@
     {
       common: "Comadreja Andina", scientific: "Neogale frenata", taxon: "Mammalia", icon: "fa-paw",
       habitat: "Ribera del Río Bogotá y canales", diet: "Pequeños roedores y anfibios",
-      relations: ["Depredador tope", "Control poblacional", "Madrigueras en taludes"], color: 0xd97706
+      relations: ["Depredador tope", "Control poblacional", "Madrigueras en taludes"], color: 0xfbbf24
     },
     {
       common: "Tingua Azul", scientific: "Porphyrio martinica", taxon: "Aves", icon: "fa-feather",
@@ -158,71 +171,90 @@
     {
       common: "Garza Real", scientific: "Ardea alba", taxon: "Aves", icon: "fa-dove",
       habitat: "Orillas abiertas del Humedal El Burro", diet: "Ranas sabaneras, peces y coleópteros",
-      relations: ["Depredador acuático", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0xe0f2fe
+      relations: ["Depredador acuático", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0x38bdf8
     },
     {
       common: "Lagartija Bombillo", scientific: "Riama striata", taxon: "Reptilia", icon: "fa-worm",
       habitat: "Corteza de árboles y troncos caídos", diet: "Artrópodos y pequeñas arañas",
-      relations: ["Controlador de plagas", "Termorregulación en rocas", "Presa de aves"], color: 0x84cc16
+      relations: ["Controlador de plagas", "Termorregulación en rocas", "Presa de aves"], color: 0x4ade80
     },
     {
       common: "Hicotea del Humedal", scientific: "Trachemys callirostris", taxon: "Reptilia", icon: "fa-shield-halved",
-      habitat: "Zonas de remanso y asoleaderos de agua", diet: "Vegetación sumergida y carroña acuática",
-      relations: ["Limpieza de detritos", "Asoleo en troncos", "Nidación en suelo"], color: 0x34d399
+      habitat: "Zonas de remanso y asoleaderos de agua", diet: "Vegetación sumergida y detritos acuáticos",
+      relations: ["Limpieza de detritos", "Asoleo en troncos", "Nidación en ribera"], color: 0x2dd4bf
     },
     {
       common: "Murciélago Mastín", scientific: "Molossus molossus", taxon: "Mammalia", icon: "fa-bat",
       habitat: "Huecos de urapanes y cielo nocturno", diet: "Insectos voladores nocturnos y polillas",
-      relations: ["Control nocturno de plagas", "Bioacústica ultrasónica", "Polinización"], color: 0xa855f7
+      relations: ["Control nocturno de plagas", "Bioacústica ultrasónica", "Polinización"], color: 0xc084fc
     },
     {
       common: "Ardilla de Cola Roja", scientific: "Sciurus granatensis", taxon: "Mammalia", icon: "fa-tree",
       habitat: "Copas de Sauco, Capulí y Urapán", diet: "Semillas, conos y brotes tiernos",
-      relations: ["Dispersión de bellotas", "Siembra natural de árboles", "Alimento de búhos"], color: 0xea580c
+      relations: ["Dispersión de coníferas", "Almacén en raíces", "Vocalizaciones de alerta"], color: 0xf97316
     },
     {
-      common: "Sauco Negro", scientific: "Sambucus nigra", taxon: "Plantae", icon: "fa-seedling",
-      habitat: "Bosque ribereño y cercas vivas", diet: "Fotosíntesis y absorción de nutrientes",
-      relations: ["Alimento para aves y ardillas", "Flores para polinizadores", "Sombra y humedad"], color: 0x10b981
+      common: "Tingua Bogotana", scientific: "Rallus semiplumbeus", taxon: "Aves", icon: "fa-dove",
+      habitat: "Densos juncales del Humedal El Burro", diet: "Invertebrados acuáticos y brotes tiernos",
+      relations: ["Especie endémica en peligro", "Bioindicador de conservación", "Nidos flotantes"], color: 0x06b6d4
     },
     {
-      common: "Juncal Gigante", scientific: "Schoenoplectus californicus", taxon: "Plantae", icon: "fa-spa",
-      habitat: "Franja helófita del humedal", diet: "Fitorremediación y purificación de agua",
-      relations: ["Filtro natural de metales", "Refugio de tinguas", "Fijación de sustrato"], color: 0x059669
+      common: "Pato Turrio", scientific: "Oxyura jamaicensis", taxon: "Aves", icon: "fa-water",
+      habitat: "Lagunas profundas de Kennedy", diet: "Larvas de quironómidos y plantas sumergidas",
+      relations: ["Buceo profundo", "Oxigenación de sedimentos", "Comensalismo con tinguas"], color: 0x0ea5e9
     },
     {
-      common: "Lenteja de Agua", scientific: "Lemna minor", taxon: "Plantae", icon: "fa-leaf",
-      habitat: "Superficie de aguas calmas", diet: "Absorción de nitrógeno y fósforo",
-      relations: ["Oxigenación del agua", "Alimento de patos", "Sombra contra algas tóxicas"], color: 0x6ee7b7
+      common: "Libélula Azul", scientific: "Rhionaeschna marchali", taxon: "Insecta", icon: "fa-bug",
+      habitat: "Ronda hidráulica y espejos de agua", diet: "Mosquitos adultos y moscas",
+      relations: ["Depredador aéreo de plagas", "Fase larvaria bentónica", "Presa de aves"], color: 0x38bdf8
     },
     {
-      common: "Salamandra de Páramo", scientific: "Bolitoglossa adspersa", taxon: "Amphibia", icon: "fa-dragon",
-      habitat: "Musgo húmedo y hojarasca de sabana", diet: "Colémbolos y ácaros del suelo",
-      relations: ["Bioindicador de humedad", "Respiración cutánea", "Cadena detritívora"], color: 0x14b8a6
+      common: "Abejorro Sabanero", scientific: "Bombus rubicundus", taxon: "Insecta", icon: "fa-clover",
+      habitat: "Flores de Sauco, Tingua y Jardines", diet: "Néctar y polen silvestre",
+      relations: ["Polinizador clave", "Zumbido de alta vibración", "Mutualismo floral"], color: 0xfbbf24
     },
     {
-      common: "Monjita Bogotana", scientific: "Chrysomus icterocephalus", taxon: "Aves", icon: "fa-feather-pointed",
-      habitat: "Enea y juncales densos de El Burro", diet: "Semillas y orugas acuáticas",
-      relations: ["Especie emblemática de sabana", "Nidos colgantes", "Canto territorial"], color: 0xfacc15
+      common: "Sauco del Humedal", scientific: "Sambucus nigra", taxon: "Plantae", icon: "fa-leaf",
+      habitat: "Bosque ripario y orillas del canal", diet: "Fotosíntesis y nutrientes del humedal",
+      relations: ["Frutos para aves migratorias", "Fijación de taludes", "Sombra térmica"], color: 0x10b981
     },
     {
-      common: "Pato Zambullidor", scientific: "Oxyura jamaicensis", taxon: "Aves", icon: "fa-feather",
-      habitat: "Cuerpo central del Humedal El Burro", diet: "Larvas de mosquito y vegetación bentónica",
-      relations: ["Buceo profundo", "Cortejo acuático", "Indicador de turbidez"], color: 0x38bdf8
+      common: "Junco de Agua", scientific: "Schoenoplectus californicus", taxon: "Plantae", icon: "fa-spa",
+      habitat: "Zonas de inundación permanente", diet: "Filtración hídrica fitorremediadora",
+      relations: ["Filtro de metales pesados", "Nidación de Tingua", "Refugio de alevines"], color: 0x34d399
+    },
+    {
+      common: "Curí Sabanero", scientific: "Cavia aperea", taxon: "Mammalia", icon: "fa-paw",
+      habitat: "Pastizales densos y bordes de humedal", diet: "Gramíneas, pasto kikuyo y hojas tiernas",
+      relations: ["Herbívoro primario", "Presa de gavilanes", "Túneles en vegetación"], color: 0xd97706
+    },
+    {
+      common: "Alcaraván Sabanero", scientific: "Vanellus chilensis", taxon: "Aves", icon: "fa-dove",
+      habitat: "Campos abiertos y riberas secas", diet: "Gusanos, escarabajos y pequeños moluscos",
+      relations: ["Guardián del territorio", "Alarma sonora comunitaria", "Nidos en suelo"], color: 0xa7f3d0
+    },
+    {
+      common: "Búho Rayado", scientific: "Asio clamator", taxon: "Aves", icon: "fa-feather",
+      habitat: "Arbolados altos de Kennedy", diet: "Roedores nocturnos y pequeños reptiles",
+      relations: ["Controlador nocturno de roedores", "Caza silenciosa", "Nidación en copas"], color: 0xe879f9
+    },
+    {
+      common: "Colibrí Paramuno", scientific: "Aglaeactis cupripennis", taxon: "Aves", icon: "fa-feather",
+      habitat: "Jardines florales y arbustos nativos", diet: "Néctar floral e insectos al vuelo",
+      relations: ["Polinización cruzada", "Vuelo estacionario", "Alta tasa metabólica"], color: 0xf43f5e
     }
   ];
 
   // =====================================================================
-  // 2. ENJAMBRE DE 500 BOLITAS BIÓTICAS & FILAMENTOS INTERACTIVOS
+  // 2. RED ENJAMBRE BIÓTICA LUMINOSA (500 PARTÍCULAS LUMINOSAS + HALOS)
   // =====================================================================
   const SWARM_COUNT = 500;
   const swarmGroup = new THREE.Group();
   sceneRoot.add(swarmGroup);
 
-  const sphereGeo = new THREE.SphereGeometry(1.2, 16, 16);
-  const sphereMat = new THREE.MeshStandardMaterial({
-    roughness: 0.2,
-    metalness: 0.35,
+  // Material LUMINOSO (MeshBasicMaterial unlit para que NUNCA sea negro ni oscuro)
+  const sphereGeo = new THREE.SphereGeometry(0.48, 14, 14);
+  const sphereMat = new THREE.MeshBasicMaterial({
     vertexColors: true,
     transparent: true,
     opacity: 0.95
@@ -232,31 +264,60 @@
   swarmMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(SWARM_COUNT * 3), 3);
   swarmGroup.add(swarmMesh);
 
-  // Filamentos de luz entre las 500 bolitas
-  const MAX_LINKS = 1100;
+  // Halo brillante exterior para cada partícula biótica
+  const haloCanvas = document.createElement("canvas");
+  haloCanvas.width = 64; haloCanvas.height = 64;
+  const hCtx = haloCanvas.getContext("2d");
+  const grad = hCtx.createRadialGradient(32, 32, 0, 32, 32, 30);
+  grad.addColorStop(0, "rgba(255, 255, 255, 1.0)");
+  grad.addColorStop(0.25, "rgba(16, 185, 129, 0.85)");
+  grad.addColorStop(0.65, "rgba(0, 240, 255, 0.3)");
+  grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+  hCtx.fillStyle = grad;
+  hCtx.fillRect(0, 0, 64, 64);
+  const haloTexture = new THREE.CanvasTexture(haloCanvas);
+
+  const haloGeo = new THREE.PlaneGeometry(1.6, 1.6);
+  const haloMat = new THREE.MeshBasicMaterial({
+    map: haloTexture,
+    transparent: true,
+    opacity: 0.75,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+
+  const haloMesh = new THREE.InstancedMesh(haloGeo, haloMat, SWARM_COUNT);
+  swarmGroup.add(haloMesh);
+
+  // Filamentos de conexión inter-especie
+  const MAX_LINKS = 1200;
   const linkPos = new Float32Array(MAX_LINKS * 2 * 3);
   const linkGeo = new THREE.BufferGeometry();
   linkGeo.setAttribute("position", new THREE.BufferAttribute(linkPos, 3));
   const linkMat = new THREE.LineBasicMaterial({
     color: 0x10b981,
     transparent: true,
-    opacity: 0.4
+    opacity: 0.45,
+    blending: THREE.AdditiveBlending
   });
   const linkLines = new THREE.LineSegments(linkGeo, linkMat);
   swarmGroup.add(linkLines);
 
   const swarmNodes = [];
   const dummyObj = new THREE.Object3D();
+  const dummyHalo = new THREE.Object3D();
 
   for (let i = 0; i < SWARM_COUNT; i++) {
     const u = Math.random();
     const v = Math.random();
     const theta = u * 2.0 * Math.PI;
     const phi = Math.acos(2.0 * v - 1.0);
-    const r = 16 + Math.cbrt(Math.random()) * 42;
+    // Forma orgánica helicoidal elipsoidal
+    const r = 12 + Math.cbrt(Math.random()) * 36;
 
     const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = 8 + (r * Math.sin(phi) * Math.sin(theta)) * 0.75;
+    const y = 6 + (r * Math.sin(phi) * Math.sin(theta)) * 0.75;
     const z = r * Math.cos(phi);
 
     const species = SPECIES_CATALOG[i % SPECIES_CATALOG.length];
@@ -269,14 +330,14 @@
       baseX: x, baseY: y, baseZ: z,
       x: x, y: y, z: z,
       phase: Math.random() * Math.PI * 2,
-      scale: 0.8 + Math.random() * 0.5,
+      scale: 0.85 + Math.random() * 0.5,
       color: col,
       highlighted: false
     });
   }
   swarmMesh.instanceColor.needsUpdate = true;
 
-  // Actualiza física y filamentos del enjambre
+  // Actualización dinámica del enjambre biótico
   function updateBioticSwarm(time, morphProgress) {
     if (morphProgress > 0.98) {
       swarmGroup.visible = false;
@@ -284,40 +345,53 @@
     }
     swarmGroup.visible = true;
 
-    const swarmFade = Math.max(0.0, 1.0 - morphProgress * 1.6);
+    // Rotación continua del enjambre 3D
+    swarmGroup.rotation.y = time * 0.08;
+    swarmGroup.rotation.x = Math.sin(time * 0.05) * 0.06;
+
+    const swarmFade = Math.max(0.0, 1.0 - morphProgress * 1.5);
     sphereMat.opacity = 0.95 * swarmFade;
-    linkMat.opacity = 0.4 * swarmFade;
+    haloMat.opacity = 0.7 * swarmFade;
+    linkMat.opacity = 0.45 * swarmFade;
 
     let linkIdx = 0;
     const posArr = linkGeo.attributes.position.array;
 
     for (let i = 0; i < SWARM_COUNT; i++) {
       const d = swarmNodes[i];
-      const waveY = Math.sin(time * 1.3 + d.phase) * 1.8;
-      const waveX = Math.cos(time * 1.0 + d.phase) * 1.3;
-      const waveZ = Math.sin(time * 1.1 + d.phase * 1.5) * 1.3;
+      const waveY = Math.sin(time * 1.4 + d.phase) * 1.6;
+      const waveX = Math.cos(time * 1.1 + d.phase) * 1.2;
+      const waveZ = Math.sin(time * 1.2 + d.phase * 1.5) * 1.2;
 
       d.x = d.baseX + waveX;
       d.y = d.baseY + waveY;
       d.z = d.baseZ + waveZ;
 
-      // Durante la explosión las bolitas se dispersan
-      const morphScatter = morphProgress * 140.0;
-      const curX = d.x + (d.baseX > 0 ? 1 : -1) * morphScatter * 0.85;
-      const curY = d.y + morphScatter * 0.7;
-      const curZ = d.z + (d.baseZ > 0 ? 1 : -1) * morphScatter * 0.85;
+      // Durante la explosión, las partículas se dispersan en espiral
+      const morphScatter = morphProgress * 150.0;
+      const curX = d.x + (d.baseX > 0 ? 1 : -1) * morphScatter * 0.9;
+      const curY = d.y + morphScatter * 0.75;
+      const curZ = d.z + (d.baseZ > 0 ? 1 : -1) * morphScatter * 0.9;
 
-      const s = d.scale * (d.highlighted ? 1.6 : 1.0) * swarmFade;
+      const s = d.scale * (d.highlighted ? 1.8 : 1.0) * swarmFade;
       dummyObj.position.set(curX, curY, curZ);
       dummyObj.scale.set(s, s, s);
       dummyObj.updateMatrix();
       swarmMesh.setMatrixAt(i, dummyObj.matrix);
 
-      if (linkIdx < MAX_LINKS && i % 2 === 0 && swarmFade > 0.25) {
+      // Halo siempre orientado a la cámara
+      dummyHalo.position.set(curX, curY, curZ);
+      dummyHalo.scale.set(s * 1.6, s * 1.6, s * 1.6);
+      dummyHalo.quaternion.copy(camera.quaternion);
+      dummyHalo.updateMatrix();
+      haloMesh.setMatrixAt(i, dummyHalo.matrix);
+
+      // Conexiones de proximidad
+      if (linkIdx < MAX_LINKS && i % 2 === 0 && swarmFade > 0.2) {
         for (let j = i + 1; j < Math.min(i + 14, SWARM_COUNT); j++) {
           const dj = swarmNodes[j];
           const distSq = (d.x - dj.x)**2 + (d.y - dj.y)**2 + (d.z - dj.z)**2;
-          if (distSq < 240 && linkIdx < MAX_LINKS) {
+          if (distSq < 220 && linkIdx < MAX_LINKS) {
             const ptr = linkIdx * 6;
             posArr[ptr]     = curX; posArr[ptr + 1] = curY; posArr[ptr + 2] = curZ;
             posArr[ptr + 3] = dj.x; posArr[ptr + 4] = dj.y; posArr[ptr + 5] = dj.z;
@@ -330,6 +404,7 @@
     for (let k = linkIdx * 6; k < MAX_LINKS * 6; k++) posArr[k] = 0;
 
     swarmMesh.instanceMatrix.needsUpdate = true;
+    haloMesh.instanceMatrix.needsUpdate = true;
     linkGeo.attributes.position.needsUpdate = true;
   }
 
@@ -361,31 +436,31 @@
       float t = uMorphProgress;
       float ease = smoothstep(0.0, 1.0, t);
       
-      // Vórtice de Explosión Espectacular (Curl-Noise Spiral)
+      // Vórtice de Explosión Cuántica (Curl-Noise Spiral)
       float explosionIntensity = sin(ease * 3.14159);
       vec3 spiralVortex = vec3(
-        sin(uTime * 1.2 + aPhase * 3.14) * 38.0 * explosionIntensity + cos(uTime * 0.8 + position.z * 0.04) * 28.0 * explosionIntensity,
-        cos(uTime * 1.0 + aPhase * 2.0) * 48.0 * explosionIntensity + sin(uTime * 1.4 + position.x * 0.05) * 32.0 * explosionIntensity + (1.0 - ease) * 55.0,
-        sin(uTime * 1.3 + aPhase * 4.2) * 38.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.06) * 28.0 * explosionIntensity
+        sin(uTime * 1.3 + aPhase * 3.14) * 42.0 * explosionIntensity + cos(uTime * 0.9 + position.z * 0.04) * 30.0 * explosionIntensity,
+        cos(uTime * 1.1 + aPhase * 2.0) * 54.0 * explosionIntensity + sin(uTime * 1.5 + position.x * 0.05) * 36.0 * explosionIntensity + (1.0 - ease) * 58.0,
+        sin(uTime * 1.4 + aPhase * 4.2) * 42.0 * explosionIntensity + cos(uTime * 1.0 + position.y * 0.06) * 30.0 * explosionIntensity
       );
       
       // Movimiento orgánico territorial en estado ensamblado
       vec3 territorialIdle = vec3(0.0);
       if (aCategory < 0.5) {
-        // Ondas fluidas en el agua del humedal
-        territorialIdle.y = sin(uTime * 2.8 + position.x * 0.18 + position.z * 0.18) * 0.6 * ease;
+        // Ondulación acuática en el Humedal El Burro
+        territorialIdle.y = sin(uTime * 2.8 + position.x * 0.18 + position.z * 0.18) * 0.55 * ease;
       } else if (aCategory < 1.5) {
-        // Brisa en el dosel de los árboles
-        territorialIdle.x = sin(uTime * 1.9 + aPhase * 4.0) * 0.45 * ease;
-        territorialIdle.z = cos(uTime * 1.6 + aPhase * 4.0) * 0.45 * ease;
+        // Brisa en el dosel de los árboles nativos
+        territorialIdle.x = sin(uTime * 1.9 + aPhase * 4.0) * 0.4 * ease;
+        territorialIdle.z = cos(uTime * 1.6 + aPhase * 4.0) * 0.4 * ease;
       }
       
       // Onda interactiva expansiva
       float distToRipple = length(position.xz - uRipplePos.xz);
-      float rippleRadius = uRippleTime * 130.0;
+      float rippleRadius = uRippleTime * 140.0;
       float rippleDist = abs(distToRipple - rippleRadius);
-      float rippleWave = smoothstep(24.0, 0.0, rippleDist) * max(0.0, 1.0 - uRippleTime * 0.7) * ease;
-      territorialIdle.y += sin(rippleDist * 0.25 - uTime * 4.0) * rippleWave * 3.2;
+      float rippleWave = smoothstep(26.0, 0.0, rippleDist) * max(0.0, 1.0 - uRippleTime * 0.65) * ease;
+      territorialIdle.y += sin(rippleDist * 0.25 - uTime * 4.0) * rippleWave * 3.4;
       vRippleBoost = rippleWave;
       
       // Posición orbital del enjambre
@@ -401,11 +476,11 @@
       vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
       
-      // Micro-partículas nítidas
-      float distFactor = clamp(260.0 / -mvPosition.z, 0.35, 1.85);
-      gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.8) * uPixelRatio * distFactor;
+      // Tamaño calibrado para nitidez absoluta
+      float distFactor = clamp(260.0 / -mvPosition.z, 0.4, 1.9);
+      gl_PointSize = (aSize + rippleWave * 1.2 + explosionIntensity * 0.9) * uPixelRatio * distFactor;
       
-      vAlpha = mix(0.12, 0.95, ease) + explosionIntensity * 0.4;
+      vAlpha = mix(0.12, 0.96, ease) + explosionIntensity * 0.4;
     }
   `;
 
@@ -420,11 +495,11 @@
       float dist = length(coord);
       if (dist > 0.5) discard;
       
-      float edgeAlpha = smoothstep(0.5, 0.2, dist);
+      float edgeAlpha = smoothstep(0.5, 0.18, dist);
       
       vec3 col = vColor;
       if (vRippleBoost > 0.05) {
-        col = mix(col, vec3(0.0, 1.0, 0.8), vRippleBoost * 0.6);
+        col = mix(col, vec3(0.0, 1.0, 0.85), vRippleBoost * 0.65);
       }
       
       gl_FragColor = vec4(col, edgeAlpha * vAlpha);
@@ -448,7 +523,7 @@
     blending: THREE.NormalBlending
   });
 
-  // Buffers del modelo territorial unificado
+  // Buffers de Datos de Partículas
   const pTarget = [];
   const pSwarm = [];
   const pColor = [];
@@ -456,28 +531,26 @@
   const pPhase = [];
   const pCat = [];
 
-  let territoryPoints = null;
+  let particlePoints = null;
+  let currentParticleIndex = 0;
 
-  function randomSwarmCluster(hubIdx = 0) {
-    const hub = swarmNodes[hubIdx % swarmNodes.length];
-    const offsetR = 0.5 + Math.random() * 4.5;
+  function randomSwarmCluster(idx) {
+    const node = swarmNodes[idx % SWARM_COUNT];
+    const offsetRad = Math.random() * 2.5;
     const ang1 = Math.random() * Math.PI * 2;
     const ang2 = Math.random() * Math.PI;
     return {
-      x: hub.baseX + offsetR * Math.sin(ang2) * Math.cos(ang1),
-      y: hub.baseY + offsetR * Math.cos(ang2) * 0.8,
-      z: hub.baseZ + offsetR * Math.sin(ang2) * Math.sin(ang1)
+      x: node.baseX + offsetRad * Math.sin(ang2) * Math.cos(ang1),
+      y: node.baseY + offsetRad * Math.sin(ang2) * Math.sin(ang1),
+      z: node.baseZ + offsetRad * Math.cos(ang2)
     };
   }
 
   function rebuildTerritoryParticles() {
-    if (territoryPoints) {
-      sceneRoot.remove(territoryPoints);
-      if (territoryPoints.geometry) territoryPoints.geometry.dispose();
+    if (particlePoints) {
+      sceneRoot.remove(particlePoints);
+      particlePoints.geometry.dispose();
     }
-
-    const total = pTarget.length / 3;
-    if (total === 0) return;
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(pTarget, 3));
@@ -487,22 +560,21 @@
     geo.setAttribute("aPhase", new THREE.Float32BufferAttribute(pPhase, 1));
     geo.setAttribute("aCategory", new THREE.Float32BufferAttribute(pCat, 1));
 
-    territoryPoints = new THREE.Points(geo, particleMat);
-    sceneRoot.add(territoryPoints);
+    particlePoints = new THREE.Points(geo, particleMat);
+    sceneRoot.add(particlePoints);
   }
 
   // =====================================================================
-  // 4. CARGA DE CAPAS TERRITORIALES (Verdes Botánicos Puros y Naturales)
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (AGUA, ÁRBOLES, VÍAS, EDIFICIOS)
   // =====================================================================
-  let currentParticleIndex = 0;
-
   function loadWater() {
     return fetch(WATER_URL)
       .then(r => r.json())
       .then(waterBodies => {
-        const colLagoon = new THREE.Color(0x00f0ff);  // Azul agua cian luminoso
-        const colEmerald = new THREE.Color(0x10b981); // Esmeralda acuática
-        const colShore = new THREE.Color(0x34d399);   // Verde menta orilla
+        // Paleta Acuática Luminosa
+        const colTurquoise = new THREE.Color(0x00f0ff); // Turquesa cristalino
+        const colLagoon = new THREE.Color(0x06b6d4);    // Laguna profunda
+        const colTealMint = new THREE.Color(0x2dd4bf);  // Menta orilla
 
         waterBodies.forEach(w => {
           const pts = w.pts;
@@ -528,7 +600,7 @@
               pTarget.push(wx, wy, wz);
               pSwarm.push(sw.x, sw.y, sw.z);
               
-              const c = (s % 2 === 0) ? colLagoon : colEmerald;
+              const c = (s % 2 === 0) ? colTurquoise : colLagoon;
               pColor.push(c.r, c.g, c.b);
               pSize.push(1.6);
               pPhase.push(Math.random() * 10);
@@ -541,7 +613,7 @@
             const sw = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(p.x, 0.3, p.z);
             pSwarm.push(sw.x, sw.y, sw.z);
-            pColor.push(colShore.r, colShore.g, colShore.b);
+            pColor.push(colTealMint.r, colTealMint.g, colTealMint.b);
             pSize.push(1.8);
             pPhase.push(i * 0.3);
             pCat.push(0.0);
@@ -557,22 +629,22 @@
     return fetch(TREES_URL)
       .then(r => r.json())
       .then(trees => {
-        // Paleta verde botánica viva del principio
-        const colForest = new THREE.Color(0x10b981);  // Esmeralda pura
-        const colDeep = new THREE.Color(0x059669);    // Bosque profundo
-        const colMint = new THREE.Color(0x34d399);    // Menta luminosa
-        const colMoss = new THREE.Color(0x047857);    // Verde musgo
-        const colTrunk = new THREE.Color(0x3f3f46);   // Tronco leñoso neutro
+        // Paleta Verde Botánica Exquisita & Viva
+        const colEmerald = new THREE.Color(0x10b981);   // Esmeralda botánica vibrante
+        const colSpringLeaf = new THREE.Color(0x22c55e); // Verde primavera radiante
+        const colBrightMint = new THREE.Color(0x4ade80); // Menta brillante reflejo solar
+        const colDeepForest = new THREE.Color(0x047857); // Verde bosque profundo
+        const colTrunk = new THREE.Color(0x334155);      // Base neutra pizarra
 
         trees.forEach((t, i) => {
           const [x, y, hMeters] = t;
           const p = toScene(x, y);
           const h = Math.max(0.7, (hMeters || 8) * SCALE);
 
-          let folCol = colForest;
-          if (i % 4 === 0) folCol = colMint;
-          else if (i % 4 === 1) folCol = colDeep;
-          else if (i % 4 === 2) folCol = colMoss;
+          let folCol = colEmerald;
+          if (i % 4 === 0) folCol = colBrightMint;
+          else if (i % 4 === 1) folCol = colSpringLeaf;
+          else if (i % 4 === 2) folCol = colDeepForest;
 
           const crownY = h * 0.85;
           const swCrown = randomSwarmCluster(currentParticleIndex++);
@@ -618,8 +690,8 @@
     return fetch(NET_URL)
       .then(r => r.json())
       .then(edges => {
-        const colRoad = new THREE.Color(0x52525b); // Grafito asfalto
-        const colMajor = new THREE.Color(0x38bdf8); // Vías principales en zafiro
+        const colRoad = new THREE.Color(0x475569);  // Pizarra asfáltica
+        const colMajor = new THREE.Color(0x38bdf8); // Vías arteriales en zafiro luminoso
 
         edges.forEach(([kind, pts], edgeIdx) => {
           const isMajor = (edgeIdx % 4 === 0);
@@ -646,56 +718,38 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        const colSlate = new THREE.Color(0x475569);  // Pizarra arquitectónica
+        const colSlate = new THREE.Color(0x334155);  // Pizarra arquitectónica sofisticada
         const colGlass = new THREE.Color(0x38bdf8);  // Destellos de cristal
-        const colBronze = new THREE.Color(0xf59e0b); // Techos ámbar cálido
+        const colSavanna = new THREE.Color(0x1e293b);
 
-        buildings.forEach((b, idx) => {
-          const pts = b.pts.map(p => toScene(p[0], p[1]));
-          const h = Math.max(1.4, (b.h || 6) * SCALE);
-          if (pts.length < 4) return;
+        buildings.forEach((b, bIdx) => {
+          const pts = b.pts;
+          if (!pts || pts.length < 3) return;
 
-          const bldgCol = (idx % 4 === 0) ? colBronze : ((idx % 2 === 0) ? colSlate : colGlass);
+          const sPts = pts.map(p => toScene(p[0], p[1]));
+          const h = (b.height || 10) * SCALE;
+          const isGlass = (bIdx % 6 === 0);
+          const c = isGlass ? colGlass : colSlate;
 
-          for (let i = 0; i < pts.length - 1; i++) {
-            const a = pts[i];
-            
-            // Techo
-            const swTop = randomSwarmCluster(currentParticleIndex++);
-            pTarget.push(a.x, h, a.z);
-            pSwarm.push(swTop.x, swTop.y, swTop.z);
-            pColor.push(bldgCol.r * 1.1, bldgCol.g * 1.1, bldgCol.b * 1.1);
-            pSize.push(1.6);
-            pPhase.push(idx * 0.2);
-            pCat.push(2.0);
-
-            // Altura media
-            if (h > 2.2) {
-              const midH = h * 0.5;
-              const swMid = randomSwarmCluster(currentParticleIndex++);
-              pTarget.push(a.x, midH, a.z);
-              pSwarm.push(swMid.x, swMid.y, swMid.z);
-              pColor.push(bldgCol.r, bldgCol.g, bldgCol.b);
+          for (let i = 0; i < sPts.length; i++) {
+            const p = sPts[i];
+            const steps = Math.max(2, Math.floor(h / 1.5));
+            for (let step = 0; step <= steps; step++) {
+              const y = (step / steps) * h;
+              const sw = randomSwarmCluster(currentParticleIndex++);
+              pTarget.push(p.x, y, p.z);
+              pSwarm.push(sw.x, sw.y, sw.z);
+              pColor.push(c.r, c.g, c.b);
               pSize.push(1.3);
-              pPhase.push(idx * 0.3);
-              pCat.push(2.0);
+              pPhase.push(bIdx + step);
+              pCat.push(2.0); // 2 = edificio
             }
-
-            // Base
-            const swBase = randomSwarmCluster(currentParticleIndex++);
-            pTarget.push(a.x, 0.05, a.z);
-            pSwarm.push(swBase.x, swBase.y, swBase.z);
-            pColor.push(bldgCol.r * 0.8, bldgCol.g * 0.8, bldgCol.b * 0.8);
-            pSize.push(1.1);
-            pPhase.push(idx * 0.1);
-            pCat.push(2.0);
           }
         });
 
-        // 3,500 partículas de sabana verde oscura para llenar la pantalla
-        const colSavanna = new THREE.Color(0x064e3b);
-        for (let s = 0; s < 3500; s++) {
-          const rad = 240 + Math.random() * 850;
+        // Suelo de relleno territorial
+        for (let s = 0; s < 4200; s++) {
+          const rad = 25 + Math.sqrt(Math.random()) * 210;
           const ang = Math.random() * Math.PI * 2;
           const gx = Math.cos(ang) * rad;
           const gz = Math.sin(ang) * rad;
@@ -821,7 +875,7 @@
     }
 
     if (swarmIntroBox) {
-      swarmIntroBox.classList.toggle("fade-out", targetMorph > 0.12);
+      swarmIntroBox.classList.toggle("fade-out", targetMorph > 0.1 || userHasInteracted);
     }
     if (speciesCard) {
       speciesCard.classList.toggle("show", targetMorph < 0.15 && hoveredNodeId !== -1);
@@ -837,6 +891,7 @@
 
   // Transición de Gran Impacto Visual (Explosión en Vórtice)
   function animateToStage(dest) {
+    triggerTitleFadeOut();
     if (!window.gsap) {
       setMorphValue(dest);
       return;
@@ -849,228 +904,176 @@
     particleUniforms.uRipplePos.value.set(0, 0, 0);
     particleUniforms.uRippleTime.value = 0.0;
 
-    gsap.to({ val: currentMorph }, {
+    gsap.killTweensOf(particleUniforms.uRippleTime);
+    gsap.to(particleUniforms.uRippleTime, {
+      value: 1.8,
+      duration: 3.2,
+      ease: "power2.out"
+    });
+
+    const morphObj = { val: currentMorph };
+    gsap.to(morphObj, {
       val: dest,
-      duration: 3.4,
+      duration: 3.2,
       ease: "power3.inOut",
-      onUpdate: function() {
-        setMorphValue(this.targets()[0].val, true);
-      }
+      onUpdate: () => setMorphValue(morphObj.val, true)
     });
 
     gsap.to(camera.position, {
-      x: endPos.x, y: endPos.y, z: endPos.z,
-      duration: 3.4,
+      x: endPos.x,
+      y: endPos.y,
+      z: endPos.z,
+      duration: 3.2,
       ease: "power3.inOut"
     });
 
     gsap.to(controls.target, {
-      x: endTarget.x, y: endTarget.y, z: endTarget.z,
-      duration: 3.4,
+      x: endTarget.x,
+      y: endTarget.y,
+      z: endTarget.z,
+      duration: 3.2,
       ease: "power3.inOut"
-    });
-  }
-
-  if (btnTriggerMorph) {
-    btnTriggerMorph.addEventListener("click", () => animateToStage(1.0));
-  }
-
-  if (btnToggle) {
-    btnToggle.addEventListener("click", () => {
-      animateToStage(isTerritory ? 0.0 : 1.0);
     });
   }
 
   if (slider) {
     slider.addEventListener("input", (e) => {
+      triggerTitleFadeOut();
       setMorphValue(parseFloat(e.target.value) / 100, false);
+    });
+  }
+
+  if (btnToggle) {
+    btnToggle.addEventListener("click", () => {
+      const next = isTerritory ? 0.0 : 1.0;
+      animateToStage(next);
+    });
+  }
+
+  if (btnTriggerMorph) {
+    btnTriggerMorph.addEventListener("click", () => {
+      animateToStage(1.0);
     });
   }
 
   if (labelSwarm) labelSwarm.addEventListener("click", () => animateToStage(0.0));
   if (labelTerritory) labelTerritory.addEventListener("click", () => animateToStage(1.0));
 
-  // =====================================================================
-  // 7. VUELO CINEMATOGRÁFICO & WAYPOINTS
-  // =====================================================================
-  let isCinemaTour = false;
-  let cinemaAngle = 0;
-  const btnCinemaTour = document.getElementById("btnCinemaTour");
+  // Waypoints en Modo Territorio
+  document.querySelectorAll(".waypoint-pill").forEach(pill => {
+    pill.addEventListener("click", () => {
+      document.querySelectorAll(".waypoint-pill").forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      const wpKey = pill.getAttribute("data-waypoint");
+      const wp = waypoints[wpKey];
+      if (wp && window.gsap) {
+        gsap.to(camera.position, { x: wp.pos.x, y: wp.pos.y, z: wp.pos.z, duration: 2.2, ease: "power2.inOut" });
+        gsap.to(controls.target, { x: wp.target.x, y: wp.target.y, z: wp.target.z, duration: 2.2, ease: "power2.inOut" });
+      }
+    });
+  });
+
+  // Modo Video / Cinema Tour
+  let cinemaRunning = false;
+  let cinemaAngle = 0.0;
+  const btnCinema = document.getElementById("btnCinemaTour");
   const cinemaText = document.getElementById("cinemaText");
 
-  if (btnCinemaTour) {
-    btnCinemaTour.addEventListener("click", () => {
-      isCinemaTour = !isCinemaTour;
-      btnCinemaTour.classList.toggle("active", isCinemaTour);
-      if (cinemaText) cinemaText.textContent = isCinemaTour ? "Detener Vuelo" : "Modo Video";
-      btnCinemaTour.querySelector("i").className = isCinemaTour ? "fa-solid fa-pause" : "fa-solid fa-play";
-      if (isCinemaTour && currentMorph < 0.5) animateToStage(1.0);
-    });
-  }
-
-  function flyToWaypoint(wpKey) {
-    const wp = waypoints[wpKey];
-    if (!wp || !window.gsap) return;
-
-    if (isCinemaTour) {
-      isCinemaTour = false;
-      btnCinemaTour.classList.remove("active");
-      if (cinemaText) cinemaText.textContent = "Modo Video";
-      btnCinemaTour.querySelector("i").className = "fa-solid fa-play";
-    }
-
-    gsap.to(camera.position, {
-      x: wp.pos.x, y: wp.pos.y, z: wp.pos.z,
-      duration: 2.6, ease: "power2.inOut"
-    });
-
-    gsap.to(controls.target, {
-      x: wp.target.x, y: wp.target.y, z: wp.target.z,
-      duration: 2.6, ease: "power2.inOut"
-    });
-
-    if (soundActive && typeof triggerHarmonicChime === "function") {
-      triggerHarmonicChime(0.65);
-    }
-  }
-
-  document.querySelectorAll("[data-waypoint]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-waypoint]").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      flyToWaypoint(btn.dataset.waypoint);
-    });
-  });
-
-  // Onda interactiva al hacer clic en el territorio
-  const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-
-  window.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".top-bar") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#swarmIntroBox") || e.target.closest("#speciesCard")) return;
-
-    mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouseVec, camera);
-    const hitPoint = new THREE.Vector3();
-    if (raycaster.ray.intersectPlane(groundPlane, hitPoint)) {
-      particleUniforms.uRipplePos.value.copy(hitPoint);
-      particleUniforms.uRippleTime.value = 0.0;
-      if (soundActive && typeof triggerHarmonicChime === "function") {
-        triggerHarmonicChime(0.75);
+  if (btnCinema) {
+    btnCinema.addEventListener("click", () => {
+      triggerTitleFadeOut();
+      cinemaRunning = !cinemaRunning;
+      btnCinema.classList.toggle("active", cinemaRunning);
+      if (cinemaText) cinemaText.textContent = cinemaRunning ? "Pausar Video" : "Modo Video";
+      if (cinemaRunning && currentMorph < 0.8) {
+        animateToStage(1.0);
       }
-    }
-  });
-
-  // Paralaje de ratón
-  let mouseX = 0, mouseY = 0;
-  window.addEventListener("mousemove", (e) => {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
+    });
+  }
 
   // =====================================================================
-  // 8. PAISAJE SONORO GENERATIVO (Web Audio API)
+  // 7. SÍNTESIS DE AUDIO WEB (ECOSISTEMA & PAISAJE SONORO)
   // =====================================================================
-  let audioCtx = null, soundActive = false, masterGain = null;
-  const soundBtn = document.getElementById("soundToggle");
+  let audioCtx = null;
+  let soundActive = false;
+  let masterGain = null;
 
-  function initAudioEngine() {
+  function initBioAudio() {
     if (audioCtx) return;
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AudioContext();
       masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+      masterGain.gain.setValueAtTime(0.06, audioCtx.currentTime);
       masterGain.connect(audioCtx.destination);
-
-      const osc1 = audioCtx.createOscillator();
-      const filter1 = audioCtx.createBiquadFilter();
-      osc1.type = "sine";
-      osc1.frequency.setValueAtTime(68.05, audioCtx.currentTime);
-
-      filter1.type = "lowpass";
-      filter1.frequency.setValueAtTime(280, audioCtx.currentTime);
-
-      osc1.connect(filter1);
-      filter1.connect(masterGain);
-      osc1.start();
-    } catch(e) {
-      console.warn("Audio no disponible:", e);
-    }
+    } catch(e) { console.warn("Audio no disponible:", e); }
   }
 
-  function triggerHarmonicChime(intensity = 1.0) {
+  function triggerHarmonicChime(freqMultiplier = 0.5) {
     if (!audioCtx || !soundActive) return;
-    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
-    const freq = notes[Math.floor(Math.random() * notes.length)] * (1 + intensity * 0.35);
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      const baseFreq = 260 + freqMultiplier * 480;
+      osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, audioCtx.currentTime + 1.2);
 
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
 
-    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.20 * Math.max(0.3, intensity), audioCtx.currentTime + 0.08);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
-
-    osc.connect(gain);
-    gain.connect(masterGain);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 3.0);
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 1.8);
+    } catch(e){}
   }
 
-  if (soundBtn) {
-    soundBtn.addEventListener("click", () => {
+  const soundToggle = document.getElementById("soundToggle");
+  if (soundToggle) {
+    soundToggle.addEventListener("click", () => {
+      initBioAudio();
       soundActive = !soundActive;
-      soundBtn.classList.toggle("active", soundActive);
-      soundBtn.innerHTML = soundActive ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
-      if (soundActive) {
-        initAudioEngine();
-        if (audioCtx.state === "suspended") audioCtx.resume();
-      }
+      soundToggle.classList.toggle("active", soundActive);
+      soundToggle.innerHTML = soundActive ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
+      if (soundActive && audioCtx.state === "suspended") audioCtx.resume();
+      if (soundActive) triggerHarmonicChime(0.6);
     });
   }
 
   // =====================================================================
-  // 9. LOOP DE RENDERIZADO GPU (60-120 FPS FLUIDO)
+  // 8. BUCLE PRINCIPAL DE ANIMACIÓN
   // =====================================================================
   const clock = new THREE.Clock();
 
-  function render() {
-    requestAnimationFrame(render);
+  function animate() {
+    requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
-    const elapsed = clock.getElapsedTime();
+    const time = clock.getElapsedTime();
 
-    particleUniforms.uRippleTime.value += delta;
-
-    currentMorph += (targetMorph - currentMorph) * (delta * 3.8);
+    // Lerp ultra fluido de metamorfosis
+    currentMorph += (targetMorph - currentMorph) * (1.0 - Math.exp(-delta * 5.0));
     particleUniforms.uMorphProgress.value = currentMorph;
-    particleUniforms.uTime.value = elapsed;
+    particleUniforms.uTime.value = time;
 
-    updateBioticSwarm(elapsed, currentMorph);
+    // Actualizar física del enjambre biótico
+    updateBioticSwarm(time, currentMorph);
 
-    if (isCinemaTour) {
-      cinemaAngle += delta * 0.22;
-      const radius = 320 + Math.sin(cinemaAngle * 0.7) * 80;
-      const camY = 170 + Math.sin(cinemaAngle * 0.5) * 90;
-
-      camera.position.x = Math.cos(cinemaAngle) * radius + 50;
-      camera.position.z = Math.sin(cinemaAngle) * radius + 20;
-      camera.position.y = camY;
-
-      controls.target.x = Math.sin(cinemaAngle * 0.4) * 40 + 40;
-      controls.target.z = Math.cos(cinemaAngle * 0.4) * 30;
-      controls.target.y = 10;
-    } else {
-      sceneRoot.rotation.y = mouseX * 0.025;
-      sceneRoot.rotation.x = mouseY * 0.012;
+    // Vuelo de cámara en Modo Video
+    if (cinemaRunning && isTerritory) {
+      cinemaAngle += delta * 0.18;
+      const camRad = 320;
+      const cx = 35 + Math.cos(cinemaAngle) * camRad;
+      const cz = 10 + Math.sin(cinemaAngle) * camRad;
+      const cy = 180 + Math.sin(time * 0.4) * 45;
+      camera.position.set(cx, cy, cz);
+      controls.target.set(35, 0, 10);
     }
 
     controls.update();
     renderer.render(scene, camera);
   }
 
-  render();
+  animate();
 })();
