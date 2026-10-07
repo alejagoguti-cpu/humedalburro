@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>El Jardín de las Aguas — Kennedy en Partículas 3D</title>
+<title>Red Biótica & Territorio — Humedal El Burro, Kennedy</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #020407;
-    --accent: #00f0ff;
+    --bg: #03060a;
+    --accent: #2dd4bf;
     --emerald: #10b981;
-    --gold: #fbbf24;
+    --gold: #f59e0b;
     --ink: #f8fafc;
-    --ink-dim: rgba(248, 250, 252, 0.6);
+    --ink-dim: rgba(248, 250, 252, 0.65);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   html, body {
@@ -30,144 +30,175 @@
   #canvasContainer:active { cursor: grabbing; }
   #sceneCanvas { display: block; width: 100%; height: 100%; }
 
-  /* Vignette & Cinematic Dark Ambient */
+  /* Vignette & Soft Depth Gradient */
   .vignette-overlay {
     position: absolute; inset: 0; pointer-events: none; z-index: 2;
-    background: radial-gradient(circle at center, transparent 35%, rgba(2, 4, 7, 0.6) 75%, #010305 100%);
+    background: radial-gradient(circle at center, transparent 40%, rgba(2, 5, 9, 0.5) 80%, #020407 100%);
   }
 
-  /* Top Minimalist Luxury Bar (Penderecki Style) */
+  /* Top Minimalist Header */
   .top-bar {
-    position: absolute; top: 28px; left: 0; width: 100%; z-index: 10;
+    position: absolute; top: 24px; left: 0; width: 100%; z-index: 10;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 0 36px; pointer-events: none;
+    padding: 0 32px; pointer-events: none;
   }
   .nav-back-link {
-    pointer-events: auto; display: inline-flex; align-items: center; gap: 10px;
+    pointer-events: auto; display: inline-flex; align-items: center; gap: 8px;
     color: var(--ink-dim); text-decoration: none; font-size: 11px; font-weight: 500;
-    letter-spacing: 0.16em; text-transform: uppercase; transition: all 0.3s ease;
-    padding: 8px 18px; border-radius: 24px; background: rgba(8, 14, 24, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.09); backdrop-filter: blur(14px);
+    letter-spacing: 0.14em; text-transform: uppercase; transition: all 0.3s ease;
+    padding: 8px 16px; border-radius: 20px; background: rgba(8, 14, 24, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(14px);
   }
   .nav-back-link:hover {
-    color: var(--accent); border-color: rgba(0, 240, 255, 0.45);
-    box-shadow: 0 0 22px rgba(0, 240, 255, 0.3); transform: translateX(-3px);
+    color: var(--accent); border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.25); transform: translateX(-2px);
   }
 
   .top-center-brand {
     text-align: center; pointer-events: none;
   }
   .top-center-brand h1 {
-    font-family: 'Cinzel', serif; font-size: 17px; font-weight: 700;
-    letter-spacing: 0.32em; text-transform: uppercase;
-    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.75) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
-  .top-center-brand p {
+  .stage-badge {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 3px;
     font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
-    letter-spacing: 0.28em; color: var(--accent); text-transform: uppercase; margin-top: 4px;
+    letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase;
   }
 
   .top-right-group {
     display: flex; align-items: center; gap: 10px; pointer-events: auto;
   }
   .cinema-mode-btn {
-    display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 24px;
-    background: rgba(8, 14, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.12);
-    color: var(--ink-dim); font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px;
+    background: rgba(8, 14, 24, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--ink-dim); font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
     cursor: pointer; backdrop-filter: blur(14px); transition: all 0.3s;
     text-transform: uppercase;
   }
   .cinema-mode-btn:hover, .cinema-mode-btn.active {
-    color: #ffffff; border-color: var(--accent); background: rgba(0, 240, 255, 0.2);
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    color: #ffffff; border-color: var(--accent); background: rgba(45, 212, 191, 0.2);
+    box-shadow: 0 0 18px rgba(45, 212, 191, 0.35);
   }
-  .cinema-mode-btn.active i { animation: pulseIcon 1.2s infinite; color: var(--accent); }
-  @keyframes pulseIcon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
 
   .sound-btn {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: rgba(8, 14, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(8, 14, 24, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--ink-dim); display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(14px); font-size: 13px;
+    backdrop-filter: blur(14px); font-size: 12px;
   }
   .sound-btn:hover, .sound-btn.active {
     color: var(--accent); border-color: var(--accent);
-    box-shadow: 0 0 18px rgba(0, 240, 255, 0.4); transform: scale(1.06);
+    box-shadow: 0 0 16px rgba(45, 212, 191, 0.35);
   }
 
-  /* Interactive Waypoints / Hotspot Pill Navigation */
-  .waypoints-bar {
-    position: absolute; top: 84px; left: 50%; transform: translateX(-50%); z-index: 10;
-    display: flex; gap: 8px; pointer-events: auto;
+  /* Center Stage Hero Floating Trigger (Enjambre Biótico) */
+  #swarmIntroBox {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 15; text-align: center; pointer-events: auto; max-width: 520px;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  #swarmIntroBox.fade-out {
+    opacity: 0; transform: translate(-50%, -60%) scale(0.92); pointer-events: none;
+  }
+  .intro-title {
+    font-family: 'Cinzel', serif; font-size: 26px; font-weight: 700; letter-spacing: 0.16em;
+    color: #ffffff; text-shadow: 0 0 24px rgba(45, 212, 191, 0.4);
+    line-height: 1.25;
+  }
+  .intro-desc {
+    font-size: 12.5px; color: var(--ink-dim); font-weight: 300; margin-top: 8px; line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+  .morph-main-btn {
+    margin-top: 24px; padding: 14px 32px; border-radius: 30px;
+    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700; letter-spacing: 0.14em;
+    cursor: pointer; border: 1px solid var(--accent);
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.3), rgba(16, 185, 129, 0.3));
+    color: #ffffff; text-shadow: 0 0 16px rgba(45, 212, 191, 0.9);
+    box-shadow: 0 0 28px rgba(45, 212, 191, 0.45); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .morph-main-btn:hover {
+    transform: scale(1.08); box-shadow: 0 0 45px rgba(45, 212, 191, 0.7);
+    border-color: #ffffff;
+  }
+
+  /* Waypoint Pill Navigation */
+  .waypoints-bar {
+    position: absolute; top: 78px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: flex; gap: 8px; pointer-events: auto; opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .waypoints-bar.show { opacity: 1; pointer-events: auto; }
   .waypoint-pill {
-    padding: 6px 14px; border-radius: 16px; background: rgba(6, 11, 20, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.5);
+    padding: 6px 14px; border-radius: 16px; background: rgba(8, 14, 24, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.55);
     font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
     cursor: pointer; backdrop-filter: blur(12px); transition: all 0.25s ease;
     display: flex; align-items: center; gap: 6px;
   }
   .waypoint-pill:hover, .waypoint-pill.active {
-    color: #ffffff; border-color: var(--accent); background: rgba(0, 240, 255, 0.16);
-    box-shadow: 0 0 14px rgba(0, 240, 255, 0.3); transform: translateY(-1px);
+    color: #ffffff; border-color: var(--accent); background: rgba(45, 212, 191, 0.18);
+    box-shadow: 0 0 14px rgba(45, 212, 191, 0.3); transform: translateY(-1px);
   }
   .waypoint-pill i { color: var(--accent); font-size: 10px; }
 
-  /* Bottom Minimalist Cinematic Scrub Capsule */
+  /* Bottom Control Capsule */
   .bottom-experience-bar {
-    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 10;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
     pointer-events: auto;
   }
   .scrub-container {
-    display: flex; align-items: center; gap: 18px; padding: 10px 24px;
-    background: rgba(6, 11, 20, 0.78); border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex; align-items: center; gap: 16px; padding: 10px 24px;
+    background: rgba(6, 12, 20, 0.78); border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 36px; backdrop-filter: blur(24px);
-    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.85); transition: border-color 0.3s;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.8); transition: border-color 0.3s;
   }
-  .scrub-container:hover {
-    border-color: rgba(0, 240, 255, 0.4);
-  }
+  .scrub-container:hover { border-color: rgba(45, 212, 191, 0.4); }
   .scrub-label {
-    font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.18em;
+    font-family: 'Cinzel', serif; font-size: 10.5px; letter-spacing: 0.16em;
     color: var(--ink-dim); text-transform: uppercase; cursor: pointer; transition: color 0.2s;
   }
   .scrub-label.active, .scrub-label:hover {
-    color: #ffffff; text-shadow: 0 0 12px rgba(0, 240, 255, 0.7);
+    color: #ffffff; text-shadow: 0 0 10px rgba(45, 212, 191, 0.7);
   }
   .experience-toggle-btn {
     padding: 8px 18px; border-radius: 20px; font-family: 'Cinzel', serif;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.16em; cursor: pointer;
-    border: 1px solid rgba(0, 240, 255, 0.65);
-    background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(16, 185, 129, 0.25));
-    color: #ffffff; text-shadow: 0 0 14px rgba(0, 240, 255, 0.9);
-    box-shadow: 0 0 22px rgba(0, 240, 255, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em; cursor: pointer;
+    border: 1px solid rgba(45, 212, 191, 0.65);
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.25), rgba(16, 185, 129, 0.25));
+    color: #ffffff; text-shadow: 0 0 12px rgba(45, 212, 191, 0.85);
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .experience-toggle-btn:hover {
-    transform: scale(1.06); box-shadow: 0 0 32px rgba(0, 240, 255, 0.7);
-    border-color: #00f0ff;
+    transform: scale(1.06); box-shadow: 0 0 30px rgba(45, 212, 191, 0.6);
+    border-color: #2dd4bf;
   }
   .custom-scrub-slider {
-    -webkit-appearance: none; width: 170px; height: 3px; background: rgba(255, 255, 255, 0.18);
+    -webkit-appearance: none; width: 160px; height: 3px; background: rgba(255, 255, 255, 0.18);
     border-radius: 2px; outline: none; cursor: pointer; transition: background 0.3s;
   }
   .custom-scrub-slider::-webkit-slider-thumb {
     -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-    background: #00f0ff; box-shadow: 0 0 14px #00f0ff, 0 0 26px rgba(0, 240, 255, 0.7);
+    background: #2dd4bf; box-shadow: 0 0 12px #2dd4bf, 0 0 22px rgba(45, 212, 191, 0.6);
     cursor: pointer; transition: transform 0.2s;
   }
   .custom-scrub-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
 
   .drag-hint {
     font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    letter-spacing: 0.22em; color: rgba(255, 255, 255, 0.35); text-transform: uppercase;
+    letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.35); text-transform: uppercase;
   }
 
   /* Minimalist Loading Screen */
   #loadingVeil {
-    position: fixed; inset: 0; z-index: 100; background: #020407;
+    position: fixed; inset: 0; z-index: 100; background: #03060a;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 14px; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
@@ -200,7 +231,7 @@
 <body>
 
 <div id="loadingVeil">
-  <div class="veil-title">EL JARDÍN DE LAS AGUAS</div>
+  <div class="veil-title">RED DE RELACIONES BIÓTICAS</div>
   <div class="veil-bar"><div class="veil-bar-fill"></div></div>
 </div>
 
@@ -213,22 +244,33 @@
   </a>
   <div class="top-center-brand">
     <h1>El Jardín de las Aguas</h1>
-    <p>Kennedy · Fotogrametría de Micro-Partículas 3D</p>
+    <div class="stage-badge"><i class="fa-solid fa-circle-nodes"></i> <span id="stageLabel">Enjambre de 500 Nodos Bióticos</span></div>
   </div>
   <div class="top-right-group">
-    <button id="btnCinemaTour" class="cinema-mode-btn" title="Activar Vuelo Cinematográfico Continuo">
+    <button id="btnCinemaTour" class="cinema-mode-btn" title="Vuelo Cinematográfico Continuo">
       <i class="fa-solid fa-play"></i> <span id="cinemaText">Modo Video</span>
     </button>
-    <button id="soundToggle" class="sound-btn" title="Paisaje Sonoro de Penderecki">
+    <button id="soundToggle" class="sound-btn" title="Paisaje Sonoro">
       <i class="fa-solid fa-volume-xmark"></i>
     </button>
   </div>
 </div>
 
-<!-- Waypoint Buttons (Zoom In/Out Stories) -->
-<div class="waypoints-bar">
+<!-- Center Swarm Intro Prompt -->
+<div id="swarmIntroBox">
+  <div class="intro-title">RED DE RELACIONES BIÓTICAS</div>
+  <div class="intro-desc">
+    500 entidades bióticas y filamentos energéticos interactúan en suspensión. Haz clic para desintegrar el enjambre y materializar el territorio tridimensional de Kennedy.
+  </div>
+  <button id="btnTriggerMorph" class="morph-main-btn">
+    <i class="fa-solid fa-dna"></i> DESPLEGAR EN EL TERRITORIO
+  </button>
+</div>
+
+<!-- Waypoint Buttons (Visible in Territory Stage) -->
+<div class="waypoints-bar" id="waypointsBar">
   <button class="waypoint-pill active" data-waypoint="overview">
-    <i class="fa-solid fa-compass"></i> Axonometría Total
+    <i class="fa-solid fa-compass"></i> Axonometría Completa
   </button>
   <button class="waypoint-pill" data-waypoint="burro">
     <i class="fa-solid fa-water"></i> Humedal El Burro
@@ -237,27 +279,27 @@
     <i class="fa-solid fa-tree"></i> Bosque de Saucos
   </button>
   <button class="waypoint-pill" data-waypoint="cali">
-    <i class="fa-solid fa-road"></i> Av. Ciudad de Cali
+    <i class="fa-solid fa-road"></i> Corredor Av. Cali
   </button>
 </div>
 
 <!-- Bottom Minimalist Experience Bar -->
 <div class="bottom-experience-bar">
   <div class="scrub-container">
-    <span class="scrub-label" id="labelAssemble">Territorio</span>
+    <span class="scrub-label active" id="labelSwarm">Enjambre</span>
     <input type="range" id="experienceSlider" class="custom-scrub-slider" min="0" max="100" value="0">
-    <span class="scrub-label" id="labelNebula">Nebulosa</span>
+    <span class="scrub-label" id="labelTerritory">Territorio</span>
     <button id="btnPlayTransition" class="experience-toggle-btn">
-      <i class="fa-solid fa-atom"></i> <span id="btnActionText">DESINTEGRAR</span>
+      <i class="fa-solid fa-atom"></i> <span id="btnActionText">MATERIALIZAR</span>
     </button>
   </div>
-  <div class="drag-hint">Haz Clic para Ondas · Arrastra 360° · Rueda para Zoom</div>
+  <div class="drag-hint">Haz Clic en el Espacio · Gira 360° · Rueda para Zoom</div>
 </div>
 
 <div id="canvasContainer">
   <canvas id="sceneCanvas"></canvas>
 </div>
 
-<script src="modulo-11-garden.js?v=20261006_05"></script>
+<script src="modulo-11-garden.js?v=20261006_06"></script>
 </body>
 </html>
