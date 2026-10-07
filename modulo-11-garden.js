@@ -151,6 +151,7 @@
     sceneBaseGroup.add(grid);
   }
   createExpansiveBase();
+  generateProceduralKennedyTerritory();
 
   // =====================================================================
   // 1. CONVENCIONES TAXONÓMICAS & BASE DE DATOS BIOECOLÓGICA DE KENNEDY
@@ -556,7 +557,7 @@
     vertexColors: true,
     transparent: true,
     opacity: 0.38,
-    blending: THREE.AdditiveBlending
+    blending: THREE.NormalBlending
   });
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
@@ -808,7 +809,7 @@
     fragmentShader: fragmentShader,
     transparent: true,
     depthWrite: false,
-    blending: THREE.AdditiveBlending
+    blending: THREE.NormalBlending
   });
 
   // =====================================================================
@@ -863,7 +864,7 @@
 
   
   function generateProceduralKennedyTerritory() {
-    console.log("Generando Territorio 3D de Kennedy Procedural de Alta Densidad...");
+    console.log("Materializando Territorio 3D de Kennedy de Alta Definición...");
     pTarget.length = 0;
     pSwarm.length = 0;
     pColor.length = 0;
@@ -872,139 +873,153 @@
     pCat.length = 0;
     currentParticleIndex = 0;
 
-    const colWaterMain = new THREE.Color(0x00B4D8);
-    const colWaterDeep = new THREE.Color(0x0077B6);
-    const colTreeLush  = new THREE.Color(0x2E8B57);
-    const colTreeBright= new THREE.Color(0x48BB78);
-    const colTrunk     = new THREE.Color(0x161D26);
-    const colRoad      = new THREE.Color(0x232326);
-    const colMajor     = new THREE.Color(0x38BDF8);
-    const colBldgPrimary   = new THREE.Color(0x3A3836);
-    const colBldgSecondary = new THREE.Color(0x484440);
-    const colRoofHighlight = new THREE.Color(0x544E48);
+    const colWaterMain  = new THREE.Color(0x00C8F8); // Agua brillante
+    const colWaterDeep  = new THREE.Color(0x0088CC);
+    const colWaterFoam  = new THREE.Color(0x70E0FF);
+    const colTreeLush   = new THREE.Color(0x2EB872); // Verde vivo
+    const colTreeBright = new THREE.Color(0x52E088);
+    const colTrunk      = new THREE.Color(0x8B5A2B); // Tronco madera
+    const colRoad       = new THREE.Color(0x404552); // Vías urbanas
+    const colMajor      = new THREE.Color(0x38BDF8); // Arterias principales
+    const colBldgWall   = new THREE.Color(0x9E978E); // Cantera y ladrillo
+    const colBldgAlt    = new THREE.Color(0xB5ACA0);
+    const colRoof       = new THREE.Color(0xC96349); // Tejas terracota
 
-    // A. 3 Cuerpos de Agua de Kennedy (El Burro, La Vaca, Techo)
+    // A. 3 Grandes Humedales de Kennedy (El Burro, La Vaca, Techo)
     const wetlands = [
-      { cx: 210, cz: 40, rx: 65, rz: 32, name: "Humedal El Burro" },
-      { cx: 65,  cz: 160, rx: 50, rz: 28, name: "PEDH La Vaca" },
-      { cx: 290, cz: -30, rx: 45, rz: 24, name: "Humedal de Techo" }
+      { cx: 210, cz: 40, rx: 75, rz: 38, name: "Humedal El Burro" },
+      { cx: 65,  cz: 160, rx: 58, rz: 32, name: "PEDH La Vaca" },
+      { cx: 290, cz: -30, rx: 50, rz: 28, name: "Humedal de Techo" }
     ];
 
     wetlands.forEach(w => {
-      for (let i = 0; i < 900; i++) {
+      // Superficie y lecho del agua
+      for (let i = 0; i < 1400; i++) {
         const rad = Math.sqrt(Math.random());
         const ang = Math.random() * Math.PI * 2;
         const wx = w.cx + Math.cos(ang) * w.rx * rad;
         const wz = w.cz + Math.sin(ang) * w.rz * rad;
-        const wy = 0.25 + Math.random() * 0.2;
+        const wy = 0.28 + Math.random() * 0.25;
 
         const sw = randomSwarmCluster(currentParticleIndex++);
         pTarget.push(wx, wy, wz);
         pSwarm.push(sw.x, sw.y, sw.z);
-        const c = (i % 2 === 0) ? colWaterMain : colWaterDeep;
+        const c = (i % 3 === 0) ? colWaterFoam : ((i % 2 === 0) ? colWaterMain : colWaterDeep);
         pColor.push(c.r, c.g, c.b);
-        pSize.push(1.75);
-        pPhase.push(i * 0.2);
+        pSize.push(2.2);
+        pPhase.push(i * 0.25);
         pCat.push(0.0);
+      }
+      // Borde de ribera
+      for (let i = 0; i < 300; i++) {
+        const ang = (i / 300) * Math.PI * 2;
+        const wx = w.cx + Math.cos(ang) * (w.rx + (Math.random() - 0.5) * 2.0);
+        const wz = w.cz + Math.sin(ang) * (w.rz + (Math.random() - 0.5) * 2.0);
+        const sw = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(wx, 0.45, wz);
+        pSwarm.push(sw.x, sw.y, sw.z);
+        pColor.push(colTreeBright.r, colTreeBright.g, colTreeBright.b);
+        pSize.push(1.8);
+        pPhase.push(i);
+        pCat.push(1.0);
       }
     });
 
-    // B. Arbolado de Ronda y Espacio Público (3,500 árboles)
-    for (let t = 0; t < 2200; t++) {
+    // B. Arbolado Urbano & Rondas de Protección (4,500 árboles)
+    for (let t = 0; t < 3000; t++) {
       const nearWetland = wetlands[t % wetlands.length];
       const ang = Math.random() * Math.PI * 2;
-      const dist = (nearWetland.rx + 6) + Math.random() * 48;
+      const dist = (nearWetland.rx + 4) + Math.random() * 65;
       const tx = nearWetland.cx + Math.cos(ang) * dist;
-      const tz = nearWetland.cz + Math.sin(ang) * (dist * 0.7);
-      const th = 4.5 + Math.random() * 6.5;
+      const tz = nearWetland.cz + Math.sin(ang) * (dist * 0.75);
+      const th = 4.0 + Math.random() * 8.5;
 
       const swCrown = randomSwarmCluster(currentParticleIndex++);
       pTarget.push(tx, th * 0.85, tz);
       pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
       const folCol = (t % 2 === 0) ? colTreeLush : colTreeBright;
       pColor.push(folCol.r, folCol.g, folCol.b);
-      pSize.push(1.6);
+      pSize.push(2.2);
       pPhase.push(t * 0.3);
       pCat.push(1.0);
 
-      // Follaje secundario
-      for (let k = 0; k < 3; k++) {
-        const fa = (k / 3) * Math.PI * 2 + (t % 5);
-        const frad = 1.8 + Math.random() * 1.5;
+      // Follaje extendido
+      for (let k = 0; k < 4; k++) {
+        const fa = (k / 4) * Math.PI * 2 + (t % 5);
+        const frad = 1.6 + Math.random() * 1.8;
         const swSub = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(tx + Math.cos(fa) * frad, th * 0.85 + (k % 2 === 0 ? 0.3 : -0.2), tz + Math.sin(fa) * frad);
+        pTarget.push(tx + Math.cos(fa) * frad, th * 0.85 + (k % 2 === 0 ? 0.35 : -0.3), tz + Math.sin(fa) * frad);
         pSwarm.push(swSub.x, swSub.y, swSub.z);
-        pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
-        pSize.push(1.4);
+        pColor.push(folCol.r * 1.08, folCol.g * 1.08, folCol.b * 1.08);
+        pSize.push(1.8);
         pPhase.push(t + k);
         pCat.push(1.0);
       }
 
       // Tronco
       const swTrunk = randomSwarmCluster(currentParticleIndex++);
-      pTarget.push(tx, 0.1, tz);
+      pTarget.push(tx, 0.2, tz);
       pSwarm.push(swTrunk.x, swTrunk.y, swTrunk.z);
       pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
-      pSize.push(1.1);
+      pSize.push(1.4);
       pPhase.push(t * 0.1);
       pCat.push(1.0);
     }
 
-    // C. Malla Vial y Corredores Urbanos
-    for (let r = 0; r < 24; r++) {
-      const rx = (r - 12) * 28 + 180;
-      for (let s = -200; s <= 260; s += 5) {
+    // C. Red Vial y Ejes Urbanos de Kennedy
+    for (let r = 0; r < 28; r++) {
+      const rx = (r - 14) * 26 + 180;
+      for (let s = -220; s <= 280; s += 4) {
         const sw = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(rx, 0.08, s);
+        pTarget.push(rx, 0.12, s);
         pSwarm.push(sw.x, sw.y, sw.z);
         pColor.push(colRoad.r, colRoad.g, colRoad.b);
-        pSize.push(0.95);
+        pSize.push(1.3);
         pPhase.push(r + s);
         pCat.push(3.0);
       }
     }
-    for (let r = 0; r < 20; r++) {
-      const rz = (r - 10) * 28 + 40;
-      for (let s = -40; s <= 380; s += 5) {
+    for (let r = 0; r < 24; r++) {
+      const rz = (r - 12) * 26 + 40;
+      for (let s = -50; s <= 400; s += 4) {
         const sw = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(s, 0.08, rz);
+        pTarget.push(s, 0.12, rz);
         pSwarm.push(sw.x, sw.y, sw.z);
         pColor.push(colMajor.r, colMajor.g, colMajor.b);
-        pSize.push(1.25);
+        pSize.push(1.6);
         pPhase.push(r + s);
         pCat.push(3.0);
       }
     }
 
-    // D. Tejido Construido y Manzanas de Kennedy (1,200 bloques)
-    for (let bx = -20; bx <= 360; bx += 32) {
-      for (let bz = -180; bz <= 240; bz += 32) {
-        // No construir sobre agua
+    // D. Tejido Construido y Manzanas Residenciales (1,400 bloques)
+    for (let bx = -30; bx <= 380; bx += 26) {
+      for (let bz = -190; bz <= 250; bz += 26) {
         const insideWater = wetlands.some(w => {
-          const dx = (bx - w.cx) / w.rx;
-          const dz = (bz - w.cz) / w.rz;
-          return (dx * dx + dz * dz) < 1.1;
+          const dx = (bx - w.cx) / (w.rx + 8);
+          const dz = (bz - w.cz) / (w.rz + 8);
+          return (dx * dx + dz * dz) < 1.0;
         });
         if (insideWater) continue;
 
-        const bh = 5 + (Math.sin(bx * 0.05 + bz * 0.03) + 1) * 7.5;
-        const bcol = ((bx + bz) % 2 === 0) ? colBldgPrimary : colBldgSecondary;
-        const bw = 18;
-        const bl = 18;
+        const bh = 6.0 + (Math.sin(bx * 0.04 + bz * 0.03) + 1.0) * 8.0;
+        const bcol = ((bx + bz) % 2 === 0) ? colBldgWall : colBldgAlt;
+        const bw = 16.0;
+        const bl = 16.0;
 
         for (let corner = 0; corner < 4; corner++) {
           const cx = bx + (corner % 2 === 0 ? -bw/2 : bw/2);
           const cz = bz + (corner < 2 ? -bl/2 : bl/2);
-          const steps = Math.max(3, Math.floor(bh / 1.5));
+          const steps = Math.max(4, Math.floor(bh / 1.4));
           for (let st = 0; st <= steps; st++) {
             const y = (st / steps) * bh;
             const sw = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(cx, y, cz);
             pSwarm.push(sw.x, sw.y, sw.z);
             const isRoof = (st === steps);
-            const c = isRoof ? colRoofHighlight : bcol;
+            const c = isRoof ? colRoof : bcol;
             pColor.push(c.r, c.g, c.b);
-            pSize.push(isRoof ? 1.3 : 1.1);
+            pSize.push(isRoof ? 1.8 : 1.5);
             pPhase.push(st + bx);
             pCat.push(2.0);
           }
@@ -1288,7 +1303,7 @@
   activeTreeIndicatorGroup.add(focusDotMesh);
 
   const focusRingGeo = new THREE.RingGeometry(2.8, 5.4, 24);
-  const focusRingMat = new THREE.MeshBasicMaterial({ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending });
+  const focusRingMat = new THREE.MeshBasicMaterial({ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0, blending: THREE.NormalBlending });
   const focusRingMesh = new THREE.Mesh(focusRingGeo, focusRingMat);
   focusRingMesh.rotation.x = -Math.PI / 2;
   activeTreeIndicatorGroup.add(focusRingMesh);
@@ -1322,7 +1337,7 @@
     const cGeo = new THREE.BufferGeometry();
     cGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     cGeo.setAttribute("color", new THREE.BufferAttribute(cols, 3));
-    const cMat = new THREE.PointsMaterial({ size: 2.8, vertexColors: true, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending });
+    const cMat = new THREE.PointsMaterial({ size: 2.8, vertexColors: true, transparent: true, opacity: 0.0, blending: THREE.NormalBlending });
     activeConstellationPoints = new THREE.Points(cGeo, cMat);
     speciesConstellationGroup.add(activeConstellationPoints);
 
@@ -1341,7 +1356,7 @@
     if (linePairs.length > 0) {
       const lGeo = new THREE.BufferGeometry();
       lGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePairs, 3));
-      const lMat = new THREE.LineBasicMaterial({ color: colObj, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending });
+      const lMat = new THREE.LineBasicMaterial({ color: colObj, transparent: true, opacity: 0.0, blending: THREE.NormalBlending });
       activeConstellationLines = new THREE.LineSegments(lGeo, lMat);
       speciesConstellationGroup.add(activeConstellationLines);
     }
@@ -1571,7 +1586,7 @@
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.65,
-      blending: THREE.AdditiveBlending
+      blending: THREE.NormalBlending
     });
     const ringMesh = new THREE.Mesh(ringGeo, ringMat);
     ringMesh.rotation.x = -Math.PI / 2;
