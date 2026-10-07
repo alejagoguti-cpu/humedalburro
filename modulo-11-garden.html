@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #020409;
@@ -18,12 +18,12 @@
     --ink: #f8fafc;
     --ink-dim: rgba(248, 250, 252, 0.7);
     --panel-bg: rgba(6, 12, 22, 0.88);
-    --panel-border: rgba(16, 185, 129, 0.25);
+    --panel-border: rgba(16, 185, 129, 0.28);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   html, body {
     width: 100%; height: 100%; overflow: hidden; background: var(--bg);
-    color: var(--ink); font-family: 'Inter', sans-serif;
+    color: var(--ink); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   #canvasContainer {
@@ -36,7 +36,7 @@
   /* Vignette */
   .vignette-overlay {
     position: absolute; inset: 0; pointer-events: none; z-index: 2;
-    background: radial-gradient(circle at center, transparent 38%, rgba(2, 4, 9, 0.6) 80%, #010206 100%);
+    background: radial-gradient(circle at center, transparent 40%, rgba(2, 4, 9, 0.65) 80%, #010206 100%);
   }
 
   /* Top Bar */
@@ -47,8 +47,8 @@
   }
   .nav-back-link {
     pointer-events: auto; display: inline-flex; align-items: center; gap: 8px;
-    color: var(--ink-dim); text-decoration: none; font-size: 11px; font-weight: 500;
-    letter-spacing: 0.14em; text-transform: uppercase; transition: all 0.3s ease;
+    color: var(--ink-dim); text-decoration: none; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; transition: all 0.3s ease;
     padding: 8px 18px; border-radius: 20px; background: rgba(6, 12, 22, 0.75);
     border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(14px);
   }
@@ -61,15 +61,15 @@
     text-align: center; pointer-events: none;
   }
   .top-center-brand h1 {
-    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;
-    letter-spacing: 0.28em; text-transform: uppercase;
-    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.75) 100%);
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
   .stage-badge {
     display: inline-flex; align-items: center; gap: 6px; margin-top: 3px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+    letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; font-weight: 500;
   }
 
   .top-right-group {
@@ -78,7 +78,7 @@
   .cinema-mode-btn {
     display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 20px;
     background: rgba(6, 12, 22, 0.75); border: 1px solid rgba(255, 255, 255, 0.12);
-    color: var(--ink-dim); font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+    color: var(--ink-dim); font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
     cursor: pointer; backdrop-filter: blur(14px); transition: all 0.3s;
     text-transform: uppercase;
   }
@@ -108,27 +108,27 @@
     opacity: 0; transform: translate(-50%, -60%) scale(0.92); pointer-events: none;
   }
   .intro-title {
-    font-family: 'Cinzel', serif; font-size: 26px; font-weight: 700; letter-spacing: 0.18em;
-    color: #ffffff; text-shadow: 0 0 35px rgba(16, 185, 129, 0.6);
+    font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: 0.12em;
+    color: #ffffff; text-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
     line-height: 1.25; text-transform: uppercase;
   }
   .intro-sub {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.22em;
-    color: var(--accent); text-transform: uppercase; margin-top: 6px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+    color: var(--accent); text-transform: uppercase; margin-top: 6px; font-weight: 600;
   }
   .intro-desc {
-    font-size: 13px; color: var(--ink-dim); font-weight: 300; margin-top: 14px; line-height: 1.6;
-    letter-spacing: 0.02em; padding: 0 20px;
+    font-size: 13px; color: var(--ink-dim); font-weight: 400; margin-top: 14px; line-height: 1.6;
+    letter-spacing: 0.01em; padding: 0 20px;
   }
-  .intro-desc span { color: #38bdf8; font-weight: 500; }
+  .intro-desc span { color: #38bdf8; font-weight: 600; }
   .morph-main-btn {
-    margin-top: 22px; padding: 14px 34px; border-radius: 32px;
-    font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; letter-spacing: 0.16em;
+    margin-top: 22px; padding: 13px 32px; border-radius: 32px;
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: 0.14em;
     cursor: pointer; border: 1px solid var(--accent);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.45));
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(5, 150, 105, 0.5));
     color: #ffffff; text-shadow: 0 0 16px rgba(16, 185, 129, 0.9);
     box-shadow: 0 0 32px var(--accent-glow); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex; align-items: center; gap: 10px;
+    display: inline-flex; align-items: center; gap: 10px; text-transform: uppercase;
   }
   .morph-main-btn:hover {
     transform: scale(1.06); box-shadow: 0 0 50px rgba(16, 185, 129, 0.9);
@@ -155,11 +155,11 @@
     color: var(--accent);
   }
   .species-title-wrap h3 {
-    font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700; color: #ffffff;
-    letter-spacing: 0.05em; line-height: 1.2;
+    font-family: 'Inter', sans-serif; font-size: 14.5px; font-weight: 700; color: #ffffff;
+    letter-spacing: 0.02em; line-height: 1.2;
   }
   .species-title-wrap em {
-    font-size: 11px; color: var(--accent); font-style: italic; font-weight: 300; display: block; margin-top: 2px;
+    font-size: 11px; color: var(--accent); font-style: italic; font-weight: 400; display: block; margin-top: 2px;
   }
   .species-badge {
     padding: 3px 8px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace;
@@ -191,7 +191,7 @@
   .waypoint-pill {
     padding: 6px 14px; border-radius: 16px; background: rgba(6, 12, 22, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.65);
-    font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
     cursor: pointer; backdrop-filter: blur(12px); transition: all 0.25s ease;
     display: flex; align-items: center; gap: 6px;
   }
@@ -215,15 +215,15 @@
   }
   .scrub-container:hover { border-color: var(--accent); }
   .scrub-label {
-    font-family: 'Cinzel', serif; font-size: 10.5px; letter-spacing: 0.16em;
+    font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
     color: var(--ink-dim); text-transform: uppercase; cursor: pointer; transition: color 0.2s;
   }
   .scrub-label.active, .scrub-label:hover {
     color: #ffffff; text-shadow: 0 0 12px var(--accent);
   }
   .experience-toggle-btn {
-    padding: 8px 20px; border-radius: 20px; font-family: 'Cinzel', serif;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.14em; cursor: pointer;
+    padding: 8px 20px; border-radius: 20px; font-family: 'Inter', sans-serif;
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; cursor: pointer;
     border: 1px solid var(--accent);
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.45));
     color: #ffffff; text-shadow: 0 0 14px var(--accent);
@@ -246,7 +246,7 @@
 
   .drag-hint {
     font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.45); text-transform: uppercase;
+    letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; font-weight: 500;
   }
 
   /* Loading Screen */
@@ -258,7 +258,7 @@
   }
   #loadingVeil.hide { opacity: 0; }
   .veil-title {
-    font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 0.34em;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 0.28em;
     color: rgba(255, 255, 255, 0.9); text-transform: uppercase;
   }
   .veil-bar {
@@ -297,7 +297,7 @@
   </a>
   <div class="top-center-brand">
     <h1>El Jardín de las Aguas</h1>
-    <div class="stage-badge"><i class="fa-solid fa-circle-nodes"></i> <span id="stageLabel">Red Biótica · 500 Especies y Conexiones</span></div>
+    <div class="stage-badge"><i class="fa-solid fa-circle-nodes"></i> <span id="stageLabel">Red Biótica · 600 Especies y Conexiones</span></div>
   </div>
   <div class="top-right-group">
     <button id="btnCinemaTour" class="cinema-mode-btn" title="Vuelo Cinematográfico Continuo">
@@ -314,7 +314,7 @@
   <div class="intro-title">RED DE RELACIONES BIÓTICAS</div>
   <div class="intro-sub">Ecosistema Humedal El Burro · Territorio de Kennedy</div>
   <div class="intro-desc">
-    Toca o pasa el cursor sobre las <span>500 partículas bióticas</span> para inspeccionar las especies y sus redes tróficas. Al hacer clic, la red se dispersará en un vórtice cósmico sobre el territorio.
+    Toca o pasa el cursor sobre los <span>nodos bióticos</span> para inspeccionar las especies y sus redes tróficas. Al hacer clic, la red se dispersará en un vórtice cósmico sobre el territorio.
   </div>
   <button id="btnTriggerMorph" class="morph-main-btn">
     <i class="fa-solid fa-burst"></i> EXPLOTAR Y DESPLEGAR TERRITORIO
@@ -371,13 +371,13 @@
       <i class="fa-solid fa-atom"></i> <span id="btnActionText">MATERIALIZAR</span>
     </button>
   </div>
-  <div class="drag-hint">Toca las partículas para ver especies · Rueda para zoom · Arrastra 360°</div>
+  <div class="drag-hint">Toca los nodos para ver especies · Rueda para zoom · Arrastra 360°</div>
 </div>
 
 <div id="canvasContainer">
   <canvas id="sceneCanvas"></canvas>
 </div>
 
-<script src="modulo-11-garden.js?v=20261006_09"></script>
+<script src="modulo-11-garden.js?v=20261006_10"></script>
 </body>
 </html>
