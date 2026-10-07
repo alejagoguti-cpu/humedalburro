@@ -469,36 +469,210 @@
     });
   });
 
-  // Generación de Enlaces e Interacciones Ecológicas
-  for (let i = 0; i < rawNodes.length; i++) {
-    for (let j = i + 1; j < rawNodes.length; j++) {
-      const a = rawNodes[i];
-      const b = rawNodes[j];
-      const dist = Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-      if (dist < 24 && Math.random() < 0.4) {
-        rawEdges.push({ source: a.id, target: b.id });
-        a.neighbors.push(b);
-        b.neighbors.push(a);
-      }
+  // =====================================================================
+  // 2. GENERADOR CONSCIENTE DE RELACIONES BIÓTICAS (EVIDENCIA ECOLÓGICA REAL)
+  // =====================================================================
+  const rawEdges = [];
+  const edgeDetailsMap = {};
+
+  const INTER_TYPES = {
+    PREDATION:    { id: 0, name: 'Depredación', color: '#C96349' },
+    HERBIVORY:    { id: 1, name: 'Herbivoría', color: '#84A48B' },
+    DISPERSAL:    { id: 2, name: 'Dispersión de Semillas', color: '#E69888' },
+    MUTUALISM:    { id: 3, name: 'Mutualismo', color: '#E7C878' },
+    NESTING:      { id: 4, name: 'Nidificación & Refugio', color: '#F79E70' },
+    POLLINATION:  { id: 5, name: 'Visita Floral / Polinización', color: '#A386A9' },
+    NEST_SITE:    { id: 6, name: 'Anidamiento de Dosel', color: '#D1A996' },
+    PARASITISM:   { id: 7, name: 'Parasitismo de Nido', color: '#C6B3CA' },
+    ALLELOPATHY:  { id: 8, name: 'Competencia / Biofiltro', color: '#6B9080' }
+  };
+
+  function addConscientiousEdge(sourceNode, targetNode, interType, rationale) {
+    if (!sourceNode || !targetNode || sourceNode.id === targetNode.id) return;
+    const key = sourceNode.id < targetNode.id ? `${sourceNode.id}_${targetNode.id}` : `${targetNode.id}_${sourceNode.id}`;
+    if (edgeDetailsMap[key]) return;
+
+    rawEdges.push({ source: sourceNode.id, target: targetNode.id });
+    edgeDetailsMap[key] = { source: sourceNode.id, target: targetNode.id, type: interType, rationale: rationale || '' };
+    
+    if (!sourceNode.neighbors.includes(targetNode)) {
+      sourceNode.neighbors.push(targetNode);
+    }
+    if (!targetNode.neighbors.includes(sourceNode)) {
+      targetNode.neighbors.push(sourceNode);
     }
   }
 
-  // Garantizar que todos tengan al menos 3-5 enlaces biológicos
-  rawNodes.forEach(n => {
-    if (n.neighbors.length < 3) {
-      const candidates = [...rawNodes].filter(o => o.id !== n.id).sort((a,b) => {
-        return Math.hypot(a.x - n.x, a.y - n.y, a.z - n.z) - Math.hypot(b.x - n.x, b.y - n.y, b.z - n.z);
+  function getInteractionInfo(nodeA, nodeB) {
+    if (!nodeA || !nodeB) return INTER_TYPES.MUTUALISM;
+    const key = nodeA.id < nodeB.id ? `${nodeA.id}_${nodeB.id}` : `${nodeB.id}_${nodeA.id}`;
+    if (edgeDetailsMap[key]) {
+      return edgeDetailsMap[key].type;
+    }
+    // Fallback biológico según categorías
+    if ((nodeA.cat === 1 || nodeA.cat === 2) && nodeB.cat === 3) return INTER_TYPES.PREDATION;
+    if (nodeA.cat === 1 && nodeB.cat === 4) return INTER_TYPES.PREDATION;
+    if (nodeA.cat === 1 && nodeB.cat === 2) return INTER_TYPES.PREDATION;
+    if (nodeA.cat === 5 && (nodeB.cat === 3 || nodeB.cat === 4)) return INTER_TYPES.PREDATION;
+    if (nodeA.cat === 1 && nodeB.cat === 0) return INTER_TYPES.DISPERSAL;
+    if (nodeA.cat === 3 && nodeB.cat === 0) return INTER_TYPES.HERBIVORY;
+    if (nodeA.cat === 2 && nodeB.cat === 0) return INTER_TYPES.HERBIVORY;
+    return INTER_TYPES.MUTUALISM;
+  }
+
+  function buildConscientiousBioticNetwork() {
+    const floraNodes = rawNodes.filter(n => n.cat === 0);
+    const aveNodes = rawNodes.filter(n => n.cat === 1);
+    const mamNodes = rawNodes.filter(n => n.cat === 2);
+    const molNodes = rawNodes.filter(n => n.cat === 3);
+    const anfNodes = rawNodes.filter(n => n.cat === 4);
+    const repNodes = rawNodes.filter(n => n.cat === 5);
+
+    const findTaxon = (idOrName) => rawNodes.find(n => n.taxaId === idOrName || n.sciname.toLowerCase().includes(idOrName.toLowerCase()) || n.label.toLowerCase().includes(idOrName.toLowerCase()));
+
+    // A. FLORA ESTRUCTURAL
+    const saucoNodes = floraNodes.filter(n => n.label.includes('Saúco') || n.sciname.includes('Sambucus'));
+    const capuliNodes = floraNodes.filter(n => n.label.includes('Capulí') || n.sciname.includes('Prunus'));
+    const alisoNodes = floraNodes.filter(n => n.label.includes('Aliso') || n.sciname.includes('Alnus'));
+    const chilcoNodes = floraNodes.filter(n => n.label.includes('Chilco') || n.sciname.includes('Baccharis'));
+    const juncoNodes = floraNodes.filter(n => n.label.includes('Junco') || n.sciname.includes('Schoenoplectus'));
+    const eneaNodes = floraNodes.filter(n => n.label.includes('Enea') || n.sciname.includes('Typha'));
+    const sauceNodes = floraNodes.filter(n => n.label.includes('Sauce') || n.sciname.includes('Salix'));
+    const raqueNodes = floraNodes.filter(n => n.label.includes('Raque') || n.sciname.includes('Vallea'));
+    const farolitoNodes = floraNodes.filter(n => n.label.includes('Farolito') || n.sciname.includes('Abutilon'));
+
+    // B. POLINIZACIÓN & NÉCTAR (Colibríes <--> Flora Melífera)
+    const colibriList = aveNodes.filter(a => a.label.toLowerCase().includes('colibrí') || a.sciname.toLowerCase().includes('colibri') || a.label.toLowerCase().includes('calzadito') || a.label.toLowerCase().includes('brillante'));
+    colibriList.forEach(col => {
+      [...saucoNodes, ...chilcoNodes, ...raqueNodes, ...farolitoNodes].slice(0, 5).forEach(fl => {
+        addConscientiousEdge(col, fl, INTER_TYPES.POLLINATION, 'Polinización cruzada y forrajeo de néctar floral');
       });
-      for (let k = 0; k < Math.min(4, candidates.length); k++) {
-        const p = candidates[k];
-        if (!n.neighbors.includes(p)) {
-          rawEdges.push({ source: n.id, target: p.id });
-          n.neighbors.push(p);
-          p.neighbors.push(n);
+    });
+
+    // C. FRUGIVORÍA & DISPERSIÓN DE SEMILLAS
+    const frugivores = aveNodes.filter(a => a.label.includes('Mirla') || a.label.includes('Tángara') || a.label.includes('Tangara') || a.label.includes('Calandria') || a.label.includes('Centzontle') || a.label.includes('Rey del bosque'));
+    frugivores.forEach(fr => {
+      [...capuliNodes, ...saucoNodes].slice(0, 4).forEach(tr => {
+        addConscientiousEdge(fr, tr, INTER_TYPES.DISPERSAL, 'Consumo de frutos y dispersión zoócora de semillas');
+      });
+    });
+
+    // Mamíferos dispersores (Ardilla, Cusumbo)
+    const ardilla = findTaxon('MAM-01');
+    const cusumbo = findTaxon('MAM-04');
+    if (ardilla) {
+      [...capuliNodes, ...saucoNodes, ...alisoNodes].slice(0, 5).forEach(tr => addConscientiousEdge(ardilla, tr, INTER_TYPES.DISPERSAL, 'Dispersión y forrajeo en dosel'));
+    }
+    if (cusumbo) {
+      [...capuliNodes, ...saucoNodes].slice(0, 4).forEach(tr => addConscientiousEdge(cusumbo, tr, INTER_TYPES.DISPERSAL, 'Forrajeo omnívoro de frutos caídos'));
+    }
+
+    // D. NIDIFICACIÓN EN JUNCAL & ENEA
+    const marshNesters = aveNodes.filter(a => a.label.includes('Tingua') || a.label.includes('Monjita') || a.label.includes('Burrito') || a.label.includes('Focha') || a.label.includes('Gallineta') || a.label.includes('Pato') || a.label.includes('Rascón'));
+    marshNesters.forEach(mn => {
+      [...juncoNodes, ...eneaNodes].slice(0, 4).forEach(pl => {
+        addConscientiousEdge(mn, pl, INTER_TYPES.NESTING, 'Anclaje de nidos flotantes y camuflaje entre juncales');
+      });
+    });
+
+    // E. PERCHA Y NIDIFICACIÓN DE RAPACES & GARZAS
+    const treePerchers = aveNodes.filter(a => a.label.includes('Garza') || a.label.includes('Garceta') || a.label.includes('Búho') || a.label.includes('Gavilán') || a.label.includes('Águila') || a.label.includes('Halcón') || a.label.includes('Lechuza'));
+    treePerchers.forEach(tp => {
+      [...sauceNodes, ...alisoNodes, ...floraNodes.slice(0, 6)].slice(0, 4).forEach(tr => {
+        addConscientiousEdge(tp, tr, INTER_TYPES.NEST_SITE, 'Percha de avistamiento y nidificación en ramas altas');
+      });
+    });
+
+    // F. DEPREDACIÓN MALACÓFAGA (Aves <--> Moluscos)
+    const carrao = findTaxon('AVE-26');
+    const tinguaBog = findTaxon('AVE-51');
+    const tinguaAzul = findTaxon('AVE-39');
+    const patoAndino = findTaxon('AVE-48');
+    const malacophages = [carrao, tinguaBog, tinguaAzul, patoAndino].filter(Boolean);
+
+    malacophages.forEach(av => {
+      molNodes.forEach(mol => {
+        addConscientiousEdge(av, mol, INTER_TYPES.PREDATION, 'Depredación directa de caracoles y babosas de humedal');
+      });
+    });
+
+    // G. DEPREDACIÓN ICTIÓFAGA & DE ANFIBIOS (Garzas <--> Anfibios)
+    const garzas = aveNodes.filter(a => a.label.includes('Garza') || a.label.includes('Garceta') || a.label.includes('Guaco'));
+    garzas.forEach(gz => {
+      anfNodes.forEach(anf => {
+        addConscientiousEdge(gz, anf, INTER_TYPES.PREDATION, 'Captura de ranas y renacuajos en orillas someras');
+      });
+    });
+
+    // H. DEPREDACIÓN DE MICROMAMÍFEROS (Rapaces Nocturnas & Diurnas <--> Roedores)
+    const raptors = aveNodes.filter(a => a.label.includes('Búho') || a.label.includes('Lechuza') || a.label.includes('Gavilán') || a.label.includes('Cernícalo') || a.label.includes('Águila'));
+    const rodents = mamNodes.filter(m => m.label.includes('Ratón') || m.label.includes('Rata') || m.label.includes('Curí') || m.label.includes('Roedores'));
+    raptors.forEach(rp => {
+      rodents.forEach(rd => {
+        addConscientiousEdge(rp, rd, INTER_TYPES.PREDATION, 'Control biológico depredador de micromamíferos');
+      });
+    });
+
+    // I. DEPREDACIÓN POR HERPETOS (Serpiente sabanera & Culebra <--> Moluscos & Anfibios)
+    const serpienteSabanera = findTaxon('REP-01');
+    const culebraHumedal = findTaxon('REP-08');
+    if (serpienteSabanera) {
+      molNodes.filter(m => m.label.includes('Babosa')).forEach(bab => {
+        addConscientiousEdge(serpienteSabanera, bab, INTER_TYPES.PREDATION, 'Dieta malacófaga especializada en babosas');
+      });
+    }
+    if (culebraHumedal) {
+      anfNodes.forEach(anf => addConscientiousEdge(culebraHumedal, anf, INTER_TYPES.PREDATION, 'Depredación en charcas y vegetación riparia'));
+      rodents.slice(0, 3).forEach(rd => addConscientiousEdge(culebraHumedal, rd, INTER_TYPES.PREDATION, 'Caza de pequeños roedores'));
+    }
+
+    // J. CARNIVORÍA TOPE (Comadreja andina <--> Roedores, Aves de juncal & Ranas)
+    const comadreja = findTaxon('MAM-02');
+    if (comadreja) {
+      rodents.forEach(rd => addConscientiousEdge(comadreja, rd, INTER_TYPES.PREDATION, 'Depredador carnívoro de suelo'));
+      anfNodes.slice(0, 3).forEach(anf => addConscientiousEdge(comadreja, anf, INTER_TYPES.PREDATION, 'Caza nocturna en rondas'));
+      [tinguaBog, tinguaAzul].filter(Boolean).forEach(tg => addConscientiousEdge(comadreja, tg, INTER_TYPES.PREDATION, 'Depredación oportunista de nidadas'));
+    }
+
+    // K. HERBIVORÍA DE MOLUSCOS Y CURÍES <--> FLORA
+    const curi = findTaxon('MAM-03');
+    if (curi) {
+      [...juncoNodes, ...floraNodes.slice(10, 18)].forEach(fl => {
+        addConscientiousEdge(curi, fl, INTER_TYPES.HERBIVORY, 'Pastoreo de gramíneas y brotes tiernos');
+      });
+    }
+    molNodes.forEach(mol => {
+      floraNodes.slice(mol.id % 20, (mol.id % 20) + 4).forEach(fl => {
+        addConscientiousEdge(mol, fl, INTER_TYPES.HERBIVORY, 'Raspado de hojas, algas y materia vegetal tierna');
+      });
+    });
+
+    // L. PARASITISMO DE NIDO (Chamón / Tordo <--> Gorrión Copetón & Mirlas)
+    const tordo = findTaxon('AVE-53') || aveNodes.find(a => a.label.includes('Tordo') || a.label.includes('Chamón'));
+    const copeton = findTaxon('AVE-04');
+    const mirla = findTaxon('AVE-01');
+    if (tordo && copeton) addConscientiousEdge(tordo, copeton, INTER_TYPES.PARASITISM, 'Parasitismo de puesta en nidos de copetón');
+    if (tordo && mirla) addConscientiousEdge(tordo, mirla, INTER_TYPES.PARASITISM, 'Parasitismo reproductivo');
+
+    // M. ACORDES BIÓTICOS DE LARGA DISTANCIA (ESTILO RED JARDÍN BOTÁNICO)
+    aveNodes.forEach((av, idx) => {
+      if (av.neighbors.length < 4) {
+        const partnerFlora = floraNodes[(idx * 7) % floraNodes.length];
+        addConscientiousEdge(av, partnerFlora, INTER_TYPES.MUTUALISM, 'Refugio ambiental y corredor biótico');
+      }
+    });
+
+    rawNodes.forEach(n => {
+      if (n.neighbors.length < 3) {
+        const candidate = floraNodes[(n.id * 13) % floraNodes.length];
+        if (candidate && candidate.id !== n.id) {
+          addConscientiousEdge(n, candidate, INTER_TYPES.MUTUALISM, 'Conexión ecosistémica de soporte');
         }
       }
-    }
-  });
+    });
+  }
+
+  buildConscientiousBioticNetwork();
 
   // Mesh de Líneas de Interacción en Three.js
   const edgeGeo = new THREE.BufferGeometry();
@@ -1186,15 +1360,8 @@
       { name: 'Alelopatía', color: '#6B9080' }
     ];
 
-    node.neighbors.forEach((nb, idx) => {
-      let inter = interactionTypes[0];
-      if (node.cat === 0 && nb.cat === 1) inter = interactionTypes[5];
-      else if (node.cat === 1 && nb.cat === 0) inter = interactionTypes[2];
-      else if (node.cat === 1 && nb.cat === 3) inter = interactionTypes[0];
-      else if (node.cat === 3 && nb.cat === 0) inter = interactionTypes[1];
-      else if (node.cat === 0 && nb.cat === 0) inter = interactionTypes[8];
-      else if (node.cat === 2) inter = interactionTypes[3];
-      else inter = interactionTypes[(idx + node.id) % interactionTypes.length];
+    node.neighbors.forEach((nb) => {
+      const inter = getInteractionInfo(node, nb);
 
       const item = document.createElement('div');
       item.className = 'neighbor-row';
