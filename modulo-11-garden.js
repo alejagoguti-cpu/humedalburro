@@ -389,11 +389,15 @@
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 15px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(taxonId, 64, 56);
-      ctx.font = "11.5px sans-serif";
-      ctx.fillText((speciesName || '').substring(0, 8), 64, 76);
+      ctx.fillText(taxonId, 64, 54);
+      ctx.font = "bold 11px sans-serif";
+      ctx.fillStyle = catColor;
+      ctx.fillText((speciesName || '').substring(0, 9), 64, 74);
       tex.needsUpdate = true;
     };
+
+    // Renderizado inmediato del badge para que los nodos aparezcan al instante (0ms delay)
+    drawFallback();
 
     img.onload = () => {
       try {
