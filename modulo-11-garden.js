@@ -893,11 +893,11 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta Arquitectónica: Cremita Suave / Lino Cálido (No blanco, no morado, no ámbar)
-        const colBldgCream = new THREE.Color(0xE2D9CC);   // Cremita Suave (#E2D9CC)
-        const colBldgSand  = new THREE.Color(0xD0C4AF);   // Arena Suave (#D0C4AF)
-        const colRoofHighlight = new THREE.Color(0xEDE6DB); // Remate superior crema claro
-        const colBaseGround = new THREE.Color(0x161618);  // Fondo negro grafito
+        // Paleta Arquitectónica: Piedra y Basalto Cálido (No blanco, no morado, no crema pálido)
+        const colBldgPrimary   = new THREE.Color(0x6E675F); // Piedra Arquitectónica Cálida (#6E675F)
+        const colBldgSecondary = new THREE.Color(0x59524B); // Basalto / Pizarra Cálida (#59524B)
+        const colRoofHighlight = new THREE.Color(0x7B746C); // Remate de cornisa pétrea (#7B746C)
+        const colBaseGround    = new THREE.Color(0x161618); // Fondo negro grafito
 
         buildings.forEach((b, bIdx) => {
           const pts = b.pts;
@@ -906,8 +906,8 @@
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.height || 10) * SCALE;
           
-          // Estructura volumétrica arquitectónica homogénea en crema
-          const bldgCol = (bIdx % 2 === 0) ? colBldgCream : colBldgSand;
+          // Estructura volumétrica arquitectónica homogénea en piedra cálida
+          const bldgCol = (bIdx % 2 === 0) ? colBldgPrimary : colBldgSecondary;
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
@@ -959,98 +959,22 @@
   });
 
   // =====================================================================
-  // 5.1 BALIZAS Y ORBES 3D FLOTANTES DE ESPECIES Y CENSO FORESTAL
+  // 5.1 INDICADORES SUTILES GEORREFERENCIADOS DE ÁRBOLES EN EL SUELO
   // =====================================================================
-  const speciesBeaconsGroup = new THREE.Group();
-  speciesBeaconsGroup.visible = false;
-  sceneRoot.add(speciesBeaconsGroup);
+  const treeGroundIndicatorsGroup = new THREE.Group();
+  treeGroundIndicatorsGroup.visible = false;
+  sceneRoot.add(treeGroundIndicatorsGroup);
 
-  const beaconInstances = [];
+  const treeIndicatorMeshes = [];
 
-  function createCircularSpriteTexture(imgSrc, colorHex) {
-    const cvs = document.createElement("canvas");
-    cvs.width = 128;
-    cvs.height = 128;
-    const ctx = cvs.getContext("2d");
-
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = imgSrc;
-    
-    const tex = new THREE.CanvasTexture(cvs);
-    
-    img.onload = () => {
-      ctx.clearRect(0, 0, 128, 128);
-      ctx.save();
-      
-      // Sombra suave circular
-      ctx.beginPath();
-      ctx.arc(64, 64, 52, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-      ctx.fill();
-
-      // Recorte circular de la fotografía real del árbol
-      ctx.beginPath();
-      ctx.arc(64, 64, 48, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.clip();
-      
-      ctx.drawImage(img, 16, 16, 96, 96);
-      ctx.restore();
-
-      // Borde fino nítido luminoso
-      ctx.beginPath();
-      ctx.arc(64, 64, 48, 0, Math.PI * 2);
-      ctx.strokeStyle = colorHex;
-      ctx.lineWidth = 3.5;
-      ctx.stroke();
-      
-      tex.needsUpdate = true;
-    };
-    
-    return tex;
-  }
-
-  function buildSpecies3DBeacons() {
-    speciesBeaconsGroup.clear();
-    beaconInstances.length = 0;
+  function buildTreeGroundIndicators() {
+    treeGroundIndicatorsGroup.clear();
+    treeIndicatorMeshes.length = 0;
 
     SPECIES_GEO_NODES.forEach((spec, idx) => {
-      const group = new THREE.Group();
-      group.position.set(spec.pos.x, spec.pos.y, spec.pos.z);
-
       const col = new THREE.Color(spec.color);
-      const hexStr = '#' + col.getHexString();
-
-      // 1. Orbe Fotográfico Flotante Nítido
-      const spriteMat = new THREE.SpriteMaterial({
-        map: createCircularSpriteTexture(spec.img, hexStr),
-        transparent: true,
-        depthWrite: false,
-        opacity: 0.0
-      });
-      const sprite = new THREE.Sprite(spriteMat);
-      sprite.scale.set(13.5, 13.5, 1);
-      sprite.position.set(0, 0, 0);
-      sprite.userData = { specIndex: idx, species: spec };
-      group.add(sprite);
-
-      // 2. Línea guía vertical ultrafina desde el suelo hasta el orbe
-      const stemHeight = spec.pos.y;
-      const lineGeo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, -stemHeight, 0)
-      ]);
-      const lineMat = new THREE.LineBasicMaterial({
-        color: col,
-        transparent: true,
-        opacity: 0.0
-      });
-      const dropLine = new THREE.Line(lineGeo, lineMat);
-      group.add(dropLine);
-
-      // 3. Puntito del árbol destacado en el suelo (punto georreferenciado ampliado)
-      const dotGeo = new THREE.CircleGeometry(1.8, 24);
+      
+      const dotGeo = new THREE.CircleGeometry(2.4, 24);
       const dotMat = new THREE.MeshBasicMaterial({
         color: col,
         side: THREE.DoubleSide,
@@ -1060,81 +984,58 @@
       });
       const groundDot = new THREE.Mesh(dotGeo, dotMat);
       groundDot.rotation.x = -Math.PI / 2;
-      groundDot.position.set(0, -stemHeight + 0.1, 0);
-      group.add(groundDot);
+      groundDot.position.set(spec.pos.x, 0.18, spec.pos.z);
+      treeGroundIndicatorsGroup.add(groundDot);
 
-      // 4. Anillo de pulso sutil en el suelo
-      const groundRingGeo = new THREE.RingGeometry(2.0, 3.8, 24);
-      const groundRingMat = new THREE.MeshBasicMaterial({
+      const ringGeo = new THREE.RingGeometry(2.8, 5.2, 24);
+      const ringMat = new THREE.MeshBasicMaterial({
         color: col,
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.0,
         blending: THREE.AdditiveBlending
       });
-      const groundRing = new THREE.Mesh(groundRingGeo, groundRingMat);
+      const groundRing = new THREE.Mesh(ringGeo, ringMat);
       groundRing.rotation.x = -Math.PI / 2;
-      groundRing.position.set(0, -stemHeight + 0.12, 0);
-      group.add(groundRing);
+      groundRing.position.set(spec.pos.x, 0.20, spec.pos.z);
+      treeGroundIndicatorsGroup.add(groundRing);
 
-      speciesBeaconsGroup.add(group);
-
-      beaconInstances.push({
-        group,
-        sprite,
-        dropLine,
+      treeIndicatorMeshes.push({
         groundDot,
         groundRing,
         spec,
-        baseY: spec.pos.y,
-        phase: idx * 0.75,
-        baseScale: 13.5
+        phase: idx * 0.75
       });
     });
   }
 
-  buildSpecies3DBeacons();
+  buildTreeGroundIndicators();
 
   // =====================================================================
-  // 5.2 CONTROLADOR DEL RECORRIDO BOTÁNICO (TOUR DE ÁRBOLES)
+  // 5.2 CONTROLADOR DEL RECORRIDO BOTÁNICO (TOUR DE ÁRBOLES) & CHIP MINIMALISTA
   // =====================================================================
   let tourActive = false;
   let tourIndex = 0;
   let tourPlaying = true;
   let tourTimer = null;
 
-  const speciesTourHUD = document.getElementById("speciesTourHUD");
-  const tourImg = document.getElementById("tourImg");
-  const tourTitle = document.getElementById("tourTitle");
-  const tourSci = document.getElementById("tourSci");
-  const tourType = document.getElementById("tourType");
-  const tourCount = document.getElementById("tourCount");
-  const tourHeight = document.getElementById("tourHeight");
-  const tourDesc = document.getElementById("tourDesc");
-  const tourStepInfo = document.getElementById("tourStepInfo");
-  const btnTourPrev = document.getElementById("btnTourPrev");
-  const btnTourNext = document.getElementById("btnTourNext");
-  const btnTourPlayPause = document.getElementById("btnTourPlayPause");
-  const btnTourClose = document.getElementById("btnTourClose");
   const btnTourSpecies = document.getElementById("btnTourSpecies");
-  const speciesTray = document.getElementById("speciesTray");
+  const activeTreeChip = document.getElementById("activeTreeChip");
+  const activeTreeImg = document.getElementById("activeTreeImg");
+  const activeTreeName = document.getElementById("activeTreeName");
+  const btnCloseSpeciesCard = document.getElementById("btnCloseSpeciesCard");
 
-  function populateSpeciesTray() {
-    if (!speciesTray) return;
-    speciesTray.innerHTML = "";
-    SPECIES_GEO_NODES.forEach((spec, idx) => {
-      const chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "species-chip";
-      chip.innerHTML = `<img src="${spec.img}" alt="${spec.name}"> <span>${spec.name.split('/')[0].trim()}</span>`;
-      chip.addEventListener("click", () => {
-        focusSpecies(idx, false);
-      });
-      speciesTray.appendChild(chip);
+  if (btnCloseSpeciesCard) {
+    btnCloseSpeciesCard.addEventListener("click", () => {
+      if (speciesCard) speciesCard.classList.remove("show");
     });
   }
 
-  populateSpeciesTray();
+  if (activeTreeChip) {
+    activeTreeChip.addEventListener("click", () => {
+      if (speciesCard) speciesCard.classList.toggle("show");
+    });
+  }
 
   function focusSpecies(idx, autoTour = false) {
     if (idx < 0 || idx >= SPECIES_GEO_NODES.length) return;
@@ -1146,23 +1047,27 @@
       animateToStage(1.0);
     }
 
-    // Actualizar ficha HUD
-    if (tourImg) tourImg.src = spec.img;
-    if (tourTitle) tourTitle.textContent = spec.name;
-    if (tourSci) tourSci.textContent = spec.sci;
-    if (tourType) tourType.textContent = spec.type;
-    if (tourCount) tourCount.textContent = spec.count;
-    if (tourHeight) tourHeight.textContent = spec.avgHeight;
-    if (tourDesc) tourDesc.innerHTML = `<span>Rol Ecológico:</span> ${spec.role}`;
-    if (tourStepInfo) tourStepInfo.textContent = `${idx + 1} / ${SPECIES_GEO_NODES.length}`;
+    // Actualizar chip flotante superior derecho (pequeño y limpio)
+    if (activeTreeImg) activeTreeImg.src = spec.img;
+    if (activeTreeName) activeTreeName.textContent = spec.name.split('/')[0].trim();
+    if (activeTreeChip) activeTreeChip.classList.add("show");
 
-    if (speciesTourHUD) speciesTourHUD.classList.add("show");
-
-    // Resaltar chip activo en la bandeja inferior
-    if (speciesTray) {
-      const chips = speciesTray.querySelectorAll(".species-chip");
-      chips.forEach((c, i) => c.classList.toggle("active", i === idx));
-      if (chips[idx]) chips[idx].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    // Actualizar ficha modal de detalles
+    if (cardCommonName) cardCommonName.textContent = spec.name;
+    if (cardScientificName) cardScientificName.textContent = spec.sci;
+    if (cardTaxon) cardTaxon.textContent = "Flora / Censo";
+    const cardCountEl = document.getElementById("cardCount");
+    if (cardCountEl) cardCountEl.textContent = spec.count;
+    const cardHeightEl = document.getElementById("cardHeight");
+    if (cardHeightEl) cardHeightEl.textContent = spec.avgHeight;
+    if (cardHabitat) cardHabitat.textContent = spec.habitat;
+    if (cardDiet) cardDiet.textContent = spec.role;
+    if (cardRelations) {
+      cardRelations.innerHTML = `
+        <span class="relation-tag">${spec.type}</span>
+        <span class="relation-tag">Censo: ${spec.count}</span>
+        <span class="relation-tag">Porte: ${spec.avgHeight}</span>
+      `;
     }
 
     // Transición suave de cámara hacia el conglomerado de la especie
@@ -1183,20 +1088,12 @@
       });
     }
 
-    // Activar ÚNICAMENTE la baliza del árbol seleccionado (se ve nítida y destaca su puntito en el territorio)
-    beaconInstances.forEach((b, i) => {
+    // Destacar sutilmente el puntito del árbol en el suelo
+    treeIndicatorMeshes.forEach((item, i) => {
       const isCur = (i === idx);
       if (window.gsap) {
-        gsap.to(b.sprite.material, { opacity: isCur ? 1.0 : 0.0, duration: 0.5 });
-        gsap.to(b.dropLine.material, { opacity: isCur ? 0.65 : 0.0, duration: 0.5 });
-        gsap.to(b.groundDot.material, { opacity: isCur ? 0.95 : 0.0, duration: 0.5 });
-        gsap.to(b.groundRing.material, { opacity: isCur ? 0.75 : 0.0, duration: 0.5 });
-        gsap.to(b.sprite.scale, {
-          x: isCur ? 14.5 : 8.0,
-          y: isCur ? 14.5 : 8.0,
-          duration: 0.6,
-          ease: "back.out(1.6)"
-        });
+        gsap.to(item.groundDot.material, { opacity: isCur ? 0.95 : 0.0, duration: 0.5 });
+        gsap.to(item.groundRing.material, { opacity: isCur ? 0.75 : 0.0, duration: 0.5 });
       }
     });
 
@@ -1208,7 +1105,6 @@
   function startSpeciesTour() {
     tourActive = true;
     tourPlaying = true;
-    if (btnTourPlayPause) btnTourPlayPause.innerHTML = '<i class="fa-solid fa-pause"></i> Pausar';
     if (btnTourSpecies) btnTourSpecies.classList.add("active");
     focusSpecies(tourIndex, true);
 
@@ -1223,17 +1119,18 @@
   function stopSpeciesTour() {
     tourActive = false;
     clearInterval(tourTimer);
-    if (speciesTourHUD) speciesTourHUD.classList.remove("show");
     if (btnTourSpecies) btnTourSpecies.classList.remove("active");
-    beaconInstances.forEach(b => {
-      if (window.gsap) gsap.to(b.sprite.scale, { x: 13.5, y: 13.5, duration: 0.4 });
-      b.ringMesh.material.opacity = 0.85;
+    treeIndicatorMeshes.forEach(item => {
+      if (window.gsap) {
+        gsap.to(item.groundDot.material, { opacity: 0.0, duration: 0.4 });
+        gsap.to(item.groundRing.material, { opacity: 0.0, duration: 0.4 });
+      }
     });
   }
 
   if (btnTourSpecies) {
     btnTourSpecies.addEventListener("click", () => {
-      if (tourActive && tourPlaying) {
+      if (tourActive) {
         stopSpeciesTour();
       } else {
         startSpeciesTour();
@@ -1241,35 +1138,8 @@
     });
   }
 
-  if (btnTourPlayPause) {
-    btnTourPlayPause.addEventListener("click", () => {
-      tourPlaying = !tourPlaying;
-      btnTourPlayPause.innerHTML = tourPlaying ? '<i class="fa-solid fa-pause"></i> Pausar' : '<i class="fa-solid fa-play"></i> Reanudar';
-    });
-  }
-
-  if (btnTourNext) {
-    btnTourNext.addEventListener("click", () => {
-      tourIndex = (tourIndex + 1) % SPECIES_GEO_NODES.length;
-      focusSpecies(tourIndex, false);
-    });
-  }
-
-  if (btnTourPrev) {
-    btnTourPrev.addEventListener("click", () => {
-      tourIndex = (tourIndex - 1 + SPECIES_GEO_NODES.length) % SPECIES_GEO_NODES.length;
-      focusSpecies(tourIndex, false);
-    });
-  }
-
-  if (btnTourClose) {
-    btnTourClose.addEventListener("click", () => {
-      stopSpeciesTour();
-    });
-  }
-
   // =====================================================================
-  // 5.3 INSPECCIÓN INTERACTIVA DE ESPECIES Y RED TRÓFICA (RAYCASTING)
+  // 5.3 INSPECCIÓN INTERACTIVA DE ESPECIES Y RED TRÓFICA EN ESFERA (RAYCASTING)
   // =====================================================================
   const raycaster = new THREE.Raycaster();
   raycaster.params.Points.threshold = 2.4;
@@ -1290,23 +1160,6 @@
       if (index !== undefined && index < swarmNodes.length) {
         showSpeciesInfo(index);
         return;
-      }
-    }
-  }
-
-  function checkBeaconClick(event) {
-    if (currentMorph < 0.45) return;
-    mouseVec.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseVec.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouseVec, camera);
-    const sprites = beaconInstances.map(b => b.sprite);
-    const intersects = raycaster.intersectObjects(sprites, false);
-
-    if (intersects.length > 0) {
-      const hit = intersects[0].object;
-      if (hit.userData && hit.userData.specIndex !== undefined) {
-        focusSpecies(hit.userData.specIndex, false);
       }
     }
   }
@@ -1348,9 +1201,8 @@
   });
 
   window.addEventListener("pointerdown", (e) => {
-    if (!e.target.closest("#speciesCard") && !e.target.closest("#speciesTourHUD") && !e.target.closest("#speciesTray") && !e.target.closest(".top-bar") && !e.target.closest(".bottom-experience-bar")) {
+    if (!e.target.closest("#speciesCard") && !e.target.closest("#activeTreeChip") && !e.target.closest(".top-bar") && !e.target.closest(".bottom-experience-bar") && !e.target.closest(".waypoints-bar")) {
       checkSwarmHover(e);
-      checkBeaconClick(e);
     }
   });
 
@@ -1397,12 +1249,11 @@
     if (waypointsBar) {
       waypointsBar.classList.toggle("show", targetMorph > 0.65);
     }
-    if (speciesTray) {
-      speciesTray.classList.toggle("show", targetMorph > 0.45);
-    }
-    speciesBeaconsGroup.visible = targetMorph > 0.35;
-    if (targetMorph < 0.25 && tourActive) {
-      stopSpeciesTour();
+    treeGroundIndicatorsGroup.visible = targetMorph > 0.35;
+    if (targetMorph < 0.25) {
+      if (activeTreeChip) activeTreeChip.classList.remove("show");
+      if (speciesCard && hoveredNodeId === -1) speciesCard.classList.remove("show");
+      if (tourActive) stopSpeciesTour();
     }
 
     if (soundActive && typeof triggerHarmonicChime === "function") {
@@ -1634,15 +1485,15 @@
 
     updateNetworkSwarm(time, currentMorph);
 
-    // Actualizar animación flotante de balizas y orbes 3D de árboles
-    if (speciesBeaconsGroup && speciesBeaconsGroup.visible) {
-      for (let i = 0; i < beaconInstances.length; i++) {
-        const b = beaconInstances[i];
-        const bob = Math.sin(time * 2.2 + b.phase) * 0.55;
-        b.sprite.position.y = bob;
-        b.groundRing.rotation.z = -time * 0.35;
-        const groundScale = 1.0 + Math.sin(time * 3.0 + b.phase) * 0.12;
-        b.groundRing.scale.set(groundScale, groundScale, 1.0);
+    // Actualizar animación sutil de pulso en el suelo para el árbol activo
+    if (treeGroundIndicatorsGroup && treeGroundIndicatorsGroup.visible) {
+      for (let i = 0; i < treeIndicatorMeshes.length; i++) {
+        const item = treeIndicatorMeshes[i];
+        if (item.groundRing.material.opacity > 0.05) {
+          item.groundRing.rotation.z = -time * 0.45;
+          const groundScale = 1.0 + Math.sin(time * 3.2 + item.phase) * 0.15;
+          item.groundRing.scale.set(groundScale, groundScale, 1.0);
+        }
       }
     }
 
