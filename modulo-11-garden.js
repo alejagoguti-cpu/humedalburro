@@ -33,6 +33,14 @@
   const cardDiet = document.getElementById("cardDiet");
   const cardRelations = document.getElementById("cardRelations");
 
+  // Elementos del Inspector de Cámara
+  const camInspectorBox = document.getElementById("camInspectorBox");
+  const camCoordPos = document.getElementById("camCoordPos");
+  const camCoordTarget = document.getElementById("camCoordTarget");
+  const btnSaveCameraView = document.getElementById("btnSaveCameraView");
+  const btnCloseCamInspector = document.getElementById("btnCloseCamInspector");
+  const camToast = document.getElementById("camToast");
+
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1D1D1B); // MUTED BLACK
   scene.fog = new THREE.FogExp2(0x1D1D1B, 0.0006);
@@ -48,15 +56,31 @@
   const swarmCamPos = new THREE.Vector3(0, 0, 75);
   const swarmTarget = new THREE.Vector3(0, 0, 0);
 
-  const territoryCamPos = new THREE.Vector3(180, 270, 310);
-  const territoryTarget = new THREE.Vector3(35, 0, 10);
+  // Vista territorial por defecto (o cargada desde localStorage si el usuario ya la guardó)
+  let territoryCamPos = new THREE.Vector3(180, 270, 310);
+  let territoryTarget = new THREE.Vector3(35, 0, 10);
+
+  try {
+    const savedCam = localStorage.getItem("saved_territory_cam");
+    if (savedCam) {
+      const parsed = JSON.parse(savedCam);
+      if (parsed.pos && parsed.target) {
+        territoryCamPos.set(parsed.pos.x, parsed.pos.y, parsed.pos.z);
+        territoryTarget.set(parsed.target.x, parsed.target.y, parsed.target.z);
+      }
+    }
+    if (localStorage.getItem("hide_cam_helper") === "true" && camInspectorBox) {
+      camInspectorBox.classList.add("hidden");
+    }
+  } catch(e) {}
 
   // Waypoints con coordenadas EXACTAS y verificadas con el shapefile GIS
   const waypoints = {
-    overview: { pos: territoryCamPos, target: territoryTarget },
-    burro:    { pos: new THREE.Vector3(210, 85, 95),  target: new THREE.Vector3(210, 0, -10) },   // Humedal El Burro (W[14])
-    vaca:     { pos: new THREE.Vector3(65, 80, 215),  target: new THREE.Vector3(65, 0, 125) },    // Humedal La Vaca (W[16] junto a Corabastos)
-    techo:    { pos: new THREE.Vector3(292, 80, 10),  target: new THREE.Vector3(292, 0, -80) }    // Humedal de Techo (W[18] adyacente a El Burro)
+    overview:    { pos: territoryCamPos, target: territoryTarget },
+    burro:       { pos: new THREE.Vector3(210, 85, 95),  target: new THREE.Vector3(210, 0, -10) },   // Humedal El Burro (W[14])
+    vaca:        { pos: new THREE.Vector3(65, 80, 215),  target: new THREE.Vector3(65, 0, 125) },    // Humedal La Vaca (W[16] junto a Corabastos)
+    techo:       { pos: new THREE.Vector3(292, 80, 10),  target: new THREE.Vector3(292, 0, -80) },   // Humedal de Techo (W[18] adyacente a El Burro)
+    perspective: { pos: new THREE.Vector3(204, 2.6, -14), target: new THREE.Vector3(216, 2.2, 42) } // Modo Perspectiva a nivel de agua/suelo
   };
 
   camera.position.copy(swarmCamPos);
@@ -547,9 +571,9 @@
     return fetch(WATER_URL)
       .then(r => r.json())
       .then(waterBodies => {
-        // Agua en SKY (#9ED6DF) y LAVENDER (#808BC5)
-        const colSky = new THREE.Color(0x9ED6DF);      // SKY
-        const colLavender = new THREE.Color(0x808BC5); // LAVENDER
+        // Cuerpos de Agua: Sky Aqua (#9ED6DF) puro y cristalino
+        const colSky = new THREE.Color(0x9ED6DF);      // SKY Aqua
+        const colWaterDeep = new THREE.Color(0x6CB7C6);// Water Deep tint
 
         waterBodies.forEach(w => {
           const pts = w.pts;
@@ -569,15 +593,15 @@
               const sq1 = Math.sqrt(r1);
               const wx = (1 - sq1) * pa.x + sq1 * (1 - r2) * pb.x + sq1 * r2 * pc.x;
               const wz = (1 - sq1) * pa.z + sq1 * (1 - r2) * pb.z + sq1 * r2 * pc.z;
-              const wy = 0.25 + Math.random() * 0.25;
+              const wy = 0.25 + Math.random() * 0.2;
 
               const sw = randomSwarmCluster(currentParticleIndex++);
               pTarget.push(wx, wy, wz);
               pSwarm.push(sw.x, sw.y, sw.z);
               
-              const c = (s % 2 === 0) ? colSky : colLavender;
+              const c = (s % 2 === 0) ? colSky : colWaterDeep;
               pColor.push(c.r, c.g, c.b);
-              pSize.push(1.3);
+              pSize.push(1.4);
               pPhase.push(Math.random() * 10);
               pCat.push(0.0); // 0 = agua
             }
@@ -589,7 +613,7 @@
             pTarget.push(p.x, 0.3, p.z);
             pSwarm.push(sw.x, sw.y, sw.z);
             pColor.push(colSky.r, colSky.g, colSky.b);
-            pSize.push(1.4);
+            pSize.push(1.5);
             pPhase.push(i * 0.3);
             pCat.push(0.0);
           }
@@ -604,9 +628,9 @@
     return fetch(TREES_URL)
       .then(r => r.json())
       .then(trees => {
-        // Vegetación en TEA (#245E55) con reflejos MUSTARD (#EAC119) y SKY (#9ED6DF)
+        // Vegetación en TEA GREEN (#245E55) con sutiles matices botánicos naturales
         const colTea = new THREE.Color(0x245E55);       // TEA Green
-        const colMustard = new THREE.Color(0xEAC119);   // MUSTARD Yellow
+        const colTeaLight = new THREE.Color(0x317A6F);  // Tea Light
         const colTrunk = new THREE.Color(0x1D1D1B);     // MUTED BLACK
 
         trees.forEach((t, i) => {
@@ -614,14 +638,14 @@
           const p = toScene(x, y);
           const h = Math.max(0.7, (hMeters || 8) * SCALE);
 
-          const folCol = (i % 5 === 0) ? colMustard : colTea;
+          const folCol = (i % 3 === 0) ? colTeaLight : colTea;
 
           const crownY = h * 0.85;
           const swCrown = randomSwarmCluster(currentParticleIndex++);
           pTarget.push(p.x, crownY, p.z);
           pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
           pColor.push(folCol.r, folCol.g, folCol.b);
-          pSize.push(1.4);
+          pSize.push(1.5);
           pPhase.push(i * 0.25);
           pCat.push(1.0); // 1 = arbol
 
@@ -636,8 +660,8 @@
             const swSub = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(sx, sy, sz);
             pSwarm.push(swSub.x, swSub.y, swSub.z);
-            pColor.push(folCol.r * 1.02, folCol.g * 1.02, folCol.b * 1.02);
-            pSize.push(1.2);
+            pColor.push(folCol.r, folCol.g, folCol.b);
+            pSize.push(1.3);
             pPhase.push(i + k * 1.5);
             pCat.push(1.0);
           }
@@ -673,7 +697,7 @@
             pTarget.push(a.x, 0.08, a.z);
             pSwarm.push(sw.x, sw.y, sw.z);
             pColor.push(c.r, c.g, c.b);
-            pSize.push(isMajor ? 1.2 : 0.95);
+            pSize.push(isMajor ? 1.25 : 0.95);
             pPhase.push(edgeIdx * 0.35);
             pCat.push(3.0); // 3 = via
           }
@@ -688,12 +712,10 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta de Edificios Oficial: LAVENDER (#808BC5), PINK QUARTZ (#EAA7C7), TANGERINE (#ED773C), RED PASSION (#C63F3E), MUSTARD (#EAC119)
+        // Paleta de Edificios Estricta: Únicamente 2 tonos arquitectónicos elegantes
+        // LAVENDER (#808BC5) y PINK QUARTZ (#EAA7C7) — Cero amarillo, cero sobrecarga de color
         const colLavender = new THREE.Color(0x808BC5);   // LAVENDER
         const colPinkQuartz = new THREE.Color(0xEAA7C7); // PINK QUARTZ
-        const colTangerine = new THREE.Color(0xED773C);  // TANGERINE
-        const colRedPassion = new THREE.Color(0xC63F3E); // RED PASSION
-        const colMustard = new THREE.Color(0xEAC119);    // MUSTARD YELLOW
         const colBaseGround = new THREE.Color(0x1D1D1B); // MUTED BLACK
 
         buildings.forEach((b, bIdx) => {
@@ -703,22 +725,26 @@
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.height || 10) * SCALE;
           
-          let bldgCol = colLavender;
-          if (bIdx % 5 === 0) bldgCol = colTangerine;
-          else if (bIdx % 5 === 1) bldgCol = colPinkQuartz;
-          else if (bIdx % 5 === 2) bldgCol = colRedPassion;
-          else if (bIdx % 5 === 3) bldgCol = colMustard;
+          // Estricta alternancia dual-tone (Lavender & Pink Quartz)
+          const bldgCol = (bIdx % 2 === 0) ? colLavender : colPinkQuartz;
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
-            const steps = Math.max(2, Math.floor(h / 1.5));
+            const steps = Math.max(3, Math.floor(h / 1.1));
             for (let step = 0; step <= steps; step++) {
               const y = (step / steps) * h;
               const sw = randomSwarmCluster(currentParticleIndex++);
               pTarget.push(p.x, y, p.z);
               pSwarm.push(sw.x, sw.y, sw.z);
-              pColor.push(bldgCol.r, bldgCol.g, bldgCol.b);
-              pSize.push(1.1);
+              
+              // Remate superior sutilmente más luminoso para dar volumen arquitectónico
+              const isRoof = (step === steps);
+              pColor.push(
+                isRoof ? bldgCol.r * 1.08 : bldgCol.r,
+                isRoof ? bldgCol.g * 1.08 : bldgCol.g,
+                isRoof ? bldgCol.b * 1.08 : bldgCol.b
+              );
+              pSize.push(isRoof ? 1.4 : 1.2);
               pPhase.push(bIdx + step);
               pCat.push(2.0); // 2 = edificio
             }
@@ -745,6 +771,7 @@
         rebuildTerritoryParticles();
       })
       .catch(err => console.warn("Error edificios:", err));
+  }
   }
 
   Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
@@ -972,7 +999,64 @@
   }
 
   // =====================================================================
-  // 7. SÍNTESIS DE AUDIO WEB (ECOSISTEMA & PAISAJE SONORO)
+  // 7. INSPECTOR DE CÁMARA & HERRAMIENTA "SUBIR ESTA VISTA AL EDITOR"
+  // =====================================================================
+  function updateCamInspectorDisplay() {
+    if (!camInspectorBox || camInspectorBox.classList.contains("hidden")) return;
+    if (camCoordPos) {
+      camCoordPos.textContent = `X:${camera.position.x.toFixed(1)}, Y:${camera.position.y.toFixed(1)}, Z:${camera.position.z.toFixed(1)}`;
+    }
+    if (camCoordTarget) {
+      camCoordTarget.textContent = `X:${controls.target.x.toFixed(1)}, Y:${controls.target.y.toFixed(1)}, Z:${controls.target.z.toFixed(1)}`;
+    }
+  }
+
+  controls.addEventListener("change", updateCamInspectorDisplay);
+
+  if (btnSaveCameraView) {
+    btnSaveCameraView.addEventListener("click", () => {
+      const savedState = {
+        pos: { x: Number(camera.position.x.toFixed(2)), y: Number(camera.position.y.toFixed(2)), z: Number(camera.position.z.toFixed(2)) },
+        target: { x: Number(controls.target.x.toFixed(2)), y: Number(controls.target.y.toFixed(2)), z: Number(controls.target.z.toFixed(2)) }
+      };
+
+      try {
+        localStorage.setItem("saved_territory_cam", JSON.stringify(savedState));
+        localStorage.setItem("hide_cam_helper", "true");
+      } catch(e){}
+
+      // Actualizar la vista territorial en memoria
+      territoryCamPos.set(savedState.pos.x, savedState.pos.y, savedState.pos.z);
+      territoryTarget.set(savedState.target.x, savedState.target.y, savedState.target.z);
+      waypoints.overview.pos = territoryCamPos;
+      waypoints.overview.target = territoryTarget;
+
+      // Copiar código al portapapeles para el editor
+      const snippet = `const territoryCamPos = new THREE.Vector3(${savedState.pos.x}, ${savedState.pos.y}, ${savedState.pos.z});\nconst territoryTarget = new THREE.Vector3(${savedState.target.x}, ${savedState.target.y}, ${savedState.target.z});`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(snippet).catch(() => {});
+      }
+
+      // Mostrar toast de éxito y ocultar panel de coordenadas para siempre
+      if (camToast) {
+        camToast.classList.add("show");
+        setTimeout(() => camToast.classList.remove("show"), 4000);
+      }
+      if (camInspectorBox) {
+        camInspectorBox.classList.add("hidden");
+      }
+    });
+  }
+
+  if (btnCloseCamInspector) {
+    btnCloseCamInspector.addEventListener("click", () => {
+      if (camInspectorBox) camInspectorBox.classList.add("hidden");
+      try { localStorage.setItem("hide_cam_helper", "true"); } catch(e){}
+    });
+  }
+
+  // =====================================================================
+  // 8. SÍNTESIS DE AUDIO WEB (ECOSISTEMA & PAISAJE SONORO)
   // =====================================================================
   let audioCtx = null;
   let soundActive = false;
@@ -1022,7 +1106,7 @@
   }
 
   // =====================================================================
-  // 8. BUCLE PRINCIPAL DE ANIMACIÓN
+  // 9. BUCLE PRINCIPAL DE ANIMACIÓN
   // =====================================================================
   const clock = new THREE.Clock();
 
@@ -1049,6 +1133,7 @@
     }
 
     controls.update();
+    updateCamInspectorDisplay();
     renderer.render(scene, camera);
   }
 

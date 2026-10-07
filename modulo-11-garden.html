@@ -281,6 +281,47 @@
     0% { left: 0%; width: 20%; }
     100% { left: 80%; width: 30%; }
   }
+  /* Camera Coordinate Inspector & Save View Tool */
+  #camInspectorBox {
+    position: absolute; bottom: 85px; right: 28px; z-index: 30;
+    width: 290px; padding: 14px 18px; border-radius: 14px;
+    background: rgba(20, 20, 18, 0.94); border: 1px solid var(--accent);
+    backdrop-filter: blur(20px); box-shadow: 0 12px 36px rgba(0,0,0,0.85);
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink);
+    transition: all 0.35s ease;
+  }
+  #camInspectorBox.hidden { display: none !important; }
+  .cam-inspector-header {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800;
+    color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(234, 193, 25, 0.25);
+  }
+  .cam-coord-row {
+    display: flex; justify-content: space-between; margin-bottom: 4px;
+    font-size: 10.5px; color: var(--ink-dim);
+  }
+  .cam-coord-row span { color: #EAE4DA; font-weight: 600; }
+  .cam-save-btn {
+    width: 100%; margin-top: 10px; padding: 9px 12px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), #ED773C); border: none;
+    color: #1D1D1B; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 900;
+    letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+    box-shadow: 0 0 16px var(--accent-glow); transition: all 0.25s ease;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .cam-save-btn:hover {
+    transform: translateY(-1px); box-shadow: 0 0 24px rgba(234, 193, 25, 0.8);
+  }
+  .cam-toast {
+    position: fixed; top: 78px; right: 32px; z-index: 100;
+    background: rgba(36, 94, 85, 0.95); border: 1px solid #9ED6DF;
+    color: #EAE4DA; padding: 10px 20px; border-radius: 12px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6); pointer-events: none;
+    opacity: 0; transform: translateY(-10px); transition: all 0.35s ease;
+  }
+  .cam-toast.show { opacity: 1; transform: translateY(0); }
 </style>
 
 <!-- Three.js, OrbitControls, GSAP -->
@@ -352,7 +393,7 @@
   </div>
 </div>
 
-<!-- Waypoint Buttons: Axonometría Total, Humedal El Burro, Humedal La Vaca, Humedal El Techo -->
+<!-- Waypoint Buttons: Axonometría Total, Humedal El Burro, Humedal La Vaca, Humedal El Techo, Modo Perspectiva -->
 <div class="waypoints-bar" id="waypointsBar">
   <button class="waypoint-pill active" data-waypoint="overview">
     <i class="fa-solid fa-compass"></i> Axonometría Total
@@ -366,6 +407,26 @@
   <button class="waypoint-pill" data-waypoint="techo">
     <i class="fa-solid fa-water"></i> Humedal El Techo
   </button>
+  <button class="waypoint-pill" data-waypoint="perspective" style="border-color: #9ED6DF; color: #9ED6DF;">
+    <i class="fa-solid fa-person-walking"></i> Perspectiva Humedal
+  </button>
+</div>
+
+<!-- Camera Coordinate Inspector & Save View Tool -->
+<div id="camInspectorBox">
+  <div class="cam-inspector-header">
+    <span><i class="fa-solid fa-video"></i> Ajustar Vista 3D</span>
+    <span style="cursor:pointer; opacity:0.7;" id="btnCloseCamInspector" title="Cerrar"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="cam-coord-row">Posición: <span id="camCoordPos">0, 0, 0</span></div>
+  <div class="cam-coord-row">Objetivo: <span id="camCoordTarget">0, 0, 0</span></div>
+  <button id="btnSaveCameraView" class="cam-save-btn">
+    <i class="fa-solid fa-cloud-arrow-up"></i> SUBIR ESTA VISTA AL EDITOR
+  </button>
+</div>
+
+<div id="camToast" class="cam-toast">
+  <i class="fa-solid fa-circle-check"></i> ¡Vista inicial guardada para el editor!
 </div>
 
 <!-- Bottom Minimalist Experience Bar -->
@@ -385,6 +446,6 @@
   <canvas id="sceneCanvas"></canvas>
 </div>
 
-<script src="modulo-11-garden.js?v=20261006_PALETA_OFFICIAL_100"></script>
+<script src="modulo-11-garden.js?v=20261006_CLEAN_DUAL_TONE_V2"></script>
 </body>
 </html>
