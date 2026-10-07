@@ -1756,7 +1756,20 @@ window.onerror = function(msg, url, line, col, error) {
     console.log(`Red Biótica de Kennedy generada: ${rawNodes.length} taxones con ${rawEdges.length} relaciones biológicas reales documentadas.`);
   }
 
-   {
+  buildConscientiousBioticNetwork();
+
+  // Mesh de Líneas de Interacción Dinámicas en Three.js con Colores Puros de Convención
+  const edgeGeo = new THREE.BufferGeometry();
+  const edgeMat = new THREE.LineBasicMaterial({
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.55,
+    blending: THREE.NormalBlending
+  });
+  const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
+  networkGroup.add(edgeLinesMesh);
+
+  function updateEdgeLinesGeometry() {
     const activeEdgesList = [];
     const interCounts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
