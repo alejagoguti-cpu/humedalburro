@@ -620,5 +620,16 @@ window.onerror = function(msg, url, line, col, error) {
 </div>
 
 <script src="modulo-11-garden.js"></script>
+<script>
+  // Failsafe para asegurar desaparición inmediata del velo de carga
+  setTimeout(function() {
+    var v = document.getElementById('loadingVeil');
+    if (v) {
+      v.style.opacity = '0';
+      v.style.pointerEvents = 'none';
+      setTimeout(function() { v.style.display = 'none'; }, 300);
+    }
+  }, 400);
+</script>
 </body>
 </html>

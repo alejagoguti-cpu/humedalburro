@@ -759,6 +759,8 @@
     setupEventListeners();
     updateWaypointsBar();
     renderPieCharts();
+    animate();
+    hideVeil();
   }
 
   // Setup Layouts de la Red

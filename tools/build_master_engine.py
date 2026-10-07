@@ -916,6 +916,8 @@ with open("tools/engine_template.js", "w", encoding="utf-8") as f:
     setupEventListeners();
     updateWaypointsBar();
     renderPieCharts();
+    animate();
+    hideVeil();
   }
 
   // Setup Layouts de la Red
