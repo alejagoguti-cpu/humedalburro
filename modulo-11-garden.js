@@ -372,6 +372,9 @@
     rawEdges.push({ source: sourceNode.id, target: targetNode.id });
     edgeDetailsMap[key] = { source: sourceNode.id, target: targetNode.id, type: interType, rationale: rationale || '' };
     
+    if (!sourceNode.neighbors) sourceNode.neighbors = [];
+    if (!targetNode.neighbors) targetNode.neighbors = [];
+
     if (!sourceNode.neighbors.includes(targetNode)) {
       sourceNode.neighbors.push(targetNode);
     }
@@ -409,9 +412,21 @@
     const anfNodes = rawNodes.filter(n => n.cat === 4);
     const repNodes = rawNodes.filter(n => n.cat === 5);
 
-    // Helpers de búsqueda florística y faunística
-    const findFlora = (kw) => floraNodes.filter(n => n.label.toLowerCase().includes(kw.toLowerCase()) || n.sciname.toLowerCase().includes(kw.toLowerCase()));
-    const findAve = (kw) => aveNodes.filter(n => n.label.toLowerCase().includes(kw.toLowerCase()) || n.sciname.toLowerCase().includes(kw.toLowerCase()));
+    // Helpers seguros de búsqueda florística y faunística
+    const findFlora = (kw) => {
+      const k = (kw || '').toLowerCase();
+      return floraNodes.filter(n => 
+        (n?.label || '').toLowerCase().includes(k) || 
+        (n?.sciname || '').toLowerCase().includes(k)
+      );
+    };
+    const findAve = (kw) => {
+      const k = (kw || '').toLowerCase();
+      return aveNodes.filter(n => 
+        (n?.label || '').toLowerCase().includes(k) || 
+        (n?.sciname || '').toLowerCase().includes(k)
+      );
+    };
 
     // Árboles y arbustos clave de Kennedy
     const saucoTrees   = findFlora('sauco');
@@ -434,14 +449,13 @@
     // 1. POLINIZACIÓN Y FORRAJE DE NÉCTAR (#A386A9 - Lavanda)
     // Colibríes, mariposas, murciélagos con flores tubulares y melíferas
     const nectarAves = aveNodes.filter(a => {
-      const n = a.label.toLowerCase();
-      return n.includes('colibrí') || n.includes('colibri') || n.includes('calzadito') || n.includes('brillante') || n.includes('picaflor') || n.includes('chipe') || n.includes('reinita');
+      const n = (a?.label || '').toLowerCase();
+      return n.includes('colibr') || n.includes('calzadito') || n.includes('brillante') || n.includes('picaflor') || n.includes('chipe') || n.includes('reinita');
     });
 
     const melliferousFlora = [...chicalaTrees, ...saucoTrees, ...abutilonTrees, ...cayenoTrees, ...arrayanTrees, ...chilcoTrees];
 
     nectarAves.forEach((av, i) => {
-      // Cada colibrí/chipe visita entre 3 y 6 especies de árboles melíferos
       const targets = melliferousFlora.slice(i % 5, (i % 5) + 5);
       targets.forEach(fl => {
         addConscientiousEdge(av, fl, INTER_TYPES.POLLINATION, 'Visita floral para forrajeo de néctar y polinización entomófila/ornitófila');
@@ -451,8 +465,8 @@
     // 2. FRUGIVORÍA Y DISPERSIÓN ZOÓCORA DE SEMILLAS (#E69888 - Terracota Claro)
     // Mirlas, Tángaras, Torcazas, Calandrias, Zorzal, Pericos, Ardillas
     const frugivoreAves = aveNodes.filter(a => {
-      const n = a.label.toLowerCase();
-      return n.includes('mirla') || n.includes('tángara') || n.includes('tangara') || n.includes('torcaza') || n.includes('paloma') || n.includes('calandria') || n.includes('zorzal') || n.includes('centzontle') || n.includes('perico') || n.includes('periquito') || n.includes('tucancito') || n.includes('canario') || n.includes('turpial');
+      const n = (a?.label || '').toLowerCase();
+      return n.includes('mirla') || n.includes('tangar') || n.includes('torcaza') || n.includes('paloma') || n.includes('calandria') || n.includes('zorzal') || n.includes('centzontle') || n.includes('perico') || n.includes('periquito') || n.includes('tucancito') || n.includes('canario') || n.includes('turpial');
     });
 
     const fleshyFruitFlora = [...cauchoTrees, ...saucoTrees, ...cerezoTrees, ...eugeniaTrees, ...pimientoTrees, ...arrayanTrees, ...alisoTrees];
@@ -474,8 +488,8 @@
     // 3. NIDIFICACIÓN, PERCHA Y REFUGIO (#F79E70 - Naranja / #D1A996 - Anidamiento)
     // Aves de dosel, copetones, cucaracheros y rapaces en arbolado
     const perchingAves = aveNodes.filter(a => {
-      const n = a.label.toLowerCase();
-      return n.includes('copetón') || n.includes('cucarachero') || n.includes('tirano') || n.includes('papamoscas') || n.includes('sirirí') || n.includes('búho') || n.includes('gavilán') || n.includes('águila') || n.includes('halcón') || n.includes('lechuza') || n.includes('autillo') || n.includes('garza') || n.includes('garceta');
+      const n = (a?.label || '').toLowerCase();
+      return n.includes('copeton') || n.includes('copetón') || n.includes('cucarachero') || n.includes('tirano') || n.includes('papamoscas') || n.includes('siriri') || n.includes('sirirí') || n.includes('buho') || n.includes('búho') || n.includes('gavilan') || n.includes('gavilán') || n.includes('aguila') || n.includes('águila') || n.includes('halcon') || n.includes('halcón') || n.includes('lechuza') || n.includes('autillo') || n.includes('garza') || n.includes('garceta');
     });
 
     const shelterTrees = [...urapanTrees, ...alisoTrees, ...sauceTrees, ...acaciaTrees, ...cauchoTrees, ...robleTrees, ...palmaTrees];
@@ -483,15 +497,16 @@
     perchingAves.forEach((pa, i) => {
       const targets = shelterTrees.slice(i % 6, (i % 6) + 4);
       targets.forEach(tr => {
-        const isRaptor = pa.label.toLowerCase().includes('búho') || pa.label.toLowerCase().includes('gavilán') || pa.label.toLowerCase().includes('águila');
+        const pal = (pa?.label || '').toLowerCase();
+        const isRaptor = pal.includes('buho') || pal.includes('búho') || pal.includes('gavilan') || pal.includes('gavilán') || pal.includes('aguila') || pal.includes('águila');
         addConscientiousEdge(pa, tr, isRaptor ? INTER_TYPES.NEST_SITE : INTER_TYPES.NESTING, 'Sitio de percha de vigilancia, descanso y anclaje de nidos en ramas de dosel');
       });
     });
 
     // Aves acuáticas y anidamiento en vegetación litoral de humedal
     const marshAves = aveNodes.filter(a => {
-      const n = a.label.toLowerCase();
-      return n.includes('tingua') || n.includes('pato') || n.includes('focha') || n.includes('gallineta') || n.includes('burrito') || n.includes('rascón') || n.includes('playero') || n.includes('chorlo');
+      const n = (a?.label || '').toLowerCase();
+      return n.includes('tingua') || n.includes('pato') || n.includes('focha') || n.includes('gallineta') || n.includes('burrito') || n.includes('rascon') || n.includes('rascón') || n.includes('playero') || n.includes('chorlo');
     });
 
     const wetlandFlora = [...sauceTrees, ...alisoTrees, ...chilcoTrees, floraNodes.slice(0, 8)];
@@ -518,8 +533,8 @@
     // 5. DEPREDACIÓN DIRECTA (#C96349 - Terracota Oscuro)
     // A) Rapaces diurnas y nocturnas cazan roedores, anfibios y paseriformes menores
     const raptors = aveNodes.filter(a => {
-      const n = a.label.toLowerCase();
-      return n.includes('búho') || n.includes('gavilán') || n.includes('águila') || n.includes('cernícalo') || n.includes('halcón') || n.includes('autillo') || n.includes('carancho');
+      const n = (a?.label || '').toLowerCase();
+      return n.includes('buho') || n.includes('búho') || n.includes('gavilan') || n.includes('gavilán') || n.includes('aguila') || n.includes('águila') || n.includes('cernicalo') || n.includes('cernícalo') || n.includes('halcon') || n.includes('halcón') || n.includes('autillo') || n.includes('carancho');
     });
 
     raptors.forEach((rp, i) => {
@@ -530,14 +545,20 @@
     });
 
     // B) Garzas y aves pescadoras cazan anfibios e invertebrados
-    const garzas = aveNodes.filter(a => a.label.toLowerCase().includes('garza') || a.label.toLowerCase().includes('garceta') || a.label.toLowerCase().includes('guaco') || a.label.toLowerCase().includes('carrao'));
+    const garzas = aveNodes.filter(a => {
+      const n = (a?.label || '').toLowerCase();
+      return n.includes('garza') || n.includes('garceta') || n.includes('guaco') || n.includes('carrao');
+    });
     garzas.forEach(gz => {
       anfNodes.forEach(an => addConscientiousEdge(gz, an, INTER_TYPES.PREDATION, 'Caza paciente de anuros y renacuajos en láminas de agua'));
       molNodes.forEach(mol => addConscientiousEdge(gz, mol, INTER_TYPES.PREDATION, 'Depredación malacófaga de caracoles y babosas de humedal'));
     });
 
     // C) Tinguas y patos consumen moluscos
-    const malacophages = aveNodes.filter(a => a.label.toLowerCase().includes('tingua') || a.label.toLowerCase().includes('carrao') || a.label.toLowerCase().includes('cuervillo'));
+    const malacophages = aveNodes.filter(a => {
+      const n = (a?.label || '').toLowerCase();
+      return n.includes('tingua') || n.includes('carrao') || n.includes('cuervillo');
+    });
     malacophages.forEach(av => {
       molNodes.forEach(mol => addConscientiousEdge(av, mol, INTER_TYPES.PREDATION, 'Regulación biológica de poblaciones de gasterópodos acuáticos'));
     });
@@ -566,44 +587,7 @@
     }
 
     console.log(`Red Biótica de Kennedy generada: ${rawNodes.length} taxones con ${rawEdges.length} relaciones biológicas reales documentadas.`);
-  }
-
-  buildConscientiousBioticNetwork();
-
-  // Mesh de Líneas de Interacción Dinámicas en Three.js con Colores Puros de Convención
-  const edgeGeo = new THREE.BufferGeometry();
-  const edgeMat = new THREE.LineBasicMaterial({
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.55,
-    blending: THREE.NormalBlending
   });
-  const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
-  networkGroup.add(edgeLinesMesh);
-
-  function updateEdgeLinesGeometry() {
-    const activeEdgesList = [];
-    const interCounts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
-
-    rawEdges.forEach((e) => {
-      const na = rawNodes[e.source];
-      const nb = rawNodes[e.target];
-      if (!na || !nb) return;
-      const key = na.id < nb.id ? `${na.id}_${nb.id}` : `${nb.id}_${na.id}`;
-      const inter = edgeDetailsMap[key]?.type || getInteractionInfo(na, nb);
-      const typeId = inter.id;
-
-      if (interCounts[typeId] !== undefined) {
-        interCounts[typeId]++;
-      }
-
-      const isInterActive = (opts.interactions[typeId] !== false);
-      const isNodesActive = na.active && nb.active;
-
-      if (isInterActive && isNodesActive) {
-        activeEdgesList.push({ na, nb, inter });
-      }
-    });
 
     // Actualizar contadores de interacciones en el panel lateral
     for (let i = 0; i <= 8; i++) {
