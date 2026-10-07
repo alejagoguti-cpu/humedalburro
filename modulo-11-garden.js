@@ -194,6 +194,190 @@
     { common: "Curí Sabanero", scientific: "Cavia aperea", taxon: "Mammalia", icon: "fa-paw", habitat: "Pastizales inundables y rondas", diet: "Gramíneas, pasto kikuyo y hojas", relations: ["Herbívoro primario", "Presa clave", "Túneles ecológicos"], color: 0x2E8B57 }
   ];
 
+  // Catálogo Georreferenciado Exacto de Especies y Árboles en Kennedy (Censo Forestal Real & Humedales)
+  const SPECIES_GEO_NODES = [
+    {
+      id: "sauco",
+      name: "Sauco del Humedal",
+      sci: "Sambucus nigra",
+      type: "Flora / Árbol Nativo",
+      count: "5,553 árboles",
+      avgHeight: "3.1 m (hasta 8 m)",
+      img: "./assets/inat_sauco.png",
+      pos: { x: 221, y: 14, z: 125 },
+      camPos: { x: 221, y: 55, z: 185 },
+      camTarget: { x: 221, y: 0, z: 125 },
+      habitat: "Bosque ripario y orillas de El Burro",
+      role: "Fitorremediación de taludes, néctar para polinizadores y alimento primario de aves acuáticas y migratorias.",
+      color: 0x2E8B57
+    },
+    {
+      id: "capulin",
+      name: "Capulí / Cerezo",
+      sci: "Prunus serotina",
+      type: "Flora / Árbol Frutal Silvestre",
+      count: "1,901 árboles",
+      avgHeight: "3.7 m (hasta 12 m)",
+      img: "./assets/inat_capulin.png",
+      pos: { x: 209, y: 15, z: 141 },
+      camPos: { x: 209, y: 60, z: 200 },
+      camTarget: { x: 209, y: 0, z: 141 },
+      habitat: "Borde de quebradas, rondas hidráulicas y reservas",
+      role: "Frutos dulces esenciales para aves frugívoras y murciélagos, atracción de abejas nativas y enriquecimiento del suelo.",
+      color: 0x48BB78
+    },
+    {
+      id: "urapan",
+      name: "Urapán / Fresno",
+      sci: "Fraxinus chinensis",
+      type: "Flora / Árbol de Dosel Alto",
+      count: "3,113 árboles",
+      avgHeight: "8.5 m (hasta 20 m)",
+      img: "./assets/cx_urapan.png",
+      pos: { x: 251, y: 22, z: 142 },
+      camPos: { x: 251, y: 75, z: 205 },
+      camTarget: { x: 251, y: 0, z: 142 },
+      habitat: "Dosel urbano, parques y corredores biológicos de Kennedy",
+      role: "Árbol de gran porte que conforma el estrato alto, percha preferida de gavilanes y rapaces, y capturador masivo de CO2.",
+      color: 0x2E8B57
+    },
+    {
+      id: "chicala",
+      name: "Chicalá / Flor Amarillo",
+      sci: "Tecoma stans",
+      type: "Flora / Árbol Melífero",
+      count: "6,884 árboles",
+      avgHeight: "2.6 m (hasta 6 m)",
+      img: "./assets/inat_timboco.png",
+      pos: { x: 210, y: 14, z: 96 },
+      camPos: { x: 210, y: 55, z: 155 },
+      camTarget: { x: 210, y: 0, z: 96 },
+      habitat: "Parques zonales, separadores y bordes de humedal",
+      role: "Floración dorada continua que nutre colibríes y abejorros sabaneros a lo largo de todo el año.",
+      color: 0xEAC119
+    },
+    {
+      id: "caucho",
+      name: "Caucho Sabanero",
+      sci: "Ficus soatensis",
+      type: "Flora / Árbol Nativo Emblemático",
+      count: "2,860 árboles",
+      avgHeight: "6.3 m (hasta 15 m)",
+      img: "./assets/inat_espino.png",
+      pos: { x: 172, y: 18, z: 138 },
+      camPos: { x: 172, y: 65, z: 198 },
+      camTarget: { x: 172, y: 0, z: 138 },
+      habitat: "Borde de lagunas y rondas de conservación",
+      role: "Copas densas perennes que regulan la temperatura microclimática y ofrecen refugio a colonias de aves.",
+      color: 0x2E8B57
+    },
+    {
+      id: "aliso",
+      name: "Aliso Sabanero",
+      sci: "Alnus acuminata",
+      type: "Flora / Árbol Fijador de Nitrógeno",
+      count: "1,058 árboles",
+      avgHeight: "2.7 m (hasta 12 m)",
+      img: "./assets/inat_chilca.png",
+      pos: { x: 203, y: 15, z: -102 },
+      camPos: { x: 203, y: 55, z: -45 },
+      camTarget: { x: 203, y: 0, z: -102 },
+      habitat: "Rondas inundables y riberas del Río Bogotá",
+      role: "Fijación simbiótica de nitrógeno que recupera suelos degradados y previene la erosión hídrica.",
+      color: 0x48BB78
+    },
+    {
+      id: "junco",
+      name: "Junco de Agua",
+      sci: "Schoenoplectus californicus",
+      type: "Macrófita Emergente",
+      count: "14,200 matas",
+      avgHeight: "2.2 m",
+      img: "./assets/inat_juncal.png",
+      pos: { x: 210, y: 9, z: -10 },
+      camPos: { x: 210, y: 45, z: 45 },
+      camTarget: { x: 210, y: 0, z: -10 },
+      habitat: "Espejos de agua y lámina permanente de El Burro",
+      role: "Biofiltro natural de metales pesados y sitio exclusivo de nidación de la amenazada Tingua Bogotana.",
+      color: 0x00B4D8
+    },
+    {
+      id: "tingua",
+      name: "Tingua Bogotana",
+      sci: "Rallus semiplumbeus",
+      type: "Fauna / Ave Acuática Endémica",
+      count: "320 individuos",
+      avgHeight: "28 cm de longitud",
+      img: "./assets/tingua.png",
+      pos: { x: 216, y: 8, z: 5 },
+      camPos: { x: 216, y: 40, z: 55 },
+      camTarget: { x: 216, y: 0, z: 5 },
+      habitat: "Juncales densos de El Burro y La Vaca",
+      role: "Especie paraguas del altiplano cundiboyacense en peligro de extinción, bioindicador de aguas limpias.",
+      color: 0x00B4D8
+    },
+    {
+      id: "garza",
+      name: "Garza Real",
+      sci: "Ardea alba",
+      type: "Fauna / Ave Pescadora",
+      count: "180 individuos",
+      avgHeight: "90 cm de envergadura",
+      img: "./assets/inat_garza.png",
+      pos: { x: 228, y: 11, z: -25 },
+      camPos: { x: 228, y: 45, z: 30 },
+      camTarget: { x: 228, y: 0, z: -25 },
+      habitat: "Orillas lodosas y aguas someras de El Burro",
+      role: "Control poblacional de peces invasores (guppy) y anfibios en las lagunas de Kennedy.",
+      color: 0x00B4D8
+    },
+    {
+      id: "rana",
+      name: "Rana Sabanera",
+      sci: "Dendropsophus molitor",
+      type: "Fauna / Anfibio Silvestre",
+      count: "8,500 individuos",
+      avgHeight: "4.5 cm",
+      img: "./assets/inat_rana.png",
+      pos: { x: 195, y: 7, z: -18 },
+      camPos: { x: 195, y: 35, z: 30 },
+      camTarget: { x: 195, y: 0, z: -18 },
+      habitat: "Espejos de agua lénticos y hojarasca húmeda",
+      role: "Control biológico masivo de zancudos y larvas, y presa esencial para la avifauna del humedal.",
+      color: 0x48BB78
+    },
+    {
+      id: "pato",
+      name: "Pato Turrio",
+      sci: "Oxyura jamaicensis",
+      type: "Fauna / Ave Buceadora",
+      count: "240 individuos",
+      avgHeight: "43 cm",
+      img: "./assets/inat_oxyura.png",
+      pos: { x: 65, y: 10, z: 125 },
+      camPos: { x: 65, y: 45, z: 180 },
+      camTarget: { x: 65, y: 0, z: 125 },
+      habitat: "Laguna profunda del Humedal La Vaca",
+      role: "Buceador que remueve sedimentos del fondo, oxigenando el lecho lacustre y consumiendo larvas bentónicas.",
+      color: 0x00B4D8
+    },
+    {
+      id: "mariposa",
+      name: "Mariposa Espejito / Polinizadores",
+      sci: "Dione vanillae",
+      type: "Fauna / Insecto Polinizador",
+      count: "9,800 individuos",
+      avgHeight: "7 cm de envergadura",
+      img: "./assets/inat_mariposa.png",
+      pos: { x: 235, y: 13, z: -60 },
+      camPos: { x: 235, y: 50, z: -10 },
+      camTarget: { x: 235, y: 0, z: -60 },
+      habitat: "Jardines florales, pasifloras y copas de Saucos",
+      role: "Polinizadora diurna indispensable que mantiene la diversidad genética de las plantas con flor de Kennedy.",
+      color: 0xE2D9CC
+    }
+  ];
+
   // =====================================================================
   // 2. RED BIÓTICA: ATRACTOR GENERATIVO FLUIDO (TOUCHDESIGNER VORTEX CLOUD)
   // =====================================================================
@@ -780,7 +964,305 @@
   });
 
   // =====================================================================
-  // 5. INSPECCIÓN INTERACTIVA DE ESPECIES Y RED TRÓFICA (RAYCASTING)
+  // 5.1 BALIZAS Y ORBES 3D FLOTANTES DE ESPECIES Y CENSO FORESTAL
+  // =====================================================================
+  const speciesBeaconsGroup = new THREE.Group();
+  speciesBeaconsGroup.visible = false;
+  sceneRoot.add(speciesBeaconsGroup);
+
+  const beaconInstances = [];
+
+  function createCircularSpriteTexture(imgSrc, colorHex) {
+    const cvs = document.createElement("canvas");
+    cvs.width = 128;
+    cvs.height = 128;
+    const ctx = cvs.getContext("2d");
+
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = imgSrc;
+    
+    const tex = new THREE.CanvasTexture(cvs);
+    
+    img.onload = () => {
+      ctx.clearRect(0, 0, 128, 128);
+      ctx.save();
+      
+      // Fondo y resplandor circular exterior
+      ctx.beginPath();
+      ctx.arc(64, 64, 60, 0, Math.PI * 2);
+      ctx.strokeStyle = colorHex;
+      ctx.lineWidth = 8;
+      ctx.shadowColor = colorHex;
+      ctx.shadowBlur = 14;
+      ctx.stroke();
+
+      // Recorte circular nítido de la fotografía
+      ctx.beginPath();
+      ctx.arc(64, 64, 54, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      
+      ctx.drawImage(img, 10, 10, 108, 108);
+      ctx.restore();
+      
+      tex.needsUpdate = true;
+    };
+    
+    return tex;
+  }
+
+  function buildSpecies3DBeacons() {
+    speciesBeaconsGroup.clear();
+    beaconInstances.length = 0;
+
+    SPECIES_GEO_NODES.forEach((spec, idx) => {
+      const group = new THREE.Group();
+      group.position.set(spec.pos.x, spec.pos.y, spec.pos.z);
+
+      const col = new THREE.Color(spec.color);
+      const hexStr = '#' + col.getHexString();
+
+      // 1. Orbe Fotográfico Flotante (Sprite Billboard)
+      const spriteMat = new THREE.SpriteMaterial({
+        map: createCircularSpriteTexture(spec.img, hexStr),
+        transparent: true,
+        depthWrite: false
+      });
+      const sprite = new THREE.Sprite(spriteMat);
+      sprite.scale.set(13.5, 13.5, 1);
+      sprite.position.set(0, 0, 0);
+      sprite.userData = { specIndex: idx, species: spec };
+      group.add(sprite);
+
+      // 2. Anillo de Luz Halógena Concéntrico
+      const ringGeo = new THREE.RingGeometry(6.6, 7.8, 36);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: col,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending
+      });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      group.add(ringMesh);
+
+      // 3. Haz de Luz Vertical / Rayo Láser Conector al Suelo
+      const stemHeight = spec.pos.y;
+      const stemGeo = new THREE.CylinderGeometry(0.18, 0.28, stemHeight, 8);
+      const stemMat = new THREE.MeshBasicMaterial({
+        color: col,
+        transparent: true,
+        opacity: 0.45,
+        blending: THREE.AdditiveBlending
+      });
+      const stemMesh = new THREE.Mesh(stemGeo, stemMat);
+      stemMesh.position.set(0, -stemHeight / 2, 0);
+      group.add(stemMesh);
+
+      // 4. Baliza Pulsante en el Suelo del Bosque / Humedal
+      const groundRingGeo = new THREE.RingGeometry(1.6, 4.8, 36);
+      const groundRingMat = new THREE.MeshBasicMaterial({
+        color: col,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+      });
+      const groundRing = new THREE.Mesh(groundRingGeo, groundRingMat);
+      groundRing.rotation.x = -Math.PI / 2;
+      groundRing.position.set(0, -stemHeight + 0.15, 0);
+      group.add(groundRing);
+
+      speciesBeaconsGroup.add(group);
+
+      beaconInstances.push({
+        group,
+        sprite,
+        ringMesh,
+        groundRing,
+        spec,
+        baseY: spec.pos.y,
+        phase: idx * 0.75,
+        baseScale: 13.5
+      });
+    });
+  }
+
+  buildSpecies3DBeacons();
+
+  // =====================================================================
+  // 5.2 CONTROLADOR DEL RECORRIDO BOTÁNICO Y FAUNÍSTICO (TOUR MODE)
+  // =====================================================================
+  let tourActive = false;
+  let tourIndex = 0;
+  let tourPlaying = true;
+  let tourTimer = null;
+
+  const speciesTourHUD = document.getElementById("speciesTourHUD");
+  const tourImg = document.getElementById("tourImg");
+  const tourTitle = document.getElementById("tourTitle");
+  const tourSci = document.getElementById("tourSci");
+  const tourType = document.getElementById("tourType");
+  const tourCount = document.getElementById("tourCount");
+  const tourHeight = document.getElementById("tourHeight");
+  const tourDesc = document.getElementById("tourDesc");
+  const tourStepInfo = document.getElementById("tourStepInfo");
+  const btnTourPrev = document.getElementById("btnTourPrev");
+  const btnTourNext = document.getElementById("btnTourNext");
+  const btnTourPlayPause = document.getElementById("btnTourPlayPause");
+  const btnTourClose = document.getElementById("btnTourClose");
+  const btnTourSpecies = document.getElementById("btnTourSpecies");
+  const speciesTray = document.getElementById("speciesTray");
+
+  function populateSpeciesTray() {
+    if (!speciesTray) return;
+    speciesTray.innerHTML = "";
+    SPECIES_GEO_NODES.forEach((spec, idx) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "species-chip";
+      chip.innerHTML = `<img src="${spec.img}" alt="${spec.name}"> <span>${spec.name.split('/')[0].trim()}</span>`;
+      chip.addEventListener("click", () => {
+        focusSpecies(idx, false);
+      });
+      speciesTray.appendChild(chip);
+    });
+  }
+
+  populateSpeciesTray();
+
+  function focusSpecies(idx, autoTour = false) {
+    if (idx < 0 || idx >= SPECIES_GEO_NODES.length) return;
+    tourIndex = idx;
+    const spec = SPECIES_GEO_NODES[idx];
+
+    // Si aún estamos en la red inicial, materializar territorio automáticamente
+    if (currentMorph < 0.45) {
+      animateToStage(1.0);
+    }
+
+    // Actualizar ficha HUD
+    if (tourImg) tourImg.src = spec.img;
+    if (tourTitle) tourTitle.textContent = spec.name;
+    if (tourSci) tourSci.textContent = spec.sci;
+    if (tourType) tourType.textContent = spec.type;
+    if (tourCount) tourCount.textContent = spec.count;
+    if (tourHeight) tourHeight.textContent = spec.avgHeight;
+    if (tourDesc) tourDesc.innerHTML = `<span>Rol Ecológico:</span> ${spec.role}`;
+    if (tourStepInfo) tourStepInfo.textContent = `${idx + 1} / ${SPECIES_GEO_NODES.length}`;
+
+    if (speciesTourHUD) speciesTourHUD.classList.add("show");
+
+    // Resaltar chip activo en la bandeja inferior
+    if (speciesTray) {
+      const chips = speciesTray.querySelectorAll(".species-chip");
+      chips.forEach((c, i) => c.classList.toggle("active", i === idx));
+      if (chips[idx]) chips[idx].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+
+    // Transición suave de cámara hacia el conglomerado de la especie
+    if (window.gsap) {
+      gsap.to(camera.position, {
+        x: spec.camPos.x,
+        y: spec.camPos.y,
+        z: spec.camPos.z,
+        duration: 2.4,
+        ease: "power2.inOut"
+      });
+      gsap.to(controls.target, {
+        x: spec.camTarget.x,
+        y: spec.camTarget.y,
+        z: spec.camTarget.z,
+        duration: 2.4,
+        ease: "power2.inOut"
+      });
+    }
+
+    // Resaltar la baliza 3D activa (escala y brillo)
+    beaconInstances.forEach((b, i) => {
+      const isCur = (i === idx);
+      if (window.gsap) {
+        gsap.to(b.sprite.scale, {
+          x: isCur ? 21 : 13.5,
+          y: isCur ? 21 : 13.5,
+          duration: 0.6,
+          ease: "back.out(1.8)"
+        });
+      }
+      b.ringMesh.material.opacity = isCur ? 1.0 : 0.35;
+    });
+
+    if (soundActive && typeof triggerHarmonicChime === "function") {
+      triggerHarmonicChime(0.5 + (idx / SPECIES_GEO_NODES.length) * 0.5);
+    }
+  }
+
+  function startSpeciesTour() {
+    tourActive = true;
+    tourPlaying = true;
+    if (btnTourPlayPause) btnTourPlayPause.innerHTML = '<i class="fa-solid fa-pause"></i> Pausar';
+    if (btnTourSpecies) btnTourSpecies.classList.add("active");
+    focusSpecies(tourIndex, true);
+
+    clearInterval(tourTimer);
+    tourTimer = setInterval(() => {
+      if (!tourPlaying) return;
+      tourIndex = (tourIndex + 1) % SPECIES_GEO_NODES.length;
+      focusSpecies(tourIndex, true);
+    }, 7000);
+  }
+
+  function stopSpeciesTour() {
+    tourActive = false;
+    clearInterval(tourTimer);
+    if (speciesTourHUD) speciesTourHUD.classList.remove("show");
+    if (btnTourSpecies) btnTourSpecies.classList.remove("active");
+    beaconInstances.forEach(b => {
+      if (window.gsap) gsap.to(b.sprite.scale, { x: 13.5, y: 13.5, duration: 0.4 });
+      b.ringMesh.material.opacity = 0.85;
+    });
+  }
+
+  if (btnTourSpecies) {
+    btnTourSpecies.addEventListener("click", () => {
+      if (tourActive && tourPlaying) {
+        stopSpeciesTour();
+      } else {
+        startSpeciesTour();
+      }
+    });
+  }
+
+  if (btnTourPlayPause) {
+    btnTourPlayPause.addEventListener("click", () => {
+      tourPlaying = !tourPlaying;
+      btnTourPlayPause.innerHTML = tourPlaying ? '<i class="fa-solid fa-pause"></i> Pausar' : '<i class="fa-solid fa-play"></i> Reanudar';
+    });
+  }
+
+  if (btnTourNext) {
+    btnTourNext.addEventListener("click", () => {
+      tourIndex = (tourIndex + 1) % SPECIES_GEO_NODES.length;
+      focusSpecies(tourIndex, false);
+    });
+  }
+
+  if (btnTourPrev) {
+    btnTourPrev.addEventListener("click", () => {
+      tourIndex = (tourIndex - 1 + SPECIES_GEO_NODES.length) % SPECIES_GEO_NODES.length;
+      focusSpecies(tourIndex, false);
+    });
+  }
+
+  if (btnTourClose) {
+    btnTourClose.addEventListener("click", () => {
+      stopSpeciesTour();
+    });
+  }
+
+  // =====================================================================
+  // 5.3 INSPECCIÓN INTERACTIVA DE ESPECIES Y RED TRÓFICA (RAYCASTING)
   // =====================================================================
   const raycaster = new THREE.Raycaster();
   raycaster.params.Points.threshold = 2.4;
@@ -801,6 +1283,23 @@
       if (index !== undefined && index < swarmNodes.length) {
         showSpeciesInfo(index);
         return;
+      }
+    }
+  }
+
+  function checkBeaconClick(event) {
+    if (currentMorph < 0.45) return;
+    mouseVec.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseVec.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouseVec, camera);
+    const sprites = beaconInstances.map(b => b.sprite);
+    const intersects = raycaster.intersectObjects(sprites, false);
+
+    if (intersects.length > 0) {
+      const hit = intersects[0].object;
+      if (hit.userData && hit.userData.specIndex !== undefined) {
+        focusSpecies(hit.userData.specIndex, false);
       }
     }
   }
@@ -842,8 +1341,9 @@
   });
 
   window.addEventListener("pointerdown", (e) => {
-    if (!e.target.closest("#speciesCard") && !e.target.closest(".top-bar") && !e.target.closest(".bottom-experience-bar")) {
+    if (!e.target.closest("#speciesCard") && !e.target.closest("#speciesTourHUD") && !e.target.closest("#speciesTray") && !e.target.closest(".top-bar") && !e.target.closest(".bottom-experience-bar")) {
       checkSwarmHover(e);
+      checkBeaconClick(e);
     }
   });
 
@@ -889,6 +1389,13 @@
     }
     if (waypointsBar) {
       waypointsBar.classList.toggle("show", targetMorph > 0.65);
+    }
+    if (speciesTray) {
+      speciesTray.classList.toggle("show", targetMorph > 0.45);
+    }
+    speciesBeaconsGroup.visible = targetMorph > 0.35;
+    if (targetMorph < 0.25 && tourActive) {
+      stopSpeciesTour();
     }
 
     if (soundActive && typeof triggerHarmonicChime === "function") {
@@ -1119,6 +1626,20 @@
     particleUniforms.uTime.value = time;
 
     updateNetworkSwarm(time, currentMorph);
+
+    // Actualizar animación flotante de balizas y orbes 3D de especies
+    if (speciesBeaconsGroup && speciesBeaconsGroup.visible) {
+      for (let i = 0; i < beaconInstances.length; i++) {
+        const b = beaconInstances[i];
+        const bob = Math.sin(time * 2.2 + b.phase) * 0.75;
+        b.sprite.position.y = bob;
+        b.ringMesh.position.y = bob;
+        b.ringMesh.rotation.z = time * 0.5 + b.phase;
+        b.groundRing.rotation.z = -time * 0.35;
+        const groundScale = 1.0 + Math.sin(time * 3.0 + b.phase) * 0.15;
+        b.groundRing.scale.set(groundScale, groundScale, 1.0);
+      }
+    }
 
     if (cinemaRunning && isTerritory) {
       cinemaAngle += delta * 0.18;

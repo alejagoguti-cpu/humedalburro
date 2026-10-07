@@ -322,6 +322,111 @@
     opacity: 0; transform: translateY(-10px); transition: all 0.35s ease;
   }
   .cam-toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Tour Button Pulse */
+  .tour-pulse-btn {
+    background: linear-gradient(135deg, rgba(46, 139, 87, 0.35), rgba(0, 180, 216, 0.35)) !important;
+    border-color: #48BB78 !important; color: #EAE4DA !important;
+    animation: tourGlow 2.4s ease-in-out infinite alternate;
+  }
+  @keyframes tourGlow {
+    0% { box-shadow: 0 0 10px rgba(72, 187, 120, 0.2); }
+    100% { box-shadow: 0 0 24px rgba(72, 187, 120, 0.7); }
+  }
+
+  /* Species Spotlight HUD (Tour & Focus Mode) */
+  #speciesTourHUD {
+    position: absolute; top: 88px; left: 32px; z-index: 25;
+    width: 360px; padding: 18px 22px; border-radius: 18px;
+    background: rgba(20, 20, 24, 0.95); border: 1px solid rgba(0, 180, 216, 0.4);
+    backdrop-filter: blur(28px); box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+    pointer-events: auto; opacity: 0; transform: translateY(-12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  #speciesTourHUD.show { opacity: 1; transform: translateY(0); }
+  .tour-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+  }
+  .tour-avatar {
+    width: 60px; height: 60px; border-radius: 50%;
+    border: 2px solid var(--water); box-shadow: 0 0 20px rgba(0, 180, 216, 0.6);
+    object-fit: cover; background: #141416; flex-shrink: 0;
+  }
+  .tour-title-area h2 {
+    font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 900;
+    color: #EAE4DA; line-height: 1.2;
+  }
+  .tour-title-area em {
+    font-size: 11.5px; color: #00B4D8; font-style: italic; display: block; margin-top: 2px;
+  }
+  .tour-type-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; background: rgba(46, 139, 87, 0.25);
+    border: 1px solid #48BB78; color: #48BB78; margin-top: 4px;
+  }
+  .tour-stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0;
+    padding: 10px; border-radius: 10px; background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(234, 228, 218, 0.1);
+  }
+  .tour-stat-item {
+    font-size: 10px; color: var(--ink-dim);
+  }
+  .tour-stat-item strong {
+    display: block; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    color: #EAE4DA; margin-top: 1px; font-weight: 700;
+  }
+  .tour-role-desc {
+    font-size: 11.5px; color: var(--ink-dim); line-height: 1.5; margin-bottom: 14px;
+  }
+  .tour-role-desc span { color: #EAE4DA; font-weight: 600; }
+  .tour-controls-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding-top: 10px; border-top: 1px solid rgba(234, 228, 218, 0.12);
+  }
+  .tour-ctrl-btn {
+    padding: 6px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--panel-border); color: var(--ink); font-size: 10px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tour-ctrl-btn:hover {
+    background: var(--water); color: #141416; border-color: var(--water);
+    box-shadow: 0 0 14px rgba(0, 180, 216, 0.5);
+  }
+  .tour-step-info {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-dim);
+  }
+
+  /* Species Tray Carousel at Bottom */
+  #speciesTray {
+    position: absolute; bottom: 82px; left: 50%; transform: translateX(-50%); z-index: 15;
+    display: flex; align-items: center; gap: 8px; padding: 6px 14px;
+    background: rgba(20, 20, 24, 0.88); border: 1px solid rgba(0, 180, 216, 0.3);
+    border-radius: 36px; backdrop-filter: blur(20px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.8); pointer-events: auto;
+    max-width: 92vw; overflow-x: auto; scrollbar-width: none;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+  }
+  #speciesTray.show { opacity: 1; pointer-events: auto; }
+  #speciesTray::-webkit-scrollbar { display: none; }
+  .species-chip {
+    display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 5px;
+    border-radius: 20px; background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(234, 228, 218, 0.15); color: var(--ink);
+    font-size: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .species-chip img {
+    width: 22px; height: 22px; border-radius: 50%; object-fit: cover;
+    border: 1px solid rgba(0, 180, 216, 0.6);
+  }
+  .species-chip:hover, .species-chip.active {
+    background: rgba(0, 180, 216, 0.25); border-color: #00B4D8;
+    color: #EAE4DA; transform: translateY(-2px);
+    box-shadow: 0 0 14px rgba(0, 180, 216, 0.4);
+  }
 </style>
 
 <!-- Three.js, OrbitControls, GSAP -->
@@ -393,7 +498,7 @@
   </div>
 </div>
 
-<!-- Waypoint Buttons: Axonometría Total, Humedal El Burro, Humedal La Vaca, Humedal El Techo, Modo Perspectiva -->
+<!-- Waypoint Buttons: Axonometría Total, Humedal El Burro, Humedal La Vaca, Humedal El Techo, Modo Perspectiva, Recorrido Especies -->
 <div class="waypoints-bar" id="waypointsBar">
   <button class="waypoint-pill active" data-waypoint="overview">
     <i class="fa-solid fa-compass"></i> Axonometría Total
@@ -410,7 +515,48 @@
   <button class="waypoint-pill" data-waypoint="perspective" style="border-color: #9ED6DF; color: #9ED6DF;">
     <i class="fa-solid fa-person-walking"></i> Perspectiva Humedal
   </button>
+  <button class="waypoint-pill tour-pulse-btn" id="btnTourSpecies">
+    <i class="fa-solid fa-tree"></i> Recorrido de Especies
+  </button>
 </div>
+
+<!-- Species Spotlight HUD (Tour Mode) -->
+<div id="speciesTourHUD">
+  <div class="tour-header">
+    <img id="tourImg" src="./assets/inat_sauco.png" class="tour-avatar" alt="Foto Especie">
+    <div class="tour-title-area">
+      <h2 id="tourTitle">Sauco del Humedal</h2>
+      <em id="tourSci">Sambucus nigra</em>
+      <span class="tour-type-badge" id="tourType">Flora / Árbol Nativo</span>
+    </div>
+  </div>
+  
+  <div class="tour-stats-grid">
+    <div class="tour-stat-item">
+      <span>Censo Georreferenciado:</span>
+      <strong id="tourCount">5,553 árboles</strong>
+    </div>
+    <div class="tour-stat-item">
+      <span>Altura Registrada:</span>
+      <strong id="tourHeight">3.1 m (hasta 8 m)</strong>
+    </div>
+  </div>
+
+  <p class="tour-role-desc" id="tourDesc">
+    <span>Rol Ecológico:</span> Bosque ripario y fijación de taludes con frutos esenciales para aves migratorias.
+  </p>
+
+  <div class="tour-controls-bar">
+    <button type="button" class="tour-ctrl-btn" id="btnTourPrev"><i class="fa-solid fa-backward-step"></i> Anterior</button>
+    <button type="button" class="tour-ctrl-btn" id="btnTourPlayPause"><i class="fa-solid fa-pause"></i> Pausar</button>
+    <button type="button" class="tour-ctrl-btn" id="btnTourNext">Siguiente <i class="fa-solid fa-forward-step"></i></button>
+    <div class="tour-step-info" id="tourStepInfo">1 / 12</div>
+    <button type="button" class="tour-ctrl-btn" id="btnTourClose" style="padding: 6px 9px;" title="Cerrar Recorrido"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+</div>
+
+<!-- Bottom Species Avatar Tray -->
+<div id="speciesTray"></div>
 
 <!-- Camera Coordinate Inspector & Save View Tool -->
 <div id="camInspectorBox">
@@ -446,6 +592,6 @@
   <canvas id="sceneCanvas"></canvas>
 </div>
 
-<script src="modulo-11-garden.js?v=20261006_CREAM_VIBE_106"></script>
+<script src="modulo-11-garden.js?v=20261007_SPECIES_TOUR_401"></script>
 </body>
 </html>
