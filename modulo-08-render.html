@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Render Axonométrico 3D Fotorrealista — Territorio Kennedy & Humedales</title>
+
+<!-- Fonts & Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+  :root {
+    --bg-dark: #090B0E;
+    --panel-bg: rgba(13, 17, 23, 0.88);
+    --panel-border: rgba(255, 255, 255, 0.12);
+    --accent: #EAC119;
+    --accent-glow: rgba(234, 193, 25, 0.4);
+    --water: #00B4D8;
+    --green: #2E8B57;
+    --ink: #F0F6FC;
+    --ink-dim: #8B949E;
+    --glass-blur: blur(20px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden; background: var(--bg-dark);
+    color: var(--ink); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    font-size: 12px; -webkit-font-smoothing: antialiased;
+  }
+
+  #canvasContainer {
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
+    cursor: grab;
+  }
+  #canvasContainer:active { cursor: grabbing; }
+  #renderCanvas { display: block; width: 100%; height: 100%; }
+
+  .glass-panel {
+    background: var(--panel-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+  }
+
+  /* Top Navigation Bar */
+  .top-bar {
+    position: absolute; top: 12px; left: 12px; right: 12px; z-index: 100;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    pointer-events: none; gap: 10px;
+  }
+  .nav-group { display: flex; align-items: center; gap: 6px; pointer-events: auto; flex-wrap: wrap; }
+
+  .btn-nav {
+    background: var(--panel-bg); border: 1px solid var(--panel-border);
+    color: var(--ink); padding: 7px 13px; border-radius: 8px; font-size: 10.5px;
+    font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex;
+    align-items: center; gap: 6px; backdrop-filter: var(--glass-blur);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-nav:hover {
+    background: rgba(234, 193, 25, 0.15); border-color: var(--accent); color: #fff;
+    transform: translateY(-1px); box-shadow: 0 0 16px var(--accent-glow);
+  }
+  .btn-nav.active {
+    background: var(--accent); color: #000; border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  /* Title HUD Card */
+  .title-card {
+    padding: 12px 18px; max-width: 440px; pointer-events: auto;
+    border-left: 3px solid var(--accent);
+  }
+  .title-card h1 {
+    font-size: 13px; font-weight: 800; letter-spacing: 0.5px;
+    color: #fff; display: flex; align-items: center; gap: 8px;
+    text-transform: uppercase;
+  }
+  .title-badge {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; background: rgba(0, 180, 216, 0.2);
+    border: 1px solid var(--water); color: var(--water);
+  }
+  .title-desc {
+    font-size: 11px; color: var(--ink-dim); margin-top: 4px; line-height: 1.4;
+  }
+
+  /* Right Tools / Presets Panel */
+  .side-tools {
+    position: absolute; top: 72px; right: 12px; z-index: 90;
+    display: flex; flex-direction: column; gap: 6px; pointer-events: auto;
+    width: 220px;
+  }
+  .tool-section { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .tool-header {
+    font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--ink-dim); margin-bottom: 2px; display: flex; justify-content: space-between;
+  }
+
+  .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .preset-chip {
+    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1; padding: 6px 8px; border-radius: 6px; font-size: 9.5px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s ease; text-align: center; display: flex;
+    align-items: center; justify-content: center; gap: 4px;
+  }
+  .preset-chip:hover {
+    background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #fff;
+  }
+  .preset-chip.active {
+    background: rgba(234, 193, 25, 0.2); border-color: var(--accent); color: var(--accent);
+  }
+
+  .render-mode-row { display: flex; gap: 4px; }
+  .render-mode-btn {
+    flex: 1; padding: 5px 4px; border-radius: 6px; background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08); color: #94a3b8; font-size: 9px;
+    font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s ease;
+  }
+  .render-mode-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+  .render-mode-btn.active { background: #EAC119; color: #000; border-color: #EAC119; }
+
+  /* Sun / Light Slider */
+  .slider-row { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--ink-dim); }
+  .range-input {
+    -webkit-appearance: none; width: 110px; height: 3px; background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px; outline: none; cursor: pointer;
+  }
+  .range-input::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 11px; height: 11px; border-radius: 50%;
+    background: var(--accent); cursor: pointer; box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* Bottom Control Bar */
+  .bottom-bar {
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 100;
+    display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: auto;
+  }
+  .bottom-capsule {
+    display: flex; align-items: center; gap: 10px; padding: 8px 18px;
+    border-radius: 36px;
+  }
+
+  /* Layer Toggle Pills */
+  .layer-pill {
+    padding: 4px 9px; border-radius: 14px; background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; font-size: 9.5px;
+    font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;
+    transition: all 0.15s ease;
+  }
+  .layer-pill.active {
+    background: rgba(0, 180, 216, 0.18); border-color: var(--water); color: #fff;
+  }
+  .layer-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* POI Callout Card Modal */
+  .poi-card {
+    position: fixed; bottom: 85px; left: 24px; width: 340px; z-index: 150;
+    display: none; flex-direction: column; gap: 8px; padding: 14px 16px;
+    animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border-left: 3px solid var(--accent);
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .poi-img {
+    width: 100%; height: 120px; object-fit: cover; border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 4px;
+  }
+
+  /* Loading Overlay */
+  .loader-overlay {
+    position: fixed; inset: 0; background: #090B0E; z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; transition: opacity 0.5s ease;
+  }
+  .loader-overlay.hide { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 44px; height: 44px; border: 3px solid rgba(234, 193, 25, 0.2);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* North Compass & Scale Bar */
+  .compass-box {
+    position: absolute; bottom: 20px; left: 20px; z-index: 50;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    pointer-events: none; opacity: 0.85;
+  }
+  .compass-needle {
+    width: 28px; height: 28px; transition: transform 0.1s linear;
+  }
+</style>
+</head>
+<body>
+
+<div class="loader-overlay" id="loaderOverlay">
+  <div class="spinner"></div>
+  <div style="font-weight:700; font-size:13px; letter-spacing:0.5px; color:#fff;">RENDERIZANDO TERRITORIO 3D KENNEDY...</div>
+  <div style="font-size:11px; color:#94a3b8; font-family:'IBM Plex Mono',monospace;" id="loadStatus">Cargando ortofoto satelital y modelos...</div>
+</div>
+
+<div id="canvasContainer">
+  <canvas id="renderCanvas"></canvas>
+</div>
+
+<!-- Top Navigation -->
+<div class="top-bar">
+  <div class="nav-group">
+    <a href="index.html" class="btn-nav"><i class="fa-solid fa-arrow-left"></i> Inicio</a>
+    <a href="modulo-11-garden.html" class="btn-nav"><i class="fa-solid fa-circle-nodes"></i> Red Biótica 3D</a>
+    <a href="modulo-08-3d.html" class="btn-nav"><i class="fa-solid fa-clock-rotate-left"></i> Histórico 1950</a>
+  </div>
+
+  <div class="glass-panel title-card">
+    <h1>
+      <span>Render Axonométrico 3D · Kennedy</span>
+      <span class="title-badge">Google Earth 4.63°N</span>
+    </h1>
+    <p class="title-desc">
+      Visualización fotorrealista de alta fidelidad: Humedal El Burro, La Vaca, Corabastos, tejido urbano y cobertura vegetal SIGAU georreferenciada.
+    </p>
+  </div>
+
+  <div class="nav-group">
+    <button class="btn-nav active" id="btnCamOrtho" onclick="setProjectionMode('ortho')">
+      <i class="fa-solid fa-cube"></i> Axonometría
+    </button>
+    <button class="btn-nav" id="btnCamPersp" onclick="setProjectionMode('persp')">
+      <i class="fa-solid fa-eye"></i> Perspectiva
+    </button>
+    <button class="btn-nav" id="btnExportRender" onclick="exportHighResRender()">
+      <i class="fa-solid fa-camera"></i> Render 4K
+    </button>
+  </div>
+</div>
+
+<!-- Side Presets & Render Styles -->
+<div class="side-tools">
+  <!-- Presets de Cámara -->
+  <div class="glass-panel tool-section">
+    <div class="tool-header">
+      <span>Encuadres Fotorrealistas</span>
+      <i class="fa-solid fa-location-dot" style="color:var(--accent);"></i>
+    </div>
+    <div class="preset-grid">
+      <div class="preset-chip active" id="vpOverview" onclick="flyToView('overview')">Axonometría Total</div>
+      <div class="preset-chip" id="vpBurro" onclick="flyToView('burro')">Humedal El Burro</div>
+      <div class="preset-chip" id="vpVaca" onclick="flyToView('vaca')">Humedal La Vaca</div>
+      <div class="preset-chip" id="vpCorabastos" onclick="flyToView('corabastos')">Corabastos</div>
+      <div class="preset-chip" id="vpTimiza" onclick="flyToView('timiza')">Parque Timiza</div>
+      <div class="preset-chip" id="vpTecho" onclick="flyToView('techo')">Aeropuerto Techo</div>
+    </div>
+  </div>
+
+  <!-- Modos de Iluminación / Atmósfera -->
+  <div class="glass-panel tool-section">
+    <div class="tool-header">
+      <span>Atmósfera & Iluminación</span>
+      <i class="fa-solid fa-sun" style="color:var(--accent);"></i>
+    </div>
+    <div class="render-mode-row">
+      <div class="render-mode-btn active" id="modeDay" onclick="setRenderAtmosphere('day')">☀️ Día</div>
+      <div class="render-mode-btn" id="modeSunset" onclick="setRenderAtmosphere('sunset')">🌅 Atardecer</div>
+      <div class="render-mode-btn" id="modeNight" onclick="setRenderAtmosphere('night')">🌃 Noche</div>
+      <div class="render-mode-btn" id="modeClay" onclick="setRenderAtmosphere('clay')">🏛️ Clay</div>
+    </div>
+
+    <!-- Deslizadores de Sol en Vivo -->
+    <div style="margin-top:6px; display:flex; flex-direction:column; gap:6px;">
+      <div class="slider-row">
+        <span>Azimut Sol</span>
+        <input type="range" class="range-input" id="sunAzimuthSlider" min="0" max="360" value="135" oninput="updateSunPosition()">
+      </div>
+      <div class="slider-row">
+        <span>Elevación</span>
+        <input type="range" class="range-input" id="sunElevationSlider" min="10" max="85" value="50" oninput="updateSunPosition()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Capas Visibles -->
+  <div class="glass-panel tool-section">
+    <div class="tool-header">
+      <span>Capas del Modelo 3D</span>
+      <i class="fa-solid fa-layer-group" style="color:var(--water);"></i>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:4px;">
+      <div class="layer-pill active" id="layerBuildings" onclick="toggleLayer('buildings')">
+        <div class="layer-dot" style="color:#d4a373;"></div> Edificación 3D & Volumetría
+      </div>
+      <div class="layer-pill active" id="layerTrees" onclick="toggleLayer('trees')">
+        <div class="layer-dot" style="color:#48bb78;"></div> Arbolado Urbano & Canopia (SIGAU)
+      </div>
+      <div class="layer-pill active" id="layerWater" onclick="toggleLayer('water')">
+        <div class="layer-dot" style="color:#00B4D8;"></div> Cuerpos de Agua & Humedales
+      </div>
+      <div class="layer-pill active" id="layerRoads" onclick="toggleLayer('roads')">
+        <div class="layer-dot" style="color:#94a3b8;"></div> Red Vial de Asfalto (SUMO)
+      </div>
+      <div class="layer-pill active" id="layerPOIs" onclick="toggleLayer('pois')">
+        <div class="layer-dot" style="color:#EAC119;"></div> Balizas & Puntos Clave
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Capsule Bar -->
+<div class="bottom-bar">
+  <div class="glass-panel bottom-capsule">
+    <button class="btn-nav" id="btnAutoRotate" onclick="toggleAutoRotate()" style="padding:6px 12px;">
+      <i class="fa-solid fa-rotate"></i> Giro 360°
+    </button>
+    <div style="height:16px; width:1px; background:rgba(255,255,255,0.15);"></div>
+    <span style="font-size:10px; color:var(--ink-dim); font-family:'IBM Plex Mono',monospace;">
+      Arrastra para orbitar · Clic derecho para desplazar · Rueda para zoom
+    </span>
+  </div>
+</div>
+
+<!-- POI Floating Card Modal -->
+<div class="glass-panel poi-card" id="poiCard">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+    <div>
+      <span id="poiBadge" style="font-size:9px; font-weight:800; color:var(--accent); text-transform:uppercase;">Humedal Distrital</span>
+      <h2 id="poiTitle" style="font-size:14px; font-weight:800; color:#fff; margin-top:2px;">Humedal El Burro</h2>
+    </div>
+    <div class="btn-nav" style="padding:2px 7px; font-size:12px;" onclick="closePoiCard()">×</div>
+  </div>
+  <img id="poiImg" src="assets/foto_humedal.png" alt="Punto de Interés" class="poi-img">
+  <p id="poiDesc" style="font-size:11px; color:#cbd5e1; line-height:1.45;"></p>
+  <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.08); padding-top:6px; font-size:10px; color:var(--ink-dim);">
+    <span id="poiCoords">📍 4.636°N, -74.153°W</span>
+    <button class="btn-nav" id="btnPoiFly" style="padding:4px 8px; font-size:9.5px; background:var(--accent); color:#000;">Enfocar</button>
+  </div>
+</div>
+
+<!-- Compass UI -->
+<div class="compass-box">
+  <svg class="compass-needle" id="compassNeedle" viewBox="0 0 100 100">
+    <polygon points="50,5 62,50 50,42" fill="#E63946"/>
+    <polygon points="50,5 38,50 50,42" fill="#BA181B"/>
+    <polygon points="50,95 62,50 50,42" fill="#F1FAEE"/>
+    <polygon points="50,95 38,50 50,42" fill="#A8DADC"/>
+    <circle cx="50" cy="50" r="4" fill="#1D3557"/>
+  </svg>
+  <span style="font-size:9px; font-family:'IBM Plex Mono',monospace; font-weight:700; color:#cbd5e1;">N</span>
+</div>
+
+<!-- Three.js & Plugins -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<script>
+(() => {
+  // =====================================================================
+  // 1. CONFIGURACIÓN Y CONSTANTES GEOGRÁFICAS (KENNEDY GOOGLE EARTH)
+  // =====================================================================
+  const BUILDINGS_URL = "./assets/kennedy_buildings.json";
+  const NET_URL       = "./assets/kennedy_net.json";
+  const WATER_URL     = "./assets/kennedy_water_bodies.json";
+  const TREES_URL     = "./assets/kennedy_trees_real.json";
+  const PARQUES_URL   = "./assets/kennedy_parques.json";
+
+  const netCenter = { x: 5341.33, y: 3161.9 };
+  const SCALE = 0.08;
+
+  function toScene(x, y) {
+    return {
+      x: (x - netCenter.x) * SCALE,
+      z: -(y - netCenter.y) * SCALE
+    };
+  }
+
+  const canvas = document.getElementById("renderCanvas");
+  const container = document.getElementById("canvasContainer");
+
+  // =====================================================================
+  // 2. ESCENA, RENDERER PBR CON FILMIC TONE MAPPING Y SOMBRAS SUAVES
+  // =====================================================================
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x090B0E);
+  scene.fog = new THREE.FogExp2(0x090B0E, 0.0018);
+
+  const sceneRoot = new THREE.Group();
+  scene.add(sceneRoot);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    powerPreference: "high-performance",
+    preserveDrawingBuffer: true
+  });
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  // Cámaras Ortográfica (Axonométrica) y Perspectiva
+  let aspect = window.innerWidth / window.innerHeight;
+  let orthoSize = 240;
+  const orthoCam = new THREE.OrthographicCamera(-orthoSize * aspect, orthoSize * aspect, orthoSize, -orthoSize, 10, 5000);
+  const perspCam = new THREE.PerspectiveCamera(45, aspect, 5, 5000);
+
+  orthoCam.position.set(380, 420, 380);
+  perspCam.position.set(280, 240, 320);
+
+  let activeCamera = orthoCam;
+  const controls = new THREE.OrbitControls(activeCamera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.target.set(0, 0, 0);
+  controls.maxPolarAngle = Math.PI / 2 - 0.05;
+  controls.minDistance = 20;
+  controls.maxDistance = 2500;
+
+  // =====================================================================
+  // 3. ILUMINACIÓN FOTORREALISTA (SOL FÍSICO + HEMISFERIO + REBOTE)
+  // =====================================================================
+  const sunLight = new THREE.DirectionalLight(0xFFF6E5, 2.2);
+  sunLight.castShadow = true;
+  sunLight.shadow.mapSize.width = 4096;
+  sunLight.shadow.mapSize.height = 4096;
+  sunLight.shadow.camera.near = 50;
+  sunLight.shadow.camera.far = 1800;
+  const d = 450;
+  sunLight.shadow.camera.left = -d;
+  sunLight.shadow.camera.right = d;
+  sunLight.shadow.camera.top = d;
+  sunLight.shadow.camera.bottom = -d;
+  sunLight.shadow.bias = -0.0003;
+  scene.add(sunLight);
+
+  const hemiLight = new THREE.HemisphereLight(0x9EC8EB, 0x3D4A3E, 0.95);
+  scene.add(hemiLight);
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+  scene.add(ambientLight);
+
+  function updateSunPosition() {
+    const az = parseFloat(document.getElementById("sunAzimuthSlider").value);
+    const el = parseFloat(document.getElementById("sunElevationSlider").value);
+    const radAz = (az * Math.PI) / 180;
+    const radEl = (el * Math.PI) / 180;
+
+    const dist = 600;
+    const x = dist * Math.cos(radEl) * Math.sin(radAz);
+    const y = dist * Math.sin(radEl);
+    const z = dist * Math.cos(radEl) * Math.cos(radAz);
+
+    sunLight.position.set(x, y, z);
+  }
+  updateSunPosition();
+
+  // =====================================================================
+  // 4. PODIO ARQUITECTÓNICO / MAQUETA BASE & TERRENO CON TEXTURAS
+  // =====================================================================
+  const terrainGroup = new THREE.Group();
+  sceneRoot.add(terrainGroup);
+
+  // Base Maqueta Sólida
+  const baseSize = 920;
+  const baseGeo = new THREE.BoxGeometry(baseSize, 18, baseSize);
+  const baseMat = new THREE.MeshStandardMaterial({
+    color: 0x12151A,
+    roughness: 0.92,
+    metalness: 0.1
+  });
+  const basePodium = new THREE.Mesh(baseGeo, baseMat);
+  basePodium.position.y = -9.2;
+  basePodium.receiveShadow = true;
+  terrainGroup.add(basePodium);
+
+  // Superficie de Suelo con Textura de Pasto y Humedales
+  const texLoader = new THREE.TextureLoader();
+  const pastoTex = texLoader.load("./assets/textura_pasto.jpg");
+  pastoTex.wrapS = THREE.RepeatWrapping;
+  pastoTex.wrapT = THREE.RepeatWrapping;
+  pastoTex.repeat.set(40, 40);
+
+  const groundGeo = new THREE.PlaneGeometry(baseSize, baseSize, 32, 32);
+  const groundMat = new THREE.MeshStandardMaterial({
+    map: pastoTex,
+    color: 0x5C7A53,
+    roughness: 0.88,
+    metalness: 0.05
+  });
+  const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+  groundMesh.rotation.x = -Math.PI / 2;
+  groundMesh.position.y = 0.01;
+  groundMesh.receiveShadow = true;
+  terrainGroup.add(groundMesh);
+
+  // Cuadrícula sutil de escala maqueta
+  const gridHelper = new THREE.GridHelper(baseSize, 46, 0xEAC119, 0x222B35);
+  gridHelper.position.y = 0.03;
+  gridHelper.material.opacity = 0.25;
+  gridHelper.material.transparent = true;
+  terrainGroup.add(gridHelper);
+
+  // =====================================================================
+  // 5. CUERPOS DE AGUA (HUMEDALES CON SHADING TRANSLÚCIDO Y REFLEJOS)
+  // =====================================================================
+  const waterGroup = new THREE.Group();
+  sceneRoot.add(waterGroup);
+
+  const waterTex = texLoader.load("./assets/textura_agua2.jpg");
+  waterTex.wrapS = THREE.RepeatWrapping;
+  waterTex.wrapT = THREE.RepeatWrapping;
+  waterTex.repeat.set(16, 16);
+
+  const waterMat = new THREE.MeshStandardMaterial({
+    map: waterTex,
+    color: 0x0A7E8C,
+    roughness: 0.12,
+    metalness: 0.45,
+    transparent: true,
+    opacity: 0.88,
+    side: THREE.DoubleSide
+  });
+
+  function loadWater() {
+    return fetch(WATER_URL)
+      .then(r => r.json())
+      .then(waterBodies => {
+        const list = Array.isArray(waterBodies) ? waterBodies : (waterBodies.waterBodies || []);
+        list.forEach(w => {
+          const pts = w.pts;
+          if (!pts || pts.length < 3) return;
+
+          const sPts = pts.map(p => toScene(p[0], p[1]));
+          const pts2d = sPts.map(p => new THREE.Vector2(p.x, p.z));
+
+          let tris = [];
+          try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch(e) { tris = []; }
+
+          const positions = [];
+          const uvs = [];
+          tris.forEach(([ia, ib, ic]) => {
+            [ia, ib, ic].forEach(idx => {
+              positions.push(sPts[idx].x, 0.45, sPts[idx].z);
+              uvs.push(sPts[idx].x * 0.05, sPts[idx].z * 0.05);
+            });
+          });
+
+          const geo = new THREE.BufferGeometry();
+          geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+          geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+          geo.computeVertexNormals();
+
+          const mesh = new THREE.Mesh(geo, waterMat);
+          mesh.receiveShadow = true;
+          waterGroup.add(mesh);
+        });
+      })
+      .catch(e => console.warn("Error cargando agua:", e));
+  }
+
+  // =====================================================================
+  // 6. RED VIAL REAL DE ASFALTO CON DEMARCACIONES (SUMO)
+  // =====================================================================
+  const roadsGroup = new THREE.Group();
+  sceneRoot.add(roadsGroup);
+
+  const roadTex = texLoader.load("./assets/textura_via.jpg");
+  roadTex.wrapS = THREE.RepeatWrapping;
+  roadTex.wrapT = THREE.RepeatWrapping;
+
+  const roadMatMajor = new THREE.MeshStandardMaterial({
+    map: roadTex,
+    color: 0x3A3F47,
+    roughness: 0.75,
+    metalness: 0.1,
+    side: THREE.DoubleSide
+  });
+
+  const roadMatMinor = new THREE.MeshStandardMaterial({
+    map: roadTex,
+    color: 0x2C3036,
+    roughness: 0.85,
+    metalness: 0.05,
+    side: THREE.DoubleSide
+  });
+
+  function loadRoads() {
+    return fetch(NET_URL)
+      .then(r => r.json())
+      .then(net => {
+        const edgeList = Array.isArray(net) ? net : (net.edges || []);
+        
+        const linePositions = [];
+        const lineColors = [];
+        const colMajor = new THREE.Color(0xEAC119);
+        const colMinor = new THREE.Color(0x8B949E);
+
+        edgeList.forEach(e => {
+          if (!e.pts || e.pts.length < 2) return;
+          const isMajor = e.hierarchy === "major" || (e.weight && e.weight > 2.0);
+          const c = isMajor ? colMajor : colMinor;
+
+          for (let i = 0; i < e.pts.length - 1; i++) {
+            const p1 = toScene(e.pts[i][0], e.pts[i][1]);
+            const p2 = toScene(e.pts[i + 1][0], e.pts[i + 1][1]);
+            linePositions.push(p1.x, 0.22, p1.z, p2.x, 0.22, p2.z);
+            lineColors.push(c.r, c.g, c.b, c.r, c.g, c.b);
+          }
+        });
+
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
+        geo.setAttribute("color", new THREE.Float32BufferAttribute(lineColors, 3));
+
+        const mat = new THREE.LineBasicMaterial({
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.85
+        });
+
+        const mesh = new THREE.LineSegments(geo, mat);
+        roadsGroup.add(mesh);
+      })
+      .catch(e => console.warn("Error cargando vías:", e));
+  }
+
+  // =====================================================================
+  // 7. EDIFICIOS 3D EXTRUIDOS CON MATERIALES ARQUITECTÓNICOS
+  // =====================================================================
+  const buildingsGroup = new THREE.Group();
+  sceneRoot.add(buildingsGroup);
+
+  const buildingMat = new THREE.MeshStandardMaterial({
+    color: 0xD8D0C5,
+    roughness: 0.72,
+    metalness: 0.15
+  });
+
+  const buildingMatAccent = new THREE.MeshStandardMaterial({
+    color: 0xC49A6C,
+    roughness: 0.65,
+    metalness: 0.2
+  });
+
+  function loadBuildings() {
+    return fetch(BUILDINGS_URL)
+      .then(r => r.json())
+      .then(buildings => {
+        const list = Array.isArray(buildings) ? buildings : (buildings.buildings || []);
+        
+        const bGroup = new THREE.Group();
+        const count = Math.min(list.length, 3500); // balance óptimo de fidelidad y rendimiento
+
+        for (let i = 0; i < count; i++) {
+          const b = list[i];
+          if (!b.pts || b.pts.length < 3) continue;
+
+          const sPts = b.pts.map(p => toScene(p[0], p[1]));
+          const pts2d = sPts.map(p => new THREE.Vector2(p.x, p.z));
+
+          const shape = new THREE.Shape(pts2d);
+          const height = Math.max(2.5, (b.height || b.h || 7.5) * SCALE * 1.3);
+
+          const extrudeSettings = {
+            depth: height,
+            bevelEnabled: true,
+            bevelSegments: 1,
+            steps: 1,
+            bevelSize: 0.15,
+            bevelThickness: 0.15
+          };
+
+          const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+          geo.rotateX(Math.PI / 2);
+
+          const mat = (i % 7 === 0) ? buildingMatAccent : buildingMat;
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.y = height + 0.1;
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+          bGroup.add(mesh);
+        }
+
+        buildingsGroup.add(bGroup);
+      })
+      .catch(e => console.warn("Error cargando edificios:", e));
+  }
+
+  // =====================================================================
+  // 8. ARBOLADO REAL URBANÍSTICO & CANOPIA LUSH (SIGAU)
+  // =====================================================================
+  const treesGroup = new THREE.Group();
+  sceneRoot.add(treesGroup);
+
+  function loadTrees() {
+    return fetch(TREES_URL)
+      .then(r => r.json())
+      .then(trees => {
+        const list = Array.isArray(trees) ? trees : (trees.trees || []);
+        const sampleCount = Math.min(list.length, 12000); // 12 mil árboles instanciados
+
+        const treeGeo = new THREE.ConeGeometry(1.6, 4.2, 5);
+        treeGeo.translate(0, 2.1, 0);
+
+        const treeMat = new THREE.MeshStandardMaterial({
+          color: 0x2E6B38,
+          roughness: 0.85,
+          metalness: 0.05
+        });
+
+        const instMesh = new THREE.InstancedMesh(treeGeo, treeMat, sampleCount);
+        instMesh.castShadow = true;
+        instMesh.receiveShadow = true;
+
+        const dummy = new THREE.Object3D();
+        const colPalette = [
+          new THREE.Color(0x2E6B38), // Verde bosque
+          new THREE.Color(0x4A8505), // Verde brillante
+          new THREE.Color(0xD4A017), // Chicalá amarillo
+          new THREE.Color(0x5C8001), // Sauco
+          new THREE.Color(0x1B4332)  // Ciprés oscuro
+        ];
+
+        for (let i = 0; i < sampleCount; i++) {
+          const t = list[i];
+          const [x, y, hMeters, specName] = t;
+          const p = toScene(x, y);
+          const h = Math.max(0.6, (hMeters || 6.0) * SCALE);
+
+          dummy.position.set(p.x, 0.1, p.z);
+          dummy.scale.set(h * 0.7, h, h * 0.7);
+          dummy.rotation.y = (i * 0.35) % (Math.PI * 2);
+          dummy.updateMatrix();
+
+          instMesh.setMatrixAt(i, dummy.matrix);
+          const c = colPalette[i % colPalette.length];
+          instMesh.setColorAt(i, c);
+        }
+
+        instMesh.instanceMatrix.needsUpdate = true;
+        if (instMesh.instanceColor) instMesh.instanceColor.needsUpdate = true;
+        treesGroup.add(instMesh);
+      })
+      .catch(e => console.warn("Error cargando árboles:", e));
+  }
+
+  // =====================================================================
+  // 9. PUNTOS DE INTERÉS CLAVE 3D (GOOGLE EARTH KENNEDY CALLOUTS)
+  // =====================================================================
+  const poisGroup = new THREE.Group();
+  sceneRoot.add(poisGroup);
+
+  const POIS_DATA = [
+    {
+      id: "burro",
+      title: "Humedal El Burro",
+      badge: "Parque Ecológico Distrital",
+      desc: "Principal remanente hídrico de la cuenca baja del Fucha con 18.8 ha. Zona de alta concentración de Tingua bogotana y avifauna migratoria.",
+      coords: "📍 4.636°N, -74.153°W · Av. Ciudad de Cali",
+      pos: { x: 209.56, y: 12.0, z: 10.93 },
+      camPos: { x: 270, y: 180, z: 230 },
+      img: "assets/foto_humedal.png"
+    },
+    {
+      id: "vaca",
+      title: "Humedal La Vaca",
+      badge: "Santuario de Aves Acuáticas",
+      desc: "Ejemplo internacional de restauración ecológica participativa. Cuenta con un espejo de agua central y densos totorales de anidación.",
+      coords: "📍 4.629°N, -74.162°W · Corabastos",
+      pos: { x: 67.66, y: 10.0, z: -118.17 },
+      camPos: { x: 140, y: 160, z: -40 },
+      img: "assets/foto_humedal.png"
+    },
+    {
+      id: "corabastos",
+      title: "Central de Abastos (Corabastos)",
+      badge: "Plataforma Logística",
+      desc: "El mayor complejo agroalimentario de Colombia (42 ha). Punto de contacto crítico entre la presión urbana y la ronda del humedal La Vaca.",
+      coords: "📍 4.626°N, -74.164°W · Kennedy Central",
+      pos: { x: 25.0, y: 14.0, z: -155.0 },
+      camPos: { x: 90, y: 190, z: -80 },
+      img: "assets/foto_humedal.png"
+    },
+    {
+      id: "timiza",
+      title: "Parque Metropolitano Timiza",
+      badge: "Lago & Reserva Urbana",
+      desc: "Gran pulmón verde recreodeportivo de 29.8 ha con lago artificial alimentado por la microcuenca del Fucha.",
+      coords: "📍 4.605°N, -74.150°W · Sur de Kennedy",
+      pos: { x: 166.64, y: 12.0, z: -348.81 },
+      camPos: { x: 240, y: 220, z: -250 },
+      img: "assets/foto_humedal.png"
+    },
+    {
+      id: "techo",
+      title: "Antiguo Aeropuerto de Techo",
+      badge: "Hito Histórico 1956",
+      desc: "Primer aeropuerto internacional de Bogotá antes de la construcción de El Dorado. Hito urbanístico que detonó el desarrollo de Kennedy.",
+      coords: "📍 4.646°N, -74.148°W · Monumento Banderas",
+      pos: { x: 291.67, y: 12.0, z: 79.30 },
+      camPos: { x: 360, y: 240, z: 160 },
+      img: "assets/foto_humedal.png"
+    }
+  ];
+
+  function createPoiPins() {
+    POIS_DATA.forEach(poi => {
+      const pinGroup = new THREE.Group();
+      pinGroup.position.set(poi.pos.x, poi.pos.y, poi.pos.z);
+
+      // Pin Mesh
+      const coneGeo = new THREE.ConeGeometry(3.5, 9.0, 16);
+      coneGeo.rotateX(Math.PI);
+      const pinMat = new THREE.MeshStandardMaterial({
+        color: 0xEAC119,
+        emissive: 0xEAC119,
+        emissiveIntensity: 0.4,
+        roughness: 0.3,
+        metalness: 0.8
+      });
+      const pinMesh = new THREE.Mesh(coneGeo, pinMat);
+      pinMesh.castShadow = true;
+      pinGroup.add(pinMesh);
+
+      // Anillo Pulsante en Suelo
+      const ringGeo = new THREE.RingGeometry(2.5, 6.0, 24);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0xEAC119,
+        transparent: true,
+        opacity: 0.6,
+        side: THREE.DoubleSide
+      });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = -Math.PI / 2;
+      ringMesh.position.y = -poi.pos.y + 0.3;
+      pinGroup.add(ringMesh);
+
+      pinMesh.userData = { poiData: poi };
+      poisGroup.add(pinGroup);
+    });
+  }
+  createPoiPins();
+
+  // =====================================================================
+  // 10. INTERACTIVIDAD, MODALES & RAYCASTING
+  // =====================================================================
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  window.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".glass-panel") || e.target.closest(".top-bar") || e.target.closest(".side-tools") || e.target.closest(".bottom-bar")) return;
+
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, activeCamera);
+
+    const intersects = raycaster.intersectObjects(poisGroup.children, true);
+    if (intersects.length > 0) {
+      let targetObj = intersects[0].object;
+      while (targetObj && !targetObj.userData.poiData && targetObj.parent) {
+        targetObj = targetObj.parent;
+      }
+      if (targetObj && targetObj.userData.poiData) {
+        openPoiCard(targetObj.userData.poiData);
+      }
+    }
+  });
+
+  const poiCard = document.getElementById("poiCard");
+  function openPoiCard(poi) {
+    document.getElementById("poiBadge").innerText = poi.badge;
+    document.getElementById("poiTitle").innerText = poi.title;
+    document.getElementById("poiDesc").innerText = poi.desc;
+    document.getElementById("poiCoords").innerText = poi.coords;
+    if (poi.img) document.getElementById("poiImg").src = poi.img;
+
+    document.getElementById("btnPoiFly").onclick = () => flyToPoi(poi);
+    poiCard.style.display = "flex";
+  }
+
+  window.closePoiCard = () => {
+    poiCard.style.display = "none";
+  };
+
+  function flyToPoi(poi) {
+    closePoiCard();
+    if (window.gsap) {
+      gsap.to(activeCamera.position, {
+        x: poi.camPos.x,
+        y: poi.camPos.y,
+        z: poi.camPos.z,
+        duration: 2.2,
+        ease: "power2.inOut"
+      });
+      gsap.to(controls.target, {
+        x: poi.pos.x,
+        y: 2,
+        z: poi.pos.z,
+        duration: 2.2,
+        ease: "power2.inOut"
+      });
+    }
+  }
+
+  // =====================================================================
+  // 11. ENCUADRES PREDEFINIDOS (FLY TO VIEW)
+  // =====================================================================
+  const VIEW_PRESETS = {
+    overview: { cam: { x: 380, y: 420, z: 380 }, target: { x: 0, y: 0, z: 0 } },
+    burro:    { cam: { x: 270, y: 180, z: 230 }, target: { x: 209.56, y: 2, z: 10.93 } },
+    vaca:     { cam: { x: 140, y: 160, z: -40 }, target: { x: 67.66, y: 2, z: -118.17 } },
+    corabastos:{ cam: { x: 90, y: 190, z: -80 }, target: { x: 25.0, y: 2, z: -155.0 } },
+    timiza:   { cam: { x: 240, y: 220, z: -250 }, target: { x: 166.64, y: 2, z: -348.81 } },
+    techo:    { cam: { x: 360, y: 240, z: 160 }, target: { x: 291.67, y: 2, z: 79.30 } }
+  };
+
+  window.flyToView = (key) => {
+    document.querySelectorAll(".preset-chip").forEach(c => c.classList.remove("active"));
+    const btn = document.getElementById(`vp${key.charAt(0).toUpperCase() + key.slice(1)}`);
+    if (btn) btn.classList.add("active");
+
+    const preset = VIEW_PRESETS[key] || VIEW_PRESETS.overview;
+    if (window.gsap) {
+      gsap.to(activeCamera.position, {
+        x: preset.cam.x,
+        y: preset.cam.y,
+        z: preset.cam.z,
+        duration: 2.0,
+        ease: "power2.inOut"
+      });
+      gsap.to(controls.target, {
+        x: preset.target.x,
+        y: preset.target.y,
+        z: preset.target.z,
+        duration: 2.0,
+        ease: "power2.inOut"
+      });
+    }
+  };
+
+  // =====================================================================
+  // 12. PROYECCIÓN DE CÁMARA (AXONOMETRÍA / PERSPECTIVA)
+  // =====================================================================
+  window.setProjectionMode = (mode) => {
+    document.getElementById("btnCamOrtho").classList.toggle("active", mode === "ortho");
+    document.getElementById("btnCamPersp").classList.toggle("active", mode === "persp");
+
+    const prevPos = activeCamera.position.clone();
+    const prevTarget = controls.target.clone();
+
+    if (mode === "ortho") {
+      activeCamera = orthoCam;
+    } else {
+      activeCamera = perspCam;
+    }
+
+    activeCamera.position.copy(prevPos);
+    controls.object = activeCamera;
+    controls.target.copy(prevTarget);
+    controls.update();
+  };
+
+  // =====================================================================
+  // 13. MODOS DE ATMÓSFERA & ILUMINACIÓN FOTORREALISTA
+  // =====================================================================
+  window.setRenderAtmosphere = (mode) => {
+    document.querySelectorAll(".render-mode-btn").forEach(b => b.classList.remove("active"));
+    const btn = document.getElementById(`mode${mode.charAt(0).toUpperCase() + mode.slice(1)}`);
+    if (btn) btn.classList.add("active");
+
+    if (mode === "day") {
+      scene.background.setHex(0x090B0E);
+      scene.fog.color.setHex(0x090B0E);
+      sunLight.color.setHex(0xFFF6E5);
+      sunLight.intensity = 2.2;
+      hemiLight.color.setHex(0x9EC8EB);
+      hemiLight.groundColor.setHex(0x3D4A3E);
+      hemiLight.intensity = 0.95;
+      groundMat.color.setHex(0x5C7A53);
+      buildingMat.color.setHex(0xD8D0C5);
+      waterMat.color.setHex(0x0A7E8C);
+      document.getElementById("sunAzimuthSlider").value = 135;
+      document.getElementById("sunElevationSlider").value = 50;
+    } else if (mode === "sunset") {
+      scene.background.setHex(0x1B0E09);
+      scene.fog.color.setHex(0x1B0E09);
+      sunLight.color.setHex(0xFFA040);
+      sunLight.intensity = 2.6;
+      hemiLight.color.setHex(0xFF7043);
+      hemiLight.groundColor.setHex(0x2E1C14);
+      hemiLight.intensity = 0.8;
+      groundMat.color.setHex(0x6D5838);
+      buildingMat.color.setHex(0xE0AA70);
+      waterMat.color.setHex(0xBF5B24);
+      document.getElementById("sunAzimuthSlider").value = 240;
+      document.getElementById("sunElevationSlider").value = 22;
+    } else if (mode === "night") {
+      scene.background.setHex(0x040608);
+      scene.fog.color.setHex(0x040608);
+      sunLight.color.setHex(0x6C8EA4);
+      sunLight.intensity = 0.4;
+      hemiLight.color.setHex(0x1D2D44);
+      hemiLight.groundColor.setHex(0x0B131F);
+      hemiLight.intensity = 0.5;
+      groundMat.color.setHex(0x1C2826);
+      buildingMat.color.setHex(0x3E4C5E);
+      waterMat.color.setHex(0x0D3B66);
+      document.getElementById("sunAzimuthSlider").value = 310;
+      document.getElementById("sunElevationSlider").value = 15;
+    } else if (mode === "clay") {
+      scene.background.setHex(0x111317);
+      scene.fog.color.setHex(0x111317);
+      sunLight.color.setHex(0xFFFFFF);
+      sunLight.intensity = 1.8;
+      hemiLight.color.setHex(0xFFFFFF);
+      hemiLight.groundColor.setHex(0x888888);
+      hemiLight.intensity = 0.7;
+      groundMat.color.setHex(0xDDDDDD);
+      buildingMat.color.setHex(0xF5F5F5);
+      waterMat.color.setHex(0x99C2D2);
+    }
+    updateSunPosition();
+  };
+
+  // =====================================================================
+  // 14. TOGGLE DE CAPAS DEL MODELO
+  // =====================================================================
+  const layers = {
+    buildings: buildingsGroup,
+    trees: treesGroup,
+    water: waterGroup,
+    roads: roadsGroup,
+    pois: poisGroup
+  };
+
+  window.toggleLayer = (key) => {
+    const group = layers[key];
+    if (group) {
+      group.visible = !group.visible;
+      const btnId = `layer${key.charAt(0).toUpperCase() + key.slice(1)}`;
+      const btn = document.getElementById(btnId);
+      if (btn) btn.classList.toggle("active", group.visible);
+    }
+  };
+
+  // =====================================================================
+  // 15. GIRO CINEMÁTICO 360° & EXPORTACIÓN EN ALTA RESOLUCIÓN
+  // =====================================================================
+  let isAutoRotate = false;
+  window.toggleAutoRotate = () => {
+    isAutoRotate = !isAutoRotate;
+    controls.autoRotate = isAutoRotate;
+    controls.autoRotateSpeed = 0.8;
+    document.getElementById("btnAutoRotate").classList.toggle("active", isAutoRotate);
+  };
+
+  window.exportHighResRender = () => {
+    renderer.render(scene, activeCamera);
+    const dataUrl = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `render_axonometrico_kennedy_${Date.now()}.png`;
+    a.click();
+  };
+
+  // =====================================================================
+  // 16. CICLO DE RENDER Y ANIMACIÓN
+  // =====================================================================
+  const compassNeedle = document.getElementById("compassNeedle");
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+
+    // Actualizar Brújula
+    if (compassNeedle) {
+      const angle = controls.getAzimuthalAngle();
+      compassNeedle.style.transform = `rotate(${angle}rad)`;
+    }
+
+    // Ondulación sutil en la textura del agua
+    if (waterTex) {
+      waterTex.offset.x += 0.0003;
+      waterTex.offset.y += 0.0002;
+    }
+
+    renderer.render(scene, activeCamera);
+  }
+
+  // =====================================================================
+  // 17. INICIALIZACIÓN ASÍNCRONA
+  // =====================================================================
+  window.addEventListener("resize", () => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    aspect = w / h;
+
+    orthoCam.left = -orthoSize * aspect;
+    orthoCam.right = orthoSize * aspect;
+    orthoCam.top = orthoSize;
+    orthoCam.bottom = -orthoSize;
+    orthoCam.updateProjectionMatrix();
+
+    perspCam.aspect = aspect;
+    perspCam.updateProjectionMatrix();
+
+    renderer.setSize(w, h);
+  });
+
+  const loadStatus = document.getElementById("loadStatus");
+  const loaderOverlay = document.getElementById("loaderOverlay");
+
+  Promise.all([
+    loadWater().then(() => { if (loadStatus) loadStatus.innerText = "Cargando red vial..."; }),
+    loadRoads().then(() => { if (loadStatus) loadStatus.innerText = "Cargando arbolado SIGAU..."; }),
+    loadTrees().then(() => { if (loadStatus) loadStatus.innerText = "Cargando volumetría 3D de edificios..."; }),
+    loadBuildings()
+  ]).then(() => {
+    setTimeout(() => {
+      if (loaderOverlay) loaderOverlay.classList.add("hide");
+    }, 600);
+  }).catch(e => {
+    console.error("Error inicializando modelo:", e);
+    if (loaderOverlay) loaderOverlay.classList.add("hide");
+  });
+
+  animate();
+})();
+</script>
+</body>
+</html>
