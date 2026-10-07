@@ -367,7 +367,6 @@
   // =====================================================================
   const fullTaxa = buildFull180Dataset();
   const rawNodes = [];
-  const rawEdges = [];
   const nodeSprites = [];
   const networkGroup = new THREE.Group();
   sceneRoot.add(networkGroup);
