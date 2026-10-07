@@ -852,8 +852,8 @@
     blending: THREE.NormalBlending
   });
 
-  // =====================================================================
-  // 4. CARGA DE CAPAS GEOGRÁFICAS (PIEDRA ARQUITECTÓNICA & AGUA VIBRANTE)
+    // =====================================================================
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (PIEDRA ARQUITECTÓNICA, AGUA VIBRANTE & ÁRBOLES REALES)
   // =====================================================================
   const pTarget = [];
   const pSwarm = [];
@@ -869,9 +869,9 @@
     if (typeof rawNodes !== "undefined" && rawNodes.length > 0) {
       const node = rawNodes[idx % rawNodes.length];
       return {
-        x: node.ox + (Math.random() - 0.5) * 2.0,
-        y: node.oy + (Math.random() - 0.5) * 2.0,
-        z: node.oz + (Math.random() - 0.5) * 2.0
+        x: node.ox + (Math.random() - 0.5) * 3.0,
+        y: node.oy + (Math.random() - 0.5) * 3.0,
+        z: node.oz + (Math.random() - 0.5) * 3.0
       };
     }
     const theta = Math.random() * Math.PI * 2;
@@ -902,231 +902,6 @@
     sceneRoot.add(particlePoints);
   }
 
-  
-  function generateProceduralKennedyTerritory() {
-    console.log("Materializando Territorio 3D de Kennedy de Alta Definición...");
-    pTarget.length = 0;
-    pSwarm.length = 0;
-    pColor.length = 0;
-    pSize.length = 0;
-    pPhase.length = 0;
-    pCat.length = 0;
-    currentParticleIndex = 0;
-
-    const colWaterMain  = new THREE.Color(0x00C8F8); // Agua brillante
-    const colWaterDeep  = new THREE.Color(0x0088CC);
-    const colWaterFoam  = new THREE.Color(0x70E0FF);
-    const colTreeLush   = new THREE.Color(0x2EB872); // Verde vivo
-    const colTreeBright = new THREE.Color(0x52E088);
-    const colTrunk      = new THREE.Color(0x8B5A2B); // Tronco madera
-    const colRoad       = new THREE.Color(0x404552); // Vías urbanas
-    const colMajor      = new THREE.Color(0x38BDF8); // Arterias principales
-    const colBldgWall   = new THREE.Color(0x9E978E); // Cantera y ladrillo
-    const colBldgAlt    = new THREE.Color(0xB5ACA0);
-    const colRoof       = new THREE.Color(0xC96349); // Tejas terracota
-
-    // A. 3 Grandes Humedales de Kennedy (El Burro, La Vaca, Techo)
-    const wetlands = [
-      { cx: 210, cz: 40, rx: 75, rz: 38, name: "Humedal El Burro" },
-      { cx: 65,  cz: 160, rx: 58, rz: 32, name: "PEDH La Vaca" },
-      { cx: 290, cz: -30, rx: 50, rz: 28, name: "Humedal de Techo" }
-    ];
-
-    wetlands.forEach(w => {
-      // Superficie y lecho del agua
-      for (let i = 0; i < 1400; i++) {
-        const rad = Math.sqrt(Math.random());
-        const ang = Math.random() * Math.PI * 2;
-        const wx = w.cx + Math.cos(ang) * w.rx * rad;
-        const wz = w.cz + Math.sin(ang) * w.rz * rad;
-        const wy = 0.28 + Math.random() * 0.25;
-
-        const sw = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(wx, wy, wz);
-        pSwarm.push(sw.x, sw.y, sw.z);
-        const c = (i % 3 === 0) ? colWaterFoam : ((i % 2 === 0) ? colWaterMain : colWaterDeep);
-        pColor.push(c.r, c.g, c.b);
-        pSize.push(2.2);
-        pPhase.push(i * 0.25);
-        pCat.push(0.0);
-      }
-      // Borde de ribera
-      for (let i = 0; i < 300; i++) {
-        const ang = (i / 300) * Math.PI * 2;
-        const wx = w.cx + Math.cos(ang) * (w.rx + (Math.random() - 0.5) * 2.0);
-        const wz = w.cz + Math.sin(ang) * (w.rz + (Math.random() - 0.5) * 2.0);
-        const sw = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(wx, 0.45, wz);
-        pSwarm.push(sw.x, sw.y, sw.z);
-        pColor.push(colTreeBright.r, colTreeBright.g, colTreeBright.b);
-        pSize.push(1.8);
-        pPhase.push(i);
-        pCat.push(1.0);
-      }
-    });
-
-    // B. Arbolado Urbano & Rondas de Protección (4,500 árboles)
-    for (let t = 0; t < 3000; t++) {
-      const nearWetland = wetlands[t % wetlands.length];
-      const ang = Math.random() * Math.PI * 2;
-      const dist = (nearWetland.rx + 4) + Math.random() * 65;
-      const tx = nearWetland.cx + Math.cos(ang) * dist;
-      const tz = nearWetland.cz + Math.sin(ang) * (dist * 0.75);
-      const th = 4.0 + Math.random() * 8.5;
-
-      const swCrown = randomSwarmCluster(currentParticleIndex++);
-      pTarget.push(tx, th * 0.85, tz);
-      pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
-      const folCol = (t % 2 === 0) ? colTreeLush : colTreeBright;
-      pColor.push(folCol.r, folCol.g, folCol.b);
-      pSize.push(2.2);
-      pPhase.push(t * 0.3);
-      pCat.push(1.0);
-
-      // Follaje extendido
-      for (let k = 0; k < 4; k++) {
-        const fa = (k / 4) * Math.PI * 2 + (t % 5);
-        const frad = 1.6 + Math.random() * 1.8;
-        const swSub = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(tx + Math.cos(fa) * frad, th * 0.85 + (k % 2 === 0 ? 0.35 : -0.3), tz + Math.sin(fa) * frad);
-        pSwarm.push(swSub.x, swSub.y, swSub.z);
-        pColor.push(folCol.r * 1.08, folCol.g * 1.08, folCol.b * 1.08);
-        pSize.push(1.8);
-        pPhase.push(t + k);
-        pCat.push(1.0);
-      }
-
-      // Tronco
-      const swTrunk = randomSwarmCluster(currentParticleIndex++);
-      pTarget.push(tx, 0.2, tz);
-      pSwarm.push(swTrunk.x, swTrunk.y, swTrunk.z);
-      pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
-      pSize.push(1.4);
-      pPhase.push(t * 0.1);
-      pCat.push(1.0);
-    }
-
-    // C. Red Vial y Ejes Urbanos de Kennedy
-    for (let r = 0; r < 28; r++) {
-      const rx = (r - 14) * 26 + 180;
-      for (let s = -220; s <= 280; s += 4) {
-        const sw = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(rx, 0.12, s);
-        pSwarm.push(sw.x, sw.y, sw.z);
-        pColor.push(colRoad.r, colRoad.g, colRoad.b);
-        pSize.push(1.3);
-        pPhase.push(r + s);
-        pCat.push(3.0);
-      }
-    }
-    for (let r = 0; r < 24; r++) {
-      const rz = (r - 12) * 26 + 40;
-      for (let s = -50; s <= 400; s += 4) {
-        const sw = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(s, 0.12, rz);
-        pSwarm.push(sw.x, sw.y, sw.z);
-        pColor.push(colMajor.r, colMajor.g, colMajor.b);
-        pSize.push(1.6);
-        pPhase.push(r + s);
-        pCat.push(3.0);
-      }
-    }
-
-    // D. Tejido Construido y Manzanas Residenciales (1,400 bloques)
-    for (let bx = -30; bx <= 380; bx += 26) {
-      for (let bz = -190; bz <= 250; bz += 26) {
-        const insideWater = wetlands.some(w => {
-          const dx = (bx - w.cx) / (w.rx + 8);
-          const dz = (bz - w.cz) / (w.rz + 8);
-          return (dx * dx + dz * dz) < 1.0;
-        });
-        if (insideWater) continue;
-
-        const bh = 6.0 + (Math.sin(bx * 0.04 + bz * 0.03) + 1.0) * 8.0;
-        const bcol = ((bx + bz) % 2 === 0) ? colBldgWall : colBldgAlt;
-        const bw = 16.0;
-        const bl = 16.0;
-
-        for (let corner = 0; corner < 4; corner++) {
-          const cx = bx + (corner % 2 === 0 ? -bw/2 : bw/2);
-          const cz = bz + (corner < 2 ? -bl/2 : bl/2);
-          const steps = Math.max(4, Math.floor(bh / 1.4));
-          for (let st = 0; st <= steps; st++) {
-            const y = (st / steps) * bh;
-            const sw = randomSwarmCluster(currentParticleIndex++);
-            pTarget.push(cx, y, cz);
-            pSwarm.push(sw.x, sw.y, sw.z);
-            const isRoof = (st === steps);
-            const c = isRoof ? colRoof : bcol;
-            pColor.push(c.r, c.g, c.b);
-            pSize.push(isRoof ? 1.8 : 1.5);
-            pPhase.push(st + bx);
-            pCat.push(2.0);
-          }
-        }
-      }
-    }
-
-    rebuildTerritoryParticles();
-  }
-
-  function loadWater() {
-    return fetch(WATER_URL)
-      .then(r => r.json())
-      .then(waterBodies => {
-        const colWaterMain = new THREE.Color(0x00B4D8);
-        const colWaterDeep = new THREE.Color(0x0077B6);
-        const list = Array.isArray(waterBodies) ? waterBodies : (waterBodies.waterBodies || []);
-
-        list.forEach(w => {
-          const pts = w.pts;
-          if (!pts || pts.length < 3) return;
-
-          const sPts = pts.map(p => toScene(p[0], p[1]));
-          const pts2d = sPts.map(p => new THREE.Vector2(p.x, p.z));
-
-          let tris = [];
-          try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch(e) { tris = []; }
-
-          tris.forEach(([ia, ib, ic]) => {
-            const pa = sPts[ia], pb = sPts[ib], pc = sPts[ic];
-
-            for (let s = 0; s < 3; s++) {
-              const r1 = Math.random(), r2 = Math.random();
-              const sq1 = Math.sqrt(r1);
-              const wx = (1 - sq1) * pa.x + sq1 * (1 - r2) * pb.x + sq1 * r2 * pc.x;
-              const wz = (1 - sq1) * pa.z + sq1 * (1 - r2) * pb.z + sq1 * r2 * pc.z;
-              const wy = 0.28 + Math.random() * 0.2;
-
-              const sw = randomSwarmCluster(currentParticleIndex++);
-              pTarget.push(wx, wy, wz);
-              pSwarm.push(sw.x, sw.y, sw.z);
-              
-              const c = (s % 2 === 0) ? colWaterMain : colWaterDeep;
-              pColor.push(c.r, c.g, c.b);
-              pSize.push(1.65);
-              pPhase.push(Math.random() * 10);
-              pCat.push(0.0);
-            }
-          });
-
-          for (let i = 0; i < sPts.length; i++) {
-            const p = sPts[i];
-            const sw = randomSwarmCluster(currentParticleIndex++);
-            pTarget.push(p.x, 0.32, p.z);
-            pSwarm.push(sw.x, sw.y, sw.z);
-            pColor.push(colWaterMain.r, colWaterMain.g, colWaterMain.b);
-            pSize.push(1.75);
-            pPhase.push(i * 0.3);
-            pCat.push(0.0);
-          }
-        });
-
-        rebuildTerritoryParticles();
-      })
-      .catch(err => console.warn("Error agua:", err));
-  }
-
   // Base de datos de árboles georreferenciados agrupados por especie
   const treeSpeciesClusters = {
     chicala: [],
@@ -1146,271 +921,344 @@
   function matchSpeciesKey(speciesName) {
     if (!speciesName) return "sauco";
     const s = speciesName.toLowerCase();
-    if (s.includes("chicala") || s.includes("chirlobirlo") || s.includes("amarillo")) return "chicala";
-    if (s.includes("jazmin") || s.includes("huesito")) return "jazmin";
-    if (s.includes("sauco")) return "sauco";
-    if (s.includes("pimiento")) return "falso_pimiento";
+    if (s.includes("chicala") || s.includes("chirlobirlo") || s.includes("amarillo") || s.includes("tecoma")) return "chicala";
+    if (s.includes("jazmin") || s.includes("huesito") || s.includes("pittosporum")) return "jazmin";
+    if (s.includes("sauco") || s.includes("sambucus")) return "sauco";
+    if (s.includes("pimiento") || s.includes("schinus")) return "falso_pimiento";
     if (s.includes("eugenia")) return "eugenia";
-    if (s.includes("palma") || s.includes("yuca") || s.includes("palmiche")) return "palma_yuca";
-    if (s.includes("urapan") || s.includes("fresno")) return "urapan";
-    if (s.includes("caucho")) return "caucho";
-    if (s.includes("cipres") || s.includes("pino")) return "cipres";
+    if (s.includes("palma") || s.includes("yuca") || s.includes("yucca") || s.includes("palmiche")) return "palma_yuca";
+    if (s.includes("urapan") || s.includes("fresno") || s.includes("fraxinus")) return "urapan";
+    if (s.includes("caucho") || s.includes("ficus")) return "caucho";
+    if (s.includes("cipres") || s.includes("pino") || s.includes("cupressus")) return "cipres";
     if (s.includes("acacia")) return "acacia";
-    if (s.includes("cerezo") || s.includes("capuli")) return "capulin";
-    if (s.includes("aliso")) return "aliso";
+    if (s.includes("cerezo") || s.includes("capuli") || s.includes("prunus")) return "capulin";
+    if (s.includes("aliso") || s.includes("alnus")) return "aliso";
     return null;
   }
 
-  function loadTrees() {
-    return fetch(TREES_URL)
-      .then(r => r.json())
-      .then(trees => {
-        const colTreeLush = new THREE.Color(0x2E8B57);
-        const colTreeBright = new THREE.Color(0x48BB78);
-        const colTrunk = new THREE.Color(0x161D26);
-        const list = Array.isArray(trees) ? trees : (trees.trees || []);
+  function parseWater(waterBodies) {
+    const colWaterMain = new THREE.Color(0x00B4D8);
+    const colWaterDeep = new THREE.Color(0x0077B6);
+    const list = Array.isArray(waterBodies) ? waterBodies : (waterBodies.waterBodies || []);
 
-        list.forEach((t, i) => {
-          const [x, y, hMeters, specName] = t;
-          const p = toScene(x, y);
-          const h = Math.max(0.7, (hMeters || 8) * SCALE);
+    list.forEach(w => {
+      const pts = w.pts;
+      if (!pts || pts.length < 3) return;
 
-          const sKey = matchSpeciesKey(specName);
-          if (sKey && treeSpeciesClusters[sKey]) {
-            treeSpeciesClusters[sKey].push({ x: p.x, y: h * 0.85, z: p.z, height: h });
-          }
+      const sPts = pts.map(p => toScene(p[0], p[1]));
+      const pts2d = sPts.map(p => new THREE.Vector2(p.x, p.z));
 
-          const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
-          const crownY = h * 0.85;
-          const swCrown = randomSwarmCluster(currentParticleIndex++);
-          pTarget.push(p.x, crownY, p.z);
-          pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
-          pColor.push(folCol.r, folCol.g, folCol.b);
-          pSize.push(1.6);
-          pPhase.push(i * 0.25);
-          pCat.push(1.0);
+      let tris = [];
+      try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch(e) { tris = []; }
 
-          const subNodes = 4;
-          const rad = h * 0.45;
-          for (let k = 0; k < subNodes; k++) {
-            const ang = (k / subNodes) * Math.PI * 2 + (i % 7);
-            const sx = p.x + Math.cos(ang) * rad;
-            const sz = p.z + Math.sin(ang) * rad;
-            const sy = crownY + (k % 2 === 0 ? 0.25 : -0.2);
-
-            const swSub = randomSwarmCluster(currentParticleIndex++);
-            pTarget.push(sx, sy, sz);
-            pSwarm.push(swSub.x, swSub.y, swSub.z);
-            pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
-            pSize.push(1.4);
-            pPhase.push(i + k * 1.5);
-            pCat.push(1.0);
-          }
-
-          const swBase = randomSwarmCluster(currentParticleIndex++);
-          pTarget.push(p.x, 0.1, p.z);
-          pSwarm.push(swBase.x, swBase.y, swBase.z);
-          pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
-          pSize.push(1.1);
-          pPhase.push(i * 0.1);
-          pCat.push(1.0);
-        });
-
-        rebuildTerritoryParticles();
-      })
-      .catch(err => console.warn("Error árboles:", err));
-  }
-
-  function loadRoads() {
-    return fetch(NET_URL)
-      .then(r => r.json())
-      .then(edges => {
-        const colRoad = new THREE.Color(0x232326);
-        const colMajor = new THREE.Color(0x38BDF8);
-        const edgeList = Array.isArray(edges) ? edges : (edges.edges || []);
-
-        edgeList.forEach(([kind, pts], edgeIdx) => {
-          const isMajor = (edgeIdx % 4 === 0);
-          const c = isMajor ? colMajor : colRoad;
-
-          for (let i = 0; i < pts.length - 1; i++) {
-            const a = toScene(pts[i][0], pts[i][1]);
-            const sw = randomSwarmCluster(currentParticleIndex++);
-            pTarget.push(a.x, 0.08, a.z);
-            pSwarm.push(sw.x, sw.y, sw.z);
-            pColor.push(c.r, c.g, c.b);
-            pSize.push(isMajor ? 1.25 : 0.95);
-            pPhase.push(edgeIdx * 0.35);
-            pCat.push(3.0);
-          }
-        });
-
-        rebuildTerritoryParticles();
-      })
-      .catch(err => console.warn("Error vías:", err));
-  }
-
-  function loadBuildings() {
-    return fetch(BUILDINGS_URL)
-      .then(r => r.json())
-      .then(buildings => {
-        // Paleta Arquitectónica: Piedra de Cantera, Pizarra y Basalto Oscuro (Sin blanco)
-        const colBldgPrimary   = new THREE.Color(0x3A3836);
-        const colBldgSecondary = new THREE.Color(0x484440);
-        const colRoofHighlight = new THREE.Color(0x544E48);
-        const colBaseGround    = new THREE.Color(0x131315);
-        const bldList = Array.isArray(buildings) ? buildings : (buildings.buildings || []);
-
-        bldList.forEach((b, bIdx) => {
-          const pts = b.pts;
-          if (!pts || pts.length < 3) return;
-
-          const sPts = pts.map(p => toScene(p[0], p[1]));
-          const h = (b.h || b.height || 10) * SCALE;
-          const bldgCol = (bIdx % 2 === 0) ? colBldgPrimary : colBldgSecondary;
-
-          for (let i = 0; i < sPts.length; i++) {
-            const p = sPts[i];
-            const steps = Math.max(3, Math.floor(h / 1.1));
-            for (let step = 0; step <= steps; step++) {
-              const y = (step / steps) * h;
-              const sw = randomSwarmCluster(currentParticleIndex++);
-              pTarget.push(p.x, y, p.z);
-              pSwarm.push(sw.x, sw.y, sw.z);
-              
-              const isRoof = (step === steps);
-              const c = isRoof ? colRoofHighlight : bldgCol;
-              pColor.push(c.r, c.g, c.b);
-              pSize.push(isRoof ? 1.3 : 1.1);
-              pPhase.push(bIdx + step);
-              pCat.push(2.0);
-            }
-          }
-        });
-
-        for (let s = 0; s < 3800; s++) {
-          const rad = 25 + Math.sqrt(Math.random()) * 210;
-          const ang = Math.random() * Math.PI * 2;
-          const gx = Math.cos(ang) * rad;
-          const gz = Math.sin(ang) * rad;
-          const gy = 0.02 + Math.random() * 0.2;
+      tris.forEach(([ia, ib, ic]) => {
+        const pa = sPts[ia], pb = sPts[ib], pc = sPts[ic];
+        for (let s = 0; s < 3; s++) {
+          const r1 = Math.random(), r2 = Math.random();
+          const sq1 = Math.sqrt(r1);
+          const wx = (1 - sq1) * pa.x + sq1 * (1 - r2) * pb.x + sq1 * r2 * pc.x;
+          const wz = (1 - sq1) * pa.z + sq1 * (1 - r2) * pb.z + sq1 * r2 * pc.z;
+          const wy = 0.28 + Math.random() * 0.2;
 
           const sw = randomSwarmCluster(currentParticleIndex++);
-          pTarget.push(gx, gy, gz);
+          pTarget.push(wx, wy, wz);
           pSwarm.push(sw.x, sw.y, sw.z);
-          pColor.push(colBaseGround.r, colBaseGround.g, colBaseGround.b);
-          pSize.push(0.92);
-          pPhase.push(s * 0.5);
-          pCat.push(4.0);
+          
+          const c = (s % 2 === 0) ? colWaterMain : colWaterDeep;
+          pColor.push(c.r, c.g, c.b);
+          pSize.push(1.65);
+          pPhase.push(Math.random() * 10);
+          pCat.push(0.0);
         }
+      });
 
-        rebuildTerritoryParticles();
-      })
-      .catch(err => console.warn("Error edificios:", err));
-  }
-
-  // Generar inmediatamente la geometría del Territorio 3D de Kennedy
-  generateProceduralKennedyTerritory();
-
-  // Intentar enriquecer con capas GIS locales si están disponibles
-  try {
-    Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
-      loadBuildings();
-      if (loadingVeil) loadingVeil.classList.add("hide");
-    }).catch((e) => {
-      console.log("Territorio 3D activo mediante motor procedural:", e);
-      if (loadingVeil) loadingVeil.classList.add("hide");
+      for (let i = 0; i < sPts.length; i++) {
+        const p = sPts[i];
+        const sw = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(p.x, 0.32, p.z);
+        pSwarm.push(sw.x, sw.y, sw.z);
+        pColor.push(colWaterMain.r, colWaterMain.g, colWaterMain.b);
+        pSize.push(1.75);
+        pPhase.push(i * 0.3);
+        pCat.push(0.0);
+      }
     });
-  } catch(e) {
-    if (loadingVeil) loadingVeil.classList.add("hide");
   }
 
+  function parseTrees(trees) {
+    const colTreeLush = new THREE.Color(0x2E8B57);
+    const colTreeBright = new THREE.Color(0x48BB78);
+    const colTrunk = new THREE.Color(0x161D26);
+    const list = Array.isArray(trees) ? trees : (trees.trees || []);
 
-  // 5. CONSTELACIONES DINÁMICAS Y FOCO VISUAL DE ESPECIES DE ÁRBOLES
-  // =====================================================================
-  const speciesConstellationGroup = new THREE.Group();
-  sceneRoot.add(speciesConstellationGroup);
+    const sampleStep = Math.max(1, Math.floor(list.length / 22000));
+    for (let i = 0; i < list.length; i += sampleStep) {
+      const t = list[i];
+      const [x, y, hMeters, specName] = t;
+      const p = toScene(x, y);
+      const h = Math.max(0.7, (hMeters || 8) * SCALE);
 
-  let activeConstellationPoints = null;
-  let activeConstellationLines = null;
+      const sKey = matchSpeciesKey(specName);
+      if (sKey && treeSpeciesClusters[sKey]) {
+        treeSpeciesClusters[sKey].push({ x: p.x, y: h * 0.85, z: p.z, height: h });
+      }
 
-  const activeTreeIndicatorGroup = new THREE.Group();
-  sceneRoot.add(activeTreeIndicatorGroup);
+      const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
+      const crownY = h * 0.85;
+      const swCrown = randomSwarmCluster(currentParticleIndex++);
+      pTarget.push(p.x, crownY, p.z);
+      pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
+      pColor.push(folCol.r, folCol.g, folCol.b);
+      pSize.push(1.6);
+      pPhase.push(i * 0.25);
+      pCat.push(1.0);
 
-  const focusDotGeo = new THREE.CircleGeometry(1.6, 24);
-  const focusDotMat = new THREE.MeshBasicMaterial({ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0 });
-  const focusDotMesh = new THREE.Mesh(focusDotGeo, focusDotMat);
-  focusDotMesh.rotation.x = -Math.PI / 2;
-  activeTreeIndicatorGroup.add(focusDotMesh);
+      const subNodes = 3;
+      const rad = h * 0.45;
+      for (let k = 0; k < subNodes; k++) {
+        const ang = (k / subNodes) * Math.PI * 2 + (i % 7);
+        const sx = p.x + Math.cos(ang) * rad;
+        const sz = p.z + Math.sin(ang) * rad;
+        const sy = crownY + (k % 2 === 0 ? 0.25 : -0.2);
 
-  const focusRingGeo = new THREE.RingGeometry(2.8, 5.4, 24);
-  const focusRingMat = new THREE.MeshBasicMaterial({ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0, blending: THREE.NormalBlending });
-  const focusRingMesh = new THREE.Mesh(focusRingGeo, focusRingMat);
-  focusRingMesh.rotation.x = -Math.PI / 2;
-  activeTreeIndicatorGroup.add(focusRingMesh);
+        const swSub = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(sx, sy, sz);
+        pSwarm.push(swSub.x, swSub.y, swSub.z);
+        pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
+        pSize.push(1.35);
+        pPhase.push(i + k * 1.5);
+        pCat.push(1.0);
+      }
 
-  function renderTreeConstellation(specId, colHex) {
-    speciesConstellationGroup.clear();
-    const cluster = treeSpeciesClusters[specId] || [];
-    if (cluster.length === 0) return;
-
-    const sampleSize = Math.min(cluster.length, 750);
-    const step = Math.max(1, Math.floor(cluster.length / sampleSize));
-    const sampled = [];
-    for (let i = 0; i < cluster.length && sampled.length < sampleSize; i += step) {
-      sampled.push(cluster[i]);
+      const swBase = randomSwarmCluster(currentParticleIndex++);
+      pTarget.push(p.x, 0.1, p.z);
+      pSwarm.push(swBase.x, swBase.y, swBase.z);
+      pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
+      pSize.push(1.1);
+      pPhase.push(i * 0.1);
+      pCat.push(1.0);
     }
+  }
 
-    const pos = new Float32Array(sampled.length * 3);
-    const cols = new Float32Array(sampled.length * 3);
-    const colObj = new THREE.Color(colHex);
+  function parseRoads(netData) {
+    const colRoad = new THREE.Color(0x232326);
+    const colMajor = new THREE.Color(0x38BDF8);
+    const edgeList = Array.isArray(netData) ? netData : (netData.edges || []);
 
-    for (let i = 0; i < sampled.length; i++) {
-      const t = sampled[i];
-      pos[i * 3]     = t.x;
-      pos[i * 3 + 1] = t.y + 0.2;
-      pos[i * 3 + 2] = t.z;
-      cols[i * 3]     = colObj.r;
-      cols[i * 3 + 1] = colObj.g;
-      cols[i * 3 + 2] = colObj.b;
-    }
+    edgeList.forEach(([kind, pts], edgeIdx) => {
+      if (edgeIdx % 2 !== 0) return;
+      const isMajor = (edgeIdx % 4 === 0);
+      const c = isMajor ? colMajor : colRoad;
 
-    const cGeo = new THREE.BufferGeometry();
-    cGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    cGeo.setAttribute("color", new THREE.BufferAttribute(cols, 3));
-    const cMat = new THREE.PointsMaterial({ size: 2.8, vertexColors: true, transparent: true, opacity: 0.0, blending: THREE.NormalBlending });
-    activeConstellationPoints = new THREE.Points(cGeo, cMat);
-    speciesConstellationGroup.add(activeConstellationPoints);
+      for (let i = 0; i < pts.length - 1; i++) {
+        const a = toScene(pts[i][0], pts[i][1]);
+        const sw = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(a.x, 0.08, a.z);
+        pSwarm.push(sw.x, sw.y, sw.z);
+        pColor.push(c.r, c.g, c.b);
+        pSize.push(isMajor ? 1.25 : 0.95);
+        pPhase.push(edgeIdx * 0.35);
+        pCat.push(3.0);
+      }
+    });
+  }
 
-    const linePairs = [];
-    for (let i = 0; i < sampled.length; i++) {
-      const a = sampled[i];
-      for (let j = i + 1; j < sampled.length; j++) {
-        const b = sampled[j];
-        const distSq = (a.x - b.x)**2 + (a.z - b.z)**2;
-        if (distSq < 180 && linePairs.length < 350) {
-          linePairs.push(a.x, a.y + 0.2, a.z, b.x, b.y + 0.2, b.z);
+  function parseBuildings(buildings) {
+    const colBldgPrimary   = new THREE.Color(0x3A3836);
+    const colBldgSecondary = new THREE.Color(0x484440);
+    const colRoofHighlight = new THREE.Color(0x544E48);
+    const colBaseGround    = new THREE.Color(0x131315);
+    const bldList = Array.isArray(buildings) ? buildings : (buildings.buildings || []);
+
+    const bldStep = Math.max(1, Math.floor(bldList.length / 14000));
+    for (let bIdx = 0; bIdx < bldList.length; bIdx += bldStep) {
+      const b = bldList[bIdx];
+      const pts = b.pts;
+      if (!pts || pts.length < 3) continue;
+
+      const sPts = pts.map(p => toScene(p[0], p[1]));
+      const h = (b.h || b.height || 10) * SCALE;
+      const bldgCol = (bIdx % 2 === 0) ? colBldgPrimary : colBldgSecondary;
+
+      for (let i = 0; i < sPts.length; i += 2) {
+        const p = sPts[i];
+        const steps = Math.max(2, Math.floor(h / 1.4));
+        for (let step = 0; step <= steps; step++) {
+          const y = (step / steps) * h;
+          const sw = randomSwarmCluster(currentParticleIndex++);
+          pTarget.push(p.x, y, p.z);
+          pSwarm.push(sw.x, sw.y, sw.z);
+          
+          const isRoof = (step === steps);
+          const c = isRoof ? colRoofHighlight : bldgCol;
+          pColor.push(c.r, c.g, c.b);
+          pSize.push(isRoof ? 1.25 : 1.05);
+          pPhase.push(bIdx + step);
+          pCat.push(2.0);
         }
       }
     }
 
-    if (linePairs.length > 0) {
-      const lGeo = new THREE.BufferGeometry();
-      lGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePairs, 3));
-      const lMat = new THREE.LineBasicMaterial({ color: colObj, transparent: true, opacity: 0.0, blending: THREE.NormalBlending });
-      activeConstellationLines = new THREE.LineSegments(lGeo, lMat);
-      speciesConstellationGroup.add(activeConstellationLines);
-    }
+    for (let s = 0; s < 3800; s++) {
+      const rad = 25 + Math.sqrt(Math.random()) * 210;
+      const ang = Math.random() * Math.PI * 2;
+      const gx = Math.cos(ang) * rad;
+      const gz = Math.sin(ang) * rad;
+      const gy = 0.02 + Math.random() * 0.2;
 
-    speciesConstellationGroup.visible = true;
-
-    if (window.gsap) {
-      gsap.to(cMat, { opacity: 0.85, duration: 1.2, ease: "power2.out" });
-      if (activeConstellationLines) {
-        gsap.to(activeConstellationLines.material, { opacity: 0.35, duration: 1.2, ease: "power2.out" });
-      }
+      const sw = randomSwarmCluster(currentParticleIndex++);
+      pTarget.push(gx, gy, gz);
+      pSwarm.push(sw.x, sw.y, sw.z);
+      pColor.push(colBaseGround.r, colBaseGround.g, colBaseGround.b);
+      pSize.push(0.92);
+      pPhase.push(s * 0.5);
+      pCat.push(4.0);
     }
   }
+
+  function generateProceduralKennedyTerritory() {
+    console.log("Generando Territorio 3D Procedural de Failsafe...");
+    pTarget.length = 0;
+    pSwarm.length = 0;
+    pColor.length = 0;
+    pSize.length = 0;
+    pPhase.length = 0;
+    pCat.length = 0;
+    currentParticleIndex = 0;
+
+    const colWaterMain  = new THREE.Color(0x00B4D8);
+    const colWaterDeep  = new THREE.Color(0x0077B6);
+    const colTreeLush   = new THREE.Color(0x2E8B57);
+    const colTreeBright = new THREE.Color(0x48BB78);
+    const colTrunk      = new THREE.Color(0x161D26);
+    const colRoad       = new THREE.Color(0x232326);
+    const colMajor      = new THREE.Color(0x38BDF8);
+    const colBldgWall   = new THREE.Color(0x3A3836);
+    const colBldgAlt    = new THREE.Color(0x484440);
+    const colRoof       = new THREE.Color(0x544E48);
+
+    const wetlands = [
+      { cx: 210, cz: 40, rx: 75, rz: 38, name: "Humedal El Burro" },
+      { cx: 65,  cz: 160, rx: 58, rz: 32, name: "PEDH La Vaca" },
+      { cx: 290, cz: -30, rx: 50, rz: 28, name: "Humedal de Techo" }
+    ];
+
+    wetlands.forEach(w => {
+      for (let i = 0; i < 1400; i++) {
+        const rad = Math.sqrt(Math.random());
+        const ang = Math.random() * Math.PI * 2;
+        const wx = w.cx + Math.cos(ang) * w.rx * rad;
+        const wz = w.cz + Math.sin(ang) * w.rz * rad;
+        const wy = 0.28 + Math.random() * 0.25;
+
+        const sw = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(wx, wy, wz);
+        pSwarm.push(sw.x, sw.y, sw.z);
+        const c = (i % 2 === 0) ? colWaterMain : colWaterDeep;
+        pColor.push(c.r, c.g, c.b);
+        pSize.push(1.75);
+        pPhase.push(i * 0.25);
+        pCat.push(0.0);
+      }
+    });
+
+    for (let t = 0; t < 2500; t++) {
+      const nearWetland = wetlands[t % wetlands.length];
+      const ang = Math.random() * Math.PI * 2;
+      const dist = (nearWetland.rx + 4) + Math.random() * 65;
+      const tx = nearWetland.cx + Math.cos(ang) * dist;
+      const tz = nearWetland.cz + Math.sin(ang) * dist;
+      const h = 2.0 + Math.random() * 5.0;
+
+      const sw = randomSwarmCluster(currentParticleIndex++);
+      pTarget.push(tx, h * 0.85, tz);
+      pSwarm.push(sw.x, sw.y, sw.z);
+      const folCol = (t % 2 === 0) ? colTreeLush : colTreeBright;
+      pColor.push(folCol.r, folCol.g, folCol.b);
+      pSize.push(1.6);
+      pPhase.push(t);
+      pCat.push(1.0);
+    }
+
+    for (let r = -40; r <= 380; r += 32) {
+      for (let z = -180; z <= 240; z += 4) {
+        const sw = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(r, 0.08, z);
+        pSwarm.push(sw.x, sw.y, sw.z);
+        pColor.push(colRoad.r, colRoad.g, colRoad.b);
+        pSize.push(1.1);
+        pPhase.push(r + z);
+        pCat.push(3.0);
+      }
+    }
+
+    for (let bx = -30; bx <= 380; bx += 26) {
+      for (let bz = -190; bz <= 250; bz += 26) {
+        const insideWater = wetlands.some(w => {
+          const dx = (bx - w.cx) / (w.rx + 8);
+          const dz = (bz - w.cz) / (w.rz + 8);
+          return (dx * dx + dz * dz) < 1.0;
+        });
+        if (insideWater) continue;
+
+        const bh = 6.0 + (Math.sin(bx * 0.04 + bz * 0.03) + 1.0) * 8.0;
+        const bcol = ((bx + bz) % 2 === 0) ? colBldgWall : colBldgAlt;
+
+        for (let corner = 0; corner < 4; corner++) {
+          const cx = bx + (corner % 2 === 0 ? -8 : 8);
+          const cz = bz + (corner < 2 ? -8 : 8);
+          const steps = Math.max(3, Math.floor(bh / 1.4));
+          for (let st = 0; st <= steps; st++) {
+            const y = (st / steps) * bh;
+            const sw = randomSwarmCluster(currentParticleIndex++);
+            pTarget.push(cx, y, cz);
+            pSwarm.push(sw.x, sw.y, sw.z);
+            const isRoof = (st === steps);
+            const c = isRoof ? colRoof : bcol;
+            pColor.push(c.r, c.g, c.b);
+            pSize.push(isRoof ? 1.25 : 1.05);
+            pPhase.push(st + bx);
+            pCat.push(2.0);
+          }
+        }
+      }
+    }
+
+    rebuildTerritoryParticles();
+  }
+
+  // Carga auténtica de capas GIS de Kennedy
+  Promise.all([
+    fetch(WATER_URL).then(r => r.json()).catch(() => null),
+    fetch(TREES_URL).then(r => r.json()).catch(() => null),
+    fetch(NET_URL).then(r => r.json()).catch(() => null),
+    fetch(BUILDINGS_URL).then(r => r.json()).catch(() => null)
+  ]).then(([waterData, treesData, netData, bldData]) => {
+    pTarget.length = 0;
+    pSwarm.length = 0;
+    pColor.length = 0;
+    pSize.length = 0;
+    pPhase.length = 0;
+    pCat.length = 0;
+    currentParticleIndex = 0;
+
+    if (waterData) parseWater(waterData);
+    if (treesData) parseTrees(treesData);
+    if (netData) parseRoads(netData);
+    if (bldData) parseBuildings(bldData);
+
+    if (pTarget.length > 0) {
+      rebuildTerritoryParticles();
+      console.log(`Territorio 3D de Kennedy cargado: ${pTarget.length / 3} partículas territoriales.`);
+    } else {
+      generateProceduralKennedyTerritory();
+    }
+    if (loadingVeil) loadingVeil.classList.add("hide");
+  }).catch(err => {
+    console.warn("Error cargando GIS, usando procedural:", err);
+    generateProceduralKennedyTerritory();
+    if (loadingVeil) loadingVeil.classList.add("hide");
+  });
 
   // =====================================================================
   // 6. CONTROLADOR BOTÁNICO Y RECORRIDO DE ÁRBOLES EN EL TERRITORIO
@@ -1526,7 +1374,7 @@
   function calculateTerritoryCoordinate(t, idx, total) {
     const cat = t.cat;
 
-    if (cat === "Anfibios") {
+    if (cat === "Anfibios" || cat === 4) {
       const waterHubs = [
         { x: 209.56, z: -10.93, name: "Humedal El Burro — Espejo Central" },
         { x: 67.66, z: 118.17, name: "Humedal La Vaca — Sector Norte" },
@@ -1539,7 +1387,7 @@
       const ang = (idx * 2.3) % (Math.PI * 2);
       const rad = 5.0 + (idx % 4) * 3.5;
       return { x: hub.x + Math.cos(ang) * rad, y: 1.2, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
-    } else if (cat === "Moluscos") {
+    } else if (cat === "Moluscos" || cat === 3) {
       const hubs = [
         { x: 205.0, z: -15.0, name: "Humedal El Burro — Juncal de Ribera" },
         { x: 72.0, z: 112.0, name: "Humedal La Vaca — Fango Húmedo" },
@@ -1549,7 +1397,7 @@
       const ang = (idx * 1.7) % (Math.PI * 2);
       const rad = 6.0 + (idx % 3) * 4.0;
       return { x: hub.x + Math.cos(ang) * rad, y: 0.9, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
-    } else if (cat === "Reptiles") {
+    } else if (cat === "Reptiles" || cat === 5) {
       const hubs = [
         { x: 230.0, z: 5.0, name: "Humedal El Burro — Talud Soleado" },
         { x: 275.0, z: -65.0, name: "Humedal de Techo — Matorral Pedregoso" },
@@ -1560,7 +1408,7 @@
       const ang = (idx * 2.1) % (Math.PI * 2);
       const rad = 10.0 + (idx % 4) * 5.0;
       return { x: hub.x + Math.cos(ang) * rad, y: 1.4, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
-    } else if (cat === "Mamíferos") {
+    } else if (cat === "Mamíferos" || cat === 2) {
       const hubs = [
         { x: 195.0, z: -25.0, name: "Humedal El Burro — Matorral Denso" },
         { x: 225.0, z: 30.0, name: "Humedal El Burro — Franja Protectora" },
@@ -1571,7 +1419,7 @@
       const ang = (idx * 1.9) % (Math.PI * 2);
       const rad = 12.0 + (idx % 5) * 5.0;
       return { x: hub.x + Math.cos(ang) * rad, y: 1.8, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
-    } else if (cat === "Aves") {
+    } else if (cat === "Aves" || cat === 1) {
       const hubs = [
         { x: 209.56, z: -10.93, h: 4.5, name: "Humedal El Burro — Espejo de Agua" },
         { x: 67.66, z: 118.17, h: 3.8, name: "Humedal La Vaca — Totoral" },
@@ -1587,7 +1435,6 @@
       const rad = 8.0 + (idx % 7) * 6.0;
       return { x: hub.x + Math.cos(ang) * rad, y: hub.h || 4.5, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
     } else {
-      // Flora & Árboles SIGAU
       const sKey = matchSpeciesKey(t.name);
       if (sKey && treeSpeciesClusters[sKey] && treeSpeciesClusters[sKey].length > 0) {
         const cluster = treeSpeciesClusters[sKey];
@@ -1598,6 +1445,7 @@
       const rad = 25.0 + ((idx * 19) % 210);
       return { x: Math.cos(ang) * rad + 140.0, y: 3.2, z: Math.sin(ang) * rad + 40.0, locName: "Arbolado Urbano de Kennedy" };
     }
+  }
   }
 
   // Generar las Balizas Interactivas de las 181 Especies
