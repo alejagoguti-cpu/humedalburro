@@ -1123,6 +1123,65 @@ window.onerror = function(msg, url, line, col, error) {
   </div>
 </div>
 
+  <!-- Territory Hover Tooltip -->
+  <div id="territorySpeciesTooltip" style="position: fixed; display: none; z-index: 9999; pointer-events: none; transform: translate(14px, -50%); transition: opacity 0.15s ease;">
+    <div style="background: rgba(8, 12, 18, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--cat-color, #84A48B); border-radius: 12px; padding: 12px 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.85); width: 280px; display: flex; flex-direction: column; gap: 8px; color: #fff; font-family: 'Inter', sans-serif;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img id="ttSpeciesImg" src="" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1.5px solid var(--cat-color, #84A48B); flex-shrink: 0; background: #000;">
+        <div style="display: flex; flex-direction: column; overflow: hidden;">
+          <span id="ttSpeciesBadge" style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cat-color, #84A48B); display: flex; align-items: center; gap: 4px;">🟢 ANFIBIO</span>
+          <span id="ttSpeciesName" style="font-size: 13px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rana sabanera</span>
+          <span id="ttSpeciesSci" style="font-size: 10.5px; font-style: italic; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dendropsophus labialis</span>
+        </div>
+      </div>
+      <div style="background: rgba(255, 255, 255, 0.04); border-radius: 6px; padding: 6px 8px; font-size: 10.5px; color: #cbd5e1; line-height: 1.35;">
+        <div id="ttSpeciesLoc" style="color: #38BDF8; font-weight: 600; margin-bottom: 2px;">📍 Humedal El Burro</div>
+        <div id="ttSpeciesRole" style="color: #94a3b8;">Insectívoro de orilla / Bioindicador</div>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; color: var(--cat-color, #84A48B); font-weight: 700; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 6px;">
+        <span>✨ Coordenada Kennedy</span>
+        <span>👆 Clic para ver Pop-up ➔</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Territory Species Pop-up Modal -->
+  <div id="territorySpeciesModal" class="glass-panel" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 440px; max-width: 90vw; max-height: 85vh; z-index: 10000; display: none; flex-direction: column; overflow: hidden; border: 2px solid var(--cat-color, #84A48B); border-radius: 16px; box-shadow: 0 30px 90px rgba(0,0,0,0.95); background: #06090f; animation: fadeIn 0.25s ease-out; pointer-events: auto;">
+    <div style="position: relative; width: 100%; height: 180px; overflow: hidden; background: #000;">
+      <img id="modalSpeciesImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
+      <div style="position: absolute; inset: 0; background: linear-gradient(0deg, #06090f 5%, transparent 60%);"></div>
+      <div id="btnCloseTerritoryModal" style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 14px;">✕</div>
+      <div style="position: absolute; bottom: 10px; left: 16px; right: 16px;">
+        <span id="modalSpeciesBadge" style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 4px; background: rgba(0,0,0,0.7); border: 1px solid var(--cat-color, #84A48B); color: var(--cat-color, #84A48B);">🟢 ANFIBIO</span>
+        <h2 id="modalSpeciesName" style="font-size: 18px; font-weight: 800; color: #fff; margin-top: 4px;">Rana sabanera</h2>
+        <p id="modalSpeciesSci" style="font-size: 12px; font-style: italic; color: #94a3b8;">Dendropsophus labialis</p>
+      </div>
+    </div>
+    <div style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px;">
+          <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 700;">Ubicación en Kennedy</div>
+          <div id="modalSpeciesLoc" style="font-size: 11.5px; font-weight: 600; color: #38BDF8; margin-top: 2px;">Humedal El Burro</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px;">
+          <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 700;">Gremio Ecológico</div>
+          <div id="modalSpeciesRole" style="font-size: 11.5px; font-weight: 600; color: #84A48B; margin-top: 2px;">Insectívoro / Bioindicador</div>
+        </div>
+      </div>
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px;">
+        <div style="font-size: 10px; color: var(--cat-color, #84A48B); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 4px;">Descripción & Evidencia iNaturalist</div>
+        <p id="modalSpeciesDesc" style="font-size: 11.5px; line-height: 1.45; color: #cbd5e1;">Especie clave bioindicadora de la salud del cuerpo de agua.</p>
+      </div>
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px;">
+        <div style="font-size: 10px; color: #38BDF8; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 6px;">🔗 Conexiones Bióticas en el Ecosistema</div>
+        <div id="modalSpeciesLinks" style="display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto;"></div>
+      </div>
+      <button id="btnFlyToSpecies" style="padding: 10px; border-radius: 8px; background: var(--cat-color, #84A48B); color: #000; font-weight: 800; font-size: 11px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+        <i class="fa-solid fa-crosshairs"></i> Enfocar Cámara en Coordenada de Kennedy
+      </button>
+    </div>
+  </div>
+
 <!-- Waypoints Bar (Stage 2 - Territorio 3D) -->
 <div class="waypoints-bar" id="waypointsBar">
   <button class="waypoint-pill active" data-waypoint="overview">
@@ -1192,6 +1251,13 @@ window.onerror = function(msg, url, line, col, error) {
 // =====================================================================
 
 (() => {
+  // Global Engine & Raycasting Declarations (Declared at top to prevent TDZ)
+  const raycaster = new THREE.Raycaster();
+  const mouseVec = new THREE.Vector2();
+  let selectedNode = null;
+  let hoveredNode = null;
+  let particleMat = null;
+  let particlePoints = null;
   const NET_URL = "./assets/kennedy_net.json";
   const BUILDINGS_URL = "./assets/kennedy_buildings.json";
   const TREES_URL = "./assets/kennedy_trees_real.json";
@@ -2634,7 +2700,7 @@ window.onerror = function(msg, url, line, col, error) {
       return { x: Math.cos(ang) * rad + 140.0, y: 3.2, z: Math.sin(ang) * rad + 40.0, locName: "Arbolado Urbano de Kennedy" };
     }
   }
-  }
+  
 
   // Generar las Balizas Interactivas de las 181 Especies
   rawTaxa.forEach((t, idx) => {
@@ -2905,10 +2971,6 @@ window.onerror = function(msg, url, line, col, error) {
   // =====================================================================
   // 7. INTERACCIÓN DE RED BIÓTICA, INSPECTOR, LAYOUTS Y SUB-RED
   // =====================================================================
-  let selectedNode = null;
-  let hoveredNode = null;
-  const raycaster = new THREE.Raycaster();
-  const mouseVec = new THREE.Vector2();
 
   window.openWelcomeModal = () => {
     const modal = document.getElementById('welcomeModalOverlay');
@@ -2954,18 +3016,6 @@ window.onerror = function(msg, url, line, col, error) {
       const isActive = opts.interactions[typeId];
       itemEl.classList.toggle('active', isActive);
       itemEl.classList.toggle('inactive', !isActive);
-    }
-    recalculateDegreesAndSizes();
-  };
-
-  window.toggleAllInteractions = (state) => {
-    for (let i = 0; i <= 8; i++) {
-      opts.interactions[i] = state;
-      const itemEl = document.getElementById(`interItem${i}`);
-      if (itemEl) {
-        itemEl.classList.toggle('active', state);
-        itemEl.classList.toggle('inactive', !state);
-      }
     }
     recalculateDegreesAndSizes();
   };

@@ -4,6 +4,13 @@
 // =====================================================================
 
 (() => {
+  // Global Engine & Raycasting Declarations (Declared at top to prevent TDZ)
+  const raycaster = new THREE.Raycaster();
+  const mouseVec = new THREE.Vector2();
+  let selectedNode = null;
+  let hoveredNode = null;
+  let particleMat = null;
+  let particlePoints = null;
   const NET_URL = "./assets/kennedy_net.json";
   const BUILDINGS_URL = "./assets/kennedy_buildings.json";
   const TREES_URL = "./assets/kennedy_trees_real.json";
@@ -1446,7 +1453,7 @@
       return { x: Math.cos(ang) * rad + 140.0, y: 3.2, z: Math.sin(ang) * rad + 40.0, locName: "Arbolado Urbano de Kennedy" };
     }
   }
-  }
+  
 
   // Generar las Balizas Interactivas de las 181 Especies
   rawTaxa.forEach((t, idx) => {
@@ -1717,10 +1724,6 @@
   // =====================================================================
   // 7. INTERACCIÓN DE RED BIÓTICA, INSPECTOR, LAYOUTS Y SUB-RED
   // =====================================================================
-  let selectedNode = null;
-  let hoveredNode = null;
-  const raycaster = new THREE.Raycaster();
-  const mouseVec = new THREE.Vector2();
 
   window.openWelcomeModal = () => {
     const modal = document.getElementById('welcomeModalOverlay');
@@ -1766,18 +1769,6 @@
       const isActive = opts.interactions[typeId];
       itemEl.classList.toggle('active', isActive);
       itemEl.classList.toggle('inactive', !isActive);
-    }
-    recalculateDegreesAndSizes();
-  };
-
-  window.toggleAllInteractions = (state) => {
-    for (let i = 0; i <= 8; i++) {
-      opts.interactions[i] = state;
-      const itemEl = document.getElementById(`interItem${i}`);
-      if (itemEl) {
-        itemEl.classList.toggle('active', state);
-        itemEl.classList.toggle('inactive', !state);
-      }
     }
     recalculateDegreesAndSizes();
   };
