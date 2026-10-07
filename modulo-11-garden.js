@@ -1494,8 +1494,8 @@
     if (updateSlider && slider) slider.value = Math.round(targetMorph * 100);
     isTerritory = targetMorph > 0.45;
 
-    sceneBaseGroup.visible = targetMorph > 0.15;
-    networkGroup.visible = targetMorph < 0.35;
+    sceneBaseGroup.visible = targetMorph > 0.10;
+    networkGroup.visible = targetMorph < 0.95;
 
     if (btnActionText) {
       btnActionText.textContent = isTerritory ? "DISPERSAR A RED BIÓTICA" : "MATERIALIZAR";
@@ -1705,25 +1705,66 @@
     particleUniforms.uMorphProgress.value = currentMorph;
     particleUniforms.uTime.value = elapsedTime;
 
-    // Rotación suave del enjambre biótico en fase 0
-    if (opts.autoRotate && currentMorph < 0.35) {
+    const ease = currentMorph;
+    const explosionIntensity = Math.sin(ease * Math.PI);
+
+    // 1. ANIMACIÓN DE EXPLOSIÓN Y DESTRUCCIÓN CINEMÁTICA DE LA RED BIÓTICA
+    nodeSprites.forEach((sp, idx) => {
+      const n = rawNodes[idx];
+      if (!n) return;
+
+      if (currentMorph < 0.001) {
+        sp.position.set(n.ox, n.oy, n.oz);
+        sp.material.opacity = n.active ? 1.0 : 0.15;
+        sp.visible = n.active;
+      } else {
+        // Los 181 nodos estallan orgánicamente hacia el exterior con turbulencia curl
+        const dirX = n.ox / (SPHERE_RADIUS || 32.0);
+        const dirY = n.oy / (SPHERE_RADIUS || 32.0);
+        const dirZ = n.oz / (SPHERE_RADIUS || 32.0);
+
+        const blastDist = explosionIntensity * 85.0 + ease * 130.0;
+        const curlX = Math.sin(elapsedTime * 2.2 + idx * 0.5) * 26.0 * explosionIntensity;
+        const curlY = Math.cos(elapsedTime * 1.9 + idx * 0.4) * 22.0 * explosionIntensity;
+        const curlZ = Math.sin(elapsedTime * 2.4 + idx * 0.6) * 26.0 * explosionIntensity;
+
+        sp.position.x = n.ox + dirX * blastDist + curlX;
+        sp.position.y = n.oy + dirY * blastDist + curlY;
+        sp.position.z = n.oz + dirZ * blastDist + curlZ;
+
+        // Desvanecimiento suave durante la explosión
+        const fadeAlpha = Math.max(0.0, 1.0 - ease * 2.4);
+        sp.material.opacity = fadeAlpha * (n.active ? 1.0 : 0.15);
+        sp.visible = (fadeAlpha > 0.02) && n.active;
+
+        const blastScale = (2.8 + Math.sqrt(n.degree) * 0.4) * (1.0 + explosionIntensity * 0.95);
+        sp.scale.set(blastScale, blastScale, 1.0);
+      }
+
+      if (sp.visible) {
+        sp.quaternion.copy(camera.quaternion);
+      }
+    });
+
+    // 2. EXPLOSIÓN Y DESVANECIMIENTO DE LÍNEAS DE INTERACCIÓN
+    if (edgeLinesMesh) {
+      if (currentMorph < 0.001) {
+        edgeMat.opacity = 0.28 + Math.sin(elapsedTime * 2.2) * 0.08;
+        edgeLinesMesh.visible = true;
+      } else {
+        const edgeAlpha = Math.max(0.0, 0.38 - ease * 1.5);
+        edgeMat.opacity = edgeAlpha;
+        edgeLinesMesh.visible = edgeAlpha > 0.01;
+      }
+    }
+
+    // Rotación suave del enjambre biótico en reposo
+    if (opts.autoRotate && currentMorph < 0.05) {
       networkGroup.rotation.y += 0.0022;
       networkGroup.rotation.x = Math.sin(elapsedTime * 0.4) * 0.04;
     } else {
       networkGroup.rotation.set(0, 0, 0);
     }
-
-    // Pulsación suave de las líneas bióticas
-    if (edgeMat && currentMorph < 0.35) {
-      edgeMat.opacity = 0.28 + Math.sin(elapsedTime * 2.2) * 0.08;
-    }
-
-    // Orientar siempre las partículas circulares hacia la cámara
-    nodeSprites.forEach(sp => {
-      if (sp.visible) {
-        sp.quaternion.copy(camera.quaternion);
-      }
-    });
 
     controls.update();
     renderer.render(scene, camera);
