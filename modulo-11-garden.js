@@ -1,7 +1,7 @@
 // =====================================================================
-// El Jardín de las Aguas — Red Biótica & Territorio de Kennedy 3D
-// Digital Experience inspired by Network Topology & Biological Graphs
-// Clean Single-Layer Swarm -> Shockwave Explosion -> 3D Territory
+// El Jardín de las Aguas — Red Biótica Esférica & Territorio de Kennedy 3D
+// Digital Experience inspired by Biological Network Spheres & Graphs
+// 3D Spherical Swarm -> High-Energy Explosion -> 3D Territory
 // =====================================================================
 
 (() => {
@@ -46,17 +46,18 @@
   const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 9500);
   
   // Posiciones de Cámara
-  const swarmCamPos = new THREE.Vector3(0, 20, 115);
+  const swarmCamPos = new THREE.Vector3(0, 0, 118);
   const swarmTarget = new THREE.Vector3(0, 0, 0);
 
-  const territoryCamPos = new THREE.Vector3(180, 260, 310);
+  const territoryCamPos = new THREE.Vector3(180, 270, 310);
   const territoryTarget = new THREE.Vector3(35, 0, 10);
 
+  // Waypoints solicitados: Axonometría Total, Humedal El Burro, Humedal La Vaca, Humedal El Techo
   const waypoints = {
     overview: { pos: territoryCamPos, target: territoryTarget },
     burro:    { pos: new THREE.Vector3(180, 95, 110),  target: new THREE.Vector3(210, 0, -10) },
-    canopy:   { pos: new THREE.Vector3(90, 60, 80),    target: new THREE.Vector3(80, 5, 40) },
-    cali:     { pos: new THREE.Vector3(285, 110, -30), target: new THREE.Vector3(200, 0, -20) }
+    vaca:     { pos: new THREE.Vector3(-50, 100, 150), target: new THREE.Vector3(-30, 0, 90) },
+    techo:    { pos: new THREE.Vector3(110, 100, -110),target: new THREE.Vector3(130, 0, -130) }
   };
 
   camera.position.copy(swarmCamPos);
@@ -71,14 +72,14 @@
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.35;
 
-  // OrbitControls suave e intuitivo
+  // OrbitControls 360° completo y libre (sin restricciones de polar angle para poder ver la esfera completa desde cualquier ángulo)
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.screenSpacePanning = true;
   controls.maxDistance = 3500;
   controls.minDistance = 6;
-  controls.maxPolarAngle = Math.PI / 2 + 0.08;
+  controls.maxPolarAngle = Math.PI;
   controls.target.copy(swarmTarget);
 
   // Auto-fade del título al interactuar con el mouse, scroll o tocar
@@ -105,7 +106,11 @@
     }
   });
 
-  // Base Paisajística Amplia en Modo Territorio
+  // Base Paisajística del Territorio (Visible ÚNICAMENTE en Modo Territorio, nunca corta la esfera)
+  const sceneBaseGroup = new THREE.Group();
+  sceneBaseGroup.visible = false;
+  sceneRoot.add(sceneBaseGroup);
+
   function createExpansiveBase() {
     const discGeo = new THREE.RingGeometry(5, 1700, 80);
     const discMat = new THREE.MeshBasicMaterial({
@@ -117,13 +122,13 @@
     const disc = new THREE.Mesh(discGeo, discMat);
     disc.rotation.x = -Math.PI / 2;
     disc.position.y = -0.6;
-    sceneRoot.add(disc);
+    sceneBaseGroup.add(disc);
 
     const grid = new THREE.GridHelper(2800, 100, 0x10b981, 0x05131b);
     grid.position.y = -0.55;
     grid.material.opacity = 0.24;
     grid.material.transparent = true;
-    sceneRoot.add(grid);
+    sceneBaseGroup.add(grid);
   }
   createExpansiveBase();
 
@@ -131,28 +136,28 @@
   // 1. BASE DE DATOS DE ESPECIES REALES DE KENNEDY (iNaturalist & Humedal)
   // =====================================================================
   const SPECIES_CATALOG = [
-    // Cluster Verde: Flora, Macrófitas y Vegetación del Humedal
+    // Cluster Flora & Vegetación del Humedal
     { common: "Sauco del Humedal", scientific: "Sambucus nigra", taxon: "Plantae", cluster: "flora", icon: "fa-leaf", habitat: "Bosque ripario y orillas de El Burro", diet: "Fotosíntesis y nutrientes del humedal", relations: ["Frutos para aves migratorias", "Fijación de taludes", "Sombra y microclima"], color: 0x22c55e },
     { common: "Junco de Agua", scientific: "Schoenoplectus californicus", taxon: "Plantae", cluster: "flora", icon: "fa-spa", habitat: "Zonas de inundación permanente", diet: "Filtración hídrica fitorremediadora", relations: ["Filtro de metales pesados", "Nidación de Tingua Bogotana", "Refugio de alevines"], color: 0x10b981 },
     { common: "Lenteja de Agua", scientific: "Lemna minor", taxon: "Plantae", cluster: "flora", icon: "fa-seedling", habitat: "Espejos de agua lénticos", diet: "Absorción de nitrógeno y fósforo", relations: ["Alimento de aves acuáticas", "Oxigenación", "Control de algas"], color: 0x4ade80 },
     { common: "Urapán", scientific: "Fraxinus chinensis", taxon: "Plantae", cluster: "flora", icon: "fa-tree", habitat: "Dosel urbano y rondas de canal", diet: "Nutrición edáfica y fotosíntesis", relations: ["Percha de rapaces", "Hábitat de murciélagos", "Captura de CO2"], color: 0x16a34a },
     { common: "Capulí", scientific: "Prunus serotina", taxon: "Plantae", cluster: "flora", icon: "fa-tree", habitat: "Borde de quebradas y reservas", diet: "Nutrientes de suelo aluvial", relations: ["Alimento de cusumbos", "Polinización por abejas", "Corredor biológico"], color: 0x84cc16 },
 
-    // Cluster Morado: Polinizadores, Invertebrados, Murciélagos y Hongos
+    // Cluster Polinizadores, Invertebrados, Murciélagos y Hongos
     { common: "Abejorro Sabanero", scientific: "Bombus rubicundus", taxon: "Insecta", cluster: "pollinators", icon: "fa-clover", habitat: "Flores de Sauco, Tingua y Jardines", diet: "Néctar y polen silvestre", relations: ["Polinizador clave", "Zumbido de alta vibración", "Mutualismo floral"], color: 0xa855f7 },
     { common: "Murciélago Mastín", scientific: "Molossus molossus", taxon: "Mammalia", cluster: "pollinators", icon: "fa-bat", habitat: "Huecos de árboles y cielo nocturno", diet: "Insectos voladores nocturnos y polillas", relations: ["Control biológico de plagas", "Bioacústica ultrasónica", "Polinización nocturna"], color: 0xc084fc },
     { common: "Libélula Azul", scientific: "Rhionaeschna marchali", taxon: "Insecta", cluster: "pollinators", icon: "fa-bug", habitat: "Ronda hidráulica y espejos de agua", diet: "Mosquitos adultos y moscas", relations: ["Depredador aéreo de plagas", "Fase larvaria bentónica", "Presa de aves"], color: 0xd946ef },
     { common: "Mariposa Espejito", scientific: "Dione vanillae", taxon: "Insecta", cluster: "pollinators", icon: "fa-worm", habitat: "Jardines y enredaderas de pasiflora", diet: "Néctar floral y hojas nutricias", relations: ["Polinizadora diurna", "Metamorfosis en orillas", "Alimento de aves"], color: 0xe879f9 },
     { common: "Hongo Micorrícico", scientific: "Glomus intraradices", taxon: "Fungi", cluster: "pollinators", icon: "fa-cube", habitat: "Suelo rizosférico del humedal", diet: "Azúcares de raíces de sauce y junco", relations: ["Red de transporte de fósforo", "Biofiltro del suelo", "Conexión simbiótica"], color: 0x9333ea },
 
-    // Cluster Cian/Azul: Avifauna Acuática & Migratoria
+    // Cluster Avifauna Acuática & Migratoria
     { common: "Tingua Azul", scientific: "Porphyrio martinica", taxon: "Aves", cluster: "avifauna", icon: "fa-feather", habitat: "Lámina de agua y vegetación flotante", diet: "Lenteja de agua, semillas y moluscos", relations: ["Ave migratoria", "Nidificación en juncales", "Dispersora de macrófitas"], color: 0x00f0ff },
     { common: "Tingua Bogotana", scientific: "Rallus semiplumbeus", taxon: "Aves", cluster: "avifauna", icon: "fa-dove", habitat: "Densos juncales del Humedal El Burro", diet: "Invertebrados acuáticos y brotes tiernos", relations: ["Especie endémica en peligro", "Bioindicador de conservación", "Nidos flotantes"], color: 0x06b6d4 },
     { common: "Garza Real", scientific: "Ardea alba", taxon: "Aves", cluster: "avifauna", icon: "fa-dove", habitat: "Orillas abiertas del Humedal El Burro", diet: "Ranas sabaneras, peces y coleópteros", relations: ["Depredador acuático tope", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0x38bdf8 },
     { common: "Pato Turrio", scientific: "Oxyura jamaicensis", taxon: "Aves", cluster: "avifauna", icon: "fa-water", habitat: "Lagunas profundas de Kennedy", diet: "Larvas de quironómidos y plantas sumergidas", relations: ["Buceo profundo", "Oxigenación de sedimentos", "Comensalismo con tinguas"], color: 0x0ea5e9 },
     { common: "Alcaraván Sabanero", scientific: "Vanellus chilensis", taxon: "Aves", cluster: "avifauna", icon: "fa-dove", habitat: "Campos abiertos y riberas secas", diet: "Gusanos, escarabajos y pequeños moluscos", relations: ["Guardián del territorio", "Alarma sonora comunitaria", "Nidos en suelo"], color: 0x67e8f9 },
 
-    // Cluster Coral/Ámbar: Fauna Terrestre, Anfibios, Reptiles y Mamíferos
+    // Cluster Fauna Terrestre, Anfibios, Reptiles y Mamíferos
     { common: "Rana Sabanera", scientific: "Dendropsophus molitor", taxon: "Amphibia", cluster: "fauna", icon: "fa-frog", habitat: "Espejos de agua y juncales de El Burro", diet: "Insectos acuáticos, larvas y dípteros", relations: ["Control de mosquitos", "Alimento de Garza Real", "Refugio en Juncos"], color: 0xf43f5e },
     { common: "Serpiente Sabanera", scientific: "Atractus crassicaudatus", taxon: "Reptilia", cluster: "fauna", icon: "fa-staff-snake", habitat: "Suelo húmedo y pastizales de ribera", diet: "Lombrices de tierra y babosas", relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0xfb7185 },
     { common: "Cusumbo Andino", scientific: "Nasua olivacea", taxon: "Mammalia", cluster: "fauna", icon: "fa-paw", habitat: "Reserva Umbral Horizontes / El Burro", diet: "Frutos de Sauco, semillas e invertebrados", relations: ["Dispersión de semillas", "Forrajeo en dosel", "Polinización indirecta"], color: 0xf59e0b },
@@ -161,19 +166,19 @@
   ];
 
   // =====================================================================
-  // 2. RED BIÓTICA ÚNICA Y PURA (SIN DOBLE CAPA NI MANCHAS SUCIAS)
+  // 2. RED BIÓTICA ESFÉRICA 3D PURA (BOLA COMPLETA 360° PERFECTAMENTE CENTRADA)
   // =====================================================================
-  const SWARM_COUNT = 600;
+  const SWARM_COUNT = 1000;
   const swarmGroup = new THREE.Group();
   sceneRoot.add(swarmGroup);
 
-  // Generador de textura de nodo tipo "badge / disc con borde circular nítido"
+  // Textura de nodo tipo "badge / disc con borde nítido"
   function createNodeBadgeTexture() {
     const cvs = document.createElement("canvas");
     cvs.width = 64; cvs.height = 64;
     const ctx = cvs.getContext("2d");
 
-    // Glow suave exterior
+    // Glow suave
     const radGlow = ctx.createRadialGradient(32, 32, 8, 32, 32, 30);
     radGlow.addColorStop(0, "rgba(255, 255, 255, 0.95)");
     radGlow.addColorStop(0.35, "rgba(255, 255, 255, 0.5)");
@@ -181,7 +186,7 @@
     ctx.fillStyle = radGlow;
     ctx.fillRect(0, 0, 64, 64);
 
-    // Círculo central con borde nítido idéntico al grafo de referencia
+    // Círculo central con borde nítido
     ctx.beginPath();
     ctx.arc(32, 32, 16, 0, Math.PI * 2);
     ctx.fillStyle = "#ffffff";
@@ -212,7 +217,6 @@
       
       void main() {
         vColor = aNodeColor;
-        // Durante la explosión, los nodos se dispersan y transfieren su energía
         vAlpha = max(0.0, 1.0 - uMorph * 1.5);
         
         vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
@@ -237,14 +241,8 @@
     blending: THREE.NormalBlending
   });
 
-  // Distribución en 4 Cuadrantes / Clústeres Biológicos exactamente como en el gráfico
-  const CLUSTER_CENTERS = {
-    flora:       new THREE.Vector3(-24, 16, -4),   // Verde (Arriba Izquierda)
-    pollinators: new THREE.Vector3(4, 24, 6),     // Morado (Centro / Arriba)
-    avifauna:    new THREE.Vector3(26, 12, -8),    // Azul/Cian (Derecha)
-    fauna:       new THREE.Vector3(-4, -18, 4)     // Rosa/Ámbar (Abajo)
-  };
-
+  // Generación en ESFERA 3D COMPLETA Y EQUILIBRADA (Radio = 35 unidades)
+  const SPHERE_RADIUS = 35.0;
   const swarmNodes = [];
   const nodePositions = new Float32Array(SWARM_COUNT * 3);
   const nodeColors = new Float32Array(SWARM_COUNT * 3);
@@ -252,16 +250,17 @@
 
   for (let i = 0; i < SWARM_COUNT; i++) {
     const species = SPECIES_CATALOG[i % SPECIES_CATALOG.length];
-    const center = CLUSTER_CENTERS[species.cluster] || new THREE.Vector3(0, 0, 0);
 
-    // Dispersión radial orgánica tipo ForceAtlas
-    const r = Math.pow(Math.random(), 0.65) * 23.0;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = (Math.random() - 0.5) * Math.PI * 0.75;
+    // Distribución esférica uniforme Fibonacci / 3D volume
+    const phi = Math.acos(1.0 - 2.0 * (i + 0.5) / SWARM_COUNT);
+    const theta = Math.PI * (1.0 + Math.sqrt(5.0)) * i;
+    
+    // Variación radial suave para dar volumen y profundidad a la bola
+    const r = SPHERE_RADIUS * (0.45 + 0.55 * Math.pow(Math.random(), 0.5));
 
-    const x = center.x + r * Math.cos(theta) * Math.cos(phi) + (Math.random() - 0.5) * 6.0;
-    const y = center.y + r * Math.sin(phi) * 0.85 + (Math.random() - 0.5) * 5.0;
-    const z = center.z + r * Math.sin(theta) * Math.cos(phi) + (Math.random() - 0.5) * 6.0;
+    const x = r * Math.sin(phi) * Math.cos(theta);
+    const y = r * Math.sin(phi) * Math.sin(theta);
+    const z = r * Math.cos(phi);
 
     const col = new THREE.Color(species.color);
 
@@ -296,8 +295,8 @@
   const nodePoints = new THREE.Points(nodeGeo, nodeMat);
   swarmGroup.add(nodePoints);
 
-  // Filamentos de Red Multicolores (Web de Conexiones idéntica al grafo)
-  const MAX_LINKS = 3200;
+  // Filamentos de Red Inter-Especies (Conexiones 3D a través de toda la esfera)
+  const MAX_LINKS = 4500;
   const linkPos = new Float32Array(MAX_LINKS * 2 * 3);
   const linkCol = new Float32Array(MAX_LINKS * 2 * 3);
   const linkGeo = new THREE.BufferGeometry();
@@ -313,17 +312,16 @@
   const linkLines = new THREE.LineSegments(linkGeo, linkMat);
   swarmGroup.add(linkLines);
 
-  // Inicializar conexiones inter-nodos y entre clústeres
+  // Inicializar conexiones inter-nodos en la esfera completa
   let totalLinks = 0;
   for (let i = 0; i < SWARM_COUNT && totalLinks < MAX_LINKS; i++) {
     const ni = swarmNodes[i];
     for (let j = i + 1; j < SWARM_COUNT && totalLinks < MAX_LINKS; j++) {
       const nj = swarmNodes[j];
       const distSq = (ni.baseX - nj.baseX)**2 + (ni.baseY - nj.baseY)**2 + (ni.baseZ - nj.baseZ)**2;
-      const sameCluster = (ni.cluster === nj.cluster);
-      const maxDistSq = sameCluster ? 240 : 90;
 
-      if (distSq < maxDistSq && Math.random() < 0.65) {
+      // Conexiones de proximidad y relaciones tróficas cruzadas (flora <-> fauna, aves <-> árboles)
+      if (distSq < 135 && Math.random() < 0.6) {
         const ptr = totalLinks * 6;
         linkPos[ptr]     = ni.baseX; linkPos[ptr + 1] = ni.baseY; linkPos[ptr + 2] = ni.baseZ;
         linkPos[ptr + 3] = nj.baseX; linkPos[ptr + 4] = nj.baseY; linkPos[ptr + 5] = nj.baseZ;
@@ -341,7 +339,7 @@
   linkGeo.attributes.position.needsUpdate = true;
   linkGeo.attributes.color.needsUpdate = true;
 
-  // Actualización fluida de la física y rotación de la red
+  // Actualización fluida de la física y rotación de la esfera
   function updateNetworkSwarm(time, morphProgress) {
     if (morphProgress > 0.98) {
       swarmGroup.visible = false;
@@ -349,9 +347,9 @@
     }
     swarmGroup.visible = true;
 
-    // Rotación orbital orgánica continua de la red completa en 3D
+    // Rotación orbital continua de la esfera completa en 3D
     swarmGroup.rotation.y = time * 0.055;
-    swarmGroup.rotation.x = Math.sin(time * 0.04) * 0.05;
+    swarmGroup.rotation.x = Math.sin(time * 0.04) * 0.04;
 
     nodeMat.uniforms.uTime.value = time;
     nodeMat.uniforms.uMorph.value = morphProgress;
@@ -366,9 +364,9 @@
       const waveZ = Math.sin(time * 1.0 + d.phase * 1.5) * 0.5;
 
       // Dispersión en explosión
-      const morphScatter = morphProgress * 140.0;
+      const morphScatter = morphProgress * 150.0;
       const curX = d.baseX + waveX + (d.baseX > 0 ? 1 : -1) * morphScatter * 0.8;
-      const curY = d.baseY + waveY + morphScatter * 0.7;
+      const curY = d.baseY + waveY + (d.baseY > 0 ? 1 : -1) * morphScatter * 0.7;
       const curZ = d.baseZ + waveZ + (d.baseZ > 0 ? 1 : -1) * morphScatter * 0.8;
 
       d.x = curX; d.y = curY; d.z = curZ;
@@ -419,7 +417,7 @@
       // Movimiento orgánico territorial en estado ensamblado
       vec3 territorialIdle = vec3(0.0);
       if (aCategory < 0.5) {
-        // Ondulación fluida en el agua de El Burro
+        // Ondulación fluida en el agua de los humedales
         territorialIdle.y = sin(uTime * 2.8 + position.x * 0.18 + position.z * 0.18) * 0.55 * ease;
       } else if (aCategory < 1.5) {
         // Brisa en el dosel de los árboles nativos
@@ -452,8 +450,8 @@
       float distFactor = clamp(260.0 / -mvPosition.z, 0.4, 1.9);
       gl_PointSize = (aSize + rippleWave * 1.2 + explosionIntensity * 0.9) * uPixelRatio * distFactor;
       
-      // IMPORTANTE: En Stage 1 (uMorphProgress == 0), las partículas del territorio son 0% invisibles.
-      // Solo aparecen durante y después de la explosión.
+      // En Stage 1 las partículas del territorio son 0% invisibles.
+      // Aparecen y descienden limpiamente al explotar.
       vAlpha = smoothstep(0.05, 0.85, ease) * 0.95 + explosionIntensity * 0.35;
     }
   `;
@@ -540,16 +538,16 @@
   }
 
   // =====================================================================
-  // 4. CARGA DE CAPAS GEOGRÁFICAS (COLORES RESTAURADOS DE LA SEGUNDA ITERACIÓN)
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (AGUA AZUL LAGOON, EDIFICIOS BLANCO ALABASTRO)
   // =====================================================================
   function loadWater() {
     return fetch(WATER_URL)
       .then(r => r.json())
       .then(waterBodies => {
-        // Paleta Acuática Luminosa Restaurada
-        const colLagoon = new THREE.Color(0x00f0ff);  // Azul agua cian luminoso
-        const colEmerald = new THREE.Color(0x10b981); // Esmeralda acuática
-        const colShore = new THREE.Color(0x34d399);   // Verde menta orilla
+        // Cuerpos de agua en Azul Laguna Brillante
+        const colSkyBlue = new THREE.Color(0x0ea5e9);  // Azul cielo acuático
+        const colAzure = new THREE.Color(0x0284c7);    // Azul lago profundo
+        const colCyanGlow = new THREE.Color(0x38bdf8); // Destello cian
 
         waterBodies.forEach(w => {
           const pts = w.pts;
@@ -575,7 +573,7 @@
               pTarget.push(wx, wy, wz);
               pSwarm.push(sw.x, sw.y, sw.z);
               
-              const c = (s % 2 === 0) ? colLagoon : colEmerald;
+              const c = (s % 2 === 0) ? colSkyBlue : colAzure;
               pColor.push(c.r, c.g, c.b);
               pSize.push(1.6);
               pPhase.push(Math.random() * 10);
@@ -588,7 +586,7 @@
             const sw = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(p.x, 0.3, p.z);
             pSwarm.push(sw.x, sw.y, sw.z);
-            pColor.push(colShore.r, colShore.g, colShore.b);
+            pColor.push(colCyanGlow.r, colCyanGlow.g, colCyanGlow.b);
             pSize.push(1.8);
             pPhase.push(i * 0.3);
             pCat.push(0.0);
@@ -604,7 +602,7 @@
     return fetch(TREES_URL)
       .then(r => r.json())
       .then(trees => {
-        // Paleta Verde Botánica Restaurada de la Segunda Iteración
+        // Paleta Verde Botánica Viva y Natural
         const colForest = new THREE.Color(0x10b981);  // Esmeralda pura vibrante
         const colDeep = new THREE.Color(0x059669);    // Bosque profundo
         const colMint = new THREE.Color(0x34d399);    // Menta luminosa
@@ -665,8 +663,8 @@
     return fetch(NET_URL)
       .then(r => r.json())
       .then(edges => {
-        const colRoad = new THREE.Color(0x52525b); // Grafito asfalto
-        const colMajor = new THREE.Color(0x38bdf8); // Vías principales en zafiro
+        const colRoad = new THREE.Color(0x3f3f46);  // Grafito asfalto sobrio
+        const colMajor = new THREE.Color(0x94a3b8); // Vías principales plata nítida
 
         edges.forEach(([kind, pts], edgeIdx) => {
           const isMajor = (edgeIdx % 4 === 0);
@@ -693,11 +691,11 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta de Edificios Restaurada de la Segunda Iteración
-        const colSlate = new THREE.Color(0x475569);  // Pizarra arquitectónica
-        const colGlass = new THREE.Color(0x38bdf8);  // Destellos de cristal
-        const colBronze = new THREE.Color(0xf59e0b); // Techos ámbar cálido
-        const colSavanna = new THREE.Color(0x064e3b); // Verde sabana base
+        // Paleta de Edificios Blanco Alabastro & Cálido (Sin azul ni grisáceo apagado)
+        const colPorcelain = new THREE.Color(0xf8fafc); // Blanco porcelana limpio
+        const colAlabaster = new THREE.Color(0xe2e8f0); // Alabastro arquitectónico
+        const colWarmRoof = new THREE.Color(0xf59e0b);  // Remate ámbar cálido
+        const colSavanna = new THREE.Color(0x064e3b);   // Base verde sabana profunda
 
         buildings.forEach((b, bIdx) => {
           const pts = b.pts;
@@ -706,7 +704,7 @@
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.height || 10) * SCALE;
           
-          const bldgCol = (bIdx % 4 === 0) ? colBronze : ((bIdx % 2 === 0) ? colSlate : colGlass);
+          const bldgCol = (bIdx % 5 === 0) ? colWarmRoof : ((bIdx % 2 === 0) ? colPorcelain : colAlabaster);
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
@@ -836,6 +834,9 @@
     }
     isTerritory = targetMorph > 0.45;
 
+    // Mostrar el plano base solo al materializar
+    sceneBaseGroup.visible = targetMorph > 0.05;
+
     if (btnActionText) {
       btnActionText.textContent = isTerritory ? "DISPERSAR A RED BIÓTICA" : "MATERIALIZAR";
     }
@@ -843,7 +844,7 @@
     if (labelTerritory) labelTerritory.classList.toggle("active", targetMorph > 0.8);
 
     if (stageLabel) {
-      stageLabel.textContent = isTerritory ? "Territorio 3D de Kennedy" : "Red Biótica · 600 Especies y Conexiones";
+      stageLabel.textContent = isTerritory ? "Territorio 3D de Kennedy" : "Red Biótica · 1000 Especies y Conexiones";
     }
 
     if (swarmIntroBox) {
@@ -931,7 +932,7 @@
   if (labelSwarm) labelSwarm.addEventListener("click", () => animateToStage(0.0));
   if (labelTerritory) labelTerritory.addEventListener("click", () => animateToStage(1.0));
 
-  // Waypoints en Modo Territorio
+  // Waypoints en Modo Territorio (Axonometría Total, El Burro, La Vaca, El Techo)
   document.querySelectorAll(".waypoint-pill").forEach(pill => {
     pill.addEventListener("click", () => {
       document.querySelectorAll(".waypoint-pill").forEach(p => p.classList.remove("active"));
@@ -1029,7 +1030,7 @@
     particleUniforms.uMorphProgress.value = currentMorph;
     particleUniforms.uTime.value = time;
 
-    // Actualizar física de la red biótica única
+    // Actualizar física de la esfera biótica única
     updateNetworkSwarm(time, currentMorph);
 
     // Vuelo de cámara en Modo Video
