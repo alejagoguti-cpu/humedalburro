@@ -497,34 +497,44 @@
         </div>
       </div>
 
-      <!-- Torta B: Composición por Reinos Taxonómicos -->
+            <!-- Torta B: Composición por Grupos Taxonómicos -->
       <div class="pie-card">
-        <div class="pie-card-title">🌿 2. Torta B: Reinos Taxonómicos</div>
-        <div class="pie-card-desc">Peso proporcional de los reinos biológicos en la matriz ambiental.</div>
+        <div class="pie-card-title">🌿 2. Torta B: Convenciones Taxonómicas</div>
+        <div class="pie-card-desc">Distribución proporcional de Flora y los 5 grupos de Fauna de Kennedy.</div>
         
         <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
-          <path d="M 0 0 L 1 0 A 1 1 0 1 1 -0.560 -0.828 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.560 -0.828 A 1 1 0 0 1 0.887 -0.462 Z" fill="#6B9080" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L 0.887 -0.462 A 1 1 0 0 1 0.988 -0.156 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L 0.988 -0.156 A 1 1 0 0 1 1 0 Z" fill="#E7C878" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.019 1.000 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.019 1.000 A 1 1 0 0 1 -0.925 -0.380 Z" fill="#38BDF8" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.925 -0.380 A 1 1 0 0 1 -0.675 -0.738 Z" fill="#F59E0B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.675 -0.738 A 1 1 0 0 1 -0.342 -0.940 Z" fill="#EC4899" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.342 -0.940 A 1 1 0 0 1 -0.118 -0.993 Z" fill="#10B981" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.118 -0.993 A 1 1 0 0 1 1 0 Z" fill="#A855F7" stroke="#000000" stroke-width="0.02"/>
         </svg>
 
         <div class="pie-legend">
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Plantae (Flora Nativa)</div>
-            <b style="color:#84A48B;">59.5%</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Flora & Arbolado SIGAU</div>
+            <b style="color:#84A48B;">49.7% (90)</b>
           </div>
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#6B9080;"></div>Animalia (Avifauna / Fauna)</div>
-            <b style="color:#6B9080;">30.4%</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#38BDF8;"></div>Aves (Avifauna)</div>
+            <b style="color:#38BDF8;">31.5% (57)</b>
           </div>
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>Fungi (Hongos y Micorrizas)</div>
-            <b style="color:#A386A9;">7.0%</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#F59E0B;"></div>Mamíferos (Mastofauna)</div>
+            <b style="color:#F59E0B;">5.5% (10)</b>
           </div>
           <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#E7C878;"></div>Bacterias y Biofiltro</div>
-            <b style="color:#E7C878;">3.1%</b>
+            <div class="legend-label"><div class="legend-dot" style="background:#EC4899;"></div>Moluscos (Gasterópodos)</div>
+            <b style="color:#EC4899;">5.5% (10)</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#10B981;"></div>Anfibios (Ranas/Sapos)</div>
+            <b style="color:#10B981;">3.3% (6)</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#A855F7;"></div>Reptiles (Serpientes/Lagartos)</div>
+            <b style="color:#A855F7;">4.4% (8)</b>
           </div>
         </div>
       </div>
@@ -635,9 +645,103 @@
       <img class="cat-thumb" style="--cat-color:#84A48B;" src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=100" alt="Flora">
       <div>
         <div style="font-weight:700; color:#f8fafc;">Flora & Arbolado SIGAU</div>
-        <div style="font-size:9.5px; color:#94a3b8;">108 Taxones Botánicos Nativo/Urbano</div>
+        <div style="font-size:9.5px; color:#94a3b8;">90 Taxones Botánicos / Censo SIGAU</div>
       </div>
     </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat0">90</span>
+      <div class="toggle-box checked" id="toggleCat0"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#38BDF8;" onclick="toggleCat(1)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#38BDF8;" src="https://inaturalist-open-data.s3.amazonaws.com/photos/28830194/medium.jpeg" alt="Aves">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Aves</div>
+        <div style="font-size:9.5px; color:#94a3b8;">57 Especies Acuáticas & de Dosel</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat1" style="color:#38BDF8;">57</span>
+      <div class="toggle-box checked" id="toggleCat1"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#F59E0B;" onclick="toggleCat(2)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#F59E0B;" src="https://static.inaturalist.org/photos/89686567/medium.jpeg" alt="Mamíferos">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Mamíferos</div>
+        <div style="font-size:9.5px; color:#94a3b8;">10 Especies de Mastofauna</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat2" style="color:#F59E0B;">10</span>
+      <div class="toggle-box checked" id="toggleCat2"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#EC4899;" onclick="toggleCat(3)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#EC4899;" src="https://inaturalist-open-data.s3.amazonaws.com/photos/717211012/medium.jpg" alt="Moluscos">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Moluscos</div>
+        <div style="font-size:9.5px; color:#94a3b8;">10 Especies de Caracoles y Babosas</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat3" style="color:#EC4899;">10</span>
+      <div class="toggle-box checked" id="toggleCat3"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#10B981;" onclick="toggleCat(4)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#10B981;" src="https://inaturalist-open-data.s3.amazonaws.com/photos/707895722/medium.jpg" alt="Anfibios">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Anfibios</div>
+        <div style="font-size:9.5px; color:#94a3b8;">6 Especies de Ranas y Salamandras</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat4" style="color:#10B981;">6</span>
+      <div class="toggle-box checked" id="toggleCat4"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#A855F7;" onclick="toggleCat(5)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#A855F7;" src="https://static.inaturalist.org/photos/703015442/medium.jpg" alt="Reptiles">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Reptiles</div>
+        <div style="font-size:9.5px; color:#94a3b8;">8 Especies de Serpientes y Lagartos</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat5" style="color:#A855F7;">8</span>
+      <div class="toggle-box checked" id="toggleCat5"></div>
+    </div>
+  </div>
+
+  <!-- Interaction Legend Box -->
+  <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.12);">
+    <div style="font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#84A48B; margin-bottom:8px;">
+      Tipos de Interacción Evaluados:
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px 8px; font-size:9px;">
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#C96349;"></span><span>Depredación</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#84A48B;"></span><span>Herbivoría</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E69888;"></span><span>Dispersión</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E7C878;"></span><span>Mutualismo</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#F79E70;"></span><span>Nidificación</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#A386A9;"></span><span>Visita Floral</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#D1A996;"></span><span>Anidamiento</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#C6B3CA;"></span><span>Parasitismo</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#6B9080;"></span><span>Alelopatía</span></div>
+    </div>
+  </div>
+</div>
     <div style="display:flex; align-items:center; gap:8px;">
       <span class="badge-count" id="badgeCat0">108</span>
       <div class="toggle-box checked" id="toggleCat0"></div>

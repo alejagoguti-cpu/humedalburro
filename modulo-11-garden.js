@@ -1,6 +1,6 @@
 // =====================================================================
-// Sistema Socioecológico de Kennedy — Red Biótica 180 Taxones & Territorio 3D
-// Living 180-Species Socioecological Network, Subnetwork Modal, Metrics, FAQ & GIS 3D Morph
+// Sistema Socioecológico de Kennedy — Red Biótica & Territorio 3D
+// Living 181-Species Socioecological Network (Aves, Mamíferos, Moluscos, Anfibios, Reptiles & Flora)
 // =====================================================================
 
 (() => {
@@ -130,36 +130,51 @@
   createExpansiveBase();
 
   // =====================================================================
-  // 1. BASE DE DATOS COMPLETA DE 180 TAXONES (SISTEMA SOCIOECOLÓGICO KENNEDY)
+  // 1. CONVENCIONES TAXONÓMICAS & BASE DE DATOS BIOECOLÓGICA DE KENNEDY
+  // Convenciones: Flora (0), Aves (1), Mamíferos (2), Moluscos (3), Anfibios (4), Reptiles (5)
   // =====================================================================
   const opts = {
     autoRotate: true,
     pulseMotion: true,
     layoutMode: "hyperbolic",
-    cats: { 0: true, 1: true, 2: true, 3: true }
+    cats: { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }
   };
 
   const palette = {
     catColors: {
-      0: '#84A48B', // Flora (Spanish Green)
-      1: '#6B9080', // Avifauna (Morandi Sage Green)
-      2: '#A386A9', // Micro (Dusty Lavender)
-      3: '#C96349'  // Fauna / Herpetos (Terracotta)
+      0: '#84A48B', // Flora & Arbolado SIGAU (Sage Green)
+      1: '#38BDF8', // Aves (Sky Blue)
+      2: '#F59E0B', // Mamíferos (Amber Gold)
+      3: '#EC4899', // Moluscos (Coral Pink)
+      4: '#10B981', // Anfibios (Emerald Green)
+      5: '#A855F7'  // Reptiles (Purple Lavender)
+    },
+    catNames: {
+      0: 'Flora & Arbolado SIGAU',
+      1: 'Aves',
+      2: 'Mamíferos',
+      3: 'Moluscos',
+      4: 'Anfibios',
+      5: 'Reptiles'
     },
     hexColors: {
       0: 0x84A48B,
-      1: 0x6B9080,
-      2: 0xA386A9,
-      3: 0xC96349
+      1: 0x38BDF8,
+      2: 0xF59E0B,
+      3: 0xEC4899,
+      4: 0x10B981,
+      5: 0xA855F7
     }
   };
 
   function generateSpeciesSvgDataUri(taxonId, speciesName, cat) {
     const colors = {
       0: ['#2A3A2F', '#84A48B'],
-      1: ['#20352E', '#6B9080'],
-      2: ['#322535', '#A386A9'],
-      3: ['#3F221B', '#C96349']
+      1: ['#1A2E3D', '#38BDF8'],
+      2: ['#3A2C18', '#F59E0B'],
+      3: ['#381829', '#EC4899'],
+      4: ['#143324', '#10B981'],
+      5: ['#2A183B', '#A855F7']
     };
     const c = colors[cat] || colors[0];
     const cleanTitle = (speciesName || '').split('(')[0].trim().substring(0, 10);
@@ -177,87 +192,123 @@
   function buildFull180Dataset() {
     const taxa = [];
 
-    // MICROORGANISMOS (15)
-    const micData = [
-      ['MIC-01', 'Nitrosomonas europaea', 'Oxidación de amonio a nitrito en biofiltro', 'Sedimento y biofiltro La Vaca / El Burro', 'Inhibido por metales pesados y lixiviados tóxicos', 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=300'],
-      ['MIC-02', 'Nitrobacter winogradskyi', 'Conversión de nitrito a nitrato (disponibilidad de N)', 'Agua y biofiltro hídrico', 'Sensible a anoxia severa y sulfuros', 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=300'],
-      ['MIC-03', 'Pseudomonas putida', 'Degradación de hidrocarburos y materia orgánica compleja', 'Agua residual urbana y sedimentos', 'Tolerante a estrés orgánico', 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=300'],
-      ['MIC-04', 'Escherichia coli', 'Bioindicador de contaminación fecal por vertimientos', 'Cuerpos de agua El Burro y La Vaca', 'Aumenta con escorrentía sin tratar', 'https://images.unsplash.com/photo-1583912267670-657592e914a6?w=300'],
-      ['MIC-05', 'Microcystis aeruginosa', 'Floración algal eutrófica, liberación de microcistinas', 'Espejo de agua estancada / El Burro', 'Estimulado por exceso de fósforo y nitrógeno', 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=300'],
-      ['MIC-06', 'Anabaena flos-aquae', 'Fijación de nitrógeno atmosférico en florecimientos', 'Espejos hídricos eutrofizados', 'Respondedor a temperatura elevada (LST)', 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=300'],
-      ['MIC-07', 'Rhizobium leguminosarum', 'Fijación simbiótica de N2 en leguminosas nativas', 'Rizósfera de Lupinus y arbustos nativos', 'Sensible a compactación del suelo', 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=300'],
-      ['MIC-08', 'Trichoderma harzianum', 'Descomposición de hojarasca y protección radicular', 'Suelo orgánico bajo bosque melífero', 'Requiere humedad y materia orgánica', 'https://images.unsplash.com/photo-1511497584788-876761465586?w=300'],
-      ['MIC-09', 'Gomphonema parvulum', 'Bioindicador de calidad hídrica y base trófica', 'Superficie de tallos de Typha y Schoenoplectus', 'Resistente a niveles moderados de polución', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300'],
-      ['MIC-10', 'Chlorella vulgaris', 'Producción de oxígeno disuelto y fijación de CO2', 'Columna de agua de los humedales', 'Sensible a herbicidas y sombra densa', 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=300'],
-      ['MIC-11', 'Spirulina platensis', 'Producción primaria alta en agua alcalina', 'Remansos de agua con nutrientes', 'Indicador de carga orgánica alta', 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=300'],
-      ['MIC-12', 'Methanosarcina barkeri', 'Producción de metano en sedimentos anóxicos', 'Fango bentónico profundo de La Vaca', 'Inhibida por oxigenación hídrica', 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=300'],
-      ['MIC-13', 'Bacillus subtilis', 'Solubilización de fósforo y solubilidad de micronutrientes', 'Suelo de ronda en restauración', 'Alta resistencia por endosporas', 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=300'],
-      ['MIC-14', 'Glomus intraradices', 'Facilita absorción hídrica y de P en plantas de ronda', 'Raíces de Aliso, Capulí y Saúco', 'Destruido por labranza y compactación', 'https://images.unsplash.com/photo-1511497584788-876761465586?w=300'],
-      ['MIC-15', 'Agaricus campestris', 'Descomposición de materia orgánica vegetal en ronda', 'Praderas y humedales de borde', 'Sensible a plaguicidas urbanos', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300']
+    // 1. AVES (57 Taxones reales con fotos iNaturalist)
+    const aveData = [
+      ['AVE-01', 'Mirla patinaranja', 'Turdus fuscater gigas', 'Frugívora / Hub dispersor de semillas en Kennedy', 'PEDH La Vaca y Humedal El Burro', 'Residente abundante. Clave en regeneración vegetal.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/28830194/medium.jpeg'],
+      ['AVE-02', 'Torcaza / Palomita montera', 'Zenaida auriculata pentheria', 'Granívora / Semillero de pastizales urbanos', 'Nuevo Techo / Humedales de Kennedy', 'Residente sinantrópica común.', 'https://static.inaturalist.org/photos/69243507/medium.png'],
+      ['AVE-03', 'Tángara palmera', 'Thraupis palmarum atripennis', 'Frugívora / Insectívora de palmas y dosel', 'Kennedy Central / Ronda Fucha', 'Residente arbórea activa.', 'https://static.inaturalist.org/photos/69262665/medium.png'],
+      ['AVE-04', 'Gorrión copetón', 'Zonotrichia capensis costaricensis', 'Granívoro e insectívoro terrestre', 'Nuevo Techo / Ronda ZMPA', 'Residente urbano de alta adaptabilidad.', 'https://static.inaturalist.org/photos/69267335/medium.png'],
+      ['AVE-05', 'Cucarachero común', 'Troglodytes musculus columbae', 'Insectívoro de matorral y sotobosque', 'Kennedy / Humedal El Burro', 'Controlador biológico de artrópodos.', 'https://static.inaturalist.org/photos/69268565/medium.png'],
+      ['AVE-06', 'Canario sabanero', 'Sicalis luteola bogotensis', 'Granívoro de juncales y gramíneas', 'Humedal Capellanía y El Burro', 'Sensible a fragmentación de pastizales nativos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/80930992/medium.jpeg'],
+      ['AVE-07', 'Golondrina alirrasposa', 'Stelgidopteryx ruficollis uropygialis', 'Insectívora aérea de espejos de agua', 'Humedal Capellanía y La Vaca', 'Cazador sobre láminas hídricas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/104545434/medium.jpg'],
+      ['AVE-08', 'Alcaraván / Avefría tero', 'Vanellus chilensis cayennensis', 'Centinela de pradera e invertebrados', 'Bosa Porvenir / El Burro', 'Nidifica en suelo abierto de ronda.', 'https://static.inaturalist.org/photos/212375432/medium.jpeg'],
+      ['AVE-09', 'Búho orejudo', 'Asio stygius robustus', 'Rapaz nocturna de dosel / Control de roedores', 'Dosel de Kennedy / Eucaliptos', 'Sensible a tala de árboles añosos.', 'https://static.inaturalist.org/photos/662406205/medium.jpg'],
+      ['AVE-10', 'Águila mora', 'Geranoaetus melanoleucus australis', 'Gran depredador aéreo de la sabana', 'Urb. La Estancia / Fontibón - Kennedy', 'Rapaz de alta jerarquía trófica.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/705103444/medium.jpg'],
+      ['AVE-11', 'Agachona norteamericana', 'Gallinago delicata', 'Limícola migratoria de fango y ciénaga', 'Humedal Capellanía / El Burro', 'Migratorio boreal dependiente de lodos limpios.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/80929427/medium.jpeg'],
+      ['AVE-12', 'Aguililla alas anchas', 'Buteo platypterus', 'Rapaz migratoria de bosque de galería', 'PEDH La Vaca', 'Migratorio neotropical de paso estacional.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/58063696/medium.jpeg'],
+      ['AVE-13', 'Aguililla caminera', 'Rupornis magnirostris', 'Cazador oportunista de borde de humedal', 'Kennedy / Humedal El Burro', 'Residente común en ecotonos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/40566509/medium.jpeg'],
+      ['AVE-14', 'Atajacaminos ñañarca', 'Systellura longirostris', 'Insectívoro crepuscular y nocturno', 'Sabana / Humedales de Kennedy', 'Mimetismo en suelo y hojarasca.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/420734/medium.jpg'],
+      ['AVE-15', 'Currucutú / Autillo común', 'Megascops choliba', 'Rapaz nocturna pequeña / Depredador de artrópodos', 'Meandro del Say / El Burro', 'Residente de saucales y arbolado denso.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/84447821/medium.jpeg'],
+      ['AVE-16', 'Gavilán bailarín / Elanio maromero', 'Elanus leucurus', 'Rapaz especialista en micromamíferos', 'PEDH La Vaca / El Burro', 'Caza cerniéndose en el aire sobre praderas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/29281312/medium.jpeg'],
+      ['AVE-17', 'Búho sabanero / Campestre', 'Asio flammeus bogotensis', 'Rapaz de pastizales y juncales (Subesp. endémica)', 'Meandro del Say / El Burro', 'Vulnerable por pérdida de juncales densos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/31149636/medium.jpeg'],
+      ['AVE-18', 'Búho cara blanca', 'Asio clamator', 'Rapaz nocturna de matorrales y saucales', 'Kennedy Central', 'Controlador biológico de roedores.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/40563582/medium.jpeg'],
+      ['AVE-19', 'Búho cornudo', 'Bubo virginianus', 'Gran rapaz nocturna de bosque altoandino', 'Humedal Capellanía', 'Tope trófico nocturno en relictos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/86248675/medium.jpeg'],
+      ['AVE-20', 'Burrito pico rojo', 'Mustelirallus erythrops', 'Rálido de vegetación densa inundada', 'Transversal 81 / El Burro', 'Críptico en eneas y totoras.', 'https://static.inaturalist.org/photos/110513662/medium.jpg'],
+      ['AVE-21', 'Calandria dorso amarillo', 'Icterus chrysater', 'Frugívora e insectívora de dosel', 'Humedal El Burro', 'Residente de arbolado nativo.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/28649688/medium.jpeg'],
+      ['AVE-22', 'Calzadito cobrizo', 'Eriocnemis cupreoventris', 'Colibrí de páramo y borde de humedal', 'Corredor ambiental Kennedy', 'Polinizador de Ericáceas y flores tubulares.', 'https://static.inaturalist.org/photos/210513135/medium.jpeg'],
+      ['AVE-23', 'Canario coronado', 'Sicalis flaveola', 'Granívoro sinantrópico de áreas abiertas', 'PEDH La Vaca', 'Frecuente en bordes de pastos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/28247750/medium.jpeg'],
+      ['AVE-24', 'Carancho / Guarracuco', 'Caracara plancus', 'Carroñero y cazador oportunista', 'Meandro del Say / El Burro', 'Limpieza y reciclaje de materia orgánica.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/80821565/medium.jpeg'],
+      ['AVE-25', 'Carpintero habado', 'Melanerpes rubricapillus', 'Insectívoro perforador de troncos y frutos', 'Kennedy Occidental', 'Crea cavidades útiles para otras especies.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/605760289/medium.jpg'],
+      ['AVE-26', 'Carrao', 'Aramus guarauna', 'Especialista en caracoles y moluscos acuáticos', 'Fontibón / Humedales de Kennedy', 'Regulador de poblaciones de gasterópodos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/107872383/medium.jpeg'],
+      ['AVE-27', 'Centzontle tropical', 'Mimus gilvus', 'Frugívoro / Canoro de matorral', 'PEDH La Vaca', 'Dispersor de semillas de arbustos nativos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/28247740/medium.jpeg'],
+      ['AVE-28', 'Cerceta alas azules', 'Spatula discors', 'Pato migratorio boreal filtrador', 'Cra 80F / Espejos de agua', 'Llega en invierno boreal a humedales.', 'https://static.inaturalist.org/photos/17142991/medium.jpeg'],
+      ['AVE-29', 'Cernícalo americano', 'Falco sparverius', 'Pequeño halcón cazador de insectos y roedores', 'Fontibón / El Burro', 'Residente de postes y cables en la ZMPA.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/112161199/medium.jpeg'],
+      ['AVE-30', 'Chamicero cundiboyacense', 'Synallaxis subpudica', 'Endémico de la sabana / Insectívoro de matorral', 'Humedal El Burro', 'Especie focal de conservación en la sabana.', 'https://static.inaturalist.org/photos/77155379/medium.jpeg'],
+      ['AVE-31', 'Chipe castaño', 'Setophaga castanea', 'Migratorio boreal de dosel arbóreo', 'Humedal Capellanía', 'Insectívoro de follaje en temporada migratoria.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/104483730/medium.jpg'],
+      ['AVE-32', 'Chipe de collar / Reinita canadiense', 'Cardellina canadensis', 'Migratorio vulnerable / Insectívoro de sotobosque', 'Humedal El Burro', 'Sensible a fragmentación del arbolado de ronda.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/28647713/medium.jpeg'],
+      ['AVE-33', 'Chipe garganta naranja', 'Setophaga fusca', 'Migratorio de copas altas en Saúcos y Alisos', 'Kennedy ZMPA', 'Consume orugas y pequeños artrópodos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/28649943/medium.jpeg'],
+      ['AVE-34', 'Chorlo tildío', 'Charadrius vociferus', 'Limícola de orillas y playas de humedal', 'Ciudadela La Felicidad / Humedal', 'Nidifica en gravilla de bordes hídricos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/422670709/medium.jpeg'],
+      ['AVE-35', 'Colibrí rutilante / Chillón', 'Colibri coruscans', 'Polinizador clave de flora nativa y urbana', 'Humedal de Techo / Bosconia', 'Territorial en árboles florecidos como Saúco y Farolito.', 'https://static.inaturalist.org/photos/17113330/medium.jpeg'],
+      ['AVE-36', 'Cuervillo cara pelada / Coquito', 'Phimosus infuscatus', 'Sondeador de fango e invertebrados bentónicos', 'Meandro del Say / El Burro', 'Flocula sedimentos y controla larvas acuáticas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/31149631/medium.jpeg'],
+      ['AVE-37', 'Focha común / Gallareta', 'Fulica americana columbiana', 'Acuática herbívora / Consumidora de macrófitas', 'Humedal Capellanía / La Vaca', 'Bioindicador de vegetación flotante estructurada.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/302944605/medium.jpeg'],
+      ['AVE-38', 'Gallineta frente roja / Polla de agua', 'Gallinula galeata', 'Omnívora acuática de juncal', 'Humedal El Burro', 'Nidificante común entre juncos y totoras.', 'https://static.inaturalist.org/photos/5186393/medium.jpeg'],
+      ['AVE-39', 'Tingua azul / Gallineta morada', 'Porphyrio martinica', 'Rálido de hojas flotantes y flores acuáticas', 'Cra 80F / La Vaca', 'Migratorio y residente local muy llamativo.', 'https://static.inaturalist.org/photos/17119463/medium.jpeg'],
+      ['AVE-40', 'Garceta azul / Garza azul', 'Egretta caerulea', 'Ictiófaga de aguas someras', 'Humedal Capellanía', 'Cazadora paciente en bordes de agua.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/117080828/medium.jpg'],
+      ['AVE-41', 'Garza blanca mayor', 'Ardea alba', 'Depredador piscívoro y de anfibios', 'Humedal El Burro / La Vaca', 'Tope trófico de láminas de agua abiertas.', 'https://static.inaturalist.org/photos/40076197/medium.jpg'],
+      ['AVE-42', 'Garza dedos dorados / Real', 'Egretta thula', 'Ictiófaga activa con patas amarillas', 'Kennedy / El Burro', 'Remueve fango para espantar pececillos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/255853704/medium.jpeg'],
+      ['AVE-43', 'Garza nocturna / Guaco', 'Nycticorax nycticorax', 'Piscívoro nocturno de saucales', 'Fontibón / El Burro', 'Percha diurna en sauces llorones.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/37466342/medium.jpeg'],
+      ['AVE-44', 'Golondrina albiazul', 'Pygochelidon cyanoleuca', 'Insectívora aérea urbana y de humedal', 'Kennedy / La Vaca', 'Controladora de dípteros y zancudos.', 'https://static.inaturalist.org/photos/51249409/medium.jpeg'],
+      ['AVE-45', 'Halcón peregrino', 'Falco peregrinus', 'Depredador aéreo de aves en vuelo', 'Fontibón / Corredor Fucha', 'Migratorio de invierno boreal.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/112160847/medium.jpeg'],
+      ['AVE-46', 'Jacana / Gallito de ciénaga', 'Jacana jacana', 'Caminador de vegetación flotante', 'Humedales de Kennedy', 'Dedos alargados para caminar sobre hojas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/709931923/medium.jpg'],
+      ['AVE-47', 'Lechuza común americana', 'Tyto furcata', 'Controlador nocturno de roedores sinantrópicos', 'Humedal Capellanía / Techo', 'Esencial en salud pública y balance biológico.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/76900690/medium.jpg'],
+      ['AVE-48', 'Pato andino / Malvasía', 'Oxyura ferruginea andina', 'Buceador de fondo / Consumidor de invertebrados', 'Humedal El Burro', 'Subespecie andina en categoría Vulnerable.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/28647341/medium.jpeg'],
+      ['AVE-49', 'Monjita bogotana', 'Chrysomus icterocephalus bogotensis', 'Endémica de juncal / Consumidora de insectos', 'PEDH El Burro', 'Nidifica exclusivamente en juncos californianos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/45088298/medium.jpg'],
+      ['AVE-50', 'Mosquero cardenal / Titiribí', 'Pyrocephalus rubinus', 'Insectívoro de percha baja en humedales', 'Cra 81C / Humedales', 'Macho de plumaje escarlata brillante.', 'https://static.inaturalist.org/photos/16805548/medium.jpeg'],
+      ['AVE-51', 'Tingua bogotana', 'Rallus semiplumbeus', 'EN PELIGRO (EN) - Endémica de la Cordillera Oriental', 'Humedal El Burro y La Vaca', 'Especie sombrilla prioritaria del humedal.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/2958982/medium.jpg'],
+      ['AVE-52', 'Tingua moteada / Polla sabanera', 'Porphyriops melanops bogotensis', 'EN PELIGRO CRÍTICO (CR) - Rálido sabanero', 'Humedal La Vaca', 'Población relictual en recuperación.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/6434661/medium.jpg'],
+      ['AVE-53', 'Chirlobirlo / Pradero', 'Sturnella magna', 'Cantor de praderas y pastos húmedos', 'Fontibón / El Burro', 'Pecho amarillo brillante con collar negro.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/11603503/medium.jpg'],
+      ['AVE-54', 'Rascón pinto', 'Pardirallus maculatus', 'Rálido moteado de fango espeso', 'Humedal El Burro / La Vaca', 'Registro biológico valioso en Kennedy.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/61213213/medium.jpg'],
+      ['AVE-55', 'Tangara azulgrís', 'Thraupis episcopus', 'Frugívora de arbolado urbano y bordes', 'PEDH La Vaca', 'Dispersora de semillas de frutales.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/44754628/medium.jpg'],
+      ['AVE-56', 'Zambullidor pico grueso', 'Podilymbus podiceps', 'Buceador piscívoro y de macroinvertebrados', 'Kennedy / El Burro', 'Nido flotante anclado a juncos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/155037890/medium.jpeg'],
+      ['AVE-57', 'Zopilote común / Chulo', 'Coragyps atratus', 'Carroñero de saneamiento ambiental', 'Fontibón / Corabastos', 'Elimina focos de descomposición animal.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/37420938/medium.jpeg']
     ];
-    micData.forEach(m => taxa.push({ id: m[0], name: m[1], sciname: m[1], cat: 2, role: m[2], loc: m[3], alert: m[4], img: m[5] }));
+    aveData.forEach(a => taxa.push({ id: a[0], name: a[1], sciname: a[2], cat: 1, role: a[3], loc: a[4], alert: a[5], img: a[6] }));
 
-    // HERPETOS, MAMÍFEROS & MIA (12)
-    const herpData = [
-      ['HERP-01', 'Rana sabanera', 'Dendropsophus labialis', 'Consumidor secundario / Bioindicador hídrico', 'Ronda hidráulica El Burro / La Vaca', 'Renacuajos comen algas; adultos consumen insectos', 'https://images.unsplash.com/photo-1559253664-ca249d4608c6?w=300'],
-      ['HERP-02', 'Culebra sabanera', 'Atractus crassicaudatus', 'Depredador de suelo / Control de invertebrados', 'Pastizales de ronda ZMPA', 'Amenazada por gatos y corte de pasto', 'https://images.unsplash.com/photo-1531386151447-fd76ad50012f?w=300'],
-      ['MAM-01', 'Chucurí / Comadreja', 'Mustela frenata', 'Depredador tope de ronda / Control de roedores', 'Matorrales densos El Burro y Techo', 'Requiere refugio en saucales', 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef9?w=300'],
-      ['MAM-02', 'Curí silvestre', 'Cavia anolaimae', 'Herbívoro / Dispersor de semillas de pastos nativos', 'Praderas emergentes de borde', 'Depredación por perros sinantrópicos', 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=300'],
-      ['MIA-01', 'Libélula sabanera', 'Aeshna intorta', 'Depredador acuático / Bioindicador de O2', 'Espejo hídrico bien oxigenado El Burro', 'Larvas comen dípteros; adultos cazan moscas', 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=300'],
-      ['MIA-02', 'Quironómido (Gusano rojo)', 'Chironomus sp.', 'Colector-recogedor / Bioindicador de eutrofización', 'Sedimento anóxico de La Vaca y El Burro', 'Base trófica principal para Tingua bogotana', 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=300'],
-      ['MIA-03', 'Caracol pliego', 'Physa acuta', 'Raspador de perifiton / Detritívoro', 'Tallo de junco (Schoenoplectus) y enea', 'Alimento para fochas, tinguas y garzas', 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300'],
-      ['MIA-04', 'Camarón de agua dulce', 'Hyalella azteca', 'Fragmentador de hojarasca / Detritívoro bentónico', 'Bentos hídrico con hojarasca de Aliso', 'Alimento clave para patos acuáticos y renacuajos', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300'],
-      ['MIA-05', 'Sanguijuela de agua dulce', 'Helobdella stagnalis', 'Carroñero / Depredador de invertebrados', 'Limo orgánico denso en zonas de vertimiento', 'Indicador de alta carga orgánica particulada', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300'],
-      ['MIA-06', 'Chinche nadador', 'Buenoa sp.', 'Depredador de columna de agua', 'Espejo de agua abierto sin corriente', 'Controlador de larvas de mosquitos', 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=300'],
-      ['MIA-07', 'Caballito de delgada cola', 'Ischnura ramburii', 'Depredador de perifiton y microartrópodos', 'Vegetación flotante (Azolla, Eichhornia)', 'Indicador de vegetación hídrica bien estructurada', 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=300'],
-      ['MIA-08', 'Gusano de fango', 'Tubifex tubifex', 'Detritívoro de fondo / Tolerante a anoxia', 'Sedimento contaminado con lixiviados', 'Indicador extremo de polución hídrica', 'https://images.unsplash.com/photo-1583912267670-657592e914a6?w=300']
+    // 2. MAMÍFEROS (10 Taxones reales)
+    const mamData = [
+      ['MAM-01', 'Ardilla de cola roja', 'Sciurus granatensis', 'Frugívora y dispersora de semillas de dosel', 'Kennedy / Saucales El Burro', 'Clave en la regeneración de árboles altos.', 'https://static.inaturalist.org/photos/89686567/medium.jpeg'],
+      ['MAM-02', 'Comadreja andina / Chucurí', 'Neogale frenata affinis', 'Depredador carnívoro de ronda / Control de roedores', 'Matorrales densos Kennedy / El Burro', 'Tope carnívoro terrestre del humedal.', 'https://static.inaturalist.org/photos/659816855/medium.jpg'],
+      ['MAM-03', 'Cuis común / Curí de sabana', 'Cavia aperea', 'Herbívoro de praderas y juncales', 'Baldíos y ronda La Felicidad / El Burro', 'Base presa para rapaces y búhos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/569033166/medium.jpg'],
+      ['MAM-04', 'Cusumbo andino', 'Nasua olivacea', 'Omnívoro de borde de bosque y humedal', 'Corredor ecológico Kennedy', 'Remueve suelo en busca de invertebrados.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/734834962/medium.jpg'],
+      ['MAM-05', 'Murciélago nariz de lanza mayor', 'Phyllostomus hastatus', 'Insectívoro y dispersor nocturno de dosel', 'PEDH La Vaca Norte / Dosel', 'Controlador biológico de plagas nocturnas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/222049195/medium.jpeg'],
+      ['MAM-06', 'Perro doméstico sinantrópico', 'Canis familiaris', 'Depredador invasor de fauna nativa', 'Canal Boyacá / San Francisco', 'Amenaza constante sobre nidos de tinguas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/262586406/medium.jpeg'],
+      ['MAM-07', 'Rata gris asiática', 'Rattus norvegicus', 'Roedor sinantrópico de bordes urbanos', 'San Pedro Fontibón / Bordes hídricos', 'Vector de patógenos y presa de lechuzas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/744390733/medium.jpg'],
+      ['MAM-08', 'Rata negra de tejado', 'Rattus rattus', 'Roedor trepador sinantrópico', 'Canal Boyacá / Kennedy', 'Impacto en nidadas de aves de dosel.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/315922304/medium.jpeg'],
+      ['MAM-09', 'Ratón casero eurasiático', 'Mus musculus', 'Pequeño roedor omnívoro sinantrópico', 'Canal San Francisco / El Burro', 'Presa frecuente de cernícalos y búhos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/413985905/medium.jpeg'],
+      ['MAM-10', 'Roedores silvestres de humedal', 'Muroidea', 'Consumidores primarios de raíces y semillas', 'Humedal El Burro', 'Eslabón clave en la red trófica de carnívoros.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/473925253/medium.jpg']
     ];
-    herpData.forEach(h => taxa.push({ id: h[0], name: h[1], sciname: h[2], cat: 3, role: h[3], loc: h[4], alert: h[5], img: h[6] }));
+    mamData.forEach(m => taxa.push({ id: m[0], name: m[1], sciname: m[2], cat: 2, role: m[3], loc: m[4], alert: m[5], img: m[6] }));
 
-    // AVIFAUNA (38)
-    const aveList = [
-      ['AVE-01', 'Tingua bogotana', 'Rallus semiplumbeus', 'En Peligro (EN) - Endémica', 'Humedal El Burro y La Vaca', 'Alta (>80% abandono por ruido >75dB)', 'https://images.unsplash.com/photo-1452570053594-1b985d6ea890?w=300'],
-      ['AVE-02', 'Cucarachero de pantano', 'Cistothorus apolinari', 'En Peligro (EN) - Endémico', 'Humedal El Burro (Sector Norte)', 'Muy Alta (Inhibición de canto de cortejo)', 'https://images.unsplash.com/photo-1522926193341-e9fed686c607?w=300'],
-      ['AVE-03', 'Monjita cabeciamarilla', 'Chrysomus icterocephalus', 'Vulnerable (VU) - Subesp. Endémica', 'Humedal La Vaca y Techo', 'Alta sensibilidad a pérdida de Juncales', 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=300'],
-      ['AVE-04', 'Pato andino', 'Oxyura ferruginea', 'Vulnerable (VU) / Malacófago', 'Espejo hídrico abierto El Burro', 'Sensible a contaminación con plásticos', 'https://images.unsplash.com/photo-1555169062-013468b47731?w=300'],
-      ['AVE-05', 'Tingua azul', 'Porphyrio martinica', 'Residente / Protegida', 'El Burro, La Vaca, Techo', 'Sensible a perros y gatos', 'https://images.unsplash.com/photo-1452570053594-1b985d6ea890?w=300'],
-      ['AVE-06', 'Tingua gris / Polla de agua', 'Gallinula galeata', 'Residente abundante / Herbívora', 'El Burro y La Vaca', 'Media', 'https://images.unsplash.com/photo-1516233758813-a38d024919c5?w=300'],
-      ['AVE-07', 'Focha americana', 'Fulica americana', 'Residente acuática / Algas', 'Espejos de agua El Burro', 'Media', 'https://images.unsplash.com/photo-1551085254-e96b210df58a?w=300'],
-      ['AVE-08', 'Pisingo', 'Dendrocygna autumnalis', 'Residente local / Granívoro', 'Pastizales de ronda El Burro', 'Alta', 'https://images.unsplash.com/photo-1555169062-013468b47731?w=300'],
-      ['AVE-09', 'Zambullidor piquigrueso', 'Podilymbus podiceps', 'Residente acuático / Piscívoro', 'Humedal El Burro', 'Alta', 'https://images.unsplash.com/photo-1555169062-013468b47731?w=300'],
-      ['AVE-10', 'Coquito', 'Phimosus infuscatus', 'Residente litoraleño / Invertebrados', 'Bordes fangosos La Vaca y Techo', 'Media', 'https://images.unsplash.com/photo-1520808663317-647b476a81b9?w=300'],
-      ['AVE-11', 'Garza real', 'Egretta thula', 'Residente / Depredadora en Sauce', 'Ronda hídrica El Burro', 'Media (Garza real)', 'https://images.unsplash.com/photo-1520808663317-647b476a81b9?w=300'],
-      ['AVE-12', 'Garza mayor', 'Ardea alba', 'Residente / Depredadora de dosel', 'Arbolado de ronda El Burro', 'Baja-Media (Great Egret)', 'https://images.unsplash.com/photo-1574063413132-355dbfd83e0c?w=300'],
-      ['AVE-13', 'Guaco / Garza nocturna', 'Nycticorax nycticorax', 'Residente nocturna / Ictiófaga', 'Sector protegido El Burro', 'Media (Night Heron)', 'https://images.unsplash.com/photo-1549608276-5786777e6587?w=300'],
-      ['AVE-14', 'Pato barraquete', 'Spatula discors', 'Migratorio Neotropical / Filtrador', 'Humedal El Burro (Invierno Norte)', 'Alta (Duck)', 'https://images.unsplash.com/photo-1555169062-013468b47731?w=300'],
-      ['AVE-15', 'Andarríos solitario', 'Tringa solitaria', 'Migratorio Neotropical / Limoso', 'Ronda hídrica La Vaca', 'Alta', 'https://images.unsplash.com/photo-1516233758813-a38d024919c5?w=300'],
-      ['AVE-16', 'Chié charquero / Anamú', 'Parkesia noveboracensis', 'Migratorio Neotropical / Insectívoro', 'Ecotono hídrico El Burro', 'Alta', 'https://images.unsplash.com/photo-1522926193341-e9fed686c607?w=300'],
-      ['AVE-17', 'Pibi oriental', 'Contopus virens', 'Migratorio Neotropical / Dosel', 'Corredor arbolado Av. Cali', 'Media', 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=300'],
-      ['AVE-18', 'Atrapamoscas alisero', 'Empidonax alnorum', 'Migratorio Neotropical / Follaje', 'Bosque de Aliso y Saúco', 'Media', 'https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=300'],
-      ['AVE-19', 'Reinita canadiense', 'Cardellina canadensis', 'Migratorio / Amenazada', 'Saúco y Chilco de ronda', 'Alta', 'https://images.unsplash.com/photo-1522926193341-e9fed686c607?w=300'],
-      ['AVE-20', 'Piranga roja', 'Piranga rubra', 'Migratorio Neotropical / Frugívoro', 'Capulí y saucales El Burro', 'Media', 'https://images.unsplash.com/photo-1516233758813-a38d024919c5?w=300'],
-      ['AVE-21', 'Colibrí chillón', 'Colibri coruscans', 'Residente / Polinizador de Saúco', 'Arbolado urbano y humedales', 'Baja (Hummingbird)', 'https://images.unsplash.com/photo-1551085254-e96b210df58a?w=300'],
-      ['AVE-22', 'Colibrí cometa', 'Lesbia nuna', 'Residente / Polinizador de Raque', 'Bosque de ronda El Burro', 'Media (Hummingbird)', 'https://images.unsplash.com/photo-1551085254-e96b210df58a?w=300'],
-      ['AVE-23', 'Mirla patinaranja', 'Turdus fuscater', 'Residente abundante / Hub Dispersor', 'Toda la localidad de Kennedy', 'Muy Baja', 'https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=300'],
-      ['AVE-24', 'Gorrión copetón', 'Zonotrichia capensis', 'Residente urbano / Granívoro', 'Arbolado nativo / Pastizales', 'Baja', 'https://images.unsplash.com/photo-1522926193341-e9fed686c607?w=300'],
-      ['AVE-25', 'Cucarachero común', 'Troglodytes aedon', 'Residente terrestre / Insectívoro', 'Ronda hidráulica y barrios', 'Baja', 'https://images.unsplash.com/photo-1522926193341-e9fed686c607?w=300'],
-      ['AVE-26', 'Titiribí pechirrojo', 'Pyrocephalus rubinus', 'Residente / Cazador posador', 'Humedal Techo y El Burro', 'Baja', 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=300'],
-      ['AVE-27', 'Alcaraván', 'Vanellus chilensis', 'Residente terrestre / Pradera', 'ZMPA Humedal El Burro', 'Baja', 'https://images.unsplash.com/photo-1516233758813-a38d024919c5?w=300'],
-      ['AVE-28', 'Gavilán de ciénaga', 'Circus cinereus', 'Residente / Rapaz de juncal', 'Juncales densos El Burro', 'Alta (Hawk)', 'https://images.unsplash.com/photo-1612024782955-49fae79e42bb?w=300'],
-      ['AVE-29', 'Gavilán bailarín', 'Elanus leucurus', 'Residente / Rapaz de dosel', 'Dosel de Eucaliptos y Sauces', 'Media (Hawk)', 'https://images.unsplash.com/photo-1612024782955-49fae79e42bb?w=300'],
-      ['AVE-30', 'Cernícalo americano', 'Falco sparverius', 'Residente / Rapaz de poste', 'Corredor Av. Cali y El Burro', 'Baja (Falcon)', 'https://images.unsplash.com/photo-1612024782955-49fae79e42bb?w=300'],
-      ['AVE-31', 'Tórtola sabanera', 'Zenaida auriculata', 'Residente sinantrópica', 'Suelo urbano y pastos', 'Muy Baja', 'https://images.unsplash.com/photo-1522926193341-e9fed686c607?w=300'],
-      ['AVE-32', 'Jilguero aliblanco', 'Spinus psaltria', 'Residente / Semillas de Botoncillo', 'Ronda hidráulica La Vaca', 'Baja', 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=300'],
-      ['AVE-33', 'Trupial', 'Icterus icterus', 'Residente introducido / Frugívoro', 'Humedal Techo', 'Media', 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=300'],
-      ['AVE-34', 'Garza del ganado', 'Bubulcus ibis', 'Residente sinantrópica', 'ZMPA El Burro y Corabastos', 'Baja (Cattle Egret)', 'https://images.unsplash.com/photo-1520808663317-647b476a81b9?w=300'],
-      ['AVE-35', 'Garcita estriada', 'Butorides striata', 'Residente acuática / Ictiófaga', 'Sector protegido El Burro', 'Alta (Striated Heron)', 'https://images.unsplash.com/photo-1574063413132-355dbfd83e0c?w=300'],
-      ['AVE-36', 'Semillero sencillo', 'Catamenia analis', 'Residente local / Granívoro', 'Ronda de amortiguación Techo', 'Baja', 'https://images.unsplash.com/photo-1522926193341-e9fed686c607?w=300'],
-      ['AVE-37', 'Abanico pechiamarillo', 'Myioborus ornatus', 'Residente / Subandino de Saúco', 'Humedal El Burro', 'Media-Alta', 'https://images.unsplash.com/photo-1522926193341-e9fed686c607?w=300'],
-      ['AVE-38', 'Atrapamoscas guardapuentes', 'Sayornis nigricans', 'Residente hídrico / Insectívoro', 'Canal de la Vaca y El Burro', 'Media', 'https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=300']
+    // 3. MOLUSCOS (10 Taxones reales)
+    const molData = [
+      ['MOL-01', 'Caracol común de jardín', 'Cornu aspersum', 'Herbívoro raspador introducido', 'El Vergel Occidental / Kennedy', 'Consumidor de plántulas; presa de tinguas y carraos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/717211012/medium.jpg'],
+      ['MOL-02', 'Babosa europea tigre', 'Limax maximus', 'Detritívora de hojarasca húmeda', 'AC 8 Kr 84 / Humedal El Burro', 'Desintegra materia orgánica en descomposición.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/670303071/medium.jpg'],
+      ['MOL-03', 'Babosa europea amarilla', 'Limacus flavus', 'Detritívora de microhábitats oscuros', 'Bosque de Hayuelos / El Burro', 'Descomponedora de hongos y detritos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/168429939/medium.jpg'],
+      ['MOL-04', 'Babosa gris de jardín', 'Deroceras reticulatum', 'Fitófaga de suelo y brotes tiernos', 'Nuevo Techo / Kennedy', 'Frecuente en vegetación herbácea.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/522237350/medium.jpg'],
+      ['MOL-05', 'Babosa de invernadero', 'Milax gagates', 'Fitófaga subterránea de raíces', 'Rincón de los Ángeles / Kennedy', 'Habitante del suelo húmedo de ronda.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/55306844/medium.jpg'],
+      ['MOL-06', 'Babosa de tres bandas', 'Ambigolimax valentianus', 'Detritívora de materia vegetal tierna', 'Carrera 91 / Kennedy', 'Gasterópodo terrestre de zonas húmedas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/216663801/medium.jpg'],
+      ['MOL-07', 'Caracol de cristal', 'Oxychilus draparnaudi', 'Depredador carnívoro de otros moluscos', 'AK 68 AC 3 / Kennedy', 'Regulador de pequeños caracoles.', 'https://static.inaturalist.org/photos/124191805/medium.jpeg'],
+      ['MOL-08', 'Caracol rueda de agua dulce', 'Planorbinae', 'Raspador acuático de perifiton y algas', 'Canales hídricos Hayuelos / El Burro', 'Alimento preferido de patos y tinguas.', 'https://static.inaturalist.org/photos/239062536/medium.jpg'],
+      ['MOL-09', 'Caracolillo terrestre de matera', 'Euthyneura', 'Fitófago diminuto de musgos', 'Dindalito Bella Vista / Kennedy', 'Microgasterópodo de sustrato húmedo.', 'https://static.inaturalist.org/photos/337373950/medium.jpeg'],
+      ['MOL-10', 'Caracol vejiga / pliego acuático', 'Physa acuta', 'Raspador dulceacuícola / Bioindicador orgánico', 'Espejos de agua La Vaca y El Burro', 'Base trófica para la avifauna de juncal.', 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300']
     ];
-    aveList.forEach(a => taxa.push({ id: a[0], name: a[1], sciname: a[2], cat: 1, role: a[3], loc: a[4], alert: a[5], img: a[6] }));
+    molData.forEach(m => taxa.push({ id: m[0], name: m[1], sciname: m[2], cat: 3, role: m[3], loc: m[4], alert: m[5], img: m[6] }));
 
-    // FLORA & ARBOLADO CENSO SIGAU (108)
+    // 4. ANFIBIOS (6 Taxones reales)
+    const anfData = [
+      ['ANF-01', 'Rana sabanera', 'Dendropsophus molitor', 'Bioindicador hídrico / Consumidora de artrópodos', 'Humedales El Burro, La Vaca y Techo', 'Emblema anfibio de la sabana de Bogotá.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/707895722/medium.jpg'],
+      ['ANF-02', 'Salamandra de Cundinamarca', 'Bolitoglossa adspersa', 'Endémica de la Cordillera Oriental / Respiración cutánea', 'Microhábitats húmedos de ronda', 'Sensible a sequedad y contaminantes químicos.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/401929256/medium.jpg'],
+      ['ANF-03', 'Rana de lluvia elegante', 'Pristimantis elegans', 'Desarrollo directo en suelo / Insectívora de hojarasca', 'Hojarasca protegida Kennedy', 'No requiere cuerpo de agua abierto para reproducirse.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/318894413/medium.jpeg'],
+      ['ANF-04', 'Sapo gigante neotropical', 'Rhinella horribilis', 'Depredador voraz de insectos terrestres', 'Ciudad Tintal II / El Burro', 'Controlador biológico de coleópteros y hormigas.', 'https://static.inaturalist.org/photos/461501407/medium.jpeg'],
+      ['ANF-05', 'Ranita venenosa de Bogotá / Rana cohete', 'Hyloxalus subpunctatus', 'Endémica andina diurna de orilla de arroyo', 'Canal Boyacá / Río San Francisco', 'Macho transporta renacuajos a charcas.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/318894413/medium.jpeg'],
+      ['ANF-06', 'Rana arborícola de humedal', 'Hylidae', 'Insectívora de totora y enea', 'Bosque de Hayuelos / El Burro', 'Habitante del estrato herbáceo inundable.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/707895722/medium.jpg']
+    ];
+    anfData.forEach(a => taxa.push({ id: a[0], name: a[1], sciname: a[2], cat: 4, role: a[3], loc: a[4], alert: a[5], img: a[6] }));
+
+    // 5. REPTILES (8 Taxones reales)
+    const repData = [
+      ['REP-01', 'Serpiente sabanera / Culebra tierrera', 'Atractus crassicaudatus', 'Depredadora de lombrices e invertebrados (Inofensiva)', 'Los Condominios / Humedal El Burro', 'Especie protegida inofensiva clave en el suelo.', 'https://static.inaturalist.org/photos/703015442/medium.jpg'],
+      ['REP-02', 'Lagarto collarejo / Camaleón andino', 'Stenocercus trachycephalus', 'Termorregulador diurno / Insectívoro', 'ZMPA El Burro / La Vaca', 'Endémico del altiplano cundiboyacense.', 'https://static.inaturalist.org/photos/730577939/medium.jpg'],
+      ['REP-03', 'Lagartija bombillo estriada', 'Riama striata', 'Gimnoftálmido fosorial de hojarasca', 'Av. A. Mejía / Cl 38 Sur', 'Vive bajo piedras y troncos húmedos.', 'https://static.inaturalist.org/photos/390811940/medium.jpeg'],
+      ['REP-04', 'Charchala / Lagartija de Bogotá', 'Anadia bogotensis', 'Endémica de la sabana / Insectívora ágil', 'Matorrales de amortiguación Kennedy', 'Excelente escaladora en arbustos nativos.', 'https://static.inaturalist.org/photos/497045671/medium.jpeg'],
+      ['REP-05', 'Jicotea sudamericana / Hicotea', 'Trachemys callirostris', 'Reptil semiacuático / Omnívoro de humedal', 'Espejos hídricos El Burro / Techo', 'Termorregula en troncos flotantes.', 'https://inaturalist-open-data.s3.amazonaws.com/photos/740090302/medium.jpg'],
+      ['REP-06', 'Iguana verde', 'Iguana iguana', 'Herbívoro de copas arbóreas', 'Av. Alsacia Kr 71B / Kennedy', 'Ejemplares asilvestrados en microclimas urbanos.', 'https://static.inaturalist.org/photos/656885488/medium.jpg'],
+      ['REP-07', 'Besucona asiática / Geco casero', 'Hemidactylus frenatus', 'Cazador nocturno de insectos en muros', 'Edificaciones de borde urbano Kennedy', 'Lagartija trepadora de actividad nocturna.', 'https://static.inaturalist.org/photos/577489030/medium.jpg'],
+      ['REP-08', 'Culebra de humedal', 'Colubridae', 'Controlador biológico de roedores y anfibios', 'Tintala / Humedal El Burro', 'Reptil ágil de vegetación riparia.', 'https://static.inaturalist.org/photos/257158564/medium.jpeg']
+    ];
+    repData.forEach(r => taxa.push({ id: r[0], name: r[1], sciname: r[2], cat: 5, role: r[3], loc: r[4], alert: r[5], img: r[6] }));
+
+    // 0. FLORA & ARBOLADO CENSO SIGAU (90 Taxones)
     const sigauBase = [
       ['Sambucus nigra', 'Saúco', 'Adoxaceae', 'Flora Nativa Hub / Néctar, fruto y nido para 25+ aves', 'Muy Alto (38 aristas)', 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=300'],
       ['Prunus serotina', 'Capulí', 'Rosaceae', 'Flora Nativa Hub / Frutos para Mirlas, Pirangas y loros', 'Muy Alto (32 aristas)', 'https://images.unsplash.com/photo-1511497584788-876761465586?w=300'],
@@ -273,10 +324,10 @@
       ['Abutilon striatum', 'Farolito japonés', 'Malvaceae', 'Atracción continua de colibríes', 'Alto', 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=300'],
       ['Passiflora mixta', 'Curuba de monte', 'Passifloraceae', 'Trepadora melífera de borde de humedal', 'Alto', 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=300'],
       ['Typha latifolia', 'Enea / Totora', 'Typhaceae', 'Filtro biológico y nidificación de tinguas', 'Muy Alto', 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=300'],
-      ['Schoenoplectus californicus', 'Junco', 'Cyperaceae', 'Purificación acuática y hábitat trófico de herpetos', 'Muy Alto', 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=300']
+      ['Schoenoplectus californicus', 'Junco californiano', 'Cyperaceae', 'Purificación acuática y hábitat trófico de rálidos', 'Muy Alto', 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=300']
     ];
 
-    for (let s = 1; s <= 108; s++) {
+    for (let s = 1; s <= 90; s++) {
       const numStr = s.toString().padStart(3, '0');
       const sId = `SIGAU-${numStr}`;
       const template = sigauBase[(s - 1) % sigauBase.length];
@@ -296,7 +347,7 @@
   }
 
   // =====================================================================
-  // 2. RED BIÓTICA EN THREE.JS (180 NODOS & CONEXIONES TRÓFICAS REALES)
+  // 2. RED BIÓTICA EN THREE.JS (181 NODOS & CONEXIONES TRÓFICAS REALES)
   // =====================================================================
   const fullTaxa = buildFull180Dataset();
   const rawNodes = [];
@@ -307,7 +358,7 @@
 
   const SPHERE_RADIUS = 32.0;
 
-  // Texturas circulares pregeneradas en Canvas para los 180 taxones
+  // Texturas circulares pregeneradas en Canvas para los taxones
   function createCircularTexture(imgUrl, taxonId, speciesName, cat) {
     const cvs = document.createElement("canvas");
     cvs.width = 128; cvs.height = 128;
@@ -331,10 +382,10 @@
       ctx.fillStyle = "#0a0a0c";
       ctx.fill();
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 16px sans-serif";
+      ctx.font = "bold 15px sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(taxonId, 64, 56);
-      ctx.font = "12px sans-serif";
+      ctx.font = "11.5px sans-serif";
       ctx.fillText((speciesName || '').substring(0, 8), 64, 76);
       tex.needsUpdate = true;
     };
@@ -454,8 +505,8 @@
     edgePos[ptr] = na.x; edgePos[ptr+1] = na.y; edgePos[ptr+2] = na.z;
     edgePos[ptr+3] = nb.x; edgePos[ptr+4] = nb.y; edgePos[ptr+5] = nb.z;
 
-    const ca = new THREE.Color(palette.hexColors[na.cat]);
-    const cb = new THREE.Color(palette.hexColors[nb.cat]);
+    const ca = new THREE.Color(palette.hexColors[na.cat] || 0x84A48B);
+    const cb = new THREE.Color(palette.hexColors[nb.cat] || 0x84A48B);
     edgeCol[ptr] = ca.r * 0.75; edgeCol[ptr+1] = ca.g * 0.75; edgeCol[ptr+2] = ca.b * 0.75;
     edgeCol[ptr+3] = cb.r * 0.75; edgeCol[ptr+4] = cb.g * 0.75; edgeCol[ptr+5] = cb.b * 0.75;
   }
@@ -475,7 +526,7 @@
   function recalculateDegreesAndSizes() {
     let activeNodesCount = 0;
     let hiddenCount = 0;
-    const catCounts = { 0: 0, 1: 0, 2: 0, 3: 0 };
+    const catCounts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
     rawNodes.forEach(n => {
       n.active = (opts.cats[n.cat] === true) && !n.hiddenByUser;
@@ -485,13 +536,13 @@
 
       if (n.active) {
         activeNodesCount++;
-        catCounts[n.cat]++;
+        if (catCounts[n.cat] !== undefined) catCounts[n.cat]++;
         const sc = Math.min(5.2, Math.max(2.8, 2.6 + Math.sqrt(n.degree) * 0.45));
         n.sprite.scale.set(sc, sc, 1.0);
       }
     });
 
-    for (let c = 0; c <= 3; c++) {
+    for (let c = 0; c <= 5; c++) {
       const el = document.getElementById(`badgeCat${c}`);
       if (el) el.innerText = catCounts[c];
     }
@@ -599,30 +650,25 @@
     uniform float uPerspectiveMode;
     
     void main() {
-      if (vAlpha < 0.01) discard;
       vec2 coord = gl_PointCoord - vec2(0.5);
       float dist = length(coord);
       if (dist > 0.5) discard;
       
-      float edgeAlpha = smoothstep(0.5, 0.08, dist);
+      float softCircle = smoothstep(0.5, 0.08, dist);
+      float innerCore = smoothstep(0.24, 0.0, dist);
+      
       vec3 col = vColor;
+      col += innerCore * 0.22;
+      col += vec3(0.12, 0.35, 0.32) * vRippleBoost;
       
-      if (vRippleBoost > 0.05) {
-        col = mix(col, vec3(0.0, 0.7, 0.85), vRippleBoost * 0.65);
-      }
-      
-      if (uPerspectiveMode > 0.05) {
-        if (vCategory < 0.5) {
-          col = mix(col, vec3(0.0, 0.75, 0.95), uPerspectiveMode * 0.35);
-        } else if (vCategory < 1.5) {
-          col = mix(col, vec3(0.2, 0.65, 0.38), uPerspectiveMode * 0.25);
-        } else if (vCategory > 1.8) {
-          col = mix(col, vec3(0.25, 0.24, 0.23), uPerspectiveMode * 0.45);
-        }
+      if (uPerspectiveMode > 0.05 && vCategory > 1.8) {
+        float fogFactor = clamp((vDistToCam - 15.0) / 160.0, 0.0, 0.85);
+        col = mix(col, vec3(0.08, 0.09, 0.11), fogFactor * uPerspectiveMode);
       }
       
       col = col / (1.0 + col * 0.35);
-      gl_FragColor = vec4(col, edgeAlpha * vAlpha);
+      
+      gl_FragColor = vec4(col, softCircle * vAlpha);
     }
   `;
 
@@ -636,263 +682,185 @@
   };
 
   const particleMat = new THREE.ShaderMaterial({
+    vertexShader,
+    fragmentShader,
     uniforms: particleUniforms,
-    vertexShader: vertexShader,
-    fragmentShader: fragmentShader,
     transparent: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending
   });
 
-  const pTarget = [];
-  const pSwarm = [];
-  const pColor = [];
-  const pSize = [];
-  const pPhase = [];
-  const pCat = [];
+  let particlePointsMesh = null;
 
-  let particlePoints = null;
-  let currentParticleIndex = 0;
+  // =====================================================================
+  // 4. CARGA DE CAPAS GIS DEL TERRITORIO (AGUA, ÁRBOLES, VÍAS Y MANZANAS)
+  // =====================================================================
+  let treeSpeciesClusters = {};
 
-  function randomSwarmCluster(idx) {
-    const node = rawNodes[idx % rawNodes.length];
-    return {
-      x: node.baseX + (Math.random() - 0.5) * 2.0,
-      y: node.baseY + (Math.random() - 0.5) * 2.0,
-      z: node.baseZ + (Math.random() - 0.5) * 2.0
-    };
-  }
+  Promise.all([
+    fetch(WATER_URL).then(r => r.json()).catch(() => ({ features: [] })),
+    fetch(TREES_URL).then(r => r.json()).catch(() => ({ features: [] })),
+    fetch(NET_URL).then(r => r.json()).catch(() => ({ features: [] })),
+    fetch(BUILDINGS_URL).then(r => r.json()).catch(() => ({ features: [] }))
+  ]).then(([waterData, treesData, netData, bldData]) => {
+    buildTerritorialPointMatrix(waterData, treesData, netData, bldData);
+    if (loadingVeil) {
+      loadingVeil.style.opacity = "0";
+      setTimeout(() => { loadingVeil.style.display = "none"; }, 600);
+    }
+  }).catch(err => {
+    console.error("Error al cargar capas del territorio:", err);
+    if (loadingVeil) loadingVeil.style.display = "none";
+  });
 
-  function rebuildTerritoryParticles() {
-    if (particlePoints) {
-      sceneRoot.remove(particlePoints);
-      particlePoints.geometry.dispose();
+  function buildTerritorialPointMatrix(waterData, treesData, netData, bldData) {
+    const coords = [];
+    const swarmPos = [];
+    const colors = [];
+    const sizes = [];
+    const phases = [];
+    const categories = [];
+
+    // Helper de puntos en órbita biótica
+    function addPoint(tx, ty, tz, r, g, b, sz, cat, phase) {
+      coords.push(tx, ty, tz);
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const radius = 24 + Math.random() * 22;
+      swarmPos.push(
+        radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.sin(phi) * Math.sin(theta),
+        radius * Math.cos(phi)
+      );
+      colors.push(r, g, b);
+      sizes.push(sz);
+      phases.push(phase || Math.random() * 6.28);
+      categories.push(cat);
     }
 
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(pTarget, 3));
-    geo.setAttribute("aSwarmPos", new THREE.Float32BufferAttribute(pSwarm, 3));
-    geo.setAttribute("aColor", new THREE.Float32BufferAttribute(pColor, 3));
-    geo.setAttribute("aSize", new THREE.Float32BufferAttribute(pSize, 1));
-    geo.setAttribute("aPhase", new THREE.Float32BufferAttribute(pPhase, 1));
-    geo.setAttribute("aCategory", new THREE.Float32BufferAttribute(pCat, 1));
-
-    particlePoints = new THREE.Points(geo, particleMat);
-    sceneRoot.add(particlePoints);
-  }
-
-  // =====================================================================
-  // 4. CARGA DE CAPAS TERRITORIALES (AGUA, ÁRBOLES, VÍAS Y EDIFICIOS STONE)
-  // =====================================================================
-  const treeSpeciesClusters = {
-    chicala: [], jazmin: [], sauco: [], falso_pimiento: [], eugenia: [], palma_yuca: [],
-    urapan: [], caucho: [], cipres: [], acacia: [], capulin: [], aliso: []
-  };
-
-  function matchSpeciesKey(speciesName) {
-    if (!speciesName) return "sauco";
-    const s = speciesName.toLowerCase();
-    if (s.includes("chicala") || s.includes("chirlobirlo") || s.includes("amarillo")) return "chicala";
-    if (s.includes("jazmin") || s.includes("huesito")) return "jazmin";
-    if (s.includes("sauco")) return "sauco";
-    if (s.includes("pimiento")) return "falso_pimiento";
-    if (s.includes("eugenia")) return "eugenia";
-    if (s.includes("palma") || s.includes("yuca") || s.includes("palmiche")) return "palma_yuca";
-    if (s.includes("urapan") || s.includes("fresno")) return "urapan";
-    if (s.includes("caucho")) return "caucho";
-    if (s.includes("cipres") || s.includes("pino")) return "cipres";
-    if (s.includes("acacia")) return "acacia";
-    if (s.includes("cerezo") || s.includes("capuli")) return "capulin";
-    if (s.includes("aliso")) return "aliso";
-    return null;
-  }
-
-  function loadWater() {
-    return fetch(WATER_URL).then(r => r.json()).then(waterBodies => {
-      const colWaterMain = new THREE.Color(0x00B4D8);
-      const colWaterDeep = new THREE.Color(0x0077B6);
-
-      waterBodies.forEach(w => {
-        const pts = w.pts;
-        if (!pts || pts.length < 3) return;
-        const sPts = pts.map(p => toScene(p[0], p[1]));
-        const pts2d = sPts.map(p => new THREE.Vector2(p.x, p.z));
-
-        let tris = [];
-        try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch(e) { tris = []; }
-
-        tris.forEach(([ia, ib, ic]) => {
-          const pa = sPts[ia], pb = sPts[ib], pc = sPts[ic];
-          for (let s = 0; s < 3; s++) {
-            const r1 = Math.random(), r2 = Math.random();
-            const sq1 = Math.sqrt(r1);
-            const wx = (1 - sq1) * pa.x + sq1 * (1 - r2) * pb.x + sq1 * r2 * pc.x;
-            const wz = (1 - sq1) * pa.z + sq1 * (1 - r2) * pb.z + sq1 * r2 * pc.z;
-            const wy = 0.28 + Math.random() * 0.2;
-            const sw = randomSwarmCluster(currentParticleIndex++);
-            pTarget.push(wx, wy, wz);
-            pSwarm.push(sw.x, sw.y, sw.z);
-            const c = (s % 2 === 0) ? colWaterMain : colWaterDeep;
-            pColor.push(c.r, c.g, c.b);
-            pSize.push(1.65);
-            pPhase.push(Math.random() * 10);
-            pCat.push(0.0);
+    // A. Cuerpos de Agua (Humedal El Burro, La Vaca, Techo) - Azul Humedal Puro #00B4D8
+    const waterFeatures = waterData.features || [];
+    const waterColor = { r: 0.0, g: 0.706, b: 0.847 }; // #00B4D8
+    waterFeatures.forEach(feat => {
+      const geom = feat.geometry;
+      if (!geom) return;
+      const rings = geom.type === "Polygon" ? [geom.coordinates] : (geom.type === "MultiPolygon" ? geom.coordinates : []);
+      rings.forEach(polygon => {
+        polygon.forEach(ring => {
+          for (let i = 0; i < ring.length; i++) {
+            const p = toScene(ring[i][0], ring[i][1]);
+            addPoint(p.x, 0.15, p.z, waterColor.r, waterColor.g, waterColor.b, 3.8, 0.0, Math.random() * 6.28);
+            if (i < ring.length - 1) {
+              const pNext = toScene(ring[i+1][0], ring[i+1][1]);
+              for (let k = 1; k <= 3; k++) {
+                const interpX = p.x + (pNext.x - p.x) * (k / 4);
+                const interpZ = p.z + (pNext.z - p.z) * (k / 4);
+                addPoint(interpX, 0.15, interpZ, waterColor.r, waterColor.g, waterColor.b, 3.5, 0.0, Math.random() * 6.28);
+              }
+            }
           }
         });
       });
-      rebuildTerritoryParticles();
-    }).catch(err => console.warn("Error agua:", err));
-  }
+    });
 
-  function loadTrees() {
-    return fetch(TREES_URL).then(r => r.json()).then(trees => {
-      const colTreeLush = new THREE.Color(0x2E8B57);
-      const colTreeBright = new THREE.Color(0x48BB78);
-      const colTrunk = new THREE.Color(0x161D26);
+    // B. Constelación de Árboles Reales Georreferenciados - Verde Follaje Equilibrado #2E8B57 / #48BB78
+    const treeFeatures = treesData.features || [];
+    treeFeatures.forEach(feat => {
+      const geom = feat.geometry;
+      if (!geom || geom.type !== "Point") return;
+      const p = toScene(geom.coordinates[0], geom.coordinates[1]);
+      const props = feat.properties || {};
+      const height = props.altura_tot || props.height || 3.5;
+      const name = (props.nombre_com || props.especie || "").toLowerCase();
 
-      trees.forEach((t, i) => {
-        const [x, y, hMeters, specName] = t;
-        const p = toScene(x, y);
-        const h = Math.max(0.7, (hMeters || 8) * SCALE);
+      let specKey = "other";
+      if (name.includes("sauco") || name.includes("sambucus")) specKey = "sauco";
+      else if (name.includes("chicala") || name.includes("tecoma")) specKey = "chicala";
+      else if (name.includes("aliso") || name.includes("alnus")) specKey = "aliso";
+      else if (name.includes("jazmin") || name.includes("pittosporum")) specKey = "jazmin";
+      else if (name.includes("pimiento") || name.includes("schinus")) specKey = "falso_pimiento";
+      else if (name.includes("eugenia")) specKey = "eugenia";
+      else if (name.includes("yuca") || name.includes("yucca")) specKey = "palma_yuca";
+      else if (name.includes("urapan") || name.includes("fraxinus")) specKey = "urapan";
+      else if (name.includes("caucho") || name.includes("ficus")) specKey = "caucho";
+      else if (name.includes("cipres") || name.includes("cupressus")) specKey = "cipres";
+      else if (name.includes("acacia")) specKey = "acacia";
+      else if (name.includes("capuli") || name.includes("prunus")) specKey = "capulin";
 
-        const sKey = matchSpeciesKey(specName);
-        if (sKey && treeSpeciesClusters[sKey]) {
-          treeSpeciesClusters[sKey].push({ x: p.x, y: h * 0.85, z: p.z, height: h });
-        }
+      if (!treeSpeciesClusters[specKey]) treeSpeciesClusters[specKey] = [];
+      treeSpeciesClusters[specKey].push({ x: p.x, y: 0.35 + height * 0.45, z: p.z });
 
-        const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
-        const crownY = h * 0.85;
-        const swCrown = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(p.x, crownY, p.z);
-        pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
-        pColor.push(folCol.r, folCol.g, folCol.b);
-        pSize.push(1.6);
-        pPhase.push(i * 0.25);
-        pCat.push(1.0);
+      const isKeyNative = (specKey === "sauco" || specKey === "aliso" || specKey === "capulin");
+      const tr = isKeyNative ? 0.28 : 0.18;
+      const tg = isKeyNative ? 0.73 : 0.55;
+      const tb = isKeyNative ? 0.47 : 0.34;
+      addPoint(p.x, 0.35 + height * 0.45, p.z, tr, tg, tb, 4.0, 1.0, Math.random() * 6.28);
+    });
 
-        const subNodes = 4;
-        const rad = h * 0.45;
-        for (let k = 0; k < subNodes; k++) {
-          const ang = (k / subNodes) * Math.PI * 2 + (i % 7);
-          const sx = p.x + Math.cos(ang) * rad;
-          const sz = p.z + Math.sin(ang) * rad;
-          const sy = crownY + (k % 2 === 0 ? 0.25 : -0.2);
-          const swSub = randomSwarmCluster(currentParticleIndex++);
-          pTarget.push(sx, sy, sz);
-          pSwarm.push(swSub.x, swSub.y, swSub.z);
-          pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
-          pSize.push(1.4);
-          pPhase.push(i + k * 1.5);
-          pCat.push(1.0);
-        }
-
-        const swBase = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(p.x, 0.1, p.z);
-        pSwarm.push(swBase.x, swBase.y, swBase.z);
-        pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
-        pSize.push(1.1);
-        pPhase.push(i * 0.1);
-        pCat.push(1.0);
-      });
-      rebuildTerritoryParticles();
-    }).catch(err => console.warn("Error árboles:", err));
-  }
-
-  function loadRoads() {
-    return fetch(NET_URL).then(r => r.json()).then(edges => {
-      const colRoad = new THREE.Color(0x232326);
-      const colMajor = new THREE.Color(0x38BDF8);
-
-      edges.forEach(([kind, pts], edgeIdx) => {
-        const isMajor = (edgeIdx % 4 === 0);
-        const c = isMajor ? colMajor : colRoad;
-        for (let i = 0; i < pts.length - 1; i++) {
-          const a = toScene(pts[i][0], pts[i][1]);
-          const sw = randomSwarmCluster(currentParticleIndex++);
-          pTarget.push(a.x, 0.08, a.z);
-          pSwarm.push(sw.x, sw.y, sw.z);
-          pColor.push(c.r, c.g, c.b);
-          pSize.push(isMajor ? 1.25 : 0.95);
-          pPhase.push(edgeIdx * 0.35);
-          pCat.push(3.0);
+    // C. Malla Vial y Conectividad Urbana - Azul Cielo Suave #38BDF8
+    const netFeatures = netData.features || [];
+    const roadColor = { r: 0.22, g: 0.74, b: 0.97 }; // #38BDF8
+    netFeatures.forEach(feat => {
+      const geom = feat.geometry;
+      if (!geom) return;
+      const lines = geom.type === "LineString" ? [geom.coordinates] : (geom.type === "MultiLineString" ? geom.coordinates : []);
+      lines.forEach(line => {
+        for (let i = 0; i < line.length; i++) {
+          const p = toScene(line[i][0], line[i][1]);
+          addPoint(p.x, 0.05, p.z, roadColor.r, roadColor.g, roadColor.b, 2.2, 2.0, Math.random() * 6.28);
         }
       });
-      rebuildTerritoryParticles();
-    }).catch(err => console.warn("Error vías:", err));
-  }
+    });
 
-  function loadBuildings() {
-    return fetch(BUILDINGS_URL).then(r => r.json()).then(buildings => {
-      const colBldgPrimary   = new THREE.Color(0x3A3836);
-      const colBldgSecondary = new THREE.Color(0x484440);
-      const colRoofHighlight = new THREE.Color(0x544E48);
-      const colBaseGround    = new THREE.Color(0x131315);
-
-      buildings.forEach((b, bIdx) => {
-        const pts = b.pts;
-        if (!pts || pts.length < 3) return;
-        const sPts = pts.map(p => toScene(p[0], p[1]));
-        const h = (b.height || 10) * SCALE;
-        const bldgCol = (bIdx % 2 === 0) ? colBldgPrimary : colBldgSecondary;
-
-        for (let i = 0; i < sPts.length; i++) {
-          const p = sPts[i];
-          const steps = Math.max(3, Math.floor(h / 1.1));
-          for (let step = 0; step <= steps; step++) {
-            const y = (step / steps) * h;
-            const sw = randomSwarmCluster(currentParticleIndex++);
-            pTarget.push(p.x, y, p.z);
-            pSwarm.push(sw.x, sw.y, sw.z);
-            const isRoof = (step === steps);
-            const c = isRoof ? colRoofHighlight : bldgCol;
-            pColor.push(c.r, c.g, c.b);
-            pSize.push(isRoof ? 1.3 : 1.1);
-            pPhase.push(bIdx + step);
-            pCat.push(2.0);
+    // D. Manzanas Urbanas y Edificaciones - Tono Piedra Arquitectónico Cálido #3A3836 / #484440
+    const bldFeatures = bldData.features || [];
+    const stoneColor = { r: 0.227, g: 0.220, b: 0.212 }; // #3A3836
+    const stoneHigh = { r: 0.282, g: 0.267, b: 0.251 };  // #484440
+    bldFeatures.forEach(feat => {
+      const geom = feat.geometry;
+      if (!geom) return;
+      const rings = geom.type === "Polygon" ? [geom.coordinates] : (geom.type === "MultiPolygon" ? geom.coordinates : []);
+      const height = (feat.properties && feat.properties.height) || 6.5;
+      rings.forEach(polygon => {
+        polygon.forEach(ring => {
+          for (let i = 0; i < ring.length; i += 2) {
+            const p = toScene(ring[i][0], ring[i][1]);
+            addPoint(p.x, 0.08, p.z, stoneColor.r, stoneColor.g, stoneColor.b, 2.4, 3.0, 0.0);
+            if (height > 5.0 && Math.random() < 0.45) {
+              addPoint(p.x, height * 0.35, p.z, stoneHigh.r, stoneHigh.g, stoneHigh.b, 2.2, 3.0, 0.0);
+            }
           }
-        }
+        });
       });
+    });
 
-      for (let s = 0; s < 3800; s++) {
-        const rad = 25 + Math.sqrt(Math.random()) * 210;
-        const ang = Math.random() * Math.PI * 2;
-        const gx = Math.cos(ang) * rad;
-        const gz = Math.sin(ang) * rad;
-        const gy = 0.02 + Math.random() * 0.2;
-        const sw = randomSwarmCluster(currentParticleIndex++);
-        pTarget.push(gx, gy, gz);
-        pSwarm.push(sw.x, sw.y, sw.z);
-        pColor.push(colBaseGround.r, colBaseGround.g, colBaseGround.b);
-        pSize.push(0.92);
-        pPhase.push(s * 0.5);
-        pCat.push(4.0);
-      }
+    // Creación del BufferGeometry de Partículas
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute("position", new THREE.Float32BufferAttribute(coords, 3));
+    pGeo.setAttribute("aSwarmPos", new THREE.Float32BufferAttribute(swarmPos, 3));
+    pGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(colors, 3));
+    pGeo.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
+    pGeo.setAttribute("aPhase", new THREE.Float32BufferAttribute(phases, 1));
+    pGeo.setAttribute("aCategory", new THREE.Float32BufferAttribute(categories, 1));
 
-      rebuildTerritoryParticles();
-    }).catch(err => console.warn("Error edificios:", err));
+    particlePointsMesh = new THREE.Points(pGeo, particleMat);
+    sceneRoot.add(particlePointsMesh);
   }
-
-  Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
-    loadBuildings();
-    setTimeout(() => {
-      if (loadingVeil) loadingVeil.classList.add("hide");
-    }, 300);
-  });
 
   // =====================================================================
-  // 5. CONSTELACIÓN GEORREFERENCIADA DE ÁRBOLES EN EL TERRITORIO
+  // 5. CONSTELACIONES DINÁMICAS Y FOCO VISUAL DE ESPECIES DE ÁRBOLES
   // =====================================================================
   const speciesConstellationGroup = new THREE.Group();
-  speciesConstellationGroup.visible = false;
   sceneRoot.add(speciesConstellationGroup);
 
   let activeConstellationPoints = null;
   let activeConstellationLines = null;
+
   const activeTreeIndicatorGroup = new THREE.Group();
   sceneRoot.add(activeTreeIndicatorGroup);
 
-  const focusDotGeo = new THREE.CircleGeometry(2.4, 24);
-  const focusDotMat = new THREE.MeshBasicMaterial({ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending });
+  const focusDotGeo = new THREE.CircleGeometry(1.6, 24);
+  const focusDotMat = new THREE.MeshBasicMaterial({ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0 });
   const focusDotMesh = new THREE.Mesh(focusDotGeo, focusDotMat);
   focusDotMesh.rotation.x = -Math.PI / 2;
   activeTreeIndicatorGroup.add(focusDotMesh);
@@ -1130,14 +1098,16 @@
     rawNodes.forEach((n, idx) => {
       if (mode === 'clustered') {
         const centers = {
-          0: { x: -28, y: -10, z: -14 },
-          1: { x: 28, y: -10, z: 14 },
-          2: { x: -28, y: 18, z: 14 },
-          3: { x: 28, y: 18, z: -14 }
+          0: { x: 0, y: -16, z: 0 },    // Flora en base
+          1: { x: 0, y: 22, z: 0 },     // Aves en dosel superior
+          2: { x: 26, y: 2, z: 16 },    // Mamíferos
+          3: { x: -26, y: 2, z: 16 },   // Moluscos
+          4: { x: -22, y: -6, z: -22 }, // Anfibios
+          5: { x: 22, y: -6, z: -22 }   // Reptiles
         };
         const c = centers[n.cat] || { x: 0, y: 0, z: 0 };
-        const a = idx * 2.4 + (n.cat * Math.PI / 2);
-        const r = 6 + (idx % 12) * 1.1;
+        const a = idx * 2.4 + (n.cat * Math.PI / 3);
+        const r = 5 + (idx % 10) * 1.2;
         n.ox = c.x + Math.cos(a) * r;
         n.oy = c.y + Math.sin(a * 1.3) * (r * 0.7);
         n.oz = c.z + Math.sin(a) * r;
@@ -1215,7 +1185,7 @@
         <div style="display:flex; flex-direction:column; gap:2px;">
           <span><b>${nb.label}</b> (<i>${nb.sciname}</i>)</span>
           <span style="font-size:8.5px; font-weight:700; color:${inter.color}; background:rgba(255,255,255,0.06); padding:1px 5px; border-radius:3px; width:fit-content; border:1px solid ${inter.color};">
-            Tipo: ${inter.name}
+            Tipo: ${inter.name} • ${palette.catNames[nb.cat] || ''}
           </span>
         </div>
         <span style="color:#84a48b; font-size:9px; font-family:monospace;">${nb.taxaId}</span>
@@ -1369,9 +1339,9 @@
         sctx.save();
         sctx.beginPath();
         sctx.arc(sn.sx, sn.sy, r, 0, Math.PI * 2);
-        sctx.fillStyle = palette.catColors[sn.cat];
+        sctx.fillStyle = palette.catColors[sn.cat] || '#84A48B';
         sctx.fill();
-        sctx.strokeStyle = sn.isCenter ? '#ffffff' : palette.catColors[sn.cat];
+        sctx.strokeStyle = sn.isCenter ? '#ffffff' : (palette.catColors[sn.cat] || '#84A48B');
         sctx.lineWidth = sn.isCenter ? 3.5 : 2;
         sctx.stroke();
 
@@ -1397,22 +1367,22 @@
 
     if (questionId === 1) {
       userMsg = '¿Qué significan las conexiones y evidencia entre especies?';
-      const fauna = rawNodes.filter(n => n.cat === 1 || n.cat === 3).sort((a,b) => b.degree - a.degree);
+      const fauna = rawNodes.filter(n => n.cat === 1).sort((a,b) => b.degree - a.degree);
       targetTaxon = fauna[0];
-      botMsg = `Las conexiones representan interacciones verificadas respaldadas por SIGAU y censos SDA. El taxón animal de mayor conectividad es <b>${targetTaxon ? targetTaxon.label : 'Mirla patinaranja'}</b> con ${targetTaxon ? targetTaxon.degree : 12} enlaces bióticos.`;
+      botMsg = `Las conexiones representan interacciones bióticas validadas con observaciones de campo y censos de la SDA/SIGAU. En avifauna, el taxón de mayor centralidad es <b>${targetTaxon ? targetTaxon.label : 'Mirla patinaranja'}</b> con ${targetTaxon ? targetTaxon.degree : 14} enlaces en el territorio.`;
     } else if (questionId === 2) {
       userMsg = '¿Por qué existen relaciones entre vegetación y fauna?';
       const flora = rawNodes.filter(n => n.cat === 0).sort((a,b) => b.degree - a.degree);
       targetTaxon = flora[0];
-      botMsg = `Se deben a nodos de flora nativa estructural (como <b>${targetTaxon ? targetTaxon.label : 'Saúco'}</b>), que actúan como 'Hubs' de néctar, frutos y refugio exclusivo para la avifauna de Kennedy.`;
+      botMsg = `Se fundamentan en nodos estructurales de flora (como <b>${targetTaxon ? targetTaxon.label : 'Saúco'}</b>), que funcionan como 'Hubs' ecosistémicos brindando néctar, frutos y sitios de nidificación para aves, mamíferos y polinizadores de Kennedy.`;
     } else if (questionId === 3) {
       userMsg = 'Conjetura: ¿Qué observaciones son datos vs hipótesis?';
-      targetTaxon = rawNodes.find(n => n.taxaId === 'AVE-01');
-      botMsg = `<b>Datos verificados:</b> Nidos censados de <i>${targetTaxon ? targetTaxon.label : 'Tingua bogotana'}</i> en juncales. <b>Hipótesis:</b> Inhibición del canto de cortejo por ruido vehicular >75 dB(A) en Av. Cali.`;
+      targetTaxon = rawNodes.find(n => n.taxaId === 'AVE-51' || n.taxaId === 'AVE-01');
+      botMsg = `<b>Datos verificados:</b> Registros georreferenciados de <i>${targetTaxon ? targetTaxon.label : 'Tingua bogotana'}</i> en juncales de El Burro y La Vaca. <b>Hipótesis de impacto:</b> Desplazamiento de forrajeo por ruido vehicular sobre la Av. Ciudad de Cali.`;
     } else if (questionId === 4) {
       userMsg = 'Problemática: ¿Qué dependencias amenazan la sostenibilidad?';
-      targetTaxon = rawNodes.find(n => n.cat === 2);
-      botMsg = `La dependencia crítica es el balance entre flora filtradora y bacterias nitrificantes (como <i>${targetTaxon ? targetTaxon.label : 'Nitrosomonas'}</i>). La amenaza radica en la eutrofización acelerada en La Vaca y Techo.`;
+      targetTaxon = rawNodes.find(n => n.cat === 4 || n.cat === 5);
+      botMsg = `La dependencia crítica es el agua limpia y la cobertura vegetal de borde para anfibios y reptiles (como <i>${targetTaxon ? targetTaxon.label : 'Rana sabanera'}</i>). Su principal amenaza es la desecación de charcas temporales y la depredación por mascotas sinantrópicas.`;
     }
 
     const uBubble = document.createElement('div');
@@ -1447,10 +1417,10 @@
 
     let botMsg = '';
     if (targetTaxon) {
-      botMsg = `Analizando <b>${targetTaxon.label}</b> (<i>${targetTaxon.sciname}</i>): Cuenta con <b>${targetTaxon.degree} enlaces bióticos</b>. Nicho: ${targetTaxon.role}.`;
+      botMsg = `Analizando <b>${targetTaxon.label}</b> (<i>${targetTaxon.sciname}</i>): Pertenece a la convención <b>${palette.catNames[targetTaxon.cat]}</b>. Cuenta con <b>${targetTaxon.degree} enlaces bióticos</b>. Rol ecológico: ${targetTaxon.role}.`;
     } else {
       targetTaxon = rawNodes.filter(n => n.active).sort((a,b) => b.degree - a.degree)[0];
-      botMsg = `He analizado la topología de la red para tu consulta. Te ubico en el nodo de mayor centralidad: <b>${targetTaxon.label}</b> con ${targetTaxon.degree} interacciones activas.`;
+      botMsg = `He consultado la base biótica para "${text}". Te oriento hacia el nodo con mayor conectividad actual: <b>${targetTaxon.label}</b> con ${targetTaxon.degree} interacciones registradas.`;
     }
 
     setTimeout(() => {
@@ -1649,91 +1619,98 @@
     } catch(e) { console.warn("Audio no disponible:", e); }
   }
 
-  function triggerHarmonicChime(freqMultiplier = 0.5) {
-    if (!audioCtx || !soundActive) return;
+  function triggerHarmonicChime(prog) {
+    if (!soundActive || !audioCtx) return;
     try {
+      const now = audioCtx.currentTime;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
+
+      const freq = 175 + prog * 380;
       osc.type = "sine";
-      const baseFreq = 240 + freqMultiplier * 460;
-      osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, audioCtx.currentTime + 1.2);
-      gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.6);
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime(0.08, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
       osc.connect(gain);
       gain.connect(masterGain);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 1.6);
+      osc.start(now);
+      osc.stop(now + 1.25);
     } catch(e){}
   }
 
   function triggerWaterResonance() {
-    if (!audioCtx || !soundActive) return;
+    if (!soundActive || !audioCtx) return;
     try {
-      for (let i = 0; i < 3; i++) {
-        setTimeout(() => {
-          if (!audioCtx) return;
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = "sine";
-          const f = 520 + Math.random() * 380;
-          osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(f * 0.7, audioCtx.currentTime + 0.35);
-          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
-          osc.connect(gain);
-          gain.connect(masterGain);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.35);
-        }, i * 140);
-      }
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(110, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.6);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime(0.06, now + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 1.85);
     } catch(e){}
   }
 
-  const soundToggle = document.getElementById("soundToggle");
-  if (soundToggle) {
-    soundToggle.addEventListener("click", () => {
+  const soundBtn = document.getElementById("soundToggle");
+  if (soundBtn) {
+    soundBtn.addEventListener("click", () => {
       initBioAudio();
+      if (!audioCtx) return;
+      if (audioCtx.state === "suspended") audioCtx.resume();
       soundActive = !soundActive;
-      soundToggle.classList.toggle("active", soundActive);
-      soundToggle.innerHTML = soundActive ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
-      if (soundActive && audioCtx.state === "suspended") audioCtx.resume();
-      if (soundActive) triggerHarmonicChime(0.6);
+      soundBtn.classList.toggle("active", soundActive);
+      soundBtn.innerHTML = soundActive ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
+      if (soundActive) triggerHarmonicChime(currentMorph);
     });
   }
 
   // =====================================================================
-  // 10. BUCLE PRINCIPAL DE ANIMACIÓN
+  // 10. LOOP PRINCIPAL DE RENDERIZADO (60 FPS)
   // =====================================================================
   const clock = new THREE.Clock();
 
   function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
-    const time = clock.getElapsedTime();
+    const elapsedTime = clock.getElapsedTime();
 
-    currentMorph += (targetMorph - currentMorph) * (1.0 - Math.exp(-delta * 5.0));
+    currentMorph += (targetMorph - currentMorph) * 0.065;
     particleUniforms.uMorphProgress.value = currentMorph;
-    particleUniforms.uTime.value = time;
+    particleUniforms.uTime.value = elapsedTime;
 
-    // Rotación suave del enjambre biótico en modo Red
-    if (opts.autoRotate && currentMorph < 0.25 && !selectedNode) {
-      networkGroup.rotation.y += 0.0025;
-      networkGroup.rotation.x = Math.sin(time * 0.5) * 0.03;
+    // Rotación suave del enjambre biótico en fase 0
+    if (opts.autoRotate && currentMorph < 0.35) {
+      networkGroup.rotation.y += 0.0022;
+      networkGroup.rotation.x = Math.sin(elapsedTime * 0.4) * 0.04;
+    } else {
+      networkGroup.rotation.set(0, 0, 0);
     }
 
-    // Animación de pulso del árbol activo en territorio
-    if (focusRingMat.opacity > 0.05) {
-      focusRingMesh.rotation.z = -time * 0.45;
-      const groundScale = 1.0 + Math.sin(time * 3.2) * 0.15;
-      focusRingMesh.scale.set(groundScale, groundScale, 1.0);
+    // Pulsación suave de las líneas bióticas
+    if (edgeMat && currentMorph < 0.35) {
+      edgeMat.opacity = 0.28 + Math.sin(elapsedTime * 2.2) * 0.08;
     }
-    if (activeConstellationPoints && activeConstellationPoints.material.opacity > 0.05) {
-      activeConstellationPoints.material.size = 2.8 + Math.sin(time * 2.5) * 0.45;
-    }
+
+    // Orientar siempre las partículas circulares hacia la cámara
+    nodeSprites.forEach(sp => {
+      if (sp.visible) {
+        sp.quaternion.copy(camera.quaternion);
+      }
+    });
 
     controls.update();
-    updateCamInspectorDisplay();
     renderer.render(scene, camera);
   }
 
