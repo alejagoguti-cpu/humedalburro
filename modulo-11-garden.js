@@ -861,6 +861,160 @@
     sceneRoot.add(particlePoints);
   }
 
+  
+  function generateProceduralKennedyTerritory() {
+    console.log("Generando Territorio 3D de Kennedy Procedural de Alta Densidad...");
+    pTarget.length = 0;
+    pSwarm.length = 0;
+    pColor.length = 0;
+    pSize.length = 0;
+    pPhase.length = 0;
+    pCat.length = 0;
+    currentParticleIndex = 0;
+
+    const colWaterMain = new THREE.Color(0x00B4D8);
+    const colWaterDeep = new THREE.Color(0x0077B6);
+    const colTreeLush  = new THREE.Color(0x2E8B57);
+    const colTreeBright= new THREE.Color(0x48BB78);
+    const colTrunk     = new THREE.Color(0x161D26);
+    const colRoad      = new THREE.Color(0x232326);
+    const colMajor     = new THREE.Color(0x38BDF8);
+    const colBldgPrimary   = new THREE.Color(0x3A3836);
+    const colBldgSecondary = new THREE.Color(0x484440);
+    const colRoofHighlight = new THREE.Color(0x544E48);
+
+    // A. 3 Cuerpos de Agua de Kennedy (El Burro, La Vaca, Techo)
+    const wetlands = [
+      { cx: 210, cz: 40, rx: 65, rz: 32, name: "Humedal El Burro" },
+      { cx: 65,  cz: 160, rx: 50, rz: 28, name: "PEDH La Vaca" },
+      { cx: 290, cz: -30, rx: 45, rz: 24, name: "Humedal de Techo" }
+    ];
+
+    wetlands.forEach(w => {
+      for (let i = 0; i < 900; i++) {
+        const rad = Math.sqrt(Math.random());
+        const ang = Math.random() * Math.PI * 2;
+        const wx = w.cx + Math.cos(ang) * w.rx * rad;
+        const wz = w.cz + Math.sin(ang) * w.rz * rad;
+        const wy = 0.25 + Math.random() * 0.2;
+
+        const sw = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(wx, wy, wz);
+        pSwarm.push(sw.x, sw.y, sw.z);
+        const c = (i % 2 === 0) ? colWaterMain : colWaterDeep;
+        pColor.push(c.r, c.g, c.b);
+        pSize.push(1.75);
+        pPhase.push(i * 0.2);
+        pCat.push(0.0);
+      }
+    });
+
+    // B. Arbolado de Ronda y Espacio Público (3,500 árboles)
+    for (let t = 0; t < 2200; t++) {
+      const nearWetland = wetlands[t % wetlands.length];
+      const ang = Math.random() * Math.PI * 2;
+      const dist = (nearWetland.rx + 6) + Math.random() * 48;
+      const tx = nearWetland.cx + Math.cos(ang) * dist;
+      const tz = nearWetland.cz + Math.sin(ang) * (dist * 0.7);
+      const th = 4.5 + Math.random() * 6.5;
+
+      const swCrown = randomSwarmCluster(currentParticleIndex++);
+      pTarget.push(tx, th * 0.85, tz);
+      pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
+      const folCol = (t % 2 === 0) ? colTreeLush : colTreeBright;
+      pColor.push(folCol.r, folCol.g, folCol.b);
+      pSize.push(1.6);
+      pPhase.push(t * 0.3);
+      pCat.push(1.0);
+
+      // Follaje secundario
+      for (let k = 0; k < 3; k++) {
+        const fa = (k / 3) * Math.PI * 2 + (t % 5);
+        const frad = 1.8 + Math.random() * 1.5;
+        const swSub = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(tx + Math.cos(fa) * frad, th * 0.85 + (k % 2 === 0 ? 0.3 : -0.2), tz + Math.sin(fa) * frad);
+        pSwarm.push(swSub.x, swSub.y, swSub.z);
+        pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
+        pSize.push(1.4);
+        pPhase.push(t + k);
+        pCat.push(1.0);
+      }
+
+      // Tronco
+      const swTrunk = randomSwarmCluster(currentParticleIndex++);
+      pTarget.push(tx, 0.1, tz);
+      pSwarm.push(swTrunk.x, swTrunk.y, swTrunk.z);
+      pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
+      pSize.push(1.1);
+      pPhase.push(t * 0.1);
+      pCat.push(1.0);
+    }
+
+    // C. Malla Vial y Corredores Urbanos
+    for (let r = 0; r < 24; r++) {
+      const rx = (r - 12) * 28 + 180;
+      for (let s = -200; s <= 260; s += 5) {
+        const sw = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(rx, 0.08, s);
+        pSwarm.push(sw.x, sw.y, sw.z);
+        pColor.push(colRoad.r, colRoad.g, colRoad.b);
+        pSize.push(0.95);
+        pPhase.push(r + s);
+        pCat.push(3.0);
+      }
+    }
+    for (let r = 0; r < 20; r++) {
+      const rz = (r - 10) * 28 + 40;
+      for (let s = -40; s <= 380; s += 5) {
+        const sw = randomSwarmCluster(currentParticleIndex++);
+        pTarget.push(s, 0.08, rz);
+        pSwarm.push(sw.x, sw.y, sw.z);
+        pColor.push(colMajor.r, colMajor.g, colMajor.b);
+        pSize.push(1.25);
+        pPhase.push(r + s);
+        pCat.push(3.0);
+      }
+    }
+
+    // D. Tejido Construido y Manzanas de Kennedy (1,200 bloques)
+    for (let bx = -20; bx <= 360; bx += 32) {
+      for (let bz = -180; bz <= 240; bz += 32) {
+        // No construir sobre agua
+        const insideWater = wetlands.some(w => {
+          const dx = (bx - w.cx) / w.rx;
+          const dz = (bz - w.cz) / w.rz;
+          return (dx * dx + dz * dz) < 1.1;
+        });
+        if (insideWater) continue;
+
+        const bh = 5 + (Math.sin(bx * 0.05 + bz * 0.03) + 1) * 7.5;
+        const bcol = ((bx + bz) % 2 === 0) ? colBldgPrimary : colBldgSecondary;
+        const bw = 18;
+        const bl = 18;
+
+        for (let corner = 0; corner < 4; corner++) {
+          const cx = bx + (corner % 2 === 0 ? -bw/2 : bw/2);
+          const cz = bz + (corner < 2 ? -bl/2 : bl/2);
+          const steps = Math.max(3, Math.floor(bh / 1.5));
+          for (let st = 0; st <= steps; st++) {
+            const y = (st / steps) * bh;
+            const sw = randomSwarmCluster(currentParticleIndex++);
+            pTarget.push(cx, y, cz);
+            pSwarm.push(sw.x, sw.y, sw.z);
+            const isRoof = (st === steps);
+            const c = isRoof ? colRoofHighlight : bcol;
+            pColor.push(c.r, c.g, c.b);
+            pSize.push(isRoof ? 1.3 : 1.1);
+            pPhase.push(st + bx);
+            pCat.push(2.0);
+          }
+        }
+      }
+    }
+
+    rebuildTerritoryParticles();
+  }
+
   function loadWater() {
     return fetch(WATER_URL)
       .then(r => r.json())
@@ -1100,12 +1254,20 @@
       .catch(err => console.warn("Error edificios:", err));
   }
 
-  Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
-    loadBuildings();
-    setTimeout(() => {
-      if (loadingVeil) loadingVeil.classList.add("hide");
-    }, 300);
-  });
+  Promise.all([loadWater(), loadTrees(), loadRoads()])
+    .then(() => {
+      loadBuildings();
+      setTimeout(() => {
+        if (pTarget.length < 500) generateProceduralKennedyTerritory();
+        if (loadingVeil) loadingVeil.classList.add("hide");
+      }, 400);
+    })
+    .catch(() => {
+      generateProceduralKennedyTerritory();
+      setTimeout(() => {
+        if (loadingVeil) loadingVeil.classList.add("hide");
+      }, 400);
+    });
 
 
   // 5. CONSTELACIONES DINÁMICAS Y FOCO VISUAL DE ESPECIES DE ÁRBOLES
@@ -1657,6 +1819,10 @@
   const mouseVec = new THREE.Vector2();
 
   window.openWelcomeModal = () => {
+    welcomeModalOverlay.style.display = "flex";
+  };
+  setTimeout(() => { if (welcomeModalOverlay) welcomeModalOverlay.style.display = "flex"; }, 150);
+
     const modal = document.getElementById('welcomeModalOverlay');
     if (modal) modal.style.display = 'flex';
   };
@@ -2117,8 +2283,24 @@
         // Doble clic: ocultar nodo
         hideNodeByDoubleClick(nodeObj);
       } else {
-        // Clic simple: abrir inspector
+        // Clic simple: abrir inspector y enfocar la cámara con zoom suave en este nodo exacto
         openInspector(nodeObj);
+        if (window.gsap) {
+          gsap.to(camera.position, {
+            x: sp.position.x * 1.12,
+            y: sp.position.y * 1.12 + 0.8,
+            z: sp.position.z + 18.0,
+            duration: 1.6,
+            ease: "power2.inOut"
+          });
+          gsap.to(controls.target, {
+            x: sp.position.x,
+            y: sp.position.y,
+            z: sp.position.z,
+            duration: 1.6,
+            ease: "power2.inOut"
+          });
+        }
       }
       clickTime = now;
     }
@@ -2361,7 +2543,15 @@
       if (!n) return;
 
       if (currentMorph < 0.001) {
-        sp.position.set(n.ox, n.oy, n.oz);
+        // Respiración orgánica tridimensional para cada nodo
+        const waveX = Math.sin(elapsedTime * 1.35 + idx * 0.42) * 0.45;
+        const waveY = Math.cos(elapsedTime * 1.15 + idx * 0.38) * 0.55;
+        const waveZ = Math.sin(elapsedTime * 0.95 + idx * 0.51) * 0.45;
+        sp.position.set(n.ox + waveX, n.oy + waveY, n.oz + waveZ);
+
+        const pulseScale = (2.8 + Math.sqrt(n.degree) * 0.4) * (1.0 + Math.sin(elapsedTime * 2.0 + idx * 0.3) * 0.08);
+        sp.scale.set(pulseScale, pulseScale, 1.0);
+
         sp.material.opacity = n.active ? 1.0 : 0.15;
         sp.visible = n.active;
       } else {
