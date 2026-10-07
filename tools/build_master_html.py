@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+import os
+
+html_content = """<!DOCTYPE html>
 <html lang="es">
 <head>
 <script>
@@ -447,3 +449,12 @@ window.onerror = function(msg, url, line, col, error) {
 <script src="modulo-11-garden.js"></script>
 </body>
 </html>
+"""
+
+with open("modulo-11-garden.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("Synchronized modulo-11-garden.html and index.html successfully.")
