@@ -29,10 +29,6 @@
   const labelSwarm = document.getElementById("labelSwarm");
   const labelTerritory = document.getElementById("labelTerritory");
 
-  const camInspectorBox = document.getElementById("camInspectorBox");
-  const camPosVal = document.getElementById("camPosVal");
-  const camTgtVal = document.getElementById("camTgtVal");
-
   const activeTreeChip = document.getElementById("activeTreeChip");
   const activeTreeName = document.getElementById("activeTreeName");
   const activeTreeCount = document.getElementById("activeTreeCount");
@@ -40,6 +36,7 @@
   const territoryTooltip = document.getElementById("territorySpeciesTooltip");
   const territoryModal = document.getElementById("territorySpeciesModal");
   const treeTooltip = document.getElementById("treeHoverTooltip");
+  const pieChartsModal = document.getElementById("pieChartsModalOverlay");
 
   // ---- Three.js Core Objects ----
   let scene = null;
@@ -90,10 +87,6 @@
   const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const groundIntersection = new THREE.Vector3();
 
-  let selectedNode = null;
-  let hoveredNode = null;
-  let soundActive = false;
-  let audioCtx = null;
   let tourActive = false;
   let tourTimer = null;
   let currentTourIndex = 0;
@@ -136,6 +129,13 @@
     4: { name: "Anfibios", color: "#00B4D8", hex: 0x00B4D8, icon: "fa-frog" },
     5: { name: "Reptiles", color: "#C96349", hex: 0xC96349, icon: "fa-dragon" }
   };
+
+  function hideVeil() {
+    if (loadingVeil) {
+      loadingVeil.style.opacity = "0";
+      setTimeout(() => { loadingVeil.style.display = "none"; }, 400);
+    }
+  }
 
   // Spatial Grid Helper for 3D Tree Hover Tooltip
   function getSpatialKey(gx, gz) {
@@ -183,187 +183,187 @@
 
   // 1. FLORA URBANA Y DE HUMEDAL (Censo JBB / SIGAU)
   const floraBase = [
-    ["FLO-001", "Chicala, chirlobirlo, flor amarillo / Chicala rosado", "Tecoma stans", "Arbolito nativo / Productor de néctar y polinizadores", "Estrato subdosel", 4364],
-    ["FLO-002", "Jazmin del cabo, laurel huesito", "Pittosporum undulatum", "Árbol introducido / Follaje denso para nidificación", "Estrato dosel medio", 3132],
-    ["FLO-003", "Sauco", "Sambucus nigra", "Árbol subandino / Productor de frutos para aves frugívoras", "Estrato dosel medio", 3016],
-    ["FLO-004", "Holly liso", "Ilex cornuta", "Arbusto urbano / Refugio de paseriformes", "Estrato arbustivo", 2677],
-    ["FLO-005", "Falso pimiento", "Schinus molle", "Árbol xerofítico / Frutos para aves y fijación de suelo", "Estrato dosel medio", 2628],
-    ["FLO-006", "Eugenia", "Eugenia myrtifolia", "Arbusto / Frutos y néctar para polinizadores", "Estrato subdosel", 2529],
-    ["FLO-007", "Cayeno", "Hibiscus rosa-sinensis", "Arbusto floral / Néctar para colibríes", "Estrato arbustivo", 2072],
-    ["FLO-008", "Guayacan de Manizales", "Lafoensia acuminata", "Árbol nativo andino / Néctar y semillas", "Estrato dosel medio", 1959],
-    ["FLO-009", "Palma yuca, palmiche", "Yucca gigantea", "Planta arborescente / Refugio de invertebrados", "Estrato subdosel", 1767],
-    ["FLO-010", "Jazmin de la china", "Jasminum mesnyi", "Arbusto trepador / Floración y cobertura", "Estrato arbustivo", 1747],
-    ["FLO-011", "Acacia japonesa", "Ligustrum lucidum", "Árbol de dosel / Sombra y frutos otoñales", "Estrato dosel", 1651],
-    ["FLO-012", "Eucalipto com�n / Eucalipto de flor, eucalipto lavabotella / Eucalipto pomarroso / Eucalipto plateado", "Eucalyptus globulus", "Árbol exótico de gran porte / Percha para rapaces y garzas", "Estrato dosel emergente", 2450],
-    ["FLO-013", "Cipr�s, Pino cipr�s, Pino", "Cipr�s, Pino cipr�s, Pino", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 1513],
-    ["FLO-014", "Urap�n, Fresno", "Urap�n, Fresno", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 1499],
-    ["FLO-015", "Acacia baracatinga, acacia sabanera, acacia nigra", "Mimosa scabrella", "Leguminosa / Fijación de nitrógeno y polinización", "Estrato dosel medio", 1352],
-    ["FLO-016", "Caucho sabanero", "Ficus soatensis", "Árbol nativo clave / Frutos para murciélagos y mirlas", "Estrato dosel alto", 1327],
-    ["FLO-017", "Caucho benjamin", "Ficus benjamina", "Árbol urbano / Estructura de dosel y sombra", "Estrato dosel alto", 1322],
-    ["FLO-018", "Caballero de la noche, Jazmin, Dama de noche", "Cestrum nocturnum", "Arbusto / Fragancia nocturna para polillas y murciélagos", "Estrato arbustivo", 1583],
-    ["FLO-019", "Acacia negra, gris", "Acacia decurrens", "Leguminosa / Cobertura y néctar", "Estrato dosel medio", 1220],
-    ["FLO-020", "Hayuelo", "Dodonaea viscosa", "Arbusto nativo / Control de erosión y semillas", "Estrato arbustivo", 1206],
-    ["FLO-021", "Aliso, fresno, chaquiro", "Alnus acuminata", "Árbol nativo ripario / Fijación biológica de nitrógeno en ribera", "Estrato dosel medio", 1036],
-    ["FLO-022", "Cerezo / Cerezo, capuli / Cerezo, ciruelo", "Prunus serotina", "Árbol nativo / Fruto silvestre clave para avifauna", "Estrato dosel medio", 1375],
-    ["FLO-023", "Calistemo lloron", "Callistemon speciosus", "Arbolito ornamental / Flores rojas para colibríes", "Estrato subdosel", 965],
-    ["FLO-024", "Araucaria / Araucaria crespa", "Araucaria excelsa", "Conífera monumental / Percha alta", "Estrato dosel emergente", 1001],
-    ["FLO-025", "Pino libro", "Platycladus orientalis", "Conífera ornamental / Refugio denso", "Estrato subdosel", 823],
-    ["FLO-026", "Mangle de tierra fria", "Escallonia paniculata", "Árbol nativo andino / Protección de microcuencas", "Estrato dosel medio", 807],
-    ["FLO-027", "Cajeto, garagay, urapo / Cajeto sp / Cajeto de Bogota", "Citharexylum subflavescens", "Árbol nativo / Refugio y percha de avifauna", "Estrato dosel", 1420],
-    ["FLO-028", "Corono", "Xylosma spiculifera", "Arbusto espinoso nativo / Nidos seguros para copetones", "Estrato arbustivo", 736],
-    ["FLO-029", "Arrayan blanco", "Myrcianthes leucoxyla", "Árbol nativo de bosque altoandino / Frutos carnosos", "Estrato dosel", 719],
-    ["FLO-030", "Liquidambar, estoraque", "Liquidambar styraciflua", "Árbol caducifolio / Dosel urbano", "Estrato dosel alto", 697],
-    ["FLO-031", "Chilco / Chilco de p�ramo", "Baccharis latifolia", "Arbusto nativo pionero / Estabilización de riberas", "Estrato arbustivo", 705],
-    ["FLO-032", "Ligustrum", "Ligustrum", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 656],
-    ["FLO-033", "Abutilon rojo y amarillo (Farolito) / Abutilon blanco / Abutilon  peque�o / Abutilon quesito", "Abutilon striatum", "Arbusto floral nativo / Néctar para colibríes e insectos", "Estrato arbustivo", 884],
-    ["FLO-034", "Cucharo", "Myrsine coriacea", "Árbol nativo pionero / Fruto de alta importancia ecológica", "Estrato dosel medio", 584],
-    ["FLO-035", "Roble / Roble australiano", "Quercus humboldtii", "Árbol nativo clímax / Bellotas y hábitat de epífitas", "Estrato dosel alto", 896],
-    ["FLO-036", "Durazno comun", "Durazno comun", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 571],
-    ["FLO-037", "Nogal, cedro nogal, cedro negro", "Juglans neotropica", "Árbol emblemático de Bogotá / Madera fina y semillas", "Estrato dosel alto", 550],
-    ["FLO-038", "Sauce lloron", "Salix humboldtiana", "Árbol nativo ripario / Protección de orillas y humedal", "Estrato dosel ripario", 525],
-    ["FLO-039", "Cedro, cedro andino, cedro clavel", "Cedrela montana", "Árbol nativo / Refugio de avifauna andina", "Estrato dosel alto", 466],
-    ["FLO-040", "Espino, Garbancillo / Holly espinoso", "Duranta erecta", "Arbusto nativo / Frutos dorados para aves", "Estrato arbustivo", 661],
-    ["FLO-041", "Palma fenix", "Phoenix canariensis", "Palma monumental / Nidificación de tórtolas", "Estrato dosel alto", 424],
-    ["FLO-042", "Schefflera, Pategallina hojipeque�a / Schefflera, Pategallina hojigrande", "Schefflera actinophylla", "Árbol de follaje umbelado / Néctar", "Estrato dosel medio", 832],
-    ["FLO-043", "Acacia morada", "Acacia morada", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 385],
-    ["FLO-044", "Gaque", "Clusia multiflora", "Árbol nativo / Resina y frutos para fauna", "Estrato dosel medio", 374],
-    ["FLO-045", "Ciro", "Baccharis bogotensis", "Arbusto nativo / Cobertura y néctar", "Estrato arbustivo", 372],
-    ["FLO-046", "Duraznillo, velitas", "Duraznillo, velitas", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 364],
-    ["FLO-047", "Caucho tequendama", "Caucho tequendama", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 348],
-    ["FLO-048", "Mano de oso", "Mano de oso", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 344],
-    ["FLO-049", "Alcaparro enano", "Alcaparro enano", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 343],
-    ["FLO-050", "Lavanda", "Lavanda", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 325],
-    ["FLO-051", "Sietecueros nazareno / Sietecueros real / Sietecueros plateado", "Tibouchina lepidota", "Sietecueros / Floración morada y polinización", "Estrato dosel medio", 564],
-    ["FLO-052", "Pino romeron", "Pino romeron", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 298],
-    ["FLO-053", "Dividivi de tierra fria", "Dividivi de tierra fria", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 297],
-    ["FLO-054", "Alcaparro doble", "Alcaparro doble", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 266],
-    ["FLO-055", "Feijoa", "Feijoa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 257],
-    ["FLO-056", "Palma de yuca, Palma de bayoneta", "Palma de yuca, Palma de bayoneta", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 256],
-    ["FLO-057", "Chiripique", "Chiripique", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 252],
-    ["FLO-058", "Pino p�tula", "Pino p�tula", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 249],
-    ["FLO-059", "Naranjo", "Naranjo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 248],
-    ["FLO-060", "Sangregao, drago, croto", "Sangregao, drago, croto", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 216],
-    ["FLO-061", "Caucho", "Caucho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 211],
-    ["FLO-062", "Caucho de la india, caucho", "Caucho de la india, caucho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 210],
-    ["FLO-063", "Palma payanesa", "Palma payanesa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 200],
-    ["FLO-064", "Garbancillo", "Garbancillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 198],
-    ["FLO-065", "Milflores", "Milflores", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 188],
-    ["FLO-066", "Higuerillo", "Higuerillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 187],
-    ["FLO-067", "Laurel de cera (hoja peque�a)", "Laurel de cera (hoja peque�a)", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 187],
-    ["FLO-068", "Aguacate", "Aguacate", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 177],
-    ["FLO-069", "Poligala", "Poligala", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 169],
-    ["FLO-070", "Brevo", "Brevo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 168],
-    ["FLO-071", "Palma Alejandra", "Palma Alejandra", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 158],
-    ["FLO-072", "Cipr�s enano", "Cipr�s enano", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 145],
-    ["FLO-073", "Cariseco", "Cariseco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 144],
-    ["FLO-074", "Tabaquillo", "Tabaquillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 141],
-    ["FLO-075", "Pino colombiano, pino de pacho, pino romer�n", "Pino colombiano, pino de pacho, pino romer�n", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 132],
-    ["FLO-076", "Pajarito", "Pajarito", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 129],
-    ["FLO-077", "Palma de cera, Palma blanca", "Palma de cera, Palma blanca", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 127],
-    ["FLO-078", "Garrocho", "Garrocho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 126],
-    ["FLO-079", "Sombrilla japonesa", "Sombrilla japonesa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 125],
-    ["FLO-080", "Pino candelabro", "Pino candelabro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 123],
-    ["FLO-081", "Arrayan negro", "Arrayan negro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 122],
-    ["FLO-082", "Sangregado", "Sangregado", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 121],
-    ["FLO-083", "Tibar, pagoda o rodamonte", "Tibar, pagoda o rodamonte", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 120],
-    ["FLO-084", "Cipres Japones, criptomeria / Cipres italiano", "Cupressus lusitanica", "Conífera de dosel / Refugio contra el viento y anidación", "Estrato dosel alto", 274],
-    ["FLO-085", "Mandarina", "Mandarina", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 120],
-    ["FLO-086", "Tinto", "Tinto", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 116],
-    ["FLO-087", "Lupinus", "Lupinus", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 116],
-    ["FLO-088", "Mortillo", "Mortillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 109],
-    ["FLO-089", "Tibar", "Tibar", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 107],
-    ["FLO-090", "Nispero", "Nispero", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 100],
-    ["FLO-091", "Palma coquito", "Palma coquito", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 97],
-    ["FLO-092", "Guayabo", "Guayabo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 96],
-    ["FLO-093", "Guamo santafere�o", "Guamo santafere�o", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 94],
-    ["FLO-094", "Raque, San juanito", "Raque, San juanito", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 89],
-    ["FLO-095", "Laurel de cera", "Laurel de cera", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 87],
-    ["FLO-096", "Abelia", "Abelia", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 86],
-    ["FLO-097", "Fucsia arbustiva", "Fucsia arbustiva", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 82],
-    ["FLO-098", "Arboloco", "Arboloco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 81],
-    ["FLO-099", "Palma roebeleni", "Palma roebeleni", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 80],
-    ["FLO-100", "Mermelada", "Mermelada", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 74],
-    ["FLO-101", "Cedrillo, Yuco", "Cedrillo, Yuco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 72],
-    ["FLO-102", "Endrino", "Endrino", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 71],
-    ["FLO-103", "Acebo", "Acebo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 70],
-    ["FLO-104", "Chocho", "Chocho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 67],
-    ["FLO-105", "Magnolio", "Magnolio", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 63],
-    ["FLO-106", "Baeckea", "Baeckea", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 63],
-    ["FLO-107", "Acacia", "Acacia", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 61],
-    ["FLO-108", "Ciruelo", "Ciruelo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 60],
-    ["FLO-109", "Cariseco, Tres hojas", "Cariseco, Tres hojas", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 58],
-    ["FLO-110", "Borrachero blanco", "Borrachero blanco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 58],
-    ["FLO-111", "Callistemo", "Callistemo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 58],
-    ["FLO-112", "Tibar, tobo, rodamonte", "Tibar, tobo, rodamonte", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 57],
-    ["FLO-113", "Agracejo", "Agracejo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 54],
-    ["FLO-114", "Limon", "Limon", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 53],
-    ["FLO-115", "Carbonero", "Carbonero", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 53],
-    ["FLO-116", "Tuno esmeraldo", "Miconia squamulosa", "Arbusto nativo / Frutos para tangaras y mirlas", "Estrato arbustivo", 53],
-    ["FLO-117", "Acacia de jardin", "Acacia de jardin", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 51],
-    ["FLO-118", "Gurrubo", "Gurrubo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 49],
-    ["FLO-119", "Arrayan", "Arrayan", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 47],
-    ["FLO-120", "Rama negra", "Rama negra", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 47],
-    ["FLO-121", "Papayuelo", "Papayuelo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 46],
-    ["FLO-122", "Amarrabollo", "Amarrabollo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 46],
-    ["FLO-123", "Curapin, Campanilla", "Curapin, Campanilla", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 46],
-    ["FLO-124", "Palma cinta", "Palma cinta", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 45],
-    ["FLO-125", "Azara", "Azara", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 45],
-    ["FLO-126", "Ayer, hoy y ma�ana", "Ayer, hoy y ma�ana", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 43],
-    ["FLO-127", "Pino colombiano, chaquiro", "Pino colombiano, chaquiro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 42],
-    ["FLO-128", "Guamo", "Guamo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 42],
-    ["FLO-129", "Venturosa", "Venturosa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 41],
-    ["FLO-130", "Arbol de Te", "Arbol de Te", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 40],
-    ["FLO-131", "Tibar, Rodamonte, Pagoda", "Tibar, Rodamonte, Pagoda", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 39],
-    ["FLO-132", "Grevilea", "Grevilea", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 36],
-    ["FLO-133", "Citrus spp.", "Citrus spp.", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 33],
-    ["FLO-134", "Mirto", "Mirto", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 33],
-    ["FLO-135", "Palma de cera", "Palma de cera", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 32],
-    ["FLO-136", "Trompeto", "Trompeto", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 31],
-    ["FLO-137", "Metrosideros", "Metrosideros", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 31],
-    ["FLO-138", "Fucsia boliviana", "Fucsia boliviana", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 28],
-    ["FLO-139", "Palma washingtoniana", "Palma washingtoniana", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 27],
-    ["FLO-140", "Arbol de hierro", "Arbol de hierro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 27],
-    ["FLO-141", "Yarumo", "Yarumo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 27],
-    ["FLO-142", "Mimbre", "Mimbre", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 25],
-    ["FLO-143", "Cucubo", "Cucubo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 24],
-    ["FLO-144", "Azuceno, enebro", "Azuceno, enebro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 24],
-    ["FLO-145", "Raphiolepys", "Raphiolepys", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 23],
-    ["FLO-146", "Carbonero rojo", "Carbonero rojo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 22],
-    ["FLO-147", "Platano", "Platano", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 22],
-    ["FLO-148", "Arbol de corcho", "Arbol de corcho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 21],
-    ["FLO-149", "Siete Cueros peludo", "Siete Cueros peludo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 21],
-    ["FLO-150", "Palma de cera, Palma de ramo", "Palma de cera, Palma de ramo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 20],
-    ["FLO-151", "Aligustre del Japon", "Aligustre del Japon", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 20],
-    ["FLO-152", "Azalea", "Azalea", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 20],
-    ["FLO-153", "Pomarroso", "Pomarroso", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 18],
-    ["FLO-154", "Algodon extranjero", "Algodon extranjero", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 18],
-    ["FLO-155", "Tibar extranjero", "Tibar extranjero", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 17],
-    ["FLO-156", "Lulo de perro", "Lulo de perro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 17],
-    ["FLO-157", "Cedrillo", "Cedrillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 16],
-    ["FLO-158", "Tuno", "Tuno", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 16],
-    ["FLO-159", "Arbol de Fuego", "Arbol de Fuego", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 16],
-    ["FLO-160", "Manzano", "Manzano", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15],
-    ["FLO-161", "Rosa", "Rosa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15],
-    ["FLO-162", "Guayabo del peru", "Guayabo del peru", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15],
-    ["FLO-163", "Ceiba de tierra fria", "Ceiba de tierra fria", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15],
-    ["FLO-164", "Mulato", "Mulato", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15],
-    ["FLO-165", "Gualanday", "Gualanday", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 14],
-    ["FLO-166", "Platano de tierra fria", "Platano de tierra fria", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 14],
-    ["FLO-167", "Cafe", "Cafe", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 13],
-    ["FLO-168", "Barbasco", "Barbasco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 13],
-    ["FLO-169", "Salvio negro", "Salvio negro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 12],
-    ["FLO-170", "Tomatillo", "Tomatillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 11],
-    ["FLO-171", "Fotinia", "Fotinia", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 11],
-    ["FLO-172", "Carbonero rosado", "Carbonero rosado", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 10],
-    ["FLO-173", "Acacia azul", "Acacia azul", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 10],
-    ["FLO-174", "Duranta amarilla", "Duranta amarilla", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 10],
-    ["FLO-175", "Aloe arboreo", "Aloe arboreo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 9],
-    ["FLO-176", "Junco de estero", "Schoenoplectus californicus", "Macrófita emergente / Hábitat crítico y nidificación de Tingua Bogotana", "Estrato litoral", 500],
-    ["FLO-177", "Enea / Totora", "Typha latifolia", "Macrófita emergente / Refugio de fauna de juncal y filtro hídrico", "Estrato litoral", 500],
-    ["FLO-178", "Buchón de agua", "Eichhornia crassipes", "Macrófita flotante / Biofiltración y retención de metales pesados", "Estrato espejo de agua", 500],
-    ["FLO-179", "Lenteja de agua", "Lemna minor", "Macrófita flotante / Alimento primario de anátidos y peces", "Estrato espejo de agua", 500],
-    ["FLO-180", "Botoncillo de humedal", "Bidens laevis", "Hierba riparia nativa / Polinización por dípteros e himenópteros", "Estrato ribereño", 500],
-    ["FLO-181", "Curuba silvestre", "Passiflora mixta", "Enredadera nativa / Polinización especializada por Ensifera ensifera", "Estrato trepador", 500],
+    ["FLO-001", "Chicala, chirlobirlo, flor amarillo / Chicala rosado", "Tecoma stans", "Arbolito nativo / Productor de néctar y polinizadores", "Estrato subdosel", 4364, "./assets/fotos/fotos_flora/Chicala, chirlobirlo, flor amarillo.jpeg"],
+    ["FLO-002", "Jazmin del cabo, laurel huesito", "Pittosporum undulatum", "Árbol introducido / Follaje denso para nidificación", "Estrato dosel medio", 3132, "./assets/fotos/fotos_flora/Jazmin del cabo, laurel huesito.jpeg"],
+    ["FLO-003", "Sauco", "Sambucus nigra", "Árbol subandino / Productor de frutos para aves frugívoras", "Estrato dosel medio", 3016, "./assets/fotos/fotos_flora/Sauco.jpg"],
+    ["FLO-004", "Holly liso", "Ilex cornuta", "Arbusto urbano / Refugio de paseriformes", "Estrato arbustivo", 2677, "./assets/fotos/fotos_flora/Holly liso.jpg"],
+    ["FLO-005", "Falso pimiento", "Schinus molle", "Árbol xerofítico / Frutos para aves y fijación de suelo", "Estrato dosel medio", 2628, "./assets/fotos/fotos_flora/Falso pimiento.jpeg"],
+    ["FLO-006", "Eugenia", "Eugenia myrtifolia", "Arbusto / Frutos y néctar para polinizadores", "Estrato subdosel", 2529, "./assets/fotos/fotos_flora/Eugenia.jpg"],
+    ["FLO-007", "Cayeno", "Hibiscus rosa-sinensis", "Arbusto floral / Néctar para colibríes", "Estrato arbustivo", 2072, "./assets/fotos/fotos_flora/Cayeno.jpeg"],
+    ["FLO-008", "Guayacan de Manizales", "Lafoensia acuminata", "Árbol nativo andino / Néctar y semillas", "Estrato dosel medio", 1959, "./assets/fotos/fotos_flora/Guayacan de Manizales.jpeg"],
+    ["FLO-009", "Palma yuca, palmiche", "Yucca gigantea", "Planta arborescente / Refugio de invertebrados", "Estrato subdosel", 1767, "./assets/fotos/fotos_flora/Palma yuca, palmiche.jpeg"],
+    ["FLO-010", "Jazmin de la china", "Jasminum mesnyi", "Arbusto trepador / Floración y cobertura", "Estrato arbustivo", 1747, "./assets/fotos/fotos_flora/Jazmin del cabo, laurel huesito.jpeg"],
+    ["FLO-011", "Acacia japonesa", "Ligustrum lucidum", "Árbol de dosel / Sombra y frutos otoñales", "Estrato dosel", 1651, "./assets/fotos/fotos_flora/Acacia.jpeg"],
+    ["FLO-012", "Eucalipto com�n / Eucalipto de flor, eucalipto lavabotella / Eucalipto pomarroso / Eucalipto plateado", "Eucalyptus globulus", "Árbol exótico de gran porte / Percha para rapaces y garzas", "Estrato dosel emergente", 2450, "./assets/fotos/fotos_flora/Eucalipto de flor, eucalipto lavabotella.jpeg"],
+    ["FLO-013", "Cipr�s, Pino cipr�s, Pino", "Cipr�s, Pino cipr�s, Pino", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 1513, "./assets/fotos/fotos_flora/Pino.jpg"],
+    ["FLO-014", "Urap�n, Fresno", "Urap�n, Fresno", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 1499, "./assets/fotos/fotos_flora/Urapán, Fresno.jpg"],
+    ["FLO-015", "Acacia baracatinga, acacia sabanera, acacia nigra", "Mimosa scabrella", "Leguminosa / Fijación de nitrógeno y polinización", "Estrato dosel medio", 1352, "./assets/fotos/fotos_flora/Acacia baracatinga, acacia sabanera, acacia nigra.jpeg"],
+    ["FLO-016", "Caucho sabanero", "Ficus soatensis", "Árbol nativo clave / Frutos para murciélagos y mirlas", "Estrato dosel alto", 1327, "./assets/fotos/fotos_flora/Caucho.jpeg"],
+    ["FLO-017", "Caucho benjamin", "Ficus benjamina", "Árbol urbano / Estructura de dosel y sombra", "Estrato dosel alto", 1322, "./assets/fotos/fotos_flora/Caucho.jpeg"],
+    ["FLO-018", "Caballero de la noche, Jazmin, Dama de noche", "Cestrum nocturnum", "Arbusto / Fragancia nocturna para polillas y murciélagos", "Estrato arbustivo", 1583, "./assets/fotos/fotos_flora/Caballero de la noche, Jazmin, Dama de noche.jpeg"],
+    ["FLO-019", "Acacia negra, gris", "Acacia decurrens", "Leguminosa / Cobertura y néctar", "Estrato dosel medio", 1220, "./assets/fotos/fotos_flora/Acacia negra, gris.jpeg"],
+    ["FLO-020", "Hayuelo", "Dodonaea viscosa", "Arbusto nativo / Control de erosión y semillas", "Estrato arbustivo", 1206, "./assets/fotos/fotos_flora/Hayuelo.jpeg"],
+    ["FLO-021", "Aliso, fresno, chaquiro", "Alnus acuminata", "Árbol nativo ripario / Fijación biológica de nitrógeno en ribera", "Estrato dosel medio", 1036, "./assets/fotos/fotos_flora/Aliso, fresno, chaquiro.jpeg"],
+    ["FLO-022", "Cerezo / Cerezo, capuli / Cerezo, ciruelo", "Prunus serotina", "Árbol nativo / Fruto silvestre clave para avifauna", "Estrato dosel medio", 1375, "./assets/fotos/fotos_flora/Cerezo, capuli.jpg"],
+    ["FLO-023", "Calistemo lloron", "Callistemon speciosus", "Arbolito ornamental / Flores rojas para colibríes", "Estrato subdosel", 965, "./assets/fotos/fotos_flora/Calistemo.jpeg"],
+    ["FLO-024", "Araucaria / Araucaria crespa", "Araucaria excelsa", "Conífera monumental / Percha alta", "Estrato dosel emergente", 1001, "./assets/fotos/fotos_flora/Araucaria.jpg"],
+    ["FLO-025", "Pino libro", "Platycladus orientalis", "Conífera ornamental / Refugio denso", "Estrato subdosel", 823, "./assets/fotos/fotos_flora/Pino.jpg"],
+    ["FLO-026", "Mangle de tierra fria", "Escallonia paniculata", "Árbol nativo andino / Protección de microcuencas", "Estrato dosel medio", 807, "./assets/fotos/fotos_flora/Mangle de tierra fria.jpeg"],
+    ["FLO-027", "Cajeto, garagay, urapo / Cajeto sp / Cajeto de Bogota", "Citharexylum subflavescens", "Árbol nativo / Refugio y percha de avifauna", "Estrato dosel", 1420, "./assets/fotos/fotos_flora/Cajeto, garagay, urapo.jpg"],
+    ["FLO-028", "Corono", "Xylosma spiculifera", "Arbusto espinoso nativo / Nidos seguros para copetones", "Estrato arbustivo", 736, "./assets/fotos/fotos_flora/Corono.jpg"],
+    ["FLO-029", "Arrayan blanco", "Myrcianthes leucoxyla", "Árbol nativo de bosque altoandino / Frutos carnosos", "Estrato dosel", 719, "./assets/fotos/fotos_flora/Arrayan blanco.jpeg"],
+    ["FLO-030", "Liquidambar, estoraque", "Liquidambar styraciflua", "Árbol caducifolio / Dosel urbano", "Estrato dosel alto", 697, "./assets/fotos/fotos_flora/Liquidambar, estoraque.jpeg"],
+    ["FLO-031", "Chilco / Chilco de p�ramo", "Baccharis latifolia", "Arbusto nativo pionero / Estabilización de riberas", "Estrato arbustivo", 705, "./assets/fotos/fotos_flora/Chilco.jpg"],
+    ["FLO-032", "Ligustrum", "Ligustrum", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 656, "./assets/fotos/fotos_flora/Ligustrum.jpg"],
+    ["FLO-033", "Abutilon rojo y amarillo (Farolito) / Abutilon blanco / Abutilon  peque�o / Abutilon quesito", "Abutilon striatum", "Arbusto floral nativo / Néctar para colibríes e insectos", "Estrato arbustivo", 884, "./assets/fotos/fotos_flora/Abutilon rojo y amarillo (Farolito) / Abutilon blanco / Abutilon  peque�o / Abutilon quesito.jpg"],
+    ["FLO-034", "Cucharo", "Myrsine coriacea", "Árbol nativo pionero / Fruto de alta importancia ecológica", "Estrato dosel medio", 584, "./assets/fotos/fotos_flora/Cucharo.jpeg"],
+    ["FLO-035", "Roble / Roble australiano", "Quercus humboldtii", "Árbol nativo clímax / Bellotas y hábitat de epífitas", "Estrato dosel alto", 896, "./assets/fotos/fotos_flora/Roble australiano.jpeg"],
+    ["FLO-036", "Durazno comun", "Durazno comun", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 571, "./assets/fotos/fotos_flora/Durazno comun.jpg"],
+    ["FLO-037", "Nogal, cedro nogal, cedro negro", "Juglans neotropica", "Árbol emblemático de Bogotá / Madera fina y semillas", "Estrato dosel alto", 550, "./assets/fotos/fotos_flora/Nogal, cedro nogal, cedro negro.jpg"],
+    ["FLO-038", "Sauce lloron", "Salix humboldtiana", "Árbol nativo ripario / Protección de orillas y humedal", "Estrato dosel ripario", 525, "./assets/fotos/fotos_flora/Sauce lloron.jpeg"],
+    ["FLO-039", "Cedro, cedro andino, cedro clavel", "Cedrela montana", "Árbol nativo / Refugio de avifauna andina", "Estrato dosel alto", 466, "./assets/fotos/fotos_flora/Cedro, cedro andino, cedro clavel.jpg"],
+    ["FLO-040", "Espino, Garbancillo / Holly espinoso", "Duranta erecta", "Arbusto nativo / Frutos dorados para aves", "Estrato arbustivo", 661, "./assets/fotos/fotos_flora/Espino, Garbancillo.jpeg"],
+    ["FLO-041", "Palma fenix", "Phoenix canariensis", "Palma monumental / Nidificación de tórtolas", "Estrato dosel alto", 424, "./assets/fotos/fotos_flora/Palma areca.jpeg"],
+    ["FLO-042", "Schefflera, Pategallina hojipeque�a / Schefflera, Pategallina hojigrande", "Schefflera actinophylla", "Árbol de follaje umbelado / Néctar", "Estrato dosel medio", 832, "./assets/fotos/fotos_flora/Schefflera, Pategallina hojigrande.jpg"],
+    ["FLO-043", "Acacia morada", "Acacia morada", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 385, "./assets/fotos/fotos_flora/Acacia morada.jpg"],
+    ["FLO-044", "Gaque", "Clusia multiflora", "Árbol nativo / Resina y frutos para fauna", "Estrato dosel medio", 374, "./assets/fotos/fotos_flora/Gaque.jpeg"],
+    ["FLO-045", "Ciro", "Baccharis bogotensis", "Arbusto nativo / Cobertura y néctar", "Estrato arbustivo", 372, "./assets/fotos/fotos_flora/Ciro.jpg"],
+    ["FLO-046", "Duraznillo, velitas", "Duraznillo, velitas", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 364, "./assets/fotos/fotos_flora/Duraznillo, velitas.jpg"],
+    ["FLO-047", "Caucho tequendama", "Caucho tequendama", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 348, "./assets/fotos/fotos_flora/Caucho.jpeg"],
+    ["FLO-048", "Mano de oso", "Mano de oso", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 344, "./assets/fotos/fotos_flora/Mano de oso.jpeg"],
+    ["FLO-049", "Alcaparro enano", "Alcaparro enano", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 343, "./assets/fotos/fotos_flora/Alcaparro enano.JPG"],
+    ["FLO-050", "Lavanda", "Lavanda", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 325, "./assets/fotos/fotos_flora/Lavanda.jpg"],
+    ["FLO-051", "Sietecueros nazareno / Sietecueros real / Sietecueros plateado", "Tibouchina lepidota", "Sietecueros / Floración morada y polinización", "Estrato dosel medio", 564, "./assets/fotos/fotos_flora/Sietecueros nazareno.jpg"],
+    ["FLO-052", "Pino romeron", "Pino romeron", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 298, "./assets/fotos/fotos_flora/Pino romeron.jpeg"],
+    ["FLO-053", "Dividivi de tierra fria", "Dividivi de tierra fria", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 297, "./assets/fotos/fotos_flora/Mangle de tierra fria.jpeg"],
+    ["FLO-054", "Alcaparro doble", "Alcaparro doble", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 266, "./assets/fotos/fotos_flora/Alcaparro enano.JPG"],
+    ["FLO-055", "Feijoa", "Feijoa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 257, "./assets/fotos/fotos_flora/Feijoa.jpeg"],
+    ["FLO-056", "Palma de yuca, Palma de bayoneta", "Palma de yuca, Palma de bayoneta", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 256, "./assets/fotos/fotos_flora/Palma de cera, Palma de ramo.jpg"],
+    ["FLO-057", "Chiripique", "Chiripique", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 252, "./assets/fotos/fotos_flora/Chiripique.jpg"],
+    ["FLO-058", "Pino p�tula", "Pino p�tula", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 249, "./assets/fotos/fotos_flora/Pino.jpg"],
+    ["FLO-059", "Naranjo", "Naranjo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 248, "./assets/fotos/fotos_flora/Naranjo.jpg"],
+    ["FLO-060", "Sangregao, drago, croto", "Sangregao, drago, croto", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 216, "./assets/fotos/fotos_flora/Sangregao, drago, croto.jpg"],
+    ["FLO-061", "Caucho", "Caucho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 211, "./assets/fotos/fotos_flora/Caucho de la india, caucho.jpeg"],
+    ["FLO-062", "Caucho de la india, caucho", "Caucho de la india, caucho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 210, "./assets/fotos/fotos_flora/Caucho de la india, caucho.jpeg"],
+    ["FLO-063", "Palma payanesa", "Palma payanesa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 200, "./assets/fotos/fotos_flora/Palma areca.jpeg"],
+    ["FLO-064", "Garbancillo", "Garbancillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 198, "./assets/fotos/fotos_flora/Espino, Garbancillo.jpeg"],
+    ["FLO-065", "Milflores", "Milflores", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 188, "./assets/fotos/fotos_flora/Moquillo.jpg"],
+    ["FLO-066", "Higuerillo", "Higuerillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 187, "./assets/fotos/fotos_flora/Cedrillo.jpeg"],
+    ["FLO-067", "Laurel de cera (hoja peque�a)", "Laurel de cera (hoja peque�a)", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 187, "./assets/fotos/fotos_flora/Laurel de cera.jpeg"],
+    ["FLO-068", "Aguacate", "Aguacate", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 177, "./assets/fotos/fotos_flora/Aguacate.jpg"],
+    ["FLO-069", "Poligala", "Poligala", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 169, "./assets/fotos/fotos_flora/Poligala.jpeg"],
+    ["FLO-070", "Brevo", "Brevo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 168, "./assets/fotos/fotos_flora/Brevo.jpg"],
+    ["FLO-071", "Palma Alejandra", "Palma Alejandra", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 158, "./assets/fotos/fotos_flora/Palma Alejandra.jpg"],
+    ["FLO-072", "Cipr�s enano", "Cipr�s enano", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 145, "./assets/fotos/fotos_flora/Ciprés enano.jpeg"],
+    ["FLO-073", "Cariseco", "Cariseco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 144, "./assets/fotos/fotos_flora/Cariseco, Tres hojas.jpg"],
+    ["FLO-074", "Tabaquillo", "Tabaquillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 141, "./assets/fotos/fotos_flora/Tabaquillo.jpg"],
+    ["FLO-075", "Pino colombiano, pino de pacho, pino romer�n", "Pino colombiano, pino de pacho, pino romer�n", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 132, "./assets/fotos/fotos_flora/Pino.jpg"],
+    ["FLO-076", "Pajarito", "Pajarito", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 129, "./assets/fotos/fotos_flora/Pajarito.jpeg"],
+    ["FLO-077", "Palma de cera, Palma blanca", "Palma de cera, Palma blanca", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 127, "./assets/fotos/fotos_flora/Palma de cera, Palma blanca.jpg"],
+    ["FLO-078", "Garrocho", "Garrocho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 126, "./assets/fotos/fotos_flora/Garrocho.jpg"],
+    ["FLO-079", "Sombrilla japonesa", "Sombrilla japonesa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 125, "./assets/fotos/fotos_flora/Sombrilla japonesa.jpeg"],
+    ["FLO-080", "Pino candelabro", "Pino candelabro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 123, "./assets/fotos/fotos_flora/Pino.jpg"],
+    ["FLO-081", "Arrayan negro", "Arrayan negro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 122, "./assets/fotos/fotos_flora/Arrayan negro.jpg"],
+    ["FLO-082", "Sangregado", "Sangregado", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 121, "./assets/fotos/fotos_flora/Sangregado.jpg"],
+    ["FLO-083", "Tibar, pagoda o rodamonte", "Tibar, pagoda o rodamonte", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 120, "./assets/fotos/fotos_flora/Tibar, pagoda o rodamonte.jpeg"],
+    ["FLO-084", "Cipres Japones, criptomeria / Cipres italiano", "Cupressus lusitanica", "Conífera de dosel / Refugio contra el viento y anidación", "Estrato dosel alto", 274, "./assets/fotos/fotos_flora/Cipres italiano.jpg"],
+    ["FLO-085", "Mandarina", "Mandarina", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 120, "./assets/fotos/fotos_flora/Mandarina.jpg"],
+    ["FLO-086", "Tinto", "Tinto", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 116, "./assets/fotos/fotos_flora/Tinto.jpeg"],
+    ["FLO-087", "Lupinus", "Lupinus", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 116, "./assets/fotos/fotos_flora/Lupinus.jpg"],
+    ["FLO-088", "Mortillo", "Mortillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 109, "./assets/fotos/fotos_flora/Mortiño.jpg"],
+    ["FLO-089", "Tibar", "Tibar", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 107, "./assets/fotos/fotos_flora/Tibar, pagoda o rodamonte.jpeg"],
+    ["FLO-090", "Nispero", "Nispero", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 100, "./assets/fotos/fotos_flora/Nispero.jpg"],
+    ["FLO-091", "Palma coquito", "Palma coquito", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 97, "./assets/fotos/fotos_flora/Palma areca.jpeg"],
+    ["FLO-092", "Guayabo", "Guayabo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 96, "./assets/fotos/fotos_flora/Guayabo de mico.jpeg"],
+    ["FLO-093", "Guamo santafere�o", "Guamo santafere�o", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 94, "./assets/fotos/fotos_flora/Guamo.jpg"],
+    ["FLO-094", "Raque, San juanito", "Raque, San juanito", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 89, "./assets/fotos/fotos_flora/Raque, San juanito.jpeg"],
+    ["FLO-095", "Laurel de cera", "Laurel de cera", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 87, "./assets/fotos/fotos_flora/Laurel de cera (hoja pequeña).jpeg"],
+    ["FLO-096", "Abelia", "Abelia", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 86, "./assets/fotos/fotos_flora/Abelia.jpg"],
+    ["FLO-097", "Fucsia arbustiva", "Fucsia arbustiva", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 82, "./assets/fotos/fotos_flora/Fucsia boliviana.jpeg"],
+    ["FLO-098", "Arboloco", "Arboloco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 81, "./assets/fotos/fotos_flora/Arboloco.jpg"],
+    ["FLO-099", "Palma roebeleni", "Palma roebeleni", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 80, "./assets/fotos/fotos_flora/Palma areca.jpeg"],
+    ["FLO-100", "Mermelada", "Mermelada", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 74, "./assets/fotos/fotos_flora/Mermelada.jpg"],
+    ["FLO-101", "Cedrillo, Yuco", "Cedrillo, Yuco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 72, "./assets/fotos/fotos_flora/Cedrillo, Yuco.jpeg"],
+    ["FLO-102", "Endrino", "Endrino", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 71, "./assets/fotos/fotos_flora/Endrino.jpg"],
+    ["FLO-103", "Acebo", "Acebo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 70, "./assets/fotos/fotos_flora/Acebo.jpg"],
+    ["FLO-104", "Chocho", "Chocho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 67, "./assets/fotos/fotos_flora/Chocho.jpg"],
+    ["FLO-105", "Magnolio", "Magnolio", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 63, "./assets/fotos/fotos_flora/Magnolio.jpg"],
+    ["FLO-106", "Baeckea", "Baeckea", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 63, "./assets/fotos/fotos_flora/Baeckea.jpeg"],
+    ["FLO-107", "Acacia", "Acacia", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 61, "./assets/fotos/fotos_flora/Acacia azul.jpg"],
+    ["FLO-108", "Ciruelo", "Ciruelo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 60, "./assets/fotos/fotos_flora/Cerezo, ciruelo.jpg"],
+    ["FLO-109", "Cariseco, Tres hojas", "Cariseco, Tres hojas", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 58, "./assets/fotos/fotos_flora/Cariseco, Tres hojas.jpg"],
+    ["FLO-110", "Borrachero blanco", "Borrachero blanco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 58, "./assets/fotos/fotos_flora/Borrachero.jpg"],
+    ["FLO-111", "Callistemo", "Callistemo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 58, "./assets/fotos/fotos_flora/Callistemo.jpeg"],
+    ["FLO-112", "Tibar, tobo, rodamonte", "Tibar, tobo, rodamonte", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 57, "./assets/fotos/fotos_flora/Tibar, tobo, rodamonte.jpeg"],
+    ["FLO-113", "Agracejo", "Agracejo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 54, "./assets/fotos/fotos_flora/Agracejo.jpeg"],
+    ["FLO-114", "Limon", "Limon", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 53, "./assets/fotos/fotos_flora/Limon.jpeg"],
+    ["FLO-115", "Carbonero", "Carbonero", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 53, "./assets/fotos/fotos_flora/Carbonero rojo.jpeg"],
+    ["FLO-116", "Tuno esmeraldo", "Miconia squamulosa", "Arbusto nativo / Frutos para tangaras y mirlas", "Estrato arbustivo", 53, "./assets/fotos/fotos_flora/Tuno esmeraldo.jpeg"],
+    ["FLO-117", "Acacia de jardin", "Acacia de jardin", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 51, "./assets/fotos/fotos_flora/Acacia.jpeg"],
+    ["FLO-118", "Gurrubo", "Gurrubo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 49, "./assets/fotos/fotos_flora/Gurrubo.jpg"],
+    ["FLO-119", "Arrayan", "Arrayan", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 47, "./assets/fotos/fotos_flora/Arrayan blanco.jpeg"],
+    ["FLO-120", "Rama negra", "Rama negra", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 47, "./assets/fotos/fotos_flora/Rama negra.jpg"],
+    ["FLO-121", "Papayuelo", "Papayuelo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 46, "./assets/fotos/fotos_flora/Papayuela.jpeg"],
+    ["FLO-122", "Amarrabollo", "Amarrabollo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 46, "./assets/fotos/fotos_flora/Amarrabollo.jpg"],
+    ["FLO-123", "Curapin, Campanilla", "Curapin, Campanilla", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 46, "./assets/fotos/fotos_flora/Curapin, Campanilla.jpeg"],
+    ["FLO-124", "Palma cinta", "Palma cinta", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 45, "./assets/fotos/fotos_flora/Palma de cera.jpg"],
+    ["FLO-125", "Azara", "Azara", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 45, "./assets/fotos/fotos_flora/Azara.jpeg"],
+    ["FLO-126", "Ayer, hoy y ma�ana", "Ayer, hoy y ma�ana", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 43, "./assets/fotos/fotos_flora/Ayer, hoy y mañana.jpg"],
+    ["FLO-127", "Pino colombiano, chaquiro", "Pino colombiano, chaquiro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 42, "./assets/fotos/fotos_flora/Pino colombiano, chaquiro.jpg"],
+    ["FLO-128", "Guamo", "Guamo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 42, "./assets/fotos/fotos_flora/Guamo.jpg"],
+    ["FLO-129", "Venturosa", "Venturosa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 41, "./assets/fotos/fotos_flora/Rosa.jpg"],
+    ["FLO-130", "Arbol de Te", "Arbol de Te", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 40, "./assets/fotos/fotos_flora/Arbol de Te.jpg"],
+    ["FLO-131", "Tibar, Rodamonte, Pagoda", "Tibar, Rodamonte, Pagoda", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 39, "./assets/fotos/fotos_flora/Tibar, Rodamonte, Pagoda.jpeg"],
+    ["FLO-132", "Grevilea", "Grevilea", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 36, "./assets/fotos/fotos_flora/Grevilea.jpeg"],
+    ["FLO-133", "Citrus spp.", "Citrus spp.", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 33, "./assets/fotos/fotos_flora/Citrus spp..jpg"],
+    ["FLO-134", "Mirto", "Mirto", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 33, "./assets/fotos/fotos_flora/Mirto.jpeg"],
+    ["FLO-135", "Palma de cera", "Palma de cera", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 32, "./assets/fotos/fotos_flora/Palma de cera, Palma blanca.jpg"],
+    ["FLO-136", "Trompeto", "Trompeto", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 31, "./assets/fotos/fotos_flora/Trompeto.jpeg"],
+    ["FLO-137", "Metrosideros", "Metrosideros", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 31, "./assets/fotos/fotos_flora/Metrosideros.jpeg"],
+    ["FLO-138", "Fucsia boliviana", "Fucsia boliviana", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 28, "./assets/fotos/fotos_flora/Fucsia boliviana.jpeg"],
+    ["FLO-139", "Palma washingtoniana", "Palma washingtoniana", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 27, "./assets/fotos/fotos_flora/Palma Alejandra.jpg"],
+    ["FLO-140", "Arbol de hierro", "Arbol de hierro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 27, "./assets/fotos/fotos_flora/Arbol de hierro.jpeg"],
+    ["FLO-141", "Yarumo", "Yarumo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 27, "./assets/fotos/fotos_flora/Yarumo.jpg"],
+    ["FLO-142", "Mimbre", "Mimbre", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 25, "./assets/fotos/fotos_flora/Mimbre.jpg"],
+    ["FLO-143", "Cucubo", "Cucubo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 24, "./assets/fotos/fotos_flora/Cucubo.jpeg"],
+    ["FLO-144", "Azuceno, enebro", "Azuceno, enebro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 24, "./assets/fotos/fotos_flora/Azuceno, enebro.jpg"],
+    ["FLO-145", "Raphiolepys", "Raphiolepys", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 23, "./assets/fotos/fotos_flora/Raphiolepys.jpg"],
+    ["FLO-146", "Carbonero rojo", "Carbonero rojo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 22, "./assets/fotos/fotos_flora/Carbonero rojo.jpeg"],
+    ["FLO-147", "Platano", "Platano", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 22, "./assets/fotos/fotos_flora/Platano.jpg"],
+    ["FLO-148", "Arbol de corcho", "Arbol de corcho", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 21, "./assets/fotos/fotos_flora/Arbol de corcho.jpeg"],
+    ["FLO-149", "Siete Cueros peludo", "Siete Cueros peludo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 21, "./assets/fotos/fotos_flora/Siete cueros.jpeg"],
+    ["FLO-150", "Palma de cera, Palma de ramo", "Palma de cera, Palma de ramo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 20, "./assets/fotos/fotos_flora/Palma de cera, Palma de ramo.jpg"],
+    ["FLO-151", "Aligustre del Japon", "Aligustre del Japon", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 20, "./assets/fotos/fotos_flora/Aligustre del Japon.jpg"],
+    ["FLO-152", "Azalea", "Azalea", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 20, "./assets/fotos/fotos_flora/Azalea.jpeg"],
+    ["FLO-153", "Pomarroso", "Pomarroso", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 18, "./assets/fotos/fotos_flora/Amargoso.jpg"],
+    ["FLO-154", "Algodon extranjero", "Algodon extranjero", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 18, "./assets/fotos/fotos_flora/Algodon extranjero.jpg"],
+    ["FLO-155", "Tibar extranjero", "Tibar extranjero", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 17, "./assets/fotos/fotos_flora/Tibar.jpeg"],
+    ["FLO-156", "Lulo de perro", "Lulo de perro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 17, "./assets/fotos/fotos_flora/Lulo de perro.jpg"],
+    ["FLO-157", "Cedrillo", "Cedrillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 16, "./assets/fotos/fotos_flora/Cedrillo, Yuco.jpeg"],
+    ["FLO-158", "Tuno", "Tuno", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 16, "./assets/fotos/fotos_flora/Tuno esmeraldo.jpeg"],
+    ["FLO-159", "Arbol de Fuego", "Arbol de Fuego", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 16, "./assets/fotos/fotos_flora/Arbol de Te.jpg"],
+    ["FLO-160", "Manzano", "Manzano", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15, "./assets/fotos/fotos_flora/Manzano.jpg"],
+    ["FLO-161", "Rosa", "Rosa", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15, "./assets/fotos/fotos_flora/Rosa.jpg"],
+    ["FLO-162", "Guayabo del peru", "Guayabo del peru", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15, "./assets/fotos/fotos_flora/Guayabo.jpeg"],
+    ["FLO-163", "Ceiba de tierra fria", "Ceiba de tierra fria", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15, "./assets/fotos/fotos_flora/Mangle de tierra fria.jpeg"],
+    ["FLO-164", "Mulato", "Mulato", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 15, "./assets/fotos/fotos_flora/Mulato.jpeg"],
+    ["FLO-165", "Gualanday", "Gualanday", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 14, "./assets/fotos/fotos_flora/Gualanday.jpeg"],
+    ["FLO-166", "Platano de tierra fria", "Platano de tierra fria", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 14, "./assets/fotos/fotos_flora/Platano.jpg"],
+    ["FLO-167", "Cafe", "Cafe", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 13, "./assets/fotos/fotos_flora/Cafe.jpg"],
+    ["FLO-168", "Barbasco", "Barbasco", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 13, "./assets/fotos/fotos_flora/Barbasco.jpg"],
+    ["FLO-169", "Salvio negro", "Salvio negro", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 12, "./assets/fotos/fotos_flora/Salvio negro.jpeg"],
+    ["FLO-170", "Tomatillo", "Tomatillo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 11, "./assets/fotos/fotos_flora/Tomatillo.jpeg"],
+    ["FLO-171", "Fotinia", "Fotinia", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 11, "./assets/fotos/fotos_flora/Fotinia.jpg"],
+    ["FLO-172", "Carbonero rosado", "Carbonero rosado", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 10, "./assets/fotos/fotos_flora/Carbonero.jpg"],
+    ["FLO-173", "Acacia azul", "Acacia azul", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 10, "./assets/fotos/fotos_flora/Acacia azul.jpg"],
+    ["FLO-174", "Duranta amarilla", "Duranta amarilla", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 10, "./assets/fotos/fotos_flora/Curapin, Campanilla.jpeg"],
+    ["FLO-175", "Aloe arboreo", "Aloe arboreo", "Productor primario / Cobertura y estructura ecológica urbana", "Estrato arbóreo", 9, "./assets/fotos/fotos_flora/Carbonero.jpg"],
+    ["FLO-176", "Junco de estero", "Schoenoplectus californicus", "Macrófita emergente / Hábitat crítico y nidificación de Tingua Bogotana", "Estrato litoral", 500, "./assets/fotos/fotos_flora/Lulo de perro.jpg"],
+    ["FLO-177", "Enea / Totora", "Typha latifolia", "Macrófita emergente / Refugio de fauna de juncal y filtro hídrico", "Estrato litoral", 500, "./assets/fotos/fotos_flora/Enea / Totora.jpg"],
+    ["FLO-178", "Buchón de agua", "Eichhornia crassipes", "Macrófita flotante / Biofiltración y retención de metales pesados", "Estrato espejo de agua", 500, "./assets/fotos/fotos_flora/Buchón de agua.jpg"],
+    ["FLO-179", "Lenteja de agua", "Lemna minor", "Macrófita flotante / Alimento primario de anátidos y peces", "Estrato espejo de agua", 500, "./assets/fotos/fotos_flora/Lenteja de agua.jpg"],
+    ["FLO-180", "Botoncillo de humedal", "Bidens laevis", "Hierba riparia nativa / Polinización por dípteros e himenópteros", "Estrato ribereño", 500, "./assets/fotos/fotos_flora/Botoncillo de humedal.jpg"],
+    ["FLO-181", "Curuba silvestre", "Passiflora mixta", "Enredadera nativa / Polinización especializada por Ensifera ensifera", "Estrato trepador", 500, "./assets/fotos/fotos_flora/Curuba silvestre.jpg"],
   ];
   floraBase.forEach((item, idx) => {
     nodes.push({
@@ -374,9 +374,9 @@
       role: item[3],
       stratum: item[4],
       count: item[5],
+      img: item[6],
       loc: 'Localidad 09 Kennedy — Censo Forestal SIGAU / JBB',
       alert: item[1].includes('Junco') ? 'Especie clave de hábitat para Tingua Bogotana' : 'Monitoreo Arbolado Urbano Kennedy',
-      img: './assets/fotos/fotos_aves/' + item[1] + '.jpeg',
       inatUrl: 'https://colombia.inaturalist.org/search?q=' + encodeURIComponent(item[2])
     });
   });
@@ -1302,28 +1302,26 @@
     createEdgeLinesMesh();
     buildTerritorySpeciesBeacons();
 
-    // Cargar datos geográficos de Kennedy
+    // Iniciar render loop y ocultar velo de carga de inmediato
+    hideVeil();
+
+    // Cargar datos geográficos de Kennedy en segundo plano
     Promise.all([
       loadBuildings(),
       loadTrees(),
       loadWaterBodies()
     ]).then(() => {
       createParticleSystem();
-      if (loadingVeil) {
-        loadingVeil.style.opacity = "0";
-        setTimeout(() => { loadingVeil.style.display = "none"; }, 600);
-      }
+      hideVeil();
     }).catch(err => {
       console.warn("Non-fatal loading warning:", err);
       createParticleSystem();
-      if (loadingVeil) {
-        loadingVeil.style.opacity = "0";
-        setTimeout(() => { loadingVeil.style.display = "none"; }, 600);
-      }
+      hideVeil();
     });
 
     setupEventListeners();
     updateWaypointsBar();
+    renderPieCharts();
   }
 
   // Setup Layouts de la Red
@@ -1399,7 +1397,7 @@
 
       const targetPos = getNodeTargetPos(n);
       sprite.position.copy(targetPos);
-      sprite.userData = { taxonData: n, baseScale: baseScale };
+      sprite.userData = { taxonData: n, baseScale: baseScale, basePos: targetPos.clone(), index: idx };
 
       nodeSprites.push(sprite);
       networkGroup.add(sprite);
@@ -1433,7 +1431,7 @@
     edgeMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.32,
+      opacity: 0.35,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
@@ -1839,7 +1837,6 @@
       });
     }
 
-    // Close Modal on Background Click
     if (territoryModal) {
       territoryModal.addEventListener("click", (e) => {
         if (e.target === territoryModal) territoryModal.style.display = "none";
@@ -1901,7 +1898,7 @@
 
     // Pointer Down for Pop-up Modals
     window.addEventListener("pointerdown", (e) => {
-      if (e.target.closest(".glass-panel") || e.target.closest("#territorySpeciesModal") || e.target.closest(".welcome-modal") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#activeTreeChip")) return;
+      if (e.target.closest(".glass-panel") || e.target.closest("#territorySpeciesModal") || e.target.closest("#pieChartsModalOverlay") || e.target.closest(".welcome-modal") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#activeTreeChip")) return;
 
       mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -1952,12 +1949,13 @@
   }
 
   // =====================================================================
-  // 11. BUCLE DE ANIMACIÓN
+  // 11. BUCLE DE ANIMACIÓN VIVA (Red Respirando y Oscilaciones Armónicas)
   // =====================================================================
   function animate() {
     requestAnimationFrame(animate);
     const elapsedTime = clock.getElapsedTime();
 
+    // Metamorfosis Suave
     if (Math.abs(currentMorph - targetMorph) > 0.001) {
       currentMorph += (targetMorph - currentMorph) * 0.08;
       if (slider) slider.value = currentMorph;
@@ -1970,14 +1968,148 @@
       particleMat.uniforms.uTime.value = elapsedTime;
     }
 
-    // Billboard effect
-    if (camera) {
-      nodeSprites.forEach(sp => sp.quaternion.copy(camera.quaternion));
-      territoryBeacons.forEach(sp => sp.quaternion.copy(camera.quaternion));
+    // Respiración Orgánica y Ondulación Dinámica de la Red Biótica
+    if (currentMorph < 0.6) {
+      const netMorphFactor = 1.0 - currentMorph;
+      nodeSprites.forEach((sp, idx) => {
+        const n = sp.userData.taxonData;
+        if (!n || !n.active) {
+          sp.visible = false;
+          return;
+        }
+        sp.visible = true;
+
+        // Pulso Armónico de Respiración
+        const breathe = 1.0 + Math.sin(elapsedTime * 2.4 + idx * 0.2) * 0.14 + Math.cos(elapsedTime * 1.2 + (n.degree || 1) * 0.3) * 0.06;
+        const dynamicScale = sp.userData.baseScale * breathe;
+        sp.scale.set(dynamicScale, dynamicScale, 1.0);
+
+        // Ondulación Flotante en el Espacio
+        if (sp.userData.basePos) {
+          const waveY = Math.sin(elapsedTime * 1.5 + idx * 0.35) * 1.2 * netMorphFactor;
+          const waveX = Math.cos(elapsedTime * 1.0 + idx * 0.25) * 0.8 * netMorphFactor;
+          sp.position.set(
+            sp.userData.basePos.x + waveX,
+            sp.userData.basePos.y + waveY,
+            sp.userData.basePos.z
+          );
+        }
+
+        if (camera) sp.quaternion.copy(camera.quaternion);
+      });
+
+      // Respiración Luminous Glow de las Líneas de Interacción
+      if (edgeMat) {
+        edgeMat.opacity = (0.28 + Math.sin(elapsedTime * 3.2) * 0.12) * netMorphFactor;
+      }
+
+      // Rotación Suave y Órbitas Vivas
+      if (opts.autoRotate) {
+        networkGroup.rotation.y = elapsedTime * 0.025;
+        networkGroup.rotation.x = Math.sin(elapsedTime * 0.3) * 0.035;
+      }
+    } else {
+      networkGroup.rotation.set(0, 0, 0);
+    }
+
+    // Balizas Territoriales
+    if (territoryBeaconsGroup && territoryBeaconsGroup.visible && camera) {
+      territoryBeacons.forEach(sp => {
+        sp.quaternion.copy(camera.quaternion);
+      });
     }
 
     if (controls) controls.update();
     if (renderer && scene && camera) renderer.render(scene, camera);
+  }
+
+  // =====================================================================
+  // 12. GENERACIÓN Y RENDERIZADO DE TORTAS (PIE CHARTS DE EVIDENCIA)
+  // =====================================================================
+  function renderPieCharts() {
+    function drawSvgPie(svgId, slices) {
+      const svg = document.getElementById(svgId);
+      if (!svg) return;
+      svg.innerHTML = "";
+
+      let cumulativePercent = 0;
+      const cx = 80, cy = 80, r = 68;
+
+      function getCoordinatesForPercent(percent) {
+        const x = cx + r * Math.cos(2 * Math.PI * percent - Math.PI / 2);
+        const y = cy + r * Math.sin(2 * Math.PI * percent - Math.PI / 2);
+        return [x, y];
+      }
+
+      slices.forEach(slice => {
+        const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
+        cumulativePercent += slice.percent;
+        const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
+        const largeArcFlag = slice.percent > 0.5 ? 1 : 0;
+
+        const pathData = [
+          `M ${cx} ${cy}`,
+          `L ${startX} ${startY}`,
+          `A ${r} ${r} 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+          'Z'
+        ].join(' ');
+
+        const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathEl.setAttribute('d', pathData);
+        pathEl.setAttribute('fill', slice.color);
+        pathEl.setAttribute('stroke', '#06090f');
+        pathEl.setAttribute('stroke-width', '2.5');
+        pathEl.style.transition = 'all 0.3s ease';
+        pathEl.style.cursor = 'pointer';
+
+        pathEl.addEventListener('mouseenter', () => {
+          pathEl.setAttribute('stroke', '#ffffff');
+          pathEl.setAttribute('stroke-width', '4');
+        });
+        pathEl.addEventListener('mouseleave', () => {
+          pathEl.setAttribute('stroke', '#06090f');
+          pathEl.setAttribute('stroke-width', '2.5');
+        });
+
+        svg.appendChild(pathEl);
+      });
+
+      // Donut Center Hole
+      const innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      innerCircle.setAttribute('cx', cx);
+      innerCircle.setAttribute('cy', cy);
+      innerCircle.setAttribute('r', '32');
+      innerCircle.setAttribute('fill', '#06090f');
+      innerCircle.setAttribute('stroke', 'rgba(255,255,255,0.12)');
+      innerCircle.setAttribute('stroke-width', '1.5');
+      svg.appendChild(innerCircle);
+    }
+
+    // Torta A: Interacciones Bióticas
+    drawSvgPie('pieSvgA', [
+      { percent: 0.3918, color: '#A386A9', name: 'Polinización' },
+      { percent: 0.3158, color: '#84A48B', name: 'Herbivoría Parcial' },
+      { percent: 0.0744, color: '#F79E70', name: 'Nidificación y Refugio' },
+      { percent: 0.0488, color: '#E69888', name: 'Dispersión de Semillas' },
+      { percent: 0.1692, color: '#C96349', name: 'Parasitismo / Depredación' }
+    ]);
+
+    // Torta B: Reinos Taxonómicos
+    drawSvgPie('pieSvgB', [
+      { percent: 0.595, color: '#84A48B', name: 'Plantae (Flora & Arbolado)' },
+      { percent: 0.304, color: '#F79E70', name: 'Animalia (Aves & Fauna)' },
+      { percent: 0.070, color: '#A386A9', name: 'Fungi (Micorrizas)' },
+      { percent: 0.031, color: '#E7C878', name: 'Bacterias y Protistas' }
+    ]);
+
+    // Torta C: Fuentes de Evidencia
+    drawSvgPie('pieSvgC', [
+      { percent: 0.361, color: '#84A48B', name: 'Artículos Científicos & PEDH' },
+      { percent: 0.258, color: '#E7C878', name: 'iNaturalist Kennedy' },
+      { percent: 0.234, color: '#A386A9', name: 'Censo Forestal SIGAU / JBB' },
+      { percent: 0.097, color: '#F79E70', name: 'eBird Hotspots' },
+      { percent: 0.050, color: '#6B9080', name: 'GBIF Biodiversidad' }
+    ]);
   }
 
   // Global Helpers for UI
@@ -1991,6 +2123,19 @@
     if (modal) modal.style.display = 'none';
   };
 
+  window.openPieChartsModal = () => {
+    const modal = document.getElementById('pieChartsModalOverlay');
+    if (modal) {
+      modal.style.display = 'flex';
+      renderPieCharts();
+    }
+  };
+
+  window.closePieChartsModal = () => {
+    const modal = document.getElementById('pieChartsModalOverlay');
+    if (modal) modal.style.display = 'none';
+  };
+
   window.setRedLayout = (layoutName) => {
     opts.layout = layoutName;
     document.querySelectorAll('.layout-pill').forEach(p => p.classList.remove('active'));
@@ -2000,13 +2145,18 @@
     rawNodes.forEach((n, idx) => {
       const targetPos = getNodeTargetPos(n);
       if (nodeSprites[idx]) {
+        nodeSprites[idx].userData.basePos = targetPos.clone();
         nodeSprites[idx].position.copy(targetPos);
       }
     });
     createEdgeLinesMesh();
   };
 
-  // Iniciar escena
-  window.addEventListener("DOMContentLoaded", initScene);
+  // Arranque Seguro Inmediato
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initScene);
+  } else {
+    initScene();
+  }
 
 })();

@@ -2370,7 +2370,8 @@
       "stratum": "Estrato subdosel",
       "cat": 0,
       "count": 4364,
-      "id": "FLO-001"
+      "id": "FLO-001",
+      "img": "./assets/fotos/fotos_flora/Chicala, chirlobirlo, flor amarillo.jpeg"
     },
     {
       "name": "Jazmin del cabo, laurel huesito",
@@ -2380,7 +2381,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 3132,
-      "id": "FLO-002"
+      "id": "FLO-002",
+      "img": "./assets/fotos/fotos_flora/Jazmin del cabo, laurel huesito.jpeg"
     },
     {
       "name": "Sauco",
@@ -2390,7 +2392,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 3016,
-      "id": "FLO-003"
+      "id": "FLO-003",
+      "img": "./assets/fotos/fotos_flora/Sauco.jpg"
     },
     {
       "name": "Holly liso",
@@ -2400,7 +2403,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 2677,
-      "id": "FLO-004"
+      "id": "FLO-004",
+      "img": "./assets/fotos/fotos_flora/Holly liso.jpg"
     },
     {
       "name": "Falso pimiento",
@@ -2410,7 +2414,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 2628,
-      "id": "FLO-005"
+      "id": "FLO-005",
+      "img": "./assets/fotos/fotos_flora/Falso pimiento.jpeg"
     },
     {
       "name": "Eugenia",
@@ -2420,7 +2425,8 @@
       "stratum": "Estrato subdosel",
       "cat": 0,
       "count": 2529,
-      "id": "FLO-006"
+      "id": "FLO-006",
+      "img": "./assets/fotos/fotos_flora/Eugenia.jpg"
     },
     {
       "name": "Cayeno",
@@ -2430,7 +2436,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 2072,
-      "id": "FLO-007"
+      "id": "FLO-007",
+      "img": "./assets/fotos/fotos_flora/Cayeno.jpeg"
     },
     {
       "name": "Guayacan de Manizales",
@@ -2440,7 +2447,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 1959,
-      "id": "FLO-008"
+      "id": "FLO-008",
+      "img": "./assets/fotos/fotos_flora/Guayacan de Manizales.jpeg"
     },
     {
       "name": "Palma yuca, palmiche",
@@ -2450,7 +2458,8 @@
       "stratum": "Estrato subdosel",
       "cat": 0,
       "count": 1767,
-      "id": "FLO-009"
+      "id": "FLO-009",
+      "img": "./assets/fotos/fotos_flora/Palma yuca, palmiche.jpeg"
     },
     {
       "name": "Jazmin de la china",
@@ -2460,7 +2469,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 1747,
-      "id": "FLO-010"
+      "id": "FLO-010",
+      "img": "./assets/fotos/fotos_flora/Jazmin del cabo, laurel huesito.jpeg"
     },
     {
       "name": "Acacia japonesa",
@@ -2470,7 +2480,8 @@
       "stratum": "Estrato dosel",
       "cat": 0,
       "count": 1651,
-      "id": "FLO-011"
+      "id": "FLO-011",
+      "img": "./assets/fotos/fotos_flora/Acacia.jpeg"
     },
     {
       "name": "Eucalipto com�n / Eucalipto de flor, eucalipto lavabotella / Eucalipto pomarroso / Eucalipto plateado",
@@ -2480,7 +2491,8 @@
       "stratum": "Estrato dosel emergente",
       "cat": 0,
       "count": 2450,
-      "id": "FLO-012"
+      "id": "FLO-012",
+      "img": "./assets/fotos/fotos_flora/Eucalipto de flor, eucalipto lavabotella.jpeg"
     },
     {
       "name": "Cipr�s, Pino cipr�s, Pino",
@@ -2490,7 +2502,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 1513,
-      "id": "FLO-013"
+      "id": "FLO-013",
+      "img": "./assets/fotos/fotos_flora/Pino.jpg"
     },
     {
       "name": "Urap�n, Fresno",
@@ -2500,7 +2513,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 1499,
-      "id": "FLO-014"
+      "id": "FLO-014",
+      "img": "./assets/fotos/fotos_flora/Urapán, Fresno.jpg"
     },
     {
       "name": "Acacia baracatinga, acacia sabanera, acacia nigra",
@@ -2510,7 +2524,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 1352,
-      "id": "FLO-015"
+      "id": "FLO-015",
+      "img": "./assets/fotos/fotos_flora/Acacia baracatinga, acacia sabanera, acacia nigra.jpeg"
     },
     {
       "name": "Caucho sabanero",
@@ -2520,7 +2535,8 @@
       "stratum": "Estrato dosel alto",
       "cat": 0,
       "count": 1327,
-      "id": "FLO-016"
+      "id": "FLO-016",
+      "img": "./assets/fotos/fotos_flora/Caucho.jpeg"
     },
     {
       "name": "Caucho benjamin",
@@ -2530,7 +2546,8 @@
       "stratum": "Estrato dosel alto",
       "cat": 0,
       "count": 1322,
-      "id": "FLO-017"
+      "id": "FLO-017",
+      "img": "./assets/fotos/fotos_flora/Caucho.jpeg"
     },
     {
       "name": "Caballero de la noche, Jazmin, Dama de noche",
@@ -2540,7 +2557,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 1583,
-      "id": "FLO-018"
+      "id": "FLO-018",
+      "img": "./assets/fotos/fotos_flora/Caballero de la noche, Jazmin, Dama de noche.jpeg"
     },
     {
       "name": "Acacia negra, gris",
@@ -2550,7 +2568,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 1220,
-      "id": "FLO-019"
+      "id": "FLO-019",
+      "img": "./assets/fotos/fotos_flora/Acacia negra, gris.jpeg"
     },
     {
       "name": "Hayuelo",
@@ -2560,7 +2579,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 1206,
-      "id": "FLO-020"
+      "id": "FLO-020",
+      "img": "./assets/fotos/fotos_flora/Hayuelo.jpeg"
     },
     {
       "name": "Aliso, fresno, chaquiro",
@@ -2570,7 +2590,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 1036,
-      "id": "FLO-021"
+      "id": "FLO-021",
+      "img": "./assets/fotos/fotos_flora/Aliso, fresno, chaquiro.jpeg"
     },
     {
       "name": "Cerezo / Cerezo, capuli / Cerezo, ciruelo",
@@ -2580,7 +2601,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 1375,
-      "id": "FLO-022"
+      "id": "FLO-022",
+      "img": "./assets/fotos/fotos_flora/Cerezo, capuli.jpg"
     },
     {
       "name": "Calistemo lloron",
@@ -2590,7 +2612,8 @@
       "stratum": "Estrato subdosel",
       "cat": 0,
       "count": 965,
-      "id": "FLO-023"
+      "id": "FLO-023",
+      "img": "./assets/fotos/fotos_flora/Calistemo.jpeg"
     },
     {
       "name": "Araucaria / Araucaria crespa",
@@ -2600,7 +2623,8 @@
       "stratum": "Estrato dosel emergente",
       "cat": 0,
       "count": 1001,
-      "id": "FLO-024"
+      "id": "FLO-024",
+      "img": "./assets/fotos/fotos_flora/Araucaria.jpg"
     },
     {
       "name": "Pino libro",
@@ -2610,7 +2634,8 @@
       "stratum": "Estrato subdosel",
       "cat": 0,
       "count": 823,
-      "id": "FLO-025"
+      "id": "FLO-025",
+      "img": "./assets/fotos/fotos_flora/Pino.jpg"
     },
     {
       "name": "Mangle de tierra fria",
@@ -2620,7 +2645,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 807,
-      "id": "FLO-026"
+      "id": "FLO-026",
+      "img": "./assets/fotos/fotos_flora/Mangle de tierra fria.jpeg"
     },
     {
       "name": "Cajeto, garagay, urapo / Cajeto sp / Cajeto de Bogota",
@@ -2630,7 +2656,8 @@
       "stratum": "Estrato dosel",
       "cat": 0,
       "count": 1420,
-      "id": "FLO-027"
+      "id": "FLO-027",
+      "img": "./assets/fotos/fotos_flora/Cajeto, garagay, urapo.jpg"
     },
     {
       "name": "Corono",
@@ -2640,7 +2667,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 736,
-      "id": "FLO-028"
+      "id": "FLO-028",
+      "img": "./assets/fotos/fotos_flora/Corono.jpg"
     },
     {
       "name": "Arrayan blanco",
@@ -2650,7 +2678,8 @@
       "stratum": "Estrato dosel",
       "cat": 0,
       "count": 719,
-      "id": "FLO-029"
+      "id": "FLO-029",
+      "img": "./assets/fotos/fotos_flora/Arrayan blanco.jpeg"
     },
     {
       "name": "Liquidambar, estoraque",
@@ -2660,7 +2689,8 @@
       "stratum": "Estrato dosel alto",
       "cat": 0,
       "count": 697,
-      "id": "FLO-030"
+      "id": "FLO-030",
+      "img": "./assets/fotos/fotos_flora/Liquidambar, estoraque.jpeg"
     },
     {
       "name": "Chilco / Chilco de p�ramo",
@@ -2670,7 +2700,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 705,
-      "id": "FLO-031"
+      "id": "FLO-031",
+      "img": "./assets/fotos/fotos_flora/Chilco.jpg"
     },
     {
       "name": "Ligustrum",
@@ -2680,7 +2711,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 656,
-      "id": "FLO-032"
+      "id": "FLO-032",
+      "img": "./assets/fotos/fotos_flora/Ligustrum.jpg"
     },
     {
       "name": "Abutilon rojo y amarillo (Farolito) / Abutilon blanco / Abutilon  peque�o / Abutilon quesito",
@@ -2690,7 +2722,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 884,
-      "id": "FLO-033"
+      "id": "FLO-033",
+      "img": "./assets/fotos/fotos_flora/Abutilon rojo y amarillo (Farolito) / Abutilon blanco / Abutilon  peque�o / Abutilon quesito.jpg"
     },
     {
       "name": "Cucharo",
@@ -2700,7 +2733,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 584,
-      "id": "FLO-034"
+      "id": "FLO-034",
+      "img": "./assets/fotos/fotos_flora/Cucharo.jpeg"
     },
     {
       "name": "Roble / Roble australiano",
@@ -2710,7 +2744,8 @@
       "stratum": "Estrato dosel alto",
       "cat": 0,
       "count": 896,
-      "id": "FLO-035"
+      "id": "FLO-035",
+      "img": "./assets/fotos/fotos_flora/Roble australiano.jpeg"
     },
     {
       "name": "Durazno comun",
@@ -2720,7 +2755,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 571,
-      "id": "FLO-036"
+      "id": "FLO-036",
+      "img": "./assets/fotos/fotos_flora/Durazno comun.jpg"
     },
     {
       "name": "Nogal, cedro nogal, cedro negro",
@@ -2730,7 +2766,8 @@
       "stratum": "Estrato dosel alto",
       "cat": 0,
       "count": 550,
-      "id": "FLO-037"
+      "id": "FLO-037",
+      "img": "./assets/fotos/fotos_flora/Nogal, cedro nogal, cedro negro.jpg"
     },
     {
       "name": "Sauce lloron",
@@ -2740,7 +2777,8 @@
       "stratum": "Estrato dosel ripario",
       "cat": 0,
       "count": 525,
-      "id": "FLO-038"
+      "id": "FLO-038",
+      "img": "./assets/fotos/fotos_flora/Sauce lloron.jpeg"
     },
     {
       "name": "Cedro, cedro andino, cedro clavel",
@@ -2750,7 +2788,8 @@
       "stratum": "Estrato dosel alto",
       "cat": 0,
       "count": 466,
-      "id": "FLO-039"
+      "id": "FLO-039",
+      "img": "./assets/fotos/fotos_flora/Cedro, cedro andino, cedro clavel.jpg"
     },
     {
       "name": "Espino, Garbancillo / Holly espinoso",
@@ -2760,7 +2799,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 661,
-      "id": "FLO-040"
+      "id": "FLO-040",
+      "img": "./assets/fotos/fotos_flora/Espino, Garbancillo.jpeg"
     },
     {
       "name": "Palma fenix",
@@ -2770,7 +2810,8 @@
       "stratum": "Estrato dosel alto",
       "cat": 0,
       "count": 424,
-      "id": "FLO-041"
+      "id": "FLO-041",
+      "img": "./assets/fotos/fotos_flora/Palma areca.jpeg"
     },
     {
       "name": "Schefflera, Pategallina hojipeque�a / Schefflera, Pategallina hojigrande",
@@ -2780,7 +2821,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 832,
-      "id": "FLO-042"
+      "id": "FLO-042",
+      "img": "./assets/fotos/fotos_flora/Schefflera, Pategallina hojigrande.jpg"
     },
     {
       "name": "Acacia morada",
@@ -2790,7 +2832,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 385,
-      "id": "FLO-043"
+      "id": "FLO-043",
+      "img": "./assets/fotos/fotos_flora/Acacia morada.jpg"
     },
     {
       "name": "Gaque",
@@ -2800,7 +2843,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 374,
-      "id": "FLO-044"
+      "id": "FLO-044",
+      "img": "./assets/fotos/fotos_flora/Gaque.jpeg"
     },
     {
       "name": "Ciro",
@@ -2810,7 +2854,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 372,
-      "id": "FLO-045"
+      "id": "FLO-045",
+      "img": "./assets/fotos/fotos_flora/Ciro.jpg"
     },
     {
       "name": "Duraznillo, velitas",
@@ -2820,7 +2865,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 364,
-      "id": "FLO-046"
+      "id": "FLO-046",
+      "img": "./assets/fotos/fotos_flora/Duraznillo, velitas.jpg"
     },
     {
       "name": "Caucho tequendama",
@@ -2830,7 +2876,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 348,
-      "id": "FLO-047"
+      "id": "FLO-047",
+      "img": "./assets/fotos/fotos_flora/Caucho.jpeg"
     },
     {
       "name": "Mano de oso",
@@ -2840,7 +2887,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 344,
-      "id": "FLO-048"
+      "id": "FLO-048",
+      "img": "./assets/fotos/fotos_flora/Mano de oso.jpeg"
     },
     {
       "name": "Alcaparro enano",
@@ -2850,7 +2898,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 343,
-      "id": "FLO-049"
+      "id": "FLO-049",
+      "img": "./assets/fotos/fotos_flora/Alcaparro enano.JPG"
     },
     {
       "name": "Lavanda",
@@ -2860,7 +2909,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 325,
-      "id": "FLO-050"
+      "id": "FLO-050",
+      "img": "./assets/fotos/fotos_flora/Lavanda.jpg"
     },
     {
       "name": "Sietecueros nazareno / Sietecueros real / Sietecueros plateado",
@@ -2870,7 +2920,8 @@
       "stratum": "Estrato dosel medio",
       "cat": 0,
       "count": 564,
-      "id": "FLO-051"
+      "id": "FLO-051",
+      "img": "./assets/fotos/fotos_flora/Sietecueros nazareno.jpg"
     },
     {
       "name": "Pino romeron",
@@ -2880,7 +2931,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 298,
-      "id": "FLO-052"
+      "id": "FLO-052",
+      "img": "./assets/fotos/fotos_flora/Pino romeron.jpeg"
     },
     {
       "name": "Dividivi de tierra fria",
@@ -2890,7 +2942,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 297,
-      "id": "FLO-053"
+      "id": "FLO-053",
+      "img": "./assets/fotos/fotos_flora/Mangle de tierra fria.jpeg"
     },
     {
       "name": "Alcaparro doble",
@@ -2900,7 +2953,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 266,
-      "id": "FLO-054"
+      "id": "FLO-054",
+      "img": "./assets/fotos/fotos_flora/Alcaparro enano.JPG"
     },
     {
       "name": "Feijoa",
@@ -2910,7 +2964,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 257,
-      "id": "FLO-055"
+      "id": "FLO-055",
+      "img": "./assets/fotos/fotos_flora/Feijoa.jpeg"
     },
     {
       "name": "Palma de yuca, Palma de bayoneta",
@@ -2920,7 +2975,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 256,
-      "id": "FLO-056"
+      "id": "FLO-056",
+      "img": "./assets/fotos/fotos_flora/Palma de cera, Palma de ramo.jpg"
     },
     {
       "name": "Chiripique",
@@ -2930,7 +2986,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 252,
-      "id": "FLO-057"
+      "id": "FLO-057",
+      "img": "./assets/fotos/fotos_flora/Chiripique.jpg"
     },
     {
       "name": "Pino p�tula",
@@ -2940,7 +2997,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 249,
-      "id": "FLO-058"
+      "id": "FLO-058",
+      "img": "./assets/fotos/fotos_flora/Pino.jpg"
     },
     {
       "name": "Naranjo",
@@ -2950,7 +3008,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 248,
-      "id": "FLO-059"
+      "id": "FLO-059",
+      "img": "./assets/fotos/fotos_flora/Naranjo.jpg"
     },
     {
       "name": "Sangregao, drago, croto",
@@ -2960,7 +3019,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 216,
-      "id": "FLO-060"
+      "id": "FLO-060",
+      "img": "./assets/fotos/fotos_flora/Sangregao, drago, croto.jpg"
     },
     {
       "name": "Caucho",
@@ -2970,7 +3030,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 211,
-      "id": "FLO-061"
+      "id": "FLO-061",
+      "img": "./assets/fotos/fotos_flora/Caucho de la india, caucho.jpeg"
     },
     {
       "name": "Caucho de la india, caucho",
@@ -2980,7 +3041,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 210,
-      "id": "FLO-062"
+      "id": "FLO-062",
+      "img": "./assets/fotos/fotos_flora/Caucho de la india, caucho.jpeg"
     },
     {
       "name": "Palma payanesa",
@@ -2990,7 +3052,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 200,
-      "id": "FLO-063"
+      "id": "FLO-063",
+      "img": "./assets/fotos/fotos_flora/Palma areca.jpeg"
     },
     {
       "name": "Garbancillo",
@@ -3000,7 +3063,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 198,
-      "id": "FLO-064"
+      "id": "FLO-064",
+      "img": "./assets/fotos/fotos_flora/Espino, Garbancillo.jpeg"
     },
     {
       "name": "Milflores",
@@ -3010,7 +3074,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 188,
-      "id": "FLO-065"
+      "id": "FLO-065",
+      "img": "./assets/fotos/fotos_flora/Moquillo.jpg"
     },
     {
       "name": "Higuerillo",
@@ -3020,7 +3085,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 187,
-      "id": "FLO-066"
+      "id": "FLO-066",
+      "img": "./assets/fotos/fotos_flora/Cedrillo.jpeg"
     },
     {
       "name": "Laurel de cera (hoja peque�a)",
@@ -3030,7 +3096,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 187,
-      "id": "FLO-067"
+      "id": "FLO-067",
+      "img": "./assets/fotos/fotos_flora/Laurel de cera.jpeg"
     },
     {
       "name": "Aguacate",
@@ -3040,7 +3107,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 177,
-      "id": "FLO-068"
+      "id": "FLO-068",
+      "img": "./assets/fotos/fotos_flora/Aguacate.jpg"
     },
     {
       "name": "Poligala",
@@ -3050,7 +3118,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 169,
-      "id": "FLO-069"
+      "id": "FLO-069",
+      "img": "./assets/fotos/fotos_flora/Poligala.jpeg"
     },
     {
       "name": "Brevo",
@@ -3060,7 +3129,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 168,
-      "id": "FLO-070"
+      "id": "FLO-070",
+      "img": "./assets/fotos/fotos_flora/Brevo.jpg"
     },
     {
       "name": "Palma Alejandra",
@@ -3070,7 +3140,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 158,
-      "id": "FLO-071"
+      "id": "FLO-071",
+      "img": "./assets/fotos/fotos_flora/Palma Alejandra.jpg"
     },
     {
       "name": "Cipr�s enano",
@@ -3080,7 +3151,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 145,
-      "id": "FLO-072"
+      "id": "FLO-072",
+      "img": "./assets/fotos/fotos_flora/Ciprés enano.jpeg"
     },
     {
       "name": "Cariseco",
@@ -3090,7 +3162,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 144,
-      "id": "FLO-073"
+      "id": "FLO-073",
+      "img": "./assets/fotos/fotos_flora/Cariseco, Tres hojas.jpg"
     },
     {
       "name": "Tabaquillo",
@@ -3100,7 +3173,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 141,
-      "id": "FLO-074"
+      "id": "FLO-074",
+      "img": "./assets/fotos/fotos_flora/Tabaquillo.jpg"
     },
     {
       "name": "Pino colombiano, pino de pacho, pino romer�n",
@@ -3110,7 +3184,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 132,
-      "id": "FLO-075"
+      "id": "FLO-075",
+      "img": "./assets/fotos/fotos_flora/Pino.jpg"
     },
     {
       "name": "Pajarito",
@@ -3120,7 +3195,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 129,
-      "id": "FLO-076"
+      "id": "FLO-076",
+      "img": "./assets/fotos/fotos_flora/Pajarito.jpeg"
     },
     {
       "name": "Palma de cera, Palma blanca",
@@ -3130,7 +3206,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 127,
-      "id": "FLO-077"
+      "id": "FLO-077",
+      "img": "./assets/fotos/fotos_flora/Palma de cera, Palma blanca.jpg"
     },
     {
       "name": "Garrocho",
@@ -3140,7 +3217,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 126,
-      "id": "FLO-078"
+      "id": "FLO-078",
+      "img": "./assets/fotos/fotos_flora/Garrocho.jpg"
     },
     {
       "name": "Sombrilla japonesa",
@@ -3150,7 +3228,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 125,
-      "id": "FLO-079"
+      "id": "FLO-079",
+      "img": "./assets/fotos/fotos_flora/Sombrilla japonesa.jpeg"
     },
     {
       "name": "Pino candelabro",
@@ -3160,7 +3239,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 123,
-      "id": "FLO-080"
+      "id": "FLO-080",
+      "img": "./assets/fotos/fotos_flora/Pino.jpg"
     },
     {
       "name": "Arrayan negro",
@@ -3170,7 +3250,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 122,
-      "id": "FLO-081"
+      "id": "FLO-081",
+      "img": "./assets/fotos/fotos_flora/Arrayan negro.jpg"
     },
     {
       "name": "Sangregado",
@@ -3180,7 +3261,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 121,
-      "id": "FLO-082"
+      "id": "FLO-082",
+      "img": "./assets/fotos/fotos_flora/Sangregado.jpg"
     },
     {
       "name": "Tibar, pagoda o rodamonte",
@@ -3190,7 +3272,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 120,
-      "id": "FLO-083"
+      "id": "FLO-083",
+      "img": "./assets/fotos/fotos_flora/Tibar, pagoda o rodamonte.jpeg"
     },
     {
       "name": "Cipres Japones, criptomeria / Cipres italiano",
@@ -3200,7 +3283,8 @@
       "stratum": "Estrato dosel alto",
       "cat": 0,
       "count": 274,
-      "id": "FLO-084"
+      "id": "FLO-084",
+      "img": "./assets/fotos/fotos_flora/Cipres italiano.jpg"
     },
     {
       "name": "Mandarina",
@@ -3210,7 +3294,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 120,
-      "id": "FLO-085"
+      "id": "FLO-085",
+      "img": "./assets/fotos/fotos_flora/Mandarina.jpg"
     },
     {
       "name": "Tinto",
@@ -3220,7 +3305,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 116,
-      "id": "FLO-086"
+      "id": "FLO-086",
+      "img": "./assets/fotos/fotos_flora/Tinto.jpeg"
     },
     {
       "name": "Lupinus",
@@ -3230,7 +3316,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 116,
-      "id": "FLO-087"
+      "id": "FLO-087",
+      "img": "./assets/fotos/fotos_flora/Lupinus.jpg"
     },
     {
       "name": "Mortillo",
@@ -3240,7 +3327,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 109,
-      "id": "FLO-088"
+      "id": "FLO-088",
+      "img": "./assets/fotos/fotos_flora/Mortiño.jpg"
     },
     {
       "name": "Tibar",
@@ -3250,7 +3338,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 107,
-      "id": "FLO-089"
+      "id": "FLO-089",
+      "img": "./assets/fotos/fotos_flora/Tibar, pagoda o rodamonte.jpeg"
     },
     {
       "name": "Nispero",
@@ -3260,7 +3349,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 100,
-      "id": "FLO-090"
+      "id": "FLO-090",
+      "img": "./assets/fotos/fotos_flora/Nispero.jpg"
     },
     {
       "name": "Palma coquito",
@@ -3270,7 +3360,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 97,
-      "id": "FLO-091"
+      "id": "FLO-091",
+      "img": "./assets/fotos/fotos_flora/Palma areca.jpeg"
     },
     {
       "name": "Guayabo",
@@ -3280,7 +3371,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 96,
-      "id": "FLO-092"
+      "id": "FLO-092",
+      "img": "./assets/fotos/fotos_flora/Guayabo de mico.jpeg"
     },
     {
       "name": "Guamo santafere�o",
@@ -3290,7 +3382,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 94,
-      "id": "FLO-093"
+      "id": "FLO-093",
+      "img": "./assets/fotos/fotos_flora/Guamo.jpg"
     },
     {
       "name": "Raque, San juanito",
@@ -3300,7 +3393,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 89,
-      "id": "FLO-094"
+      "id": "FLO-094",
+      "img": "./assets/fotos/fotos_flora/Raque, San juanito.jpeg"
     },
     {
       "name": "Laurel de cera",
@@ -3310,7 +3404,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 87,
-      "id": "FLO-095"
+      "id": "FLO-095",
+      "img": "./assets/fotos/fotos_flora/Laurel de cera (hoja pequeña).jpeg"
     },
     {
       "name": "Abelia",
@@ -3320,7 +3415,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 86,
-      "id": "FLO-096"
+      "id": "FLO-096",
+      "img": "./assets/fotos/fotos_flora/Abelia.jpg"
     },
     {
       "name": "Fucsia arbustiva",
@@ -3330,7 +3426,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 82,
-      "id": "FLO-097"
+      "id": "FLO-097",
+      "img": "./assets/fotos/fotos_flora/Fucsia boliviana.jpeg"
     },
     {
       "name": "Arboloco",
@@ -3340,7 +3437,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 81,
-      "id": "FLO-098"
+      "id": "FLO-098",
+      "img": "./assets/fotos/fotos_flora/Arboloco.jpg"
     },
     {
       "name": "Palma roebeleni",
@@ -3350,7 +3448,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 80,
-      "id": "FLO-099"
+      "id": "FLO-099",
+      "img": "./assets/fotos/fotos_flora/Palma areca.jpeg"
     },
     {
       "name": "Mermelada",
@@ -3360,7 +3459,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 74,
-      "id": "FLO-100"
+      "id": "FLO-100",
+      "img": "./assets/fotos/fotos_flora/Mermelada.jpg"
     },
     {
       "name": "Cedrillo, Yuco",
@@ -3370,7 +3470,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 72,
-      "id": "FLO-101"
+      "id": "FLO-101",
+      "img": "./assets/fotos/fotos_flora/Cedrillo, Yuco.jpeg"
     },
     {
       "name": "Endrino",
@@ -3380,7 +3481,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 71,
-      "id": "FLO-102"
+      "id": "FLO-102",
+      "img": "./assets/fotos/fotos_flora/Endrino.jpg"
     },
     {
       "name": "Acebo",
@@ -3390,7 +3492,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 70,
-      "id": "FLO-103"
+      "id": "FLO-103",
+      "img": "./assets/fotos/fotos_flora/Acebo.jpg"
     },
     {
       "name": "Chocho",
@@ -3400,7 +3503,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 67,
-      "id": "FLO-104"
+      "id": "FLO-104",
+      "img": "./assets/fotos/fotos_flora/Chocho.jpg"
     },
     {
       "name": "Magnolio",
@@ -3410,7 +3514,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 63,
-      "id": "FLO-105"
+      "id": "FLO-105",
+      "img": "./assets/fotos/fotos_flora/Magnolio.jpg"
     },
     {
       "name": "Baeckea",
@@ -3420,7 +3525,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 63,
-      "id": "FLO-106"
+      "id": "FLO-106",
+      "img": "./assets/fotos/fotos_flora/Baeckea.jpeg"
     },
     {
       "name": "Acacia",
@@ -3430,7 +3536,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 61,
-      "id": "FLO-107"
+      "id": "FLO-107",
+      "img": "./assets/fotos/fotos_flora/Acacia azul.jpg"
     },
     {
       "name": "Ciruelo",
@@ -3440,7 +3547,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 60,
-      "id": "FLO-108"
+      "id": "FLO-108",
+      "img": "./assets/fotos/fotos_flora/Cerezo, ciruelo.jpg"
     },
     {
       "name": "Cariseco, Tres hojas",
@@ -3450,7 +3558,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 58,
-      "id": "FLO-109"
+      "id": "FLO-109",
+      "img": "./assets/fotos/fotos_flora/Cariseco, Tres hojas.jpg"
     },
     {
       "name": "Borrachero blanco",
@@ -3460,7 +3569,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 58,
-      "id": "FLO-110"
+      "id": "FLO-110",
+      "img": "./assets/fotos/fotos_flora/Borrachero.jpg"
     },
     {
       "name": "Callistemo",
@@ -3470,7 +3580,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 58,
-      "id": "FLO-111"
+      "id": "FLO-111",
+      "img": "./assets/fotos/fotos_flora/Callistemo.jpeg"
     },
     {
       "name": "Tibar, tobo, rodamonte",
@@ -3480,7 +3591,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 57,
-      "id": "FLO-112"
+      "id": "FLO-112",
+      "img": "./assets/fotos/fotos_flora/Tibar, tobo, rodamonte.jpeg"
     },
     {
       "name": "Agracejo",
@@ -3490,7 +3602,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 54,
-      "id": "FLO-113"
+      "id": "FLO-113",
+      "img": "./assets/fotos/fotos_flora/Agracejo.jpeg"
     },
     {
       "name": "Limon",
@@ -3500,7 +3613,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 53,
-      "id": "FLO-114"
+      "id": "FLO-114",
+      "img": "./assets/fotos/fotos_flora/Limon.jpeg"
     },
     {
       "name": "Carbonero",
@@ -3510,7 +3624,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 53,
-      "id": "FLO-115"
+      "id": "FLO-115",
+      "img": "./assets/fotos/fotos_flora/Carbonero rojo.jpeg"
     },
     {
       "name": "Tuno esmeraldo",
@@ -3520,7 +3635,8 @@
       "stratum": "Estrato arbustivo",
       "cat": 0,
       "count": 53,
-      "id": "FLO-116"
+      "id": "FLO-116",
+      "img": "./assets/fotos/fotos_flora/Tuno esmeraldo.jpeg"
     },
     {
       "name": "Acacia de jardin",
@@ -3530,7 +3646,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 51,
-      "id": "FLO-117"
+      "id": "FLO-117",
+      "img": "./assets/fotos/fotos_flora/Acacia.jpeg"
     },
     {
       "name": "Gurrubo",
@@ -3540,7 +3657,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 49,
-      "id": "FLO-118"
+      "id": "FLO-118",
+      "img": "./assets/fotos/fotos_flora/Gurrubo.jpg"
     },
     {
       "name": "Arrayan",
@@ -3550,7 +3668,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 47,
-      "id": "FLO-119"
+      "id": "FLO-119",
+      "img": "./assets/fotos/fotos_flora/Arrayan blanco.jpeg"
     },
     {
       "name": "Rama negra",
@@ -3560,7 +3679,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 47,
-      "id": "FLO-120"
+      "id": "FLO-120",
+      "img": "./assets/fotos/fotos_flora/Rama negra.jpg"
     },
     {
       "name": "Papayuelo",
@@ -3570,7 +3690,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 46,
-      "id": "FLO-121"
+      "id": "FLO-121",
+      "img": "./assets/fotos/fotos_flora/Papayuela.jpeg"
     },
     {
       "name": "Amarrabollo",
@@ -3580,7 +3701,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 46,
-      "id": "FLO-122"
+      "id": "FLO-122",
+      "img": "./assets/fotos/fotos_flora/Amarrabollo.jpg"
     },
     {
       "name": "Curapin, Campanilla",
@@ -3590,7 +3712,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 46,
-      "id": "FLO-123"
+      "id": "FLO-123",
+      "img": "./assets/fotos/fotos_flora/Curapin, Campanilla.jpeg"
     },
     {
       "name": "Palma cinta",
@@ -3600,7 +3723,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 45,
-      "id": "FLO-124"
+      "id": "FLO-124",
+      "img": "./assets/fotos/fotos_flora/Palma de cera.jpg"
     },
     {
       "name": "Azara",
@@ -3610,7 +3734,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 45,
-      "id": "FLO-125"
+      "id": "FLO-125",
+      "img": "./assets/fotos/fotos_flora/Azara.jpeg"
     },
     {
       "name": "Ayer, hoy y ma�ana",
@@ -3620,7 +3745,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 43,
-      "id": "FLO-126"
+      "id": "FLO-126",
+      "img": "./assets/fotos/fotos_flora/Ayer, hoy y mañana.jpg"
     },
     {
       "name": "Pino colombiano, chaquiro",
@@ -3630,7 +3756,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 42,
-      "id": "FLO-127"
+      "id": "FLO-127",
+      "img": "./assets/fotos/fotos_flora/Pino colombiano, chaquiro.jpg"
     },
     {
       "name": "Guamo",
@@ -3640,7 +3767,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 42,
-      "id": "FLO-128"
+      "id": "FLO-128",
+      "img": "./assets/fotos/fotos_flora/Guamo.jpg"
     },
     {
       "name": "Venturosa",
@@ -3650,7 +3778,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 41,
-      "id": "FLO-129"
+      "id": "FLO-129",
+      "img": "./assets/fotos/fotos_flora/Rosa.jpg"
     },
     {
       "name": "Arbol de Te",
@@ -3660,7 +3789,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 40,
-      "id": "FLO-130"
+      "id": "FLO-130",
+      "img": "./assets/fotos/fotos_flora/Arbol de Te.jpg"
     },
     {
       "name": "Tibar, Rodamonte, Pagoda",
@@ -3670,7 +3800,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 39,
-      "id": "FLO-131"
+      "id": "FLO-131",
+      "img": "./assets/fotos/fotos_flora/Tibar, Rodamonte, Pagoda.jpeg"
     },
     {
       "name": "Grevilea",
@@ -3680,7 +3811,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 36,
-      "id": "FLO-132"
+      "id": "FLO-132",
+      "img": "./assets/fotos/fotos_flora/Grevilea.jpeg"
     },
     {
       "name": "Citrus spp.",
@@ -3690,7 +3822,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 33,
-      "id": "FLO-133"
+      "id": "FLO-133",
+      "img": "./assets/fotos/fotos_flora/Citrus spp..jpg"
     },
     {
       "name": "Mirto",
@@ -3700,7 +3833,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 33,
-      "id": "FLO-134"
+      "id": "FLO-134",
+      "img": "./assets/fotos/fotos_flora/Mirto.jpeg"
     },
     {
       "name": "Palma de cera",
@@ -3710,7 +3844,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 32,
-      "id": "FLO-135"
+      "id": "FLO-135",
+      "img": "./assets/fotos/fotos_flora/Palma de cera, Palma blanca.jpg"
     },
     {
       "name": "Trompeto",
@@ -3720,7 +3855,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 31,
-      "id": "FLO-136"
+      "id": "FLO-136",
+      "img": "./assets/fotos/fotos_flora/Trompeto.jpeg"
     },
     {
       "name": "Metrosideros",
@@ -3730,7 +3866,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 31,
-      "id": "FLO-137"
+      "id": "FLO-137",
+      "img": "./assets/fotos/fotos_flora/Metrosideros.jpeg"
     },
     {
       "name": "Fucsia boliviana",
@@ -3740,7 +3877,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 28,
-      "id": "FLO-138"
+      "id": "FLO-138",
+      "img": "./assets/fotos/fotos_flora/Fucsia boliviana.jpeg"
     },
     {
       "name": "Palma washingtoniana",
@@ -3750,7 +3888,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 27,
-      "id": "FLO-139"
+      "id": "FLO-139",
+      "img": "./assets/fotos/fotos_flora/Palma Alejandra.jpg"
     },
     {
       "name": "Arbol de hierro",
@@ -3760,7 +3899,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 27,
-      "id": "FLO-140"
+      "id": "FLO-140",
+      "img": "./assets/fotos/fotos_flora/Arbol de hierro.jpeg"
     },
     {
       "name": "Yarumo",
@@ -3770,7 +3910,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 27,
-      "id": "FLO-141"
+      "id": "FLO-141",
+      "img": "./assets/fotos/fotos_flora/Yarumo.jpg"
     },
     {
       "name": "Mimbre",
@@ -3780,7 +3921,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 25,
-      "id": "FLO-142"
+      "id": "FLO-142",
+      "img": "./assets/fotos/fotos_flora/Mimbre.jpg"
     },
     {
       "name": "Cucubo",
@@ -3790,7 +3932,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 24,
-      "id": "FLO-143"
+      "id": "FLO-143",
+      "img": "./assets/fotos/fotos_flora/Cucubo.jpeg"
     },
     {
       "name": "Azuceno, enebro",
@@ -3800,7 +3943,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 24,
-      "id": "FLO-144"
+      "id": "FLO-144",
+      "img": "./assets/fotos/fotos_flora/Azuceno, enebro.jpg"
     },
     {
       "name": "Raphiolepys",
@@ -3810,7 +3954,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 23,
-      "id": "FLO-145"
+      "id": "FLO-145",
+      "img": "./assets/fotos/fotos_flora/Raphiolepys.jpg"
     },
     {
       "name": "Carbonero rojo",
@@ -3820,7 +3965,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 22,
-      "id": "FLO-146"
+      "id": "FLO-146",
+      "img": "./assets/fotos/fotos_flora/Carbonero rojo.jpeg"
     },
     {
       "name": "Platano",
@@ -3830,7 +3976,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 22,
-      "id": "FLO-147"
+      "id": "FLO-147",
+      "img": "./assets/fotos/fotos_flora/Platano.jpg"
     },
     {
       "name": "Arbol de corcho",
@@ -3840,7 +3987,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 21,
-      "id": "FLO-148"
+      "id": "FLO-148",
+      "img": "./assets/fotos/fotos_flora/Arbol de corcho.jpeg"
     },
     {
       "name": "Siete Cueros peludo",
@@ -3850,7 +3998,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 21,
-      "id": "FLO-149"
+      "id": "FLO-149",
+      "img": "./assets/fotos/fotos_flora/Siete cueros.jpeg"
     },
     {
       "name": "Palma de cera, Palma de ramo",
@@ -3860,7 +4009,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 20,
-      "id": "FLO-150"
+      "id": "FLO-150",
+      "img": "./assets/fotos/fotos_flora/Palma de cera, Palma de ramo.jpg"
     },
     {
       "name": "Aligustre del Japon",
@@ -3870,7 +4020,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 20,
-      "id": "FLO-151"
+      "id": "FLO-151",
+      "img": "./assets/fotos/fotos_flora/Aligustre del Japon.jpg"
     },
     {
       "name": "Azalea",
@@ -3880,7 +4031,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 20,
-      "id": "FLO-152"
+      "id": "FLO-152",
+      "img": "./assets/fotos/fotos_flora/Azalea.jpeg"
     },
     {
       "name": "Pomarroso",
@@ -3890,7 +4042,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 18,
-      "id": "FLO-153"
+      "id": "FLO-153",
+      "img": "./assets/fotos/fotos_flora/Amargoso.jpg"
     },
     {
       "name": "Algodon extranjero",
@@ -3900,7 +4053,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 18,
-      "id": "FLO-154"
+      "id": "FLO-154",
+      "img": "./assets/fotos/fotos_flora/Algodon extranjero.jpg"
     },
     {
       "name": "Tibar extranjero",
@@ -3910,7 +4064,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 17,
-      "id": "FLO-155"
+      "id": "FLO-155",
+      "img": "./assets/fotos/fotos_flora/Tibar.jpeg"
     },
     {
       "name": "Lulo de perro",
@@ -3920,7 +4075,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 17,
-      "id": "FLO-156"
+      "id": "FLO-156",
+      "img": "./assets/fotos/fotos_flora/Lulo de perro.jpg"
     },
     {
       "name": "Cedrillo",
@@ -3930,7 +4086,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 16,
-      "id": "FLO-157"
+      "id": "FLO-157",
+      "img": "./assets/fotos/fotos_flora/Cedrillo, Yuco.jpeg"
     },
     {
       "name": "Tuno",
@@ -3940,7 +4097,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 16,
-      "id": "FLO-158"
+      "id": "FLO-158",
+      "img": "./assets/fotos/fotos_flora/Tuno esmeraldo.jpeg"
     },
     {
       "name": "Arbol de Fuego",
@@ -3950,7 +4108,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 16,
-      "id": "FLO-159"
+      "id": "FLO-159",
+      "img": "./assets/fotos/fotos_flora/Arbol de Te.jpg"
     },
     {
       "name": "Manzano",
@@ -3960,7 +4119,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 15,
-      "id": "FLO-160"
+      "id": "FLO-160",
+      "img": "./assets/fotos/fotos_flora/Manzano.jpg"
     },
     {
       "name": "Rosa",
@@ -3970,7 +4130,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 15,
-      "id": "FLO-161"
+      "id": "FLO-161",
+      "img": "./assets/fotos/fotos_flora/Rosa.jpg"
     },
     {
       "name": "Guayabo del peru",
@@ -3980,7 +4141,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 15,
-      "id": "FLO-162"
+      "id": "FLO-162",
+      "img": "./assets/fotos/fotos_flora/Guayabo.jpeg"
     },
     {
       "name": "Ceiba de tierra fria",
@@ -3990,7 +4152,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 15,
-      "id": "FLO-163"
+      "id": "FLO-163",
+      "img": "./assets/fotos/fotos_flora/Mangle de tierra fria.jpeg"
     },
     {
       "name": "Mulato",
@@ -4000,7 +4163,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 15,
-      "id": "FLO-164"
+      "id": "FLO-164",
+      "img": "./assets/fotos/fotos_flora/Mulato.jpeg"
     },
     {
       "name": "Gualanday",
@@ -4010,7 +4174,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 14,
-      "id": "FLO-165"
+      "id": "FLO-165",
+      "img": "./assets/fotos/fotos_flora/Gualanday.jpeg"
     },
     {
       "name": "Platano de tierra fria",
@@ -4020,7 +4185,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 14,
-      "id": "FLO-166"
+      "id": "FLO-166",
+      "img": "./assets/fotos/fotos_flora/Platano.jpg"
     },
     {
       "name": "Cafe",
@@ -4030,7 +4196,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 13,
-      "id": "FLO-167"
+      "id": "FLO-167",
+      "img": "./assets/fotos/fotos_flora/Cafe.jpg"
     },
     {
       "name": "Barbasco",
@@ -4040,7 +4207,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 13,
-      "id": "FLO-168"
+      "id": "FLO-168",
+      "img": "./assets/fotos/fotos_flora/Barbasco.jpg"
     },
     {
       "name": "Salvio negro",
@@ -4050,7 +4218,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 12,
-      "id": "FLO-169"
+      "id": "FLO-169",
+      "img": "./assets/fotos/fotos_flora/Salvio negro.jpeg"
     },
     {
       "name": "Tomatillo",
@@ -4060,7 +4229,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 11,
-      "id": "FLO-170"
+      "id": "FLO-170",
+      "img": "./assets/fotos/fotos_flora/Tomatillo.jpeg"
     },
     {
       "name": "Fotinia",
@@ -4070,7 +4240,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 11,
-      "id": "FLO-171"
+      "id": "FLO-171",
+      "img": "./assets/fotos/fotos_flora/Fotinia.jpg"
     },
     {
       "name": "Carbonero rosado",
@@ -4080,7 +4251,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 10,
-      "id": "FLO-172"
+      "id": "FLO-172",
+      "img": "./assets/fotos/fotos_flora/Carbonero.jpg"
     },
     {
       "name": "Acacia azul",
@@ -4090,7 +4262,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 10,
-      "id": "FLO-173"
+      "id": "FLO-173",
+      "img": "./assets/fotos/fotos_flora/Acacia azul.jpg"
     },
     {
       "name": "Duranta amarilla",
@@ -4100,7 +4273,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 10,
-      "id": "FLO-174"
+      "id": "FLO-174",
+      "img": "./assets/fotos/fotos_flora/Curapin, Campanilla.jpeg"
     },
     {
       "name": "Aloe arboreo",
@@ -4110,7 +4284,8 @@
       "stratum": "Estrato arbóreo",
       "cat": 0,
       "count": 9,
-      "id": "FLO-175"
+      "id": "FLO-175",
+      "img": "./assets/fotos/fotos_flora/Carbonero.jpg"
     },
     {
       "name": "Junco de estero",
@@ -4120,7 +4295,8 @@
       "stratum": "Estrato litoral",
       "cat": 0,
       "count": 500,
-      "id": "FLO-176"
+      "id": "FLO-176",
+      "img": "./assets/fotos/fotos_flora/Lulo de perro.jpg"
     },
     {
       "name": "Enea / Totora",
@@ -4130,7 +4306,8 @@
       "stratum": "Estrato litoral",
       "cat": 0,
       "count": 500,
-      "id": "FLO-177"
+      "id": "FLO-177",
+      "img": "./assets/fotos/fotos_flora/Enea / Totora.jpg"
     },
     {
       "name": "Buchón de agua",
@@ -4140,7 +4317,8 @@
       "stratum": "Estrato espejo de agua",
       "cat": 0,
       "count": 500,
-      "id": "FLO-178"
+      "id": "FLO-178",
+      "img": "./assets/fotos/fotos_flora/Buchón de agua.jpg"
     },
     {
       "name": "Lenteja de agua",
@@ -4150,7 +4328,8 @@
       "stratum": "Estrato espejo de agua",
       "cat": 0,
       "count": 500,
-      "id": "FLO-179"
+      "id": "FLO-179",
+      "img": "./assets/fotos/fotos_flora/Lenteja de agua.jpg"
     },
     {
       "name": "Botoncillo de humedal",
@@ -4160,7 +4339,8 @@
       "stratum": "Estrato ribereño",
       "cat": 0,
       "count": 500,
-      "id": "FLO-180"
+      "id": "FLO-180",
+      "img": "./assets/fotos/fotos_flora/Botoncillo de humedal.jpg"
     },
     {
       "name": "Curuba silvestre",
@@ -4170,7 +4350,8 @@
       "stratum": "Estrato trepador",
       "cat": 0,
       "count": 500,
-      "id": "FLO-181"
+      "id": "FLO-181",
+      "img": "./assets/fotos/fotos_flora/Curuba silvestre.jpg"
     }
   ]
 }

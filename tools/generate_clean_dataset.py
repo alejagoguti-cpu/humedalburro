@@ -1,4 +1,4 @@
-import json, csv, collections, re
+import json, csv, collections, os, difflib
 
 # 1. Load and deduplicate Aves
 with open('tools/compiled_aves.json', 'r', encoding='utf-8') as f:
@@ -143,13 +143,35 @@ for name, sci, fam, role, strat in macrophytes:
             "count": 500
         }
 
+flora_photos = os.listdir(r'assets\fotos\fotos_flora') if os.path.exists(r'assets\fotos\fotos_flora') else []
 flora_nodes = list(merged_flora.values())
 for i, f in enumerate(flora_nodes, 1):
     f["id"] = f"FLO-{i:03d}"
+    
+    # Match photo
+    name = f['name']
+    sci = f['sciname']
+    found = None
+    for p in flora_photos:
+        p_base = os.path.splitext(p)[0].lower()
+        if name.lower() in p_base or p_base in name.lower() or sci.lower() in p_base:
+            found = p
+            break
+    if not found:
+        close = difflib.get_close_matches(name.lower(), [os.path.splitext(p)[0].lower() for p in flora_photos], n=1, cutoff=0.55)
+        if close:
+            for p in flora_photos:
+                if os.path.splitext(p)[0].lower() == close[0]:
+                    found = p
+                    break
+    if found:
+        f['img'] = f'./assets/fotos/fotos_flora/{found}'
+    else:
+        f['img'] = f'./assets/fotos/fotos_flora/{name}.jpg'
 
 print(f"Total strictly unique Flora species: {len(flora_nodes)}")
 
 with open('tools/clean_dataset_aves_flora.json', 'w', encoding='utf-8') as f:
     json.dump({"aves": aves_list, "flora": flora_nodes}, f, ensure_ascii=False, indent=2)
 
-print("Saved perfectly deduplicated dataset to tools/clean_dataset_aves_flora.json.")
+print("Saved clean dataset with matched flora photos.")

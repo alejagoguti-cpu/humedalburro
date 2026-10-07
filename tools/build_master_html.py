@@ -4,7 +4,6 @@ html_content = """<!DOCTYPE html>
 <html lang="es">
 <head>
 <script>
-// Manejador seguro de errores globales (ignora falsos positivos de CORS / extensiones)
 window.onerror = function(msg, url, line, col, error) {
   if (typeof msg === 'string' && (msg.includes('ResizeObserver') || msg.includes('Script error.') || msg.includes('favicon'))) {
     return false;
@@ -55,7 +54,7 @@ window.onerror = function(msg, url, line, col, error) {
     --tangerine: #F79E70;
     --ink: #f1f5f9;
     --ink-dim: #94a3b8;
-    --glass-bg: rgba(6, 9, 15, 0.92);
+    --glass-bg: rgba(6, 9, 15, 0.94);
     --glass-border: rgba(255, 255, 255, 0.12);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -98,7 +97,7 @@ window.onerror = function(msg, url, line, col, error) {
 
   /* Left Side Drawer (Convenciones Activas & Filtros) */
   .side-drawer {
-    position: absolute; top: 88px; left: 16px; width: 280px; max-height: calc(100vh - 200px);
+    position: absolute; top: 88px; left: 16px; width: 280px; max-height: calc(100vh - 190px);
     overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px;
   }
   .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); display: flex; align-items: center; justify-content: space-between; }
@@ -188,14 +187,14 @@ window.onerror = function(msg, url, line, col, error) {
     box-shadow: 0 12px 32px rgba(46, 139, 87, 0.35);
   }
 
-  /* Pop-up Modal Específico para Clic */
+  /* Pop-up Modals */
   .species-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.78); backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(8px);
     display: none; align-items: center; justify-content: center; z-index: 1000;
   }
   .species-modal-card {
-    width: min(480px, 92vw); background: #0b1019; border: 1px solid rgba(255,255,255,0.18);
+    width: min(500px, 92vw); background: #0b1019; border: 1px solid rgba(255,255,255,0.18);
     border-radius: 16px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.9);
     display: flex; flex-direction: column; animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -219,11 +218,55 @@ window.onerror = function(msg, url, line, col, error) {
   }
   .modal-link-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
 
+  /* MATRIZ DE TORTAS & EVIDENCIA MODAL (Exacto al requerimiento) */
+  .pie-modal-card {
+    width: min(1180px, 95vw); max-height: 90vh; overflow-y: auto;
+    background: #080c14; border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 18px; padding: 24px; box-shadow: 0 30px 80px rgba(0,0,0,0.95);
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .pie-modal-header { display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; }
+  .pie-modal-title { font-size: 17px; font-weight: 900; color: #84A48B; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px; }
+  .pie-modal-sub { font-size: 11.5px; color: var(--ink-dim); margin-top: 4px; }
+  
+  .btn-explore-3d {
+    background: rgba(255, 255, 255, 0.08); border: 1px solid var(--accent); color: #ffffff;
+    padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+  }
+  .btn-explore-3d:hover { background: var(--accent); color: #000000; box-shadow: 0 0 16px var(--accent-glow); }
+
+  .pie-cards-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px;
+  }
+  .pie-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .pie-card-title { font-size: 13px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .pie-card-desc { font-size: 11px; color: var(--ink-dim); line-height: 1.4; }
+  
+  .pie-chart-wrapper {
+    display: flex; justify-content: center; align-items: center; padding: 12px 0;
+  }
+  .pie-svg-container { width: 160px; height: 160px; }
+
+  .pie-legend-list { display: flex; flex-direction: column; gap: 6px; }
+  .pie-legend-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.03); padding: 7px 10px; border-radius: 6px;
+    font-size: 11px; text-decoration: none; color: var(--ink); transition: all 0.2s;
+  }
+  .pie-legend-item.clickable:hover { background: rgba(132,164,139,0.15); border: 1px solid var(--accent); transform: translateX(3px); }
+  .pie-legend-item-left { display: flex; align-items: center; gap: 8px; }
+  .pie-legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .pie-legend-percent { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+
   /* Loading Veil */
   #loadingVeil {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 16px; z-index: 9999; transition: opacity 0.6s ease;
+    gap: 16px; z-index: 9999; transition: opacity 0.4s ease; pointer-events: none;
   }
   .spinner-circle {
     width: 44px; height: 44px; border: 3px solid rgba(132, 164, 139, 0.2);
@@ -238,7 +281,6 @@ window.onerror = function(msg, url, line, col, error) {
   }
   #activeTreeChip.show { display: flex; }
 </style>
-<!-- Dependencias Three.js & OrbitControls -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
@@ -247,7 +289,7 @@ window.onerror = function(msg, url, line, col, error) {
 <div id="loadingVeil">
   <div class="spinner-circle"></div>
   <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:1px;">
-    COMPILANDO RED BIÓTICA & ARBOLADO KENNEDY...
+    SISTEMA SOCIOECOLÓGICO DE KENNEDY...
   </div>
 </div>
 
@@ -260,9 +302,13 @@ window.onerror = function(msg, url, line, col, error) {
       <i class="fa-solid fa-network-wired" style="color:var(--accent);"></i>
       <span>SISTEMA SOCIOECOLÓGICO DE KENNEDY</span>
     </div>
-    <span class="badge-pma">PMA • JBB • EBIRD</span>
+    <span class="badge-pma">PMA • JBB • EBIRD • INATURALIST</span>
   </div>
   <div class="header-controls">
+    <button class="btn-hdr" onclick="openPieChartsModal()">
+      <i class="fa-solid fa-chart-pie" style="color:var(--gold);"></i>
+      <span>METRÍCAS & EVIDENCIA</span>
+    </button>
     <button class="btn-hdr" id="btnTourSpecies">
       <i class="fa-solid fa-compass"></i>
       <span>TOUR ESPECIES</span>
@@ -283,7 +329,7 @@ window.onerror = function(msg, url, line, col, error) {
   <div class="cat-toggles-grid">
     <div class="cat-toggle active" data-cat="0" style="color:#84A48B;">
       <div class="cat-toggle-left"><div class="cat-dot" style="background:#84A48B;"></div><span>Flora & Árboles SIGAU</span></div>
-      <span class="cat-count">126 taxones</span>
+      <span class="cat-count">181 taxones</span>
     </div>
     <div class="cat-toggle active" data-cat="1" style="color:#F79E70;">
       <div class="cat-toggle-left"><div class="cat-dot" style="background:#F79E70;"></div><span>Aves de Kennedy</span></div>
@@ -421,6 +467,130 @@ window.onerror = function(msg, url, line, col, error) {
   </div>
 </div>
 
+<!-- Modal Completo de Métricas Ecológicas y Matriz de Evidencia (3 Tortas Interactivas) -->
+<div class="species-modal-overlay" id="pieChartsModalOverlay">
+  <div class="pie-modal-card">
+    <div class="pie-modal-header">
+      <div>
+        <div class="pie-modal-title">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>SISTEMA SOCIOECOLÓGICO DE KENNEDY — METRÍCAS ECOLÓGICAS Y MATRIZ DE EVIDENCIA</span>
+        </div>
+        <div class="pie-modal-sub">
+          Distribución funcional, composición taxonómica y respaldo técnico del modelo (451 taxones únicos censados)
+        </div>
+      </div>
+      <button class="btn-explore-3d" onclick="closePieChartsModal()">
+        <span>Explorar Red 3D</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+
+    <div class="pie-cards-grid">
+      <!-- 1. Torta A -->
+      <div class="pie-card">
+        <div class="pie-card-title">
+          <span>1. TORTA A: DISTRIBUCIÓN POR TIPOS DE INTERACCIÓN BIÓTICA</span>
+        </div>
+        <div class="pie-card-desc">
+          Representa cómo se distribuyen las relaciones funcionales registradas en la red socioecológica de Kennedy.
+        </div>
+        <div class="pie-chart-wrapper">
+          <svg class="pie-svg-container" id="pieSvgA" viewBox="0 0 160 160"></svg>
+        </div>
+        <div class="pie-legend-list">
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#A386A9;"></div><span>Visita Floral / Polinización</span></div>
+            <span class="pie-legend-percent" style="color:#A386A9;">39.18%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#84A48B;"></div><span>Herbivoría Parcial</span></div>
+            <span class="pie-legend-percent" style="color:#84A48B;">31.58%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#F79E70;"></div><span>Nidificación y Refugio</span></div>
+            <span class="pie-legend-percent" style="color:#F79E70;">7.44%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#E69888;"></div><span>Dispersión de Semillas</span></div>
+            <span class="pie-legend-percent" style="color:#E69888;">4.88%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#C96349;"></div><span>Parasitismo / Depredación / Epibiosis</span></div>
+            <span class="pie-legend-percent" style="color:#C96349;">16.92%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Torta B -->
+      <div class="pie-card">
+        <div class="pie-card-title">
+          <span>🌿 2. TORTA B: COMPOSICIÓN POR REINOS TAXONÓMICOS</span>
+        </div>
+        <div class="pie-card-desc">
+          Muestra el peso proporcional de los reinos biológicos y componentes en la matriz ambiental.
+        </div>
+        <div class="pie-chart-wrapper">
+          <svg class="pie-svg-container" id="pieSvgB" viewBox="0 0 160 160"></svg>
+        </div>
+        <div class="pie-legend-list">
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#84A48B;"></div><span>Plantae (Flora Nativa e Invasora / SIGAU)</span></div>
+            <span class="pie-legend-percent" style="color:#84A48B;">59.5%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#F79E70;"></div><span>Animalia (Avifauna, Herpetos, MAM)</span></div>
+            <span class="pie-legend-percent" style="color:#F79E70;">30.4%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#A386A9;"></div><span>Fungi (Hongos y Micorrizas)</span></div>
+            <span class="pie-legend-percent" style="color:#A386A9;">7.0%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#E7C878;"></div><span>Bacterias y Protistas (Biofiltro)</span></div>
+            <span class="pie-legend-percent" style="color:#E7C878;">3.1%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Torta C -->
+      <div class="pie-card">
+        <div class="pie-card-title">
+          <span>📜 3. TORTA C: ORIGEN Y SOPORTE DE FUENTES DE EVIDENCIA</span>
+        </div>
+        <div class="pie-card-desc">
+          Demuestra el respaldo técnico del modelo a partir del origen del dato (Toca cada fuente para ir al portal científico):
+        </div>
+        <div class="pie-chart-wrapper">
+          <svg class="pie-svg-container" id="pieSvgC" viewBox="0 0 160 160"></svg>
+        </div>
+        <div class="pie-legend-list">
+          <a href="https://jbb.gov.co/generacion-de-conocimiento/pedh-el-burro/" target="_blank" class="pie-legend-item clickable">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#84A48B;"></div><span>Artículos Científicos & PEDH El Burro</span></div>
+            <span class="pie-legend-percent" style="color:#84A48B;">36.1% ↗</span>
+          </a>
+          <a href="https://www.inaturalist.org/observations?captive=false&nelat=4.645227988012021&nelng=-74.14909601914505&subview=table&swlat=4.6409505371905535&swlng=-74.15227175461868&iconic_taxa=Protozoa,Fungi,Plantae,Insecta,Arachnida,Aves,Amphibia,Reptilia,Mammalia,Actinopterygii,Mollusca" target="_blank" class="pie-legend-item clickable">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#E7C878;"></div><span>Registros de Campo iNaturalist Kennedy</span></div>
+            <span class="pie-legend-percent" style="color:#E7C878;">25.8% ↗</span>
+          </a>
+          <a href="https://redbiotica.jbb.gov.co/" target="_blank" class="pie-legend-item clickable">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#A386A9;"></div><span>Colecciones y Censo SIGAU / Red Biótica</span></div>
+            <span class="pie-legend-percent" style="color:#A386A9;">23.4% ↗</span>
+          </a>
+          <a href="https://ebird.org/region/CO/hotspots" target="_blank" class="pie-legend-item clickable">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#F79E70;"></div><span>Literatura Gris / eBird Hotspots</span></div>
+            <span class="pie-legend-percent" style="color:#F79E70;">9.7% ↗</span>
+          </a>
+          <a href="https://www.gbif.org/" target="_blank" class="pie-legend-item clickable">
+            <div class="pie-legend-item-left"><div class="pie-legend-dot" style="background:#6B9080;"></div><span>Libros y Ciencia Participativa GBIF</span></div>
+            <span class="pie-legend-percent" style="color:#6B9080;">5.0% ↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Welcome Manifiesto Modal -->
 <div class="species-modal-overlay" id="welcomeModalOverlay">
   <div class="species-modal-card" style="max-width:540px;">
@@ -431,17 +601,22 @@ window.onerror = function(msg, url, line, col, error) {
       </div>
       <p style="font-size:11.5px; line-height:1.6; color:#cbd5e1;">
         Plataforma geoespacial e interactiva de visualización de la biodiversidad urbana en la Localidad de Kennedy (Bogotá D.C.). 
-        Integra <b>396 taxones únicos</b> catalogados según el censo del Jardín Botánico de Bogotá (JBB / SIGAU), 
+        Integra <b>451 taxones únicos</b> catalogados según el censo del Jardín Botánico de Bogotá (JBB / SIGAU), 
         los inventarios de avifauna eBird/iNaturalist y la cartografía ambiental de los humedales El Burro, La Vaca, Techo y Meandro del Say.
       </p>
       <div style="background:rgba(255,255,255,0.04); border-radius:10px; padding:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
-        <div>🌱 <b>Red Biótica</b>: Muestra las relaciones de polinización, dispersión, nidificación y parasitismo.</div>
-        <div>🗺️ <b>Territorio 3D</b>: Axonometría de Kennedy con 30,000+ árboles y edificios georreferenciados.</div>
-        <div>🔍 <b>Interacción Total</b>: Pasa el cursor para ver la ficha flotante o haz clic para ver fotos y enlaces científicos.</div>
+        <div>🌱 <b>Red Biótica Respirando</b>: Relaciones vivas y armónicas de polinización, dispersión, nidificación y parasitismo.</div>
+        <div>🗺️ <b>Territorio 3D</b>: Axonometría de Kennedy con árboles y edificaciones georreferenciadas.</div>
+        <div>📊 <b>Matriz de Evidencia</b>: Tortas y gráficos de validación científica con enlaces directos a iNaturalist, GBIF y JBB.</div>
       </div>
-      <button class="btn-materialize" style="width:100%; justify-content:center; margin-top:4px;" onclick="closeWelcomeModal()">
-        EXPLORAR SISTEMA
-      </button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-materialize" style="flex:1; justify-content:center;" onclick="closeWelcomeModal()">
+          EXPLORAR RED 3D
+        </button>
+        <button class="btn-hdr" style="padding:9px 16px;" onclick="closeWelcomeModal(); openPieChartsModal();">
+          VER TORTAS
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -457,4 +632,4 @@ with open("modulo-11-garden.html", "w", encoding="utf-8") as f:
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print("Synchronized modulo-11-garden.html and index.html successfully.")
+print("Synchronized modulo-11-garden.html and index.html with evidence pie charts modal.")

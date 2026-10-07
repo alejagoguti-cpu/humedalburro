@@ -29,10 +29,6 @@
   const labelSwarm = document.getElementById("labelSwarm");
   const labelTerritory = document.getElementById("labelTerritory");
 
-  const camInspectorBox = document.getElementById("camInspectorBox");
-  const camPosVal = document.getElementById("camPosVal");
-  const camTgtVal = document.getElementById("camTgtVal");
-
   const activeTreeChip = document.getElementById("activeTreeChip");
   const activeTreeName = document.getElementById("activeTreeName");
   const activeTreeCount = document.getElementById("activeTreeCount");
@@ -40,6 +36,7 @@
   const territoryTooltip = document.getElementById("territorySpeciesTooltip");
   const territoryModal = document.getElementById("territorySpeciesModal");
   const treeTooltip = document.getElementById("treeHoverTooltip");
+  const pieChartsModal = document.getElementById("pieChartsModalOverlay");
 
   // ---- Three.js Core Objects ----
   let scene = null;
@@ -90,10 +87,6 @@
   const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const groundIntersection = new THREE.Vector3();
 
-  let selectedNode = null;
-  let hoveredNode = null;
-  let soundActive = false;
-  let audioCtx = null;
   let tourActive = false;
   let tourTimer = null;
   let currentTourIndex = 0;
@@ -136,6 +129,13 @@
     4: { name: "Anfibios", color: "#00B4D8", hex: 0x00B4D8, icon: "fa-frog" },
     5: { name: "Reptiles", color: "#C96349", hex: 0xC96349, icon: "fa-dragon" }
   };
+
+  function hideVeil() {
+    if (loadingVeil) {
+      loadingVeil.style.opacity = "0";
+      setTimeout(() => { loadingVeil.style.display = "none"; }, 400);
+    }
+  }
 
   // Spatial Grid Helper for 3D Tree Hover Tooltip
   function getSpatialKey(gx, gz) {
@@ -739,28 +739,26 @@
     createEdgeLinesMesh();
     buildTerritorySpeciesBeacons();
 
-    // Cargar datos geográficos de Kennedy
+    // Iniciar render loop y ocultar velo de carga de inmediato
+    hideVeil();
+
+    // Cargar datos geográficos de Kennedy en segundo plano
     Promise.all([
       loadBuildings(),
       loadTrees(),
       loadWaterBodies()
     ]).then(() => {
       createParticleSystem();
-      if (loadingVeil) {
-        loadingVeil.style.opacity = "0";
-        setTimeout(() => { loadingVeil.style.display = "none"; }, 600);
-      }
+      hideVeil();
     }).catch(err => {
       console.warn("Non-fatal loading warning:", err);
       createParticleSystem();
-      if (loadingVeil) {
-        loadingVeil.style.opacity = "0";
-        setTimeout(() => { loadingVeil.style.display = "none"; }, 600);
-      }
+      hideVeil();
     });
 
     setupEventListeners();
     updateWaypointsBar();
+    renderPieCharts();
   }
 
   // Setup Layouts de la Red
@@ -836,7 +834,7 @@
 
       const targetPos = getNodeTargetPos(n);
       sprite.position.copy(targetPos);
-      sprite.userData = { taxonData: n, baseScale: baseScale };
+      sprite.userData = { taxonData: n, baseScale: baseScale, basePos: targetPos.clone(), index: idx };
 
       nodeSprites.push(sprite);
       networkGroup.add(sprite);
@@ -870,7 +868,7 @@
     edgeMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.32,
+      opacity: 0.35,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
@@ -1276,7 +1274,6 @@
       });
     }
 
-    // Close Modal on Background Click
     if (territoryModal) {
       territoryModal.addEventListener("click", (e) => {
         if (e.target === territoryModal) territoryModal.style.display = "none";
@@ -1338,7 +1335,7 @@
 
     // Pointer Down for Pop-up Modals
     window.addEventListener("pointerdown", (e) => {
-      if (e.target.closest(".glass-panel") || e.target.closest("#territorySpeciesModal") || e.target.closest(".welcome-modal") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#activeTreeChip")) return;
+      if (e.target.closest(".glass-panel") || e.target.closest("#territorySpeciesModal") || e.target.closest("#pieChartsModalOverlay") || e.target.closest(".welcome-modal") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#activeTreeChip")) return;
 
       mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -1389,12 +1386,13 @@
   }
 
   // =====================================================================
-  // 11. BUCLE DE ANIMACIÓN
+  // 11. BUCLE DE ANIMACIÓN VIVA (Red Respirando y Oscilaciones Armónicas)
   // =====================================================================
   function animate() {
     requestAnimationFrame(animate);
     const elapsedTime = clock.getElapsedTime();
 
+    // Metamorfosis Suave
     if (Math.abs(currentMorph - targetMorph) > 0.001) {
       currentMorph += (targetMorph - currentMorph) * 0.08;
       if (slider) slider.value = currentMorph;
@@ -1407,14 +1405,148 @@
       particleMat.uniforms.uTime.value = elapsedTime;
     }
 
-    // Billboard effect
-    if (camera) {
-      nodeSprites.forEach(sp => sp.quaternion.copy(camera.quaternion));
-      territoryBeacons.forEach(sp => sp.quaternion.copy(camera.quaternion));
+    // Respiración Orgánica y Ondulación Dinámica de la Red Biótica
+    if (currentMorph < 0.6) {
+      const netMorphFactor = 1.0 - currentMorph;
+      nodeSprites.forEach((sp, idx) => {
+        const n = sp.userData.taxonData;
+        if (!n || !n.active) {
+          sp.visible = false;
+          return;
+        }
+        sp.visible = true;
+
+        // Pulso Armónico de Respiración
+        const breathe = 1.0 + Math.sin(elapsedTime * 2.4 + idx * 0.2) * 0.14 + Math.cos(elapsedTime * 1.2 + (n.degree || 1) * 0.3) * 0.06;
+        const dynamicScale = sp.userData.baseScale * breathe;
+        sp.scale.set(dynamicScale, dynamicScale, 1.0);
+
+        // Ondulación Flotante en el Espacio
+        if (sp.userData.basePos) {
+          const waveY = Math.sin(elapsedTime * 1.5 + idx * 0.35) * 1.2 * netMorphFactor;
+          const waveX = Math.cos(elapsedTime * 1.0 + idx * 0.25) * 0.8 * netMorphFactor;
+          sp.position.set(
+            sp.userData.basePos.x + waveX,
+            sp.userData.basePos.y + waveY,
+            sp.userData.basePos.z
+          );
+        }
+
+        if (camera) sp.quaternion.copy(camera.quaternion);
+      });
+
+      // Respiración Luminous Glow de las Líneas de Interacción
+      if (edgeMat) {
+        edgeMat.opacity = (0.28 + Math.sin(elapsedTime * 3.2) * 0.12) * netMorphFactor;
+      }
+
+      // Rotación Suave y Órbitas Vivas
+      if (opts.autoRotate) {
+        networkGroup.rotation.y = elapsedTime * 0.025;
+        networkGroup.rotation.x = Math.sin(elapsedTime * 0.3) * 0.035;
+      }
+    } else {
+      networkGroup.rotation.set(0, 0, 0);
+    }
+
+    // Balizas Territoriales
+    if (territoryBeaconsGroup && territoryBeaconsGroup.visible && camera) {
+      territoryBeacons.forEach(sp => {
+        sp.quaternion.copy(camera.quaternion);
+      });
     }
 
     if (controls) controls.update();
     if (renderer && scene && camera) renderer.render(scene, camera);
+  }
+
+  // =====================================================================
+  // 12. GENERACIÓN Y RENDERIZADO DE TORTAS (PIE CHARTS DE EVIDENCIA)
+  // =====================================================================
+  function renderPieCharts() {
+    function drawSvgPie(svgId, slices) {
+      const svg = document.getElementById(svgId);
+      if (!svg) return;
+      svg.innerHTML = "";
+
+      let cumulativePercent = 0;
+      const cx = 80, cy = 80, r = 68;
+
+      function getCoordinatesForPercent(percent) {
+        const x = cx + r * Math.cos(2 * Math.PI * percent - Math.PI / 2);
+        const y = cy + r * Math.sin(2 * Math.PI * percent - Math.PI / 2);
+        return [x, y];
+      }
+
+      slices.forEach(slice => {
+        const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
+        cumulativePercent += slice.percent;
+        const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
+        const largeArcFlag = slice.percent > 0.5 ? 1 : 0;
+
+        const pathData = [
+          `M ${cx} ${cy}`,
+          `L ${startX} ${startY}`,
+          `A ${r} ${r} 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+          'Z'
+        ].join(' ');
+
+        const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathEl.setAttribute('d', pathData);
+        pathEl.setAttribute('fill', slice.color);
+        pathEl.setAttribute('stroke', '#06090f');
+        pathEl.setAttribute('stroke-width', '2.5');
+        pathEl.style.transition = 'all 0.3s ease';
+        pathEl.style.cursor = 'pointer';
+
+        pathEl.addEventListener('mouseenter', () => {
+          pathEl.setAttribute('stroke', '#ffffff');
+          pathEl.setAttribute('stroke-width', '4');
+        });
+        pathEl.addEventListener('mouseleave', () => {
+          pathEl.setAttribute('stroke', '#06090f');
+          pathEl.setAttribute('stroke-width', '2.5');
+        });
+
+        svg.appendChild(pathEl);
+      });
+
+      // Donut Center Hole
+      const innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      innerCircle.setAttribute('cx', cx);
+      innerCircle.setAttribute('cy', cy);
+      innerCircle.setAttribute('r', '32');
+      innerCircle.setAttribute('fill', '#06090f');
+      innerCircle.setAttribute('stroke', 'rgba(255,255,255,0.12)');
+      innerCircle.setAttribute('stroke-width', '1.5');
+      svg.appendChild(innerCircle);
+    }
+
+    // Torta A: Interacciones Bióticas
+    drawSvgPie('pieSvgA', [
+      { percent: 0.3918, color: '#A386A9', name: 'Polinización' },
+      { percent: 0.3158, color: '#84A48B', name: 'Herbivoría Parcial' },
+      { percent: 0.0744, color: '#F79E70', name: 'Nidificación y Refugio' },
+      { percent: 0.0488, color: '#E69888', name: 'Dispersión de Semillas' },
+      { percent: 0.1692, color: '#C96349', name: 'Parasitismo / Depredación' }
+    ]);
+
+    // Torta B: Reinos Taxonómicos
+    drawSvgPie('pieSvgB', [
+      { percent: 0.595, color: '#84A48B', name: 'Plantae (Flora & Arbolado)' },
+      { percent: 0.304, color: '#F79E70', name: 'Animalia (Aves & Fauna)' },
+      { percent: 0.070, color: '#A386A9', name: 'Fungi (Micorrizas)' },
+      { percent: 0.031, color: '#E7C878', name: 'Bacterias y Protistas' }
+    ]);
+
+    // Torta C: Fuentes de Evidencia
+    drawSvgPie('pieSvgC', [
+      { percent: 0.361, color: '#84A48B', name: 'Artículos Científicos & PEDH' },
+      { percent: 0.258, color: '#E7C878', name: 'iNaturalist Kennedy' },
+      { percent: 0.234, color: '#A386A9', name: 'Censo Forestal SIGAU / JBB' },
+      { percent: 0.097, color: '#F79E70', name: 'eBird Hotspots' },
+      { percent: 0.050, color: '#6B9080', name: 'GBIF Biodiversidad' }
+    ]);
   }
 
   // Global Helpers for UI
@@ -1428,6 +1560,19 @@
     if (modal) modal.style.display = 'none';
   };
 
+  window.openPieChartsModal = () => {
+    const modal = document.getElementById('pieChartsModalOverlay');
+    if (modal) {
+      modal.style.display = 'flex';
+      renderPieCharts();
+    }
+  };
+
+  window.closePieChartsModal = () => {
+    const modal = document.getElementById('pieChartsModalOverlay');
+    if (modal) modal.style.display = 'none';
+  };
+
   window.setRedLayout = (layoutName) => {
     opts.layout = layoutName;
     document.querySelectorAll('.layout-pill').forEach(p => p.classList.remove('active'));
@@ -1437,13 +1582,18 @@
     rawNodes.forEach((n, idx) => {
       const targetPos = getNodeTargetPos(n);
       if (nodeSprites[idx]) {
+        nodeSprites[idx].userData.basePos = targetPos.clone();
         nodeSprites[idx].position.copy(targetPos);
       }
     });
     createEdgeLinesMesh();
   };
 
-  // Iniciar escena
-  window.addEventListener("DOMContentLoaded", initScene);
+  // Arranque Seguro Inmediato
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initScene);
+  } else {
+    initScene();
+  }
 
 })();
