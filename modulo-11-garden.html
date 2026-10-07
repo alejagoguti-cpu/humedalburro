@@ -10,9 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #03060a;
-    --accent: #2dd4bf;
-    --emerald: #10b981;
+    --bg: #020408;
+    --accent: #10b981;
+    --accent-glow: rgba(16, 185, 129, 0.4);
     --gold: #f59e0b;
     --ink: #f8fafc;
     --ink-dim: rgba(248, 250, 252, 0.65);
@@ -30,10 +30,10 @@
   #canvasContainer:active { cursor: grabbing; }
   #sceneCanvas { display: block; width: 100%; height: 100%; }
 
-  /* Vignette & Soft Depth Gradient */
+  /* Vignette */
   .vignette-overlay {
     position: absolute; inset: 0; pointer-events: none; z-index: 2;
-    background: radial-gradient(circle at center, transparent 40%, rgba(2, 5, 9, 0.5) 80%, #020407 100%);
+    background: radial-gradient(circle at center, transparent 35%, rgba(2, 4, 8, 0.6) 80%, #010204 100%);
   }
 
   /* Top Minimalist Header */
@@ -46,12 +46,12 @@
     pointer-events: auto; display: inline-flex; align-items: center; gap: 8px;
     color: var(--ink-dim); text-decoration: none; font-size: 11px; font-weight: 500;
     letter-spacing: 0.14em; text-transform: uppercase; transition: all 0.3s ease;
-    padding: 8px 16px; border-radius: 20px; background: rgba(8, 14, 24, 0.6);
+    padding: 8px 18px; border-radius: 20px; background: rgba(8, 14, 24, 0.65);
     border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(14px);
   }
   .nav-back-link:hover {
     color: var(--accent); border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(45, 212, 191, 0.25); transform: translateX(-2px);
+    box-shadow: 0 0 20px var(--accent-glow); transform: translateX(-2px);
   }
 
   .top-center-brand {
@@ -73,62 +73,62 @@
     display: flex; align-items: center; gap: 10px; pointer-events: auto;
   }
   .cinema-mode-btn {
-    display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px;
-    background: rgba(8, 14, 24, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 20px;
+    background: rgba(8, 14, 24, 0.65); border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--ink-dim); font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
     cursor: pointer; backdrop-filter: blur(14px); transition: all 0.3s;
     text-transform: uppercase;
   }
   .cinema-mode-btn:hover, .cinema-mode-btn.active {
-    color: #ffffff; border-color: var(--accent); background: rgba(45, 212, 191, 0.2);
-    box-shadow: 0 0 18px rgba(45, 212, 191, 0.35);
+    color: #ffffff; border-color: var(--accent); background: rgba(16, 185, 129, 0.25);
+    box-shadow: 0 0 20px var(--accent-glow);
   }
 
   .sound-btn {
     width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(8, 14, 24, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(8, 14, 24, 0.65); border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--ink-dim); display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(14px); font-size: 12px;
   }
   .sound-btn:hover, .sound-btn.active {
     color: var(--accent); border-color: var(--accent);
-    box-shadow: 0 0 16px rgba(45, 212, 191, 0.35);
+    box-shadow: 0 0 16px var(--accent-glow);
   }
 
-  /* Center Stage Hero Floating Trigger (Enjambre Biótico) */
+  /* Center Floating Prompt (Stage 1) */
   #swarmIntroBox {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    z-index: 15; text-align: center; pointer-events: auto; max-width: 520px;
+    z-index: 15; text-align: center; pointer-events: auto; max-width: 540px;
     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
   #swarmIntroBox.fade-out {
-    opacity: 0; transform: translate(-50%, -60%) scale(0.92); pointer-events: none;
+    opacity: 0; transform: translate(-50%, -60%) scale(0.9); pointer-events: none;
   }
   .intro-title {
-    font-family: 'Cinzel', serif; font-size: 26px; font-weight: 700; letter-spacing: 0.16em;
-    color: #ffffff; text-shadow: 0 0 24px rgba(45, 212, 191, 0.4);
-    line-height: 1.25;
+    font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; letter-spacing: 0.16em;
+    color: #ffffff; text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+    line-height: 1.2;
   }
   .intro-desc {
-    font-size: 12.5px; color: var(--ink-dim); font-weight: 300; margin-top: 8px; line-height: 1.5;
+    font-size: 13px; color: var(--ink-dim); font-weight: 300; margin-top: 10px; line-height: 1.55;
     letter-spacing: 0.02em;
   }
   .morph-main-btn {
-    margin-top: 24px; padding: 14px 32px; border-radius: 30px;
-    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700; letter-spacing: 0.14em;
+    margin-top: 26px; padding: 15px 36px; border-radius: 32px;
+    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700; letter-spacing: 0.16em;
     cursor: pointer; border: 1px solid var(--accent);
-    background: linear-gradient(135deg, rgba(45, 212, 191, 0.3), rgba(16, 185, 129, 0.3));
-    color: #ffffff; text-shadow: 0 0 16px rgba(45, 212, 191, 0.9);
-    box-shadow: 0 0 28px rgba(45, 212, 191, 0.45); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.35));
+    color: #ffffff; text-shadow: 0 0 16px rgba(16, 185, 129, 0.9);
+    box-shadow: 0 0 32px var(--accent-glow); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex; align-items: center; gap: 10px;
   }
   .morph-main-btn:hover {
-    transform: scale(1.08); box-shadow: 0 0 45px rgba(45, 212, 191, 0.7);
+    transform: scale(1.08); box-shadow: 0 0 50px rgba(16, 185, 129, 0.8);
     border-color: #ffffff;
   }
 
-  /* Waypoint Pill Navigation */
+  /* Waypoints Bar (Stage 2) */
   .waypoints-bar {
     position: absolute; top: 78px; left: 50%; transform: translateX(-50%); z-index: 10;
     display: flex; gap: 8px; pointer-events: auto; opacity: 0; pointer-events: none;
@@ -136,15 +136,15 @@
   }
   .waypoints-bar.show { opacity: 1; pointer-events: auto; }
   .waypoint-pill {
-    padding: 6px 14px; border-radius: 16px; background: rgba(8, 14, 24, 0.6);
+    padding: 6px 14px; border-radius: 16px; background: rgba(8, 14, 24, 0.65);
     border: 1px solid rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.55);
     font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
     cursor: pointer; backdrop-filter: blur(12px); transition: all 0.25s ease;
     display: flex; align-items: center; gap: 6px;
   }
   .waypoint-pill:hover, .waypoint-pill.active {
-    color: #ffffff; border-color: var(--accent); background: rgba(45, 212, 191, 0.18);
-    box-shadow: 0 0 14px rgba(45, 212, 191, 0.3); transform: translateY(-1px);
+    color: #ffffff; border-color: var(--accent); background: rgba(16, 185, 129, 0.22);
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.3); transform: translateY(-1px);
   }
   .waypoint-pill i { color: var(--accent); font-size: 10px; }
 
@@ -156,29 +156,29 @@
   }
   .scrub-container {
     display: flex; align-items: center; gap: 16px; padding: 10px 24px;
-    background: rgba(6, 12, 20, 0.78); border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(6, 12, 20, 0.82); border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 36px; backdrop-filter: blur(24px);
-    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.8); transition: border-color 0.3s;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.85); transition: border-color 0.3s;
   }
-  .scrub-container:hover { border-color: rgba(45, 212, 191, 0.4); }
+  .scrub-container:hover { border-color: var(--accent); }
   .scrub-label {
     font-family: 'Cinzel', serif; font-size: 10.5px; letter-spacing: 0.16em;
     color: var(--ink-dim); text-transform: uppercase; cursor: pointer; transition: color 0.2s;
   }
   .scrub-label.active, .scrub-label:hover {
-    color: #ffffff; text-shadow: 0 0 10px rgba(45, 212, 191, 0.7);
+    color: #ffffff; text-shadow: 0 0 12px var(--accent);
   }
   .experience-toggle-btn {
-    padding: 8px 18px; border-radius: 20px; font-family: 'Cinzel', serif;
+    padding: 8px 20px; border-radius: 20px; font-family: 'Cinzel', serif;
     font-size: 11px; font-weight: 700; letter-spacing: 0.14em; cursor: pointer;
-    border: 1px solid rgba(45, 212, 191, 0.65);
-    background: linear-gradient(135deg, rgba(45, 212, 191, 0.25), rgba(16, 185, 129, 0.25));
-    color: #ffffff; text-shadow: 0 0 12px rgba(45, 212, 191, 0.85);
-    box-shadow: 0 0 20px rgba(45, 212, 191, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--accent);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+    color: #ffffff; text-shadow: 0 0 14px var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .experience-toggle-btn:hover {
-    transform: scale(1.06); box-shadow: 0 0 30px rgba(45, 212, 191, 0.6);
-    border-color: #2dd4bf;
+    transform: scale(1.06); box-shadow: 0 0 32px rgba(16, 185, 129, 0.7);
+    border-color: #ffffff;
   }
   .custom-scrub-slider {
     -webkit-appearance: none; width: 160px; height: 3px; background: rgba(255, 255, 255, 0.18);
@@ -186,7 +186,7 @@
   }
   .custom-scrub-slider::-webkit-slider-thumb {
     -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-    background: #2dd4bf; box-shadow: 0 0 12px #2dd4bf, 0 0 22px rgba(45, 212, 191, 0.6);
+    background: #10b981; box-shadow: 0 0 12px #10b981, 0 0 22px rgba(16, 185, 129, 0.6);
     cursor: pointer; transition: transform 0.2s;
   }
   .custom-scrub-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
@@ -198,7 +198,7 @@
 
   /* Minimalist Loading Screen */
   #loadingVeil {
-    position: fixed; inset: 0; z-index: 100; background: #03060a;
+    position: fixed; inset: 0; z-index: 100; background: #020408;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 14px; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
@@ -244,7 +244,7 @@
   </a>
   <div class="top-center-brand">
     <h1>El Jardín de las Aguas</h1>
-    <div class="stage-badge"><i class="fa-solid fa-circle-nodes"></i> <span id="stageLabel">Enjambre de 500 Nodos Bióticos</span></div>
+    <div class="stage-badge"><i class="fa-solid fa-circle-nodes"></i> <span id="stageLabel">Red Biótica · 500 Nodos en Enjambre</span></div>
   </div>
   <div class="top-right-group">
     <button id="btnCinemaTour" class="cinema-mode-btn" title="Vuelo Cinematográfico Continuo">
@@ -256,21 +256,21 @@
   </div>
 </div>
 
-<!-- Center Swarm Intro Prompt -->
+<!-- Center Swarm Intro Prompt (Stage 1) -->
 <div id="swarmIntroBox">
   <div class="intro-title">RED DE RELACIONES BIÓTICAS</div>
   <div class="intro-desc">
-    500 entidades bióticas y filamentos energéticos interactúan en suspensión. Haz clic para desintegrar el enjambre y materializar el territorio tridimensional de Kennedy.
+    500 entidades bióticas y filamentos energéticos interactúan en un enjambre vivo. Haz clic para desatar la explosión cuántica y materializar el territorio tridimensional de Kennedy.
   </div>
   <button id="btnTriggerMorph" class="morph-main-btn">
-    <i class="fa-solid fa-dna"></i> DESPLEGAR EN EL TERRITORIO
+    <i class="fa-solid fa-burst"></i> EXPLOTAR Y DESPLEGAR TERRITORIO
   </button>
 </div>
 
 <!-- Waypoint Buttons (Visible in Territory Stage) -->
 <div class="waypoints-bar" id="waypointsBar">
   <button class="waypoint-pill active" data-waypoint="overview">
-    <i class="fa-solid fa-compass"></i> Axonometría Completa
+    <i class="fa-solid fa-compass"></i> Axonometría Total
   </button>
   <button class="waypoint-pill" data-waypoint="burro">
     <i class="fa-solid fa-water"></i> Humedal El Burro
@@ -300,6 +300,6 @@
   <canvas id="sceneCanvas"></canvas>
 </div>
 
-<script src="modulo-11-garden.js?v=20261006_06"></script>
+<script src="modulo-11-garden.js?v=20261006_07"></script>
 </body>
 </html>

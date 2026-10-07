@@ -1,7 +1,7 @@
 // =====================================================================
 // El Jardín de las Aguas — Red Biótica & Territorio de Kennedy 3D
 // Digital Experience inspired by Penderecki's Garden (pendereckisgarden.pl)
-// 500 Biotic Spheres Swarm -> Morph to 3D Kennedy Micro-Point Cloud
+// Unified Particle Swarm -> Shockwave Vortex Explosion -> 3D Territory
 // =====================================================================
 
 (() => {
@@ -25,31 +25,31 @@
   const stageLabel = document.getElementById("stageLabel");
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x04080d);
-  scene.fog = new THREE.FogExp2(0x04080d, 0.0009);
+  scene.background = new THREE.Color(0x020408);
+  scene.fog = new THREE.FogExp2(0x020408, 0.00085);
 
   const sceneRoot = new THREE.Group();
   scene.add(sceneRoot);
 
   const fov = 44;
   const aspect = window.innerWidth / window.innerHeight;
-  const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 9000);
+  const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 9500);
   
   // Posiciones de Cámara:
-  // Estado 1: Enjambre celestial (vista cercana al enjambre flotante)
-  const swarmCamPos = new THREE.Vector3(0, 35, 140);
+  // Estado 1: Enjambre celestial (vista orbital al enjambre de 500 nodos)
+  const swarmCamPos = new THREE.Vector3(0, 32, 135);
   const swarmTarget = new THREE.Vector3(0, 0, 0);
 
   // Estado 2: Territorio de Kennedy (encuadre perfecto que cubre toda la pantalla)
-  const territoryCamPos = new THREE.Vector3(190, 290, 340);
-  const territoryTarget = new THREE.Vector3(30, 0, 10);
+  const territoryCamPos = new THREE.Vector3(185, 285, 335);
+  const territoryTarget = new THREE.Vector3(35, 0, 10);
 
   // Waypoints de detalle dentro del territorio
   const waypoints = {
     overview: { pos: territoryCamPos, target: territoryTarget },
-    burro:    { pos: new THREE.Vector3(180, 110, 120), target: new THREE.Vector3(210, 0, -10) },
-    canopy:   { pos: new THREE.Vector3(90, 70, 90),    target: new THREE.Vector3(80, 5, 40) },
-    cali:     { pos: new THREE.Vector3(290, 125, -40), target: new THREE.Vector3(200, 0, -20) }
+    burro:    { pos: new THREE.Vector3(180, 105, 115), target: new THREE.Vector3(210, 0, -10) },
+    canopy:   { pos: new THREE.Vector3(90, 68, 85),    target: new THREE.Vector3(80, 5, 40) },
+    cali:     { pos: new THREE.Vector3(285, 120, -35), target: new THREE.Vector3(200, 0, -20) }
   };
 
   camera.position.copy(swarmCamPos);
@@ -62,13 +62,13 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.25;
+  renderer.toneMappingExposure = 1.3;
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.screenSpacePanning = true;
-  controls.maxDistance = 3000;
+  controls.maxDistance = 3200;
   controls.minDistance = 15;
   controls.maxPolarAngle = Math.PI / 2 + 0.04;
   controls.target.copy(swarmTarget);
@@ -85,22 +85,22 @@
   });
 
   // ---- Luces y Atmósfera ----
-  const ambientLight = new THREE.AmbientLight(0xd5e6f0, 0.85);
+  const ambientLight = new THREE.AmbientLight(0xdcf0ec, 0.85);
   scene.add(ambientLight);
 
-  const keyLight = new THREE.DirectionalLight(0x7dd3fc, 1.3);
-  keyLight.position.set(300, 600, 400);
+  const keyLight = new THREE.DirectionalLight(0x10b981, 1.4);
+  keyLight.position.set(320, 620, 420);
   scene.add(keyLight);
 
-  const rimLight = new THREE.DirectionalLight(0x10b981, 0.9);
-  rimLight.position.set(-400, 300, -300);
+  const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.95);
+  rimLight.position.set(-420, 320, -320);
   scene.add(rimLight);
 
-  // Base Paisajística Amplia (Cubre toda la pantalla para evitar fondos vacíos)
-  function createExpansiveLandscapeBase() {
-    const discGeo = new THREE.RingGeometry(10, 1400, 80);
+  // Base Paisajística Amplia
+  function createExpansiveBase() {
+    const discGeo = new THREE.RingGeometry(10, 1500, 80);
     const discMat = new THREE.MeshBasicMaterial({
-      color: 0x08131d,
+      color: 0x061118,
       transparent: true,
       opacity: 0.85,
       side: THREE.DoubleSide
@@ -110,90 +110,84 @@
     disc.position.y = -0.6;
     sceneRoot.add(disc);
 
-    // Rejilla sutil en coordenadas del territorio
-    const grid = new THREE.GridHelper(2200, 88, 0x1f3b4d, 0x07111a);
+    const grid = new THREE.GridHelper(2400, 96, 0x13382c, 0x050e14);
     grid.position.y = -0.55;
-    grid.material.opacity = 0.35;
+    grid.material.opacity = 0.32;
     grid.material.transparent = true;
     sceneRoot.add(grid);
   }
-  createExpansiveLandscapeBase();
+  createExpansiveBase();
 
   // =====================================================================
-  // 1. EL ENJAMBRE DE 500 ESFERAS BIÓTICAS (Relaciones Ecológicas 3D)
+  // 1. LOS 500 NODOS NÚCLEO DEL ENJAMBRE BIÓTICO & FILAMENTOS SINÁPTICOS
   // =====================================================================
-  const SWARM_COUNT = 500;
+  const SWARM_HUBS_COUNT = 500;
   const swarmGroup = new THREE.Group();
   sceneRoot.add(swarmGroup);
 
-  const sphereGeo = new THREE.SphereGeometry(1.1, 14, 14);
+  const sphereGeo = new THREE.SphereGeometry(1.15, 14, 14);
   const sphereMat = new THREE.MeshStandardMaterial({
-    roughness: 0.2,
-    metalness: 0.3,
+    roughness: 0.25,
+    metalness: 0.2,
     vertexColors: true,
     transparent: true,
     opacity: 0.95
   });
 
-  const swarmMesh = new THREE.InstancedMesh(sphereGeo, sphereMat, SWARM_COUNT);
-  swarmMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(SWARM_COUNT * 3), 3);
+  const swarmMesh = new THREE.InstancedMesh(sphereGeo, sphereMat, SWARM_HUBS_COUNT);
+  swarmMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(SWARM_HUBS_COUNT * 3), 3);
   swarmGroup.add(swarmMesh);
 
-  // Líneas sinápticas de relación biótica entre esferas
-  const MAX_LINKS = 900;
+  // Filamentos de energía entre los 500 nodos
+  const MAX_LINKS = 1000;
   const linkPos = new Float32Array(MAX_LINKS * 2 * 3);
   const linkGeo = new THREE.BufferGeometry();
   linkGeo.setAttribute("position", new THREE.BufferAttribute(linkPos, 3));
   const linkMat = new THREE.LineBasicMaterial({
-    color: 0x2dd4bf,
+    color: 0x10b981,
     transparent: true,
-    opacity: 0.35
+    opacity: 0.38
   });
   const linkLines = new THREE.LineSegments(linkGeo, linkMat);
   swarmGroup.add(linkLines);
 
-  const swarmData = [];
+  const swarmHubs = [];
   const dummyObj = new THREE.Object3D();
 
-  // Colores bióticos por familia ecológica
-  const bioColors = [
-    new THREE.Color(0x2dd4bf), // Bio-cian (Humedal y anfibios)
-    new THREE.Color(0x10b981), // Esmeralda (Flora arbórea)
-    new THREE.Color(0x84cc16), // Lima (Microflora y líquenes)
-    new THREE.Color(0xa855f7), // Sauco / Orquídea (Polinizadores)
-    new THREE.Color(0xf59e0b), // Ámbar solar (Avifauna y aves migratorias)
-    new THREE.Color(0xec4899)  // Flor de capulí (Semillas y frutos)
+  // Paleta de Verdes Botánicos y Destellos Naturales
+  const naturalGreens = [
+    new THREE.Color(0x10b981), // Esmeralda vibrante
+    new THREE.Color(0x059669), // Verde bosque profundo
+    new THREE.Color(0x34d399), // Menta bio-luminosa
+    new THREE.Color(0x047857), // Musgo ribereño
+    new THREE.Color(0x6ee7b7), // Brote tierno
+    new THREE.Color(0x0284c7)  // Azul laguna mineral
   ];
 
-  for (let i = 0; i < SWARM_COUNT; i++) {
-    // Distribución en esfera orgánica flotante
+  for (let i = 0; i < SWARM_HUBS_COUNT; i++) {
     const u = Math.random();
     const v = Math.random();
     const theta = u * 2.0 * Math.PI;
     const phi = Math.acos(2.0 * v - 1.0);
-    const r = 18 + Math.cbrt(Math.random()) * 42;
+    const r = 16 + Math.cbrt(Math.random()) * 42;
 
     const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = 8 + (r * Math.sin(phi) * Math.sin(theta)) * 0.7;
+    const y = 8 + (r * Math.sin(phi) * Math.sin(theta)) * 0.75;
     const z = r * Math.cos(phi);
 
-    const col = bioColors[i % bioColors.length];
+    const col = naturalGreens[i % naturalGreens.length];
     swarmMesh.setColorAt(i, col);
 
-    swarmData.push({
+    swarmHubs.push({
       baseX: x, baseY: y, baseZ: z,
       x: x, y: y, z: z,
-      vx: (Math.random() - 0.5) * 0.1,
-      vy: (Math.random() - 0.5) * 0.1,
-      vz: (Math.random() - 0.5) * 0.1,
       phase: Math.random() * Math.PI * 2,
-      scale: 0.7 + Math.random() * 0.6,
+      scale: 0.75 + Math.random() * 0.55,
       color: col
     });
   }
   swarmMesh.instanceColor.needsUpdate = true;
 
-  // Actualiza la posición y los filamentos de la red de 500 esferas
   function updateBioticSwarm(time, morphProgress) {
     if (morphProgress > 0.98) {
       swarmGroup.visible = false;
@@ -201,30 +195,28 @@
     }
     swarmGroup.visible = true;
 
-    // Disolución elástica de las esferas durante el morphing
-    const swarmFade = Math.max(0.0, 1.0 - morphProgress * 1.5);
+    const swarmFade = Math.max(0.0, 1.0 - morphProgress * 1.6);
     sphereMat.opacity = 0.95 * swarmFade;
-    linkMat.opacity = 0.35 * swarmFade;
+    linkMat.opacity = 0.38 * swarmFade;
 
     let linkIdx = 0;
     const posArr = linkGeo.attributes.position.array;
 
-    for (let i = 0; i < SWARM_COUNT; i++) {
-      const d = swarmData[i];
-      // Movimiento orgánico en suspensión
-      const waveY = Math.sin(time * 1.2 + d.phase) * 1.8;
-      const waveX = Math.cos(time * 0.9 + d.phase) * 1.2;
-      const waveZ = Math.sin(time * 1.0 + d.phase * 1.5) * 1.2;
+    for (let i = 0; i < SWARM_HUBS_COUNT; i++) {
+      const d = swarmHubs[i];
+      const waveY = Math.sin(time * 1.3 + d.phase) * 2.0;
+      const waveX = Math.cos(time * 1.0 + d.phase) * 1.4;
+      const waveZ = Math.sin(time * 1.1 + d.phase * 1.5) * 1.4;
 
       d.x = d.baseX + waveX;
       d.y = d.baseY + waveY;
       d.z = d.baseZ + waveZ;
 
-      // Si está en transición, las esferas se elevan y disuelven
-      const morphScatter = morphProgress * 120.0;
-      const curX = d.x + (d.baseX > 0 ? 1 : -1) * morphScatter * 0.8;
-      const curY = d.y + morphScatter * 0.6;
-      const curZ = d.z + (d.baseZ > 0 ? 1 : -1) * morphScatter * 0.8;
+      // Durante la explosión, las esferas se dispersan en espiral
+      const morphScatter = morphProgress * 140.0;
+      const curX = d.x + (d.baseX > 0 ? 1 : -1) * morphScatter * 0.85;
+      const curY = d.y + morphScatter * 0.7;
+      const curZ = d.z + (d.baseZ > 0 ? 1 : -1) * morphScatter * 0.85;
 
       const s = d.scale * swarmFade;
       dummyObj.position.set(curX, curY, curZ);
@@ -232,12 +224,11 @@
       dummyObj.updateMatrix();
       swarmMesh.setMatrixAt(i, dummyObj.matrix);
 
-      // Calcular enlaces a vecinos cercanos
-      if (linkIdx < MAX_LINKS && i % 2 === 0 && swarmFade > 0.3) {
-        for (let j = i + 1; j < Math.min(i + 14, SWARM_COUNT); j++) {
-          const dj = swarmData[j];
+      if (linkIdx < MAX_LINKS && i % 2 === 0 && swarmFade > 0.25) {
+        for (let j = i + 1; j < Math.min(i + 14, SWARM_HUBS_COUNT); j++) {
+          const dj = swarmHubs[j];
           const distSq = (d.x - dj.x)**2 + (d.y - dj.y)**2 + (d.z - dj.z)**2;
-          if (distSq < 220 && linkIdx < MAX_LINKS) {
+          if (distSq < 240 && linkIdx < MAX_LINKS) {
             const ptr = linkIdx * 6;
             posArr[ptr]     = curX; posArr[ptr + 1] = curY; posArr[ptr + 2] = curZ;
             posArr[ptr + 3] = dj.x; posArr[ptr + 4] = dj.y; posArr[ptr + 5] = dj.z;
@@ -247,17 +238,14 @@
       }
     }
 
-    // Limpiar restos de líneas no usadas
-    for (let k = linkIdx * 6; k < MAX_LINKS * 6; k++) {
-      posArr[k] = 0;
-    }
+    for (let k = linkIdx * 6; k < MAX_LINKS * 6; k++) posArr[k] = 0;
 
     swarmMesh.instanceMatrix.needsUpdate = true;
     linkGeo.attributes.position.needsUpdate = true;
   }
 
   // =====================================================================
-  // 2. GLSL SHADER DE METAMORFOSIS: ENJAMBRE -> TERRITORIO DE KENNEDY
+  // 2. GLSL SHADER DE EXPLOSIÓN EN VÓRTICE & METAMORFOSIS AL TERRITORIO
   // =====================================================================
   const vertexShader = `
     uniform float uMorphProgress;
@@ -281,51 +269,55 @@
       vColor = aColor;
       vCategory = aCategory;
       
-      // Interpolación curva suave del morph
       float t = uMorphProgress;
       float ease = smoothstep(0.0, 1.0, t);
       
-      // Vórtice helicoidal durante la lluvia / metamorfosis
-      vec3 vortex = vec3(
-        sin(uTime * 0.8 + aPhase * 3.14) * 16.0 * (1.0 - ease) * ease * 4.0,
-        cos(uTime * 0.7 + aPhase * 2.0) * 24.0 * (1.0 - ease) * ease * 4.0 + (1.0 - ease) * 45.0,
-        sin(uTime * 0.9 + aPhase * 4.2) * 16.0 * (1.0 - ease) * ease * 4.0
+      // Vórtice de Explosión Espectacular (Curl-Noise Spiral)
+      float explosionIntensity = sin(ease * 3.14159);
+      vec3 spiralVortex = vec3(
+        sin(uTime * 1.2 + aPhase * 3.14) * 35.0 * explosionIntensity + cos(uTime * 0.8 + position.z * 0.04) * 25.0 * explosionIntensity,
+        cos(uTime * 1.0 + aPhase * 2.0) * 45.0 * explosionIntensity + sin(uTime * 1.4 + position.x * 0.05) * 30.0 * explosionIntensity + (1.0 - ease) * 55.0,
+        sin(uTime * 1.3 + aPhase * 4.2) * 35.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.06) * 25.0 * explosionIntensity
       );
       
-      // Movimiento orgánico natural cuando el territorio está ensamblado
+      // Dinámica orgánica en estado ensamblado
       vec3 territorialIdle = vec3(0.0);
       if (aCategory < 0.5) {
-        // Ondulación del agua del humedal
-        territorialIdle.y = sin(uTime * 2.6 + position.x * 0.16 + position.z * 0.16) * 0.5 * ease;
+        // Ondas fluidas en el agua del humedal
+        territorialIdle.y = sin(uTime * 2.8 + position.x * 0.18 + position.z * 0.18) * 0.55 * ease;
       } else if (aCategory < 1.5) {
-        // Brisa en las copas de los árboles
-        territorialIdle.x = sin(uTime * 1.8 + aPhase * 4.0) * 0.35 * ease;
-        territorialIdle.z = cos(uTime * 1.5 + aPhase * 4.0) * 0.35 * ease;
+        // Brisa en el dosel de los árboles
+        territorialIdle.x = sin(uTime * 1.9 + aPhase * 4.0) * 0.4 * ease;
+        territorialIdle.z = cos(uTime * 1.6 + aPhase * 4.0) * 0.4 * ease;
       }
       
-      // Onda interactiva expansiva al hacer clic
+      // Onda interactiva expansiva
       float distToRipple = length(position.xz - uRipplePos.xz);
-      float rippleRadius = uRippleTime * 120.0;
+      float rippleRadius = uRippleTime * 130.0;
       float rippleDist = abs(distToRipple - rippleRadius);
-      float rippleWave = smoothstep(22.0, 0.0, rippleDist) * max(0.0, 1.0 - uRippleTime * 0.7) * ease;
-      territorialIdle.y += sin(rippleDist * 0.25 - uTime * 3.5) * rippleWave * 2.8;
+      float rippleWave = smoothstep(24.0, 0.0, rippleDist) * max(0.0, 1.0 - uRippleTime * 0.7) * ease;
+      territorialIdle.y += sin(rippleDist * 0.25 - uTime * 4.0) * rippleWave * 3.2;
       vRippleBoost = rippleWave;
       
-      // Posición interpolada entre Enjambre y Territorio
-      vec3 targetPos = position + territorialIdle;
-      vec3 startPos = aSwarmPos + vec3(sin(uTime + aPhase) * 4.0, cos(uTime * 0.8 + aPhase) * 4.0, sin(uTime * 0.9 + aPhase) * 4.0);
+      // Posición del enjambre (orbita suavemente en el cosmos)
+      vec3 swarmOrbit = aSwarmPos + vec3(
+        sin(uTime * 0.9 + aPhase) * 3.0,
+        cos(uTime * 0.75 + aPhase) * 3.0,
+        sin(uTime * 0.85 + aPhase * 1.5) * 3.0
+      );
       
-      vec3 currentPos = mix(startPos, targetPos, ease) + vortex;
+      vec3 targetPos = position + territorialIdle;
+      vec3 currentPos = mix(swarmOrbit, targetPos, ease) + spiralVortex;
       
       vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
       
-      // Tamaño adaptativo según la cercanía a la cámara
+      // Micro-partículas nítidas
       float distFactor = clamp(260.0 / -mvPosition.z, 0.35, 1.85);
-      gl_PointSize = (aSize + rippleWave * 0.8) * uPixelRatio * distFactor;
+      gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.8) * uPixelRatio * distFactor;
       
-      // Las partículas del territorio son transparentes en el estado 0 y opacas en estado 1
-      vAlpha = mix(0.08, 0.94, ease);
+      // En el enjambre brillan sutilmente; en el territorio se consolidan
+      vAlpha = mix(0.12, 0.94, ease) + explosionIntensity * 0.4;
     }
   `;
 
@@ -340,12 +332,11 @@
       float dist = length(coord);
       if (dist > 0.5) discard;
       
-      // Micro-disco mate natural
       float edgeAlpha = smoothstep(0.5, 0.2, dist);
       
       vec3 col = vColor;
       if (vRippleBoost > 0.05) {
-        col = mix(col, vec3(0.3, 0.85, 0.7), vRippleBoost * 0.6);
+        col = mix(col, vec3(0.2, 0.95, 0.65), vRippleBoost * 0.6);
       }
       
       gl_FragColor = vec4(col, edgeAlpha * vAlpha);
@@ -353,7 +344,7 @@
   `;
 
   const particleUniforms = {
-    uMorphProgress: { value: 0.0 }, // 0.0 = Enjambre Biótico, 1.0 = Territorio Completo
+    uMorphProgress: { value: 0.0 },
     uTime: { value: 0.0 },
     uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) },
     uRipplePos: { value: new THREE.Vector3(0, 0, 0) },
@@ -369,7 +360,7 @@
     blending: THREE.NormalBlending
   });
 
-  // Buffers del modelo territorial de Kennedy
+  // Buffers del modelo territorial unificado
   const pTarget = [];
   const pSwarm = [];
   const pColor = [];
@@ -379,14 +370,15 @@
 
   let territoryPoints = null;
 
-  function randomSwarmOrigin(targetX, targetY, targetZ) {
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    const r = 18 + Math.random() * 45;
+  function randomSwarmCluster(hubIdx = 0) {
+    const hub = swarmHubs[hubIdx % swarmHubs.length];
+    const offsetR = 0.5 + Math.random() * 4.5;
+    const ang1 = Math.random() * Math.PI * 2;
+    const ang2 = Math.random() * Math.PI;
     return {
-      x: r * Math.sin(phi) * Math.cos(theta),
-      y: 12 + r * Math.sin(phi) * Math.sin(theta) * 0.7 + Math.random() * 10,
-      z: r * Math.cos(phi)
+      x: hub.baseX + offsetR * Math.sin(ang2) * Math.cos(ang1),
+      y: hub.baseY + offsetR * Math.cos(ang2) * 0.8,
+      z: hub.baseZ + offsetR * Math.sin(ang2) * Math.sin(ang1)
     };
   }
 
@@ -412,15 +404,18 @@
   }
 
   // =====================================================================
-  // 3. CARGA DE CAPAS TERRITORIALES DE KENNEDY
+  // 3. CARGA DE CAPAS TERRITORIALES (Paleta Verde & Grafito Elegante)
   // =====================================================================
+  let currentParticleIndex = 0;
+
   function loadWater() {
     return fetch(WATER_URL)
       .then(r => r.json())
       .then(waterBodies => {
-        const colLagoon = new THREE.Color(0x214d5e);
-        const colDeep = new THREE.Color(0x183a48);
-        const colShore = new THREE.Color(0x2b5e68);
+        // Agua del Humedal: Azul laguna mineral y turquesa esmeralda
+        const colLagoon = new THREE.Color(0x0284c7); // Azul agua laguna
+        const colEmerald = new THREE.Color(0x059669); // Esmeralda acuática
+        const colShore = new THREE.Color(0x10b981);   // Verde ribera vivo
 
         waterBodies.forEach(w => {
           const pts = w.pts;
@@ -442,11 +437,11 @@
               const wz = (1 - sq1) * pa.z + sq1 * (1 - r2) * pb.z + sq1 * r2 * pc.z;
               const wy = 0.25 + Math.random() * 0.25;
 
-              const sw = randomSwarmOrigin(wx, wy, wz);
+              const sw = randomSwarmCluster(currentParticleIndex++);
               pTarget.push(wx, wy, wz);
               pSwarm.push(sw.x, sw.y, sw.z);
               
-              const c = (s % 2 === 0) ? colLagoon : colDeep;
+              const c = (s % 2 === 0) ? colLagoon : colEmerald;
               pColor.push(c.r, c.g, c.b);
               pSize.push(1.6);
               pPhase.push(Math.random() * 10);
@@ -456,7 +451,7 @@
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
-            const sw = randomSwarmOrigin(p.x, 0.3, p.z);
+            const sw = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(p.x, 0.3, p.z);
             pSwarm.push(sw.x, sw.y, sw.z);
             pColor.push(colShore.r, colShore.g, colShore.b);
@@ -475,26 +470,25 @@
     return fetch(TREES_URL)
       .then(r => r.json())
       .then(trees => {
-        const colForest = new THREE.Color(0x234d34);
-        const colMoss = new THREE.Color(0x3b5a3e);
-        const colOlive = new THREE.Color(0x52795d);
-        const colSauco = new THREE.Color(0x6c5870);
-        const colCapuli = new THREE.Color(0x7e5a6a);
-        const colTrunk = new THREE.Color(0x4a3b32);
+        // Vegetación: Verdes puros, bosque esmeralda, musgo y menta fresca
+        const colForest = new THREE.Color(0x10b981);  // Esmeralda viva
+        const colDeep = new THREE.Color(0x047857);    // Verde bosque profundo
+        const colMint = new THREE.Color(0x34d399);    // Menta luminosa
+        const colDarkMoss = new THREE.Color(0x064e3b);// Musgo oscuro
+        const colTrunk = new THREE.Color(0x27272a);   // Tronco carbón neutro
 
         trees.forEach((t, i) => {
-          const [x, y, hMeters, especieStr] = t;
+          const [x, y, hMeters] = t;
           const p = toScene(x, y);
           const h = Math.max(0.7, (hMeters || 8) * SCALE);
 
           let folCol = colForest;
-          if (especieStr && especieStr.includes("Sauco")) folCol = colSauco;
-          else if (especieStr && especieStr.includes("capuli")) folCol = colCapuli;
-          else if (i % 3 === 0) folCol = colMoss;
-          else if (i % 3 === 1) folCol = colOlive;
+          if (i % 4 === 0) folCol = colMint;
+          else if (i % 4 === 1) folCol = colDeep;
+          else if (i % 4 === 2) folCol = colDarkMoss;
 
           const crownY = h * 0.85;
-          const swCrown = randomSwarmOrigin(p.x, crownY, p.z);
+          const swCrown = randomSwarmCluster(currentParticleIndex++);
           pTarget.push(p.x, crownY, p.z);
           pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
           pColor.push(folCol.r, folCol.g, folCol.b);
@@ -510,7 +504,7 @@
             const sz = p.z + Math.sin(ang) * rad;
             const sy = crownY + (k % 2 === 0 ? 0.25 : -0.2);
 
-            const swSub = randomSwarmOrigin(sx, sy, sz);
+            const swSub = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(sx, sy, sz);
             pSwarm.push(swSub.x, swSub.y, swSub.z);
             pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
@@ -519,7 +513,7 @@
             pCat.push(1.0);
           }
 
-          const swBase = randomSwarmOrigin(p.x, 0.1, p.z);
+          const swBase = randomSwarmCluster(currentParticleIndex++);
           pTarget.push(p.x, 0.1, p.z);
           pSwarm.push(swBase.x, swBase.y, swBase.z);
           pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
@@ -537,16 +531,17 @@
     return fetch(NET_URL)
       .then(r => r.json())
       .then(edges => {
-        const colAsphalt = new THREE.Color(0x32373c);
-        const colAvenue = new THREE.Color(0x4a555c);
+        // Red vial: Grafito asfalto con nodos dorados
+        const colRoad = new THREE.Color(0x3f3f46); // Grafito neutro
+        const colMajor = new THREE.Color(0x71717a); // Vías principales
 
         edges.forEach(([kind, pts], edgeIdx) => {
           const isMajor = (edgeIdx % 4 === 0);
-          const c = isMajor ? colAvenue : colAsphalt;
+          const c = isMajor ? colMajor : colRoad;
 
           for (let i = 0; i < pts.length - 1; i++) {
             const a = toScene(pts[i][0], pts[i][1]);
-            const sw = randomSwarmOrigin(a.x, 0.08, a.z);
+            const sw = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(a.x, 0.08, a.z);
             pSwarm.push(sw.x, sw.y, sw.z);
             pColor.push(c.r, c.g, c.b);
@@ -565,22 +560,23 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        const colStone = new THREE.Color(0xa89f8c);
-        const colTerracotta = new THREE.Color(0x7a4d3b);
-        const colSlate = new THREE.Color(0x4a525a);
+        // Arquitectura: Grafito obsidiana, pizarra y bronce oscuro
+        const colSlate = new THREE.Color(0x475569);  // Pizarra arquitectónica
+        const colDark = new THREE.Color(0x334155);   // Carbón oscuro
+        const colBronze = new THREE.Color(0xb45309); // Acentos bronce cálido
 
         buildings.forEach((b, idx) => {
           const pts = b.pts.map(p => toScene(p[0], p[1]));
           const h = Math.max(1.4, (b.h || 6) * SCALE);
           if (pts.length < 4) return;
 
-          const bldgCol = (idx % 3 === 0) ? colStone : (idx % 3 === 1 ? colTerracotta : colSlate);
+          const bldgCol = (idx % 4 === 0) ? colBronze : ((idx % 2 === 0) ? colSlate : colDark);
 
           for (let i = 0; i < pts.length - 1; i++) {
             const a = pts[i];
             
             // Techo
-            const swTop = randomSwarmOrigin(a.x, h, a.z);
+            const swTop = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(a.x, h, a.z);
             pSwarm.push(swTop.x, swTop.y, swTop.z);
             pColor.push(bldgCol.r * 1.1, bldgCol.g * 1.1, bldgCol.b * 1.1);
@@ -591,7 +587,7 @@
             // Altura media
             if (h > 2.2) {
               const midH = h * 0.5;
-              const swMid = randomSwarmOrigin(a.x, midH, a.z);
+              const swMid = randomSwarmCluster(currentParticleIndex++);
               pTarget.push(a.x, midH, a.z);
               pSwarm.push(swMid.x, swMid.y, swMid.z);
               pColor.push(bldgCol.r, bldgCol.g, bldgCol.b);
@@ -601,29 +597,29 @@
             }
 
             // Base
-            const swBase = randomSwarmOrigin(a.x, 0.05, a.z);
+            const swBase = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(a.x, 0.05, a.z);
             pSwarm.push(swBase.x, swBase.y, swBase.z);
-            pColor.push(bldgCol.r * 0.85, bldgCol.g * 0.85, bldgCol.b * 0.85);
+            pColor.push(bldgCol.r * 0.8, bldgCol.g * 0.8, bldgCol.b * 0.8);
             pSize.push(1.1);
             pPhase.push(idx * 0.1);
             pCat.push(2.0);
           }
         });
 
-        // 3,500 partículas de fondo periférico para llenar la pantalla completa sin bordes negros
-        const colTerrain = new THREE.Color(0x1a2e24);
+        // 3,500 partículas de terreno de sabana verde oscura para envolver la pantalla
+        const colSavanna = new THREE.Color(0x064e3b);
         for (let s = 0; s < 3500; s++) {
-          const rad = 250 + Math.random() * 850;
+          const rad = 240 + Math.random() * 850;
           const ang = Math.random() * Math.PI * 2;
           const gx = Math.cos(ang) * rad;
           const gz = Math.sin(ang) * rad;
           const gy = 0.02 + Math.random() * 0.2;
 
-          const sw = randomSwarmOrigin(gx, gy, gz);
+          const sw = randomSwarmCluster(currentParticleIndex++);
           pTarget.push(gx, gy, gz);
           pSwarm.push(sw.x, sw.y, sw.z);
-          pColor.push(colTerrain.r, colTerrain.g, colTerrain.b);
+          pColor.push(colSavanna.r, colSavanna.g, colSavanna.b);
           pSize.push(1.1);
           pPhase.push(s * 0.5);
           pCat.push(4.0);
@@ -634,7 +630,6 @@
       .catch(err => console.warn("Error edificios:", err));
   }
 
-  // Inicialización de datos
   Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
     loadBuildings();
     setTimeout(() => {
@@ -643,7 +638,7 @@
   });
 
   // =====================================================================
-  // 4. METAMORFOSIS ANIMADA: ENJAMBRE <-> TERRITORIO (GSAP)
+  // 4. METAMORFOSIS ANIMADA: EXPLOSIÓN CUÁNTICA & GSAP TRANSITION
   // =====================================================================
   let targetMorph = 0.0;
   let currentMorph = 0.0;
@@ -664,20 +659,20 @@
     isTerritory = targetMorph > 0.45;
 
     if (btnActionText) {
-      btnActionText.textContent = isTerritory ? "RECONSTRUIR ENJAMBRE" : "MATERIALIZAR";
+      btnActionText.textContent = isTerritory ? "DISPERSAR A RED BIÓTICA" : "MATERIALIZAR";
     }
     if (labelSwarm) labelSwarm.classList.toggle("active", targetMorph < 0.2);
     if (labelTerritory) labelTerritory.classList.toggle("active", targetMorph > 0.8);
 
     if (stageLabel) {
-      stageLabel.textContent = isTerritory ? "Territorio 3D de Kennedy" : "Enjambre de 500 Nodos Bióticos";
+      stageLabel.textContent = isTerritory ? "Territorio 3D de Kennedy" : "Red Biótica · 500 Nodos en Enjambre";
     }
 
     if (swarmIntroBox) {
-      swarmIntroBox.classList.toggle("fade-out", targetMorph > 0.15);
+      swarmIntroBox.classList.toggle("fade-out", targetMorph > 0.12);
     }
     if (waypointsBar) {
-      waypointsBar.classList.toggle("show", targetMorph > 0.6);
+      waypointsBar.classList.toggle("show", targetMorph > 0.65);
     }
 
     if (soundActive && typeof triggerHarmonicChime === "function") {
@@ -685,20 +680,23 @@
     }
   }
 
-  // Transición Cinemática hacia Territorio o hacia Enjambre
+  // Transición de Gran Impacto Visual (Explosión + Desembarco Territorial)
   function animateToStage(dest) {
     if (!window.gsap) {
       setMorphValue(dest);
       return;
     }
 
-    const startPos = camera.position.clone();
     const endPos = (dest === 1.0) ? territoryCamPos : swarmCamPos;
     const endTarget = (dest === 1.0) ? territoryTarget : swarmTarget;
 
+    // Disparar onda de choque en el punto central
+    particleUniforms.uRipplePos.value.set(0, 0, 0);
+    particleUniforms.uRippleTime.value = 0.0;
+
     gsap.to({ val: currentMorph }, {
       val: dest,
-      duration: 3.2,
+      duration: 3.4,
       ease: "power3.inOut",
       onUpdate: function() {
         setMorphValue(this.targets()[0].val, true);
@@ -707,13 +705,13 @@
 
     gsap.to(camera.position, {
       x: endPos.x, y: endPos.y, z: endPos.z,
-      duration: 3.2,
+      duration: 3.4,
       ease: "power3.inOut"
     });
 
     gsap.to(controls.target, {
       x: endTarget.x, y: endTarget.y, z: endTarget.z,
-      duration: 3.2,
+      duration: 3.4,
       ease: "power3.inOut"
     });
   }
@@ -777,7 +775,7 @@
     });
 
     if (soundActive && typeof triggerHarmonicChime === "function") {
-      triggerHarmonicChime(0.6);
+      triggerHarmonicChime(0.65);
     }
   }
 
@@ -789,7 +787,7 @@
     });
   });
 
-  // Onda interactiva expansiva al hacer clic
+  // Onda interactiva al hacer clic
   const raycaster = new THREE.Raycaster();
   const mouseVec = new THREE.Vector2();
   const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -839,7 +837,7 @@
       osc1.frequency.setValueAtTime(68.05, audioCtx.currentTime);
 
       filter1.type = "lowpass";
-      filter1.frequency.setValueAtTime(280, audioCtx.currentTime);
+      filter1.frequency.setValueAtTime(260, audioCtx.currentTime);
 
       osc1.connect(filter1);
       filter1.connect(masterGain);
@@ -899,10 +897,10 @@
     particleUniforms.uMorphProgress.value = currentMorph;
     particleUniforms.uTime.value = elapsed;
 
-    // Actualización de la física del enjambre de 500 esferas
+    // Actualización del enjambre de 500 núcleos
     updateBioticSwarm(elapsed, currentMorph);
 
-    // Cinemática de Vuelo Continuo ("Modo Video")
+    // Cinemática de Vuelo Continuo
     if (isCinemaTour) {
       cinemaAngle += delta * 0.22;
       const radius = 320 + Math.sin(cinemaAngle * 0.7) * 80;
