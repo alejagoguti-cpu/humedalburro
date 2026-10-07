@@ -1,7 +1,7 @@
 // =====================================================================
-// El Jardín de las Aguas — Kennedy en Partículas 3D
+// El Jardín de las Aguas — Kennedy en Micro-Partículas 3D
 // Digital Experience inspired by Penderecki's Garden (pendereckisgarden.pl)
-// WebGL GLSL Particle Shaders · 60-120 FPS GPU Engine
+// WebGL GLSL Micro-Point Cloud · 60-120 FPS GPU Engine · Cinematic Flight
 // =====================================================================
 
 (() => {
@@ -19,24 +19,29 @@
 
   // ---- Setup de Escena, Cámara y Renderizador WebGL ----
   const canvas = document.getElementById("sceneCanvas");
-  const container = document.getElementById("canvasContainer");
   const loadingVeil = document.getElementById("loadingVeil");
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x030508);
-  scene.fog = new THREE.FogExp2(0x030508, 0.0014);
+  scene.background = new THREE.Color(0x020407);
+  scene.fog = new THREE.FogExp2(0x020407, 0.0012);
 
   const sceneRoot = new THREE.Group();
   scene.add(sceneRoot);
 
-  const fov = 42;
+  const fov = 40;
   const aspect = window.innerWidth / window.innerHeight;
   const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 9000);
   
-  // Posición inicial de cámara con encuadre axonométrico cinematográfico
-  const defaultCamPos = new THREE.Vector3(240, 420, 480);
-  const defaultTarget = new THREE.Vector3(0, 0, 0);
-  camera.position.set(380, 680, 750); // Empieza más arriba para la intro
+  // Posiciones de Waypoints Cinematográficos
+  const waypoints = {
+    overview: { pos: new THREE.Vector3(230, 410, 460), target: new THREE.Vector3(0, 0, 0) },
+    burro:    { pos: new THREE.Vector3(180, 110, 110), target: new THREE.Vector3(210, 0, -10) },
+    canopy:   { pos: new THREE.Vector3(90, 65, 80),    target: new THREE.Vector3(80, 5, 40) },
+    cali:     { pos: new THREE.Vector3(310, 120, -50), target: new THREE.Vector3(200, 0, -20) }
+  };
+
+  // Posición de inicio en el cielo para la intro cinematográfica
+  camera.position.set(380, 680, 720);
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -46,16 +51,16 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.35;
+  renderer.toneMappingExposure = 1.4;
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.screenSpacePanning = true;
   controls.maxDistance = 3500;
-  controls.minDistance = 25;
+  controls.minDistance = 15;
   controls.maxPolarAngle = Math.PI / 2 + 0.04;
-  controls.target.copy(defaultTarget);
+  controls.target.copy(waypoints.overview.target);
 
   // Resize handler
   window.addEventListener("resize", () => {
@@ -69,24 +74,24 @@
   });
 
   // ---- Luces y Atmósfera ----
-  const ambientLight = new THREE.AmbientLight(0xdff0ff, 0.7);
+  const ambientLight = new THREE.AmbientLight(0xdff0ff, 0.75);
   scene.add(ambientLight);
 
-  const keyLight = new THREE.DirectionalLight(0x00f0ff, 1.5);
+  const keyLight = new THREE.DirectionalLight(0x00f0ff, 1.6);
   keyLight.position.set(400, 700, 500);
   scene.add(keyLight);
 
-  const rimLight = new THREE.DirectionalLight(0x10b981, 1.1);
+  const rimLight = new THREE.DirectionalLight(0x10b981, 1.2);
   rimLight.position.set(-500, 400, -400);
   scene.add(rimLight);
 
-  // Suelo / Disco Holográfico Ecosistémico
-  function createEcosystemDisc() {
-    const discGeo = new THREE.RingGeometry(30, 850, 72);
+  // Base Grid y Disco de Horizonte
+  function createEcosystemBase() {
+    const discGeo = new THREE.RingGeometry(30, 900, 80);
     const discMat = new THREE.MeshBasicMaterial({
       color: 0x00f0ff,
       transparent: true,
-      opacity: 0.028,
+      opacity: 0.025,
       side: THREE.DoubleSide
     });
     const disc = new THREE.Mesh(discGeo, discMat);
@@ -94,23 +99,23 @@
     disc.position.y = -0.6;
     sceneRoot.add(disc);
 
-    // Rejilla sutil en coordenadas métricas
-    const grid = new THREE.GridHelper(1500, 60, 0x00f0ff, 0x0c1926);
+    const grid = new THREE.GridHelper(1600, 64, 0x00f0ff, 0x0b1724);
     grid.position.y = -0.55;
-    grid.material.opacity = 0.2;
+    grid.material.opacity = 0.18;
     grid.material.transparent = true;
     sceneRoot.add(grid);
   }
-  createEcosystemDisc();
+  createEcosystemBase();
 
   // =====================================================================
-  // GLSL SHADER DE NUBE DE PARTÍCULAS CINEMATOGRÁFICA (Penderecki Style)
+  // GLSL SHADER DE MICRO-PARTÍCULAS CON ONDAS Y DISPERSIÓN CUÁNTICA
   // =====================================================================
   const vertexShader = `
     uniform float uExplosion;
     uniform float uTime;
     uniform float uPixelRatio;
-    uniform vec2 uMousePos;
+    uniform vec3 uRipplePos;
+    uniform float uRippleTime;
     
     attribute vec3 aExplodePos;
     attribute vec3 aColor;
@@ -121,13 +126,13 @@
     varying vec3 vColor;
     varying float vCategory;
     varying float vAlpha;
+    varying float vRippleBoost;
     
     void main() {
       vColor = aColor;
       vCategory = aCategory;
       
       float t = uExplosion;
-      // Interpolación armónica suavizada
       float ease = smoothstep(0.0, 1.0, t);
       
       // Vórtice orbital espiral gravitacional
@@ -140,29 +145,37 @@
       // Movimiento orgánico en estado ensamblado
       vec3 idleMotion = vec3(0.0);
       if (aCategory < 0.5) {
-        // Ondas fluidas del espejo de agua de El Burro
-        idleMotion.y = sin(uTime * 2.8 + position.x * 0.18 + position.z * 0.18) * 0.75 * (1.0 - t);
+        // Ondas fluidas en el agua del humedal
+        idleMotion.y = sin(uTime * 3.0 + position.x * 0.2 + position.z * 0.2) * 0.65 * (1.0 - t);
       } else if (aCategory < 1.5) {
-        // Oscilación del dosel de árboles con la brisa
-        idleMotion.x = sin(uTime * 1.9 + aPhase * 5.0) * 0.5 * (1.0 - t);
-        idleMotion.z = cos(uTime * 1.6 + aPhase * 5.0) * 0.5 * (1.0 - t);
+        // Oscilación del follaje con el viento
+        idleMotion.x = sin(uTime * 2.1 + aPhase * 5.0) * 0.45 * (1.0 - t);
+        idleMotion.z = cos(uTime * 1.8 + aPhase * 5.0) * 0.45 * (1.0 - t);
       } else if (aCategory > 3.5) {
         // Esporas y polvo atmosférico en suspensión perpetua
-        idleMotion.x = sin(uTime * 0.5 + aPhase) * 18.0;
+        idleMotion.x = sin(uTime * 0.5 + aPhase) * 16.0;
         idleMotion.y = cos(uTime * 0.4 + aPhase * 1.5) * 12.0;
-        idleMotion.z = sin(uTime * 0.6 + aPhase * 2.0) * 18.0;
+        idleMotion.z = sin(uTime * 0.6 + aPhase * 2.0) * 16.0;
       }
+      
+      // Onda interactiva expansiva (Ripple al hacer clic o arrastrar)
+      float distToRipple = length(position.xz - uRipplePos.xz);
+      float rippleRadius = uRippleTime * 120.0;
+      float rippleDist = abs(distToRipple - rippleRadius);
+      float rippleWave = smoothstep(24.0, 0.0, rippleDist) * max(0.0, 1.0 - uRippleTime * 0.7);
+      idleMotion.y += sin(rippleDist * 0.3 - uTime * 4.0) * rippleWave * 3.5;
+      vRippleBoost = rippleWave;
       
       vec3 currentPos = mix(position + idleMotion, aExplodePos + swirl, ease);
       
       vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
       
-      // Tamaño de partículas dinámico con atenuación y halo
-      float distFactor = clamp(480.0 / -mvPosition.z, 0.5, 4.0);
-      gl_PointSize = aSize * uPixelRatio * distFactor;
+      // Micro-partículas nítidas y pequeñas (PCD density)
+      float distFactor = clamp(420.0 / -mvPosition.z, 0.4, 2.6);
+      gl_PointSize = (aSize + rippleWave * 1.5) * uPixelRatio * distFactor;
       
-      vAlpha = mix(0.96, 0.68, ease);
+      vAlpha = mix(0.96, 0.70, ease);
     }
   `;
 
@@ -170,23 +183,27 @@
     varying vec3 vColor;
     varying float vCategory;
     varying float vAlpha;
+    varying float vRippleBoost;
     
     void main() {
       vec2 coord = gl_PointCoord - vec2(0.5);
       float r = length(coord);
       if (r > 0.5) discard;
       
-      // Perfil gaussiano de fotogrametría: núcleo denso brillante + halo de dispersión
-      float core = smoothstep(0.5, 0.02, r);
-      float glow = pow(core, 2.2);
-      float ring = smoothstep(0.48, 0.32, r) * smoothstep(0.16, 0.34, r);
+      // Perfil gaussiano de fotogrametría nítido
+      float core = smoothstep(0.5, 0.04, r);
+      float glow = pow(core, 2.0);
+      float ring = smoothstep(0.48, 0.34, r) * smoothstep(0.18, 0.36, r);
       
-      // Mezcla de color cromático
       vec3 baseCol = vColor;
-      vec3 hotCore = mix(baseCol, vec3(1.0, 1.0, 1.0), pow(core, 4.2) * 0.85);
+      if (vRippleBoost > 0.05) {
+        baseCol = mix(baseCol, vec3(0.0, 1.0, 1.0), vRippleBoost * 0.8);
+      }
+      
+      vec3 hotCore = mix(baseCol, vec3(1.0, 1.0, 1.0), pow(core, 4.0) * 0.8);
       vec3 finalCol = hotCore + vec3(ring * 0.35);
       
-      gl_FragColor = vec4(finalCol, (glow + ring * 0.45) * vAlpha);
+      gl_FragColor = vec4(finalCol, (glow + ring * 0.4) * vAlpha);
     }
   `;
 
@@ -194,7 +211,8 @@
     uExplosion: { value: 0.0 },
     uTime: { value: 0.0 },
     uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) },
-    uMousePos: { value: new THREE.Vector2(0, 0) }
+    uRipplePos: { value: new THREE.Vector3(0, 0, 0) },
+    uRippleTime: { value: 99.0 }
   };
 
   const particleMat = new THREE.ShaderMaterial({
@@ -206,7 +224,7 @@
     blending: THREE.AdditiveBlending
   });
 
-  // Buffers dinámicos de partículas
+  // Buffers de partículas
   const pTarget = [];
   const pExplode = [];
   const pColor = [];
@@ -216,13 +234,13 @@
 
   let particlePoints = null;
 
-  function randomExplode(bx, by, bz, rMin = 180, rMax = 520) {
+  function randomExplode(bx, by, bz, rMin = 160, rMax = 500) {
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
     const r = rMin + Math.pow(Math.random(), 0.55) * (rMax - rMin);
     
     const ex = bx * 0.15 + r * Math.sin(phi) * Math.cos(theta);
-    const ey = Math.max(18, by * 0.15 + r * Math.abs(Math.cos(phi)) * 0.95 + Math.random() * 150);
+    const ey = Math.max(16, by * 0.15 + r * Math.abs(Math.cos(phi)) * 0.95 + Math.random() * 140);
     const ez = bz * 0.15 + r * Math.sin(phi) * Math.sin(theta);
     return { x: ex, y: ey, z: ez };
   }
@@ -256,7 +274,7 @@
       .then(r => r.json())
       .then(waterBodies => {
         const colCyan = new THREE.Color(0x00f0ff);
-        const colTeal = new THREE.Color(0x06b6d4);
+        const colTeal = new THREE.Color(0x0284c7);
         const colEmerald = new THREE.Color(0x10b981);
 
         waterBodies.forEach(w => {
@@ -272,7 +290,7 @@
           tris.forEach(([ia, ib, ic]) => {
             const pa = sPts[ia], pb = sPts[ib], pc = sPts[ic];
 
-            // Malla densa de partículas de agua en superficie
+            // Malla de micro-partículas en superficie
             const subSamples = 3;
             for (let s = 0; s < subSamples; s++) {
               const r1 = Math.random(), r2 = Math.random();
@@ -281,27 +299,27 @@
               const wz = (1 - sq1) * pa.z + sq1 * (1 - r2) * pb.z + sq1 * r2 * pc.z;
               const wy = 0.25 + Math.random() * 0.35;
 
-              const ex = randomExplode(wx, wy, wz, 140, 380);
+              const ex = randomExplode(wx, wy, wz, 130, 360);
               pTarget.push(wx, wy, wz);
               pExplode.push(ex.x, ex.y, ex.z);
               
               const c = (s % 2 === 0) ? colCyan : colTeal;
               pColor.push(c.r, c.g, c.b);
-              pSize.push(4.2);
+              pSize.push(2.2); // Tamaño micro
               pPhase.push(Math.random() * 10);
-              pCat.push(0.0); // 0 = agua
+              pCat.push(0.0);
             }
           });
 
-          // Anillo perimetral de esmeralda bio-líquida
+          // Borde perimetral
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
-            const ex = randomExplode(p.x, 0.35, p.z, 150, 400);
+            const ex = randomExplode(p.x, 0.35, p.z, 140, 380);
             pTarget.push(p.x, 0.35, p.z);
             pExplode.push(ex.x, ex.y, ex.z);
             pColor.push(colEmerald.r, colEmerald.g, colEmerald.b);
-            pSize.push(4.8);
-            pPhase.push(i * 0.35);
+            pSize.push(2.6);
+            pPhase.push(i * 0.3);
             pCat.push(0.0);
           }
         });
@@ -312,17 +330,17 @@
   }
 
   // =====================================================================
-  // 2. CARGA DE ÁRBOLES (Jardín Botánico — Saucos, Capulíes, Urapanes)
+  // 2. CARGA DE ÁRBOLES (Jardín Botánico)
   // =====================================================================
   function loadTrees() {
     return fetch(TREES_URL)
       .then(r => r.json())
       .then(trees => {
         const colTrunk = new THREE.Color(0xb45309);
-        const colSauco = new THREE.Color(0xa855f7);   // Violeta orquídea
-        const colCapuli = new THREE.Color(0xf43f5e);  // Flor de Capulí magenta
-        const colUrapan = new THREE.Color(0x10b981);  // Esmeralda urapán
-        const colLime = new THREE.Color(0x84cc16);    // Verde lima vibrante
+        const colSauco = new THREE.Color(0xa855f7);
+        const colCapuli = new THREE.Color(0xf43f5e);
+        const colUrapan = new THREE.Color(0x10b981);
+        const colLime = new THREE.Color(0x84cc16);
 
         trees.forEach((t, i) => {
           const [x, y, hMeters, especieStr] = t;
@@ -334,40 +352,38 @@
           else if (especieStr && especieStr.includes("capuli")) folCol = colCapuli;
           else if (i % 3 === 0) folCol = colLime;
 
-          // Copa central
           const crownY = h * 0.85;
-          const exCrown = randomExplode(p.x, crownY, p.z, 160, 440);
+          const exCrown = randomExplode(p.x, crownY, p.z, 150, 420);
           pTarget.push(p.x, crownY, p.z);
           pExplode.push(exCrown.x, exCrown.y, exCrown.z);
           pColor.push(folCol.r, folCol.g, folCol.b);
-          pSize.push(5.4);
+          pSize.push(2.8);
           pPhase.push(i * 0.25);
-          pCat.push(1.0); // 1 = arbol
+          pCat.push(1.0);
 
-          // Nodos satélite de follaje
+          // Micro-nodos de follaje
           const subNodes = 4;
-          const rad = h * 0.5;
+          const rad = h * 0.45;
           for (let k = 0; k < subNodes; k++) {
             const ang = (k / subNodes) * Math.PI * 2 + (i % 7);
             const sx = p.x + Math.cos(ang) * rad;
             const sz = p.z + Math.sin(ang) * rad;
-            const sy = crownY + (k % 2 === 0 ? 0.35 : -0.25);
+            const sy = crownY + (k % 2 === 0 ? 0.3 : -0.2);
 
-            const exSub = randomExplode(sx, sy, sz, 180, 460);
+            const exSub = randomExplode(sx, sy, sz, 160, 440);
             pTarget.push(sx, sy, sz);
             pExplode.push(exSub.x, exSub.y, exSub.z);
             pColor.push(folCol.r * 1.15, folCol.g * 1.15, folCol.b * 1.15);
-            pSize.push(3.8);
-            pPhase.push(i + k * 1.6);
+            pSize.push(2.0);
+            pPhase.push(i + k * 1.5);
             pCat.push(1.0);
           }
 
-          // Base de tronco
-          const exBase = randomExplode(p.x, 0.1, p.z, 120, 320);
+          const exBase = randomExplode(p.x, 0.1, p.z, 110, 300);
           pTarget.push(p.x, 0.1, p.z);
           pExplode.push(exBase.x, exBase.y, exBase.z);
           pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
-          pSize.push(2.6);
+          pSize.push(1.6);
           pPhase.push(i * 0.1);
           pCat.push(1.0);
         });
@@ -378,14 +394,14 @@
   }
 
   // =====================================================================
-  // 3. CARGA DE RED VIAL (Líneas de Energía Urbana)
+  // 3. CARGA DE RED VIAL
   // =====================================================================
   function loadRoads() {
     return fetch(NET_URL)
       .then(r => r.json())
       .then(edges => {
-        const colRoad = new THREE.Color(0xf59e0b);   // Ámbar dorado
-        const colCali = new THREE.Color(0x38bdf8);   // Azul eléctrico Av Cali
+        const colRoad = new THREE.Color(0xf59e0b);
+        const colCali = new THREE.Color(0x38bdf8);
 
         edges.forEach(([kind, pts], edgeIdx) => {
           const isMajor = (edgeIdx % 4 === 0);
@@ -393,13 +409,13 @@
 
           for (let i = 0; i < pts.length - 1; i++) {
             const a = toScene(pts[i][0], pts[i][1]);
-            const ex = randomExplode(a.x, 0.08, a.z, 130, 360);
+            const ex = randomExplode(a.x, 0.08, a.z, 120, 340);
             pTarget.push(a.x, 0.08, a.z);
             pExplode.push(ex.x, ex.y, ex.z);
             pColor.push(c.r, c.g, c.b);
-            pSize.push(isMajor ? 3.4 : 2.6);
-            pPhase.push(edgeIdx * 0.4);
-            pCat.push(3.0); // 3 = via
+            pSize.push(isMajor ? 1.8 : 1.4);
+            pPhase.push(edgeIdx * 0.35);
+            pCat.push(3.0);
           }
         });
 
@@ -409,71 +425,70 @@
   }
 
   // =====================================================================
-  // 4. CARGA DE EDIFICIOS 3D (Volumetría Arquitectónica en Nube de Puntos)
+  // 4. CARGA DE EDIFICIOS 3D (Volumetría en Micro-Puntos)
   // =====================================================================
   function loadBuildings() {
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        const colGlass = new THREE.Color(0x38bdf8);    // Cristal zafiro
-        const colRoof = new THREE.Color(0xf59e0b);     // Techo dorado cálido
-        const colFacade = new THREE.Color(0xe2e8f0);   // Fachada nítida
+        const colGlass = new THREE.Color(0x38bdf8);
+        const colRoof = new THREE.Color(0xf59e0b);
+        const colFacade = new THREE.Color(0xdbeafe);
 
         buildings.forEach((b, idx) => {
           const pts = b.pts.map(p => toScene(p[0], p[1]));
           const h = Math.max(1.4, (b.h || 6) * SCALE);
           if (pts.length < 4) return;
 
-          // Esquinas y contorno del edificio en toda su altura 3D
           for (let i = 0; i < pts.length - 1; i++) {
             const a = pts[i];
             
-            // Vértice superior (Techo)
-            const exTop = randomExplode(a.x, h, a.z, 180, 480);
+            // Techo
+            const exTop = randomExplode(a.x, h, a.z, 170, 460);
             pTarget.push(a.x, h, a.z);
             pExplode.push(exTop.x, exTop.y, exTop.z);
             pColor.push(colRoof.r, colRoof.g, colRoof.b);
-            pSize.push(3.6);
+            pSize.push(2.2);
             pPhase.push(idx * 0.2);
-            pCat.push(2.0); // 2 = edificio
+            pCat.push(2.0);
 
-            // Vértice intermedio en edificios altos
+            // Altura media
             if (h > 2.2) {
               const midH = h * 0.5;
-              const exMid = randomExplode(a.x, midH, a.z, 160, 420);
+              const exMid = randomExplode(a.x, midH, a.z, 150, 400);
               pTarget.push(a.x, midH, a.z);
               pExplode.push(exMid.x, exMid.y, exMid.z);
               pColor.push(colGlass.r, colGlass.g, colGlass.b);
-              pSize.push(2.8);
+              pSize.push(1.8);
               pPhase.push(idx * 0.3);
               pCat.push(2.0);
             }
 
-            // Vértice base
-            const exBase = randomExplode(a.x, 0.05, a.z, 120, 320);
+            // Base
+            const exBase = randomExplode(a.x, 0.05, a.z, 110, 300);
             pTarget.push(a.x, 0.05, a.z);
             pExplode.push(exBase.x, exBase.y, exBase.z);
             pColor.push(colFacade.r, colFacade.g, colFacade.b);
-            pSize.push(2.2);
+            pSize.push(1.5);
             pPhase.push(idx * 0.1);
             pCat.push(2.0);
           }
         });
 
-        // Añadir 2,500 esporas atmosféricas flotantes (Polvo de jardín)
+        // 3,000 micro-esporas flotantes (efecto de polvo cósmico cinematográfico)
         const colSpore = new THREE.Color(0x00f0ff);
-        for (let s = 0; s < 2500; s++) {
+        for (let s = 0; s < 3000; s++) {
           const sx = (Math.random() - 0.5) * 850;
-          const sy = 10 + Math.random() * 220;
+          const sy = 8 + Math.random() * 220;
           const sz = (Math.random() - 0.5) * 850;
-          const ex = randomExplode(sx, sy, sz, 200, 600);
+          const ex = randomExplode(sx, sy, sz, 180, 560);
 
           pTarget.push(sx, sy, sz);
           pExplode.push(ex.x, ex.y, ex.z);
           pColor.push(colSpore.r, colSpore.g, colSpore.b);
-          pSize.push(1.8 + Math.random() * 2.2);
+          pSize.push(1.2 + Math.random() * 1.4);
           pPhase.push(Math.random() * 20);
-          pCat.push(4.0); // 4 = espora
+          pCat.push(4.0);
         }
 
         rebuildParticles();
@@ -482,29 +497,113 @@
   }
 
   // =====================================================================
-  // INICIALIZACIÓN PROGRESIVA & CINEMÁTICA INTRO
+  // INICIALIZACIÓN PROGRESIVA & INTRO DE CÁMARA
   // =====================================================================
   Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
     loadBuildings();
 
-    // Intro cinematográfica con GSAP: La cámara desciende suavemente a la axo
     setTimeout(() => {
       if (loadingVeil) loadingVeil.classList.add("hide");
 
+      // Transición de cámara cinematográfica de apertura
       if (window.gsap) {
         gsap.to(camera.position, {
-          x: defaultCamPos.x,
-          y: defaultCamPos.y,
-          z: defaultCamPos.z,
-          duration: 3.2,
+          x: waypoints.overview.pos.x,
+          y: waypoints.overview.pos.y,
+          z: waypoints.overview.pos.z,
+          duration: 3.4,
           ease: "power3.out"
         });
       }
-    }, 350);
+    }, 300);
   });
 
   // =====================================================================
-  // EXPERIENCIA INTERACTIVA & CONTROL DE DISPERSIÓN
+  // VUELO CINEMATOGRÁFICO CONTINUO (Modo Video / Película)
+  // =====================================================================
+  let isCinemaTour = false;
+  let cinemaAngle = 0;
+  const btnCinemaTour = document.getElementById("btnCinemaTour");
+  const cinemaText = document.getElementById("cinemaText");
+
+  if (btnCinemaTour) {
+    btnCinemaTour.addEventListener("click", () => {
+      isCinemaTour = !isCinemaTour;
+      btnCinemaTour.classList.toggle("active", isCinemaTour);
+      if (cinemaText) cinemaText.textContent = isCinemaTour ? "Detener Vuelo" : "Modo Video";
+      btnCinemaTour.querySelector("i").className = isCinemaTour ? "fa-solid fa-pause" : "fa-solid fa-play";
+    });
+  }
+
+  // Waypoints interactivos (Zoom in / Zoom out)
+  function flyToWaypoint(wpKey) {
+    const wp = waypoints[wpKey];
+    if (!wp || !window.gsap) return;
+
+    // Desactivar vuelo automático si el usuario elige un destino específico
+    if (isCinemaTour) {
+      isCinemaTour = false;
+      btnCinemaTour.classList.remove("active");
+      if (cinemaText) cinemaText.textContent = "Modo Video";
+      btnCinemaTour.querySelector("i").className = "fa-solid fa-play";
+    }
+
+    gsap.to(camera.position, {
+      x: wp.pos.x,
+      y: wp.pos.y,
+      z: wp.pos.z,
+      duration: 2.6,
+      ease: "power2.inOut"
+    });
+
+    gsap.to(controls.target, {
+      x: wp.target.x,
+      y: wp.target.y,
+      z: wp.target.z,
+      duration: 2.6,
+      ease: "power2.inOut"
+    });
+
+    if (soundActive && typeof triggerHarmonicChime === "function") {
+      triggerHarmonicChime(0.6);
+    }
+  }
+
+  document.querySelectorAll("[data-waypoint]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-waypoint]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      flyToWaypoint(btn.dataset.waypoint);
+    });
+  });
+
+  // =====================================================================
+  // INTERACCIÓN: ONDA EXPANSIVA AL HACER CLIC (Quantum Ripple)
+  // =====================================================================
+  const raycaster = new THREE.Raycaster();
+  const mouseVec = new THREE.Vector2();
+  const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+  window.addEventListener("pointerdown", (e) => {
+    // Si hace clic en la barra UI, no disparar onda en el mapa
+    if (e.target.closest(".top-bar") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar")) return;
+
+    mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouseVec, camera);
+    const hitPoint = new THREE.Vector3();
+    if (raycaster.ray.intersectPlane(groundPlane, hitPoint)) {
+      particleUniforms.uRipplePos.value.copy(hitPoint);
+      particleUniforms.uRippleTime.value = 0.0;
+      if (soundActive && typeof triggerHarmonicChime === "function") {
+        triggerHarmonicChime(0.85);
+      }
+    }
+  });
+
+  // =====================================================================
+  // CONTROL DE EXPLOSIÓN Y NEBULOSA
   // =====================================================================
   let targetExplosion = 0.0;
   let currentExplosion = 0.0;
@@ -545,7 +644,7 @@
         const dest = isExploded ? 0.0 : 1.0;
         gsap.to({ val: currentExplosion }, {
           val: dest,
-          duration: 2.2,
+          duration: 2.4,
           ease: "power2.inOut",
           onUpdate: function() {
             setExplosionValue(this.targets()[0].val, true);
@@ -557,25 +656,18 @@
     });
   }
 
-  if (labelAssemble) {
-    labelAssemble.addEventListener("click", () => setExplosionValue(0.0));
-  }
-  if (labelNebula) {
-    labelNebula.addEventListener("click", () => setExplosionValue(1.0));
-  }
+  if (labelAssemble) labelAssemble.addEventListener("click", () => setExplosionValue(0.0));
+  if (labelNebula) labelNebula.addEventListener("click", () => setExplosionValue(1.0));
 
-  // =====================================================================
-  // PARALAJE DE RATÓN (Sutil movimiento de cámara 3D inmersivo)
-  // =====================================================================
+  // Paralaje de ratón inmersivo
   let mouseX = 0, mouseY = 0;
   window.addEventListener("mousemove", (e) => {
     mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    particleUniforms.uMousePos.value.set(mouseX, mouseY);
   });
 
   // =====================================================================
-  // PAISAJE SONORO DE PENDERECKI (Web Audio API)
+  // PAISAJE SONORO GENERATIVO (Penderecki Inspired)
   // =====================================================================
   let audioCtx = null, soundActive = false, masterGain = null;
   const soundBtn = document.getElementById("soundToggle");
@@ -589,11 +681,10 @@
       masterGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
       masterGain.connect(audioCtx.destination);
 
-      // Drone fundamental bio-acústico
       const osc1 = audioCtx.createOscillator();
       const filter1 = audioCtx.createBiquadFilter();
       osc1.type = "sine";
-      osc1.frequency.setValueAtTime(68.05, audioCtx.currentTime); // C2
+      osc1.frequency.setValueAtTime(68.05, audioCtx.currentTime);
 
       filter1.type = "lowpass";
       filter1.frequency.setValueAtTime(280, audioCtx.currentTime);
@@ -609,7 +700,7 @@
   function triggerHarmonicChime(intensity = 1.0) {
     if (!audioCtx || !soundActive) return;
     const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
-    const freq = notes[Math.floor(Math.random() * notes.length)] * (1 + intensity * 0.4);
+    const freq = notes[Math.floor(Math.random() * notes.length)] * (1 + intensity * 0.35);
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -617,7 +708,7 @@
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
     gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.22 * Math.max(0.3, intensity), audioCtx.currentTime + 0.09);
+    gain.gain.exponentialRampToValueAtTime(0.22 * Math.max(0.3, intensity), audioCtx.currentTime + 0.08);
     gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
 
     osc.connect(gain);
@@ -639,7 +730,7 @@
   }
 
   // =====================================================================
-  // LOOP DE RENDERIZADO GPU (60-120 FPS FLUIDO)
+  // LOOP DE RENDERIZADO GPU (60-120 FPS FLUIDO & MODO VIDEO)
   // =====================================================================
   const clock = new THREE.Clock();
 
@@ -649,14 +740,33 @@
     const delta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
 
-    // Transición suave lerp hacia la dispersión objetivo
+    // Actualización de onda expansiva interactiva
+    particleUniforms.uRippleTime.value += delta;
+
+    // Dispersión suave lerp
     currentExplosion += (targetExplosion - currentExplosion) * (delta * 4.2);
     particleMat.uniforms.uExplosion.value = currentExplosion;
     particleMat.uniforms.uTime.value = elapsed;
 
-    // Sutil deriva de paralaje con el ratón
-    sceneRoot.rotation.y = mouseX * 0.04;
-    sceneRoot.rotation.x = mouseY * 0.02;
+    // Cinemática de Vuelo Continuo ("Modo Video")
+    if (isCinemaTour) {
+      cinemaAngle += delta * 0.22;
+      const radius = 340 + Math.sin(cinemaAngle * 0.7) * 90; // Se acerca y se aleja dinámicamente
+      const camY = 180 + Math.sin(cinemaAngle * 0.5) * 110;   // Sube y baja como dron
+
+      camera.position.x = Math.cos(cinemaAngle) * radius + 80;
+      camera.position.z = Math.sin(cinemaAngle) * radius + 40;
+      camera.position.y = camY;
+
+      // El objetivo de cámara se desplaza suavemente por los humedales
+      controls.target.x = Math.sin(cinemaAngle * 0.4) * 50 + 60;
+      controls.target.z = Math.cos(cinemaAngle * 0.4) * 40;
+      controls.target.y = 10;
+    } else {
+      // Paralaje sutil con el cursor
+      sceneRoot.rotation.y = mouseX * 0.035;
+      sceneRoot.rotation.x = mouseY * 0.018;
+    }
 
     controls.update();
     renderer.render(scene, camera);
