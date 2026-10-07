@@ -129,6 +129,11 @@
   sceneBaseGroup.visible = false;
   sceneRoot.add(sceneBaseGroup);
 
+  const territoryBeaconsGroup = new THREE.Group();
+  territoryBeaconsGroup.visible = false;
+  sceneRoot.add(territoryBeaconsGroup);
+  const territoryBeacons = [];
+
   function createExpansiveBase() {
     const discGeo = new THREE.RingGeometry(5, 1700, 80);
     const discMat = new THREE.MeshBasicMaterial({ color: 0x070709, transparent: true, opacity: 0.94, side: THREE.DoubleSide });
@@ -1433,11 +1438,7 @@
 // =====================================================================
   // 5.B BALIZAS Y MARCADORES DE ESPECIES EN EL TERRITORIO 3D DE KENNEDY
   // =====================================================================
-  const territoryBeaconsGroup = new THREE.Group();
-  territoryBeaconsGroup.visible = false;
-  sceneRoot.add(territoryBeaconsGroup);
 
-  const territoryBeacons = [];
 
   // Categorías e íconos para Tooltips y Pop-ups
   const CAT_EMOJIS = {
