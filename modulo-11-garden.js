@@ -1,7 +1,7 @@
 // =====================================================================
 // El Jardín de las Aguas — Red Biótica Esférica & Territorio de Kennedy 3D
 // Digital Experience inspired by Biological Network Spheres & Graphs
-// 3D Spherical Swarm -> Smooth Cosmic Explosion -> 3D Territory
+// 3D Spherical Swarm -> High-Speed Particle Metamorphosis -> 3D Territory
 // =====================================================================
 
 (() => {
@@ -45,19 +45,19 @@
   const aspect = window.innerWidth / window.innerHeight;
   const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 9500);
   
-  // Posición inicial: centrada y más cerca para que la esfera se vea imponente
-  const swarmCamPos = new THREE.Vector3(0, 0, 78);
+  // Posición inicial: perfectamente centrada
+  const swarmCamPos = new THREE.Vector3(0, 0, 75);
   const swarmTarget = new THREE.Vector3(0, 0, 0);
 
   const territoryCamPos = new THREE.Vector3(180, 270, 310);
   const territoryTarget = new THREE.Vector3(35, 0, 10);
 
-  // Waypoints con coordenadas exactas de los 3 humedales en el territorio
+  // Waypoints con coordenadas EXACTAS y precisas de cada humedal
   const waypoints = {
     overview: { pos: territoryCamPos, target: territoryTarget },
-    burro:    { pos: new THREE.Vector3(210, 90, 95),   target: new THREE.Vector3(210, 0, -10) },
-    vaca:     { pos: new THREE.Vector3(-310, 95, 115), target: new THREE.Vector3(-310, 0, 10) },
-    techo:    { pos: new THREE.Vector3(60, 95, -80),   target: new THREE.Vector3(60, 0, -180) }
+    burro:    { pos: new THREE.Vector3(210, 85, 95),  target: new THREE.Vector3(210, 0, -10) },  // Humedal El Burro
+    vaca:     { pos: new THREE.Vector3(-60, 80, 45),  target: new THREE.Vector3(-60, 0, -55) },  // Al lado de Corabastos
+    techo:    { pos: new THREE.Vector3(100, 80, 10),  target: new THREE.Vector3(100, 0, -95) }   // Chiquitito al lado de El Burro
   };
 
   camera.position.copy(swarmCamPos);
@@ -72,14 +72,14 @@
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.35;
 
-  // OrbitControls: Zoom profundo (minDistance = 2) y rotación libre 360°
+  // OrbitControls: Zoom profundo y rotación 360° sin restricciones
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.screenSpacePanning = true;
   controls.maxDistance = 3500;
-  controls.minDistance = 2.0; // Permite acercarse profundamente a las bolitas
-  controls.maxPolarAngle = Math.PI; // Libre 360 grados sin cortes
+  controls.minDistance = 2.0;
+  controls.maxPolarAngle = Math.PI;
   controls.target.copy(swarmTarget);
 
   // Auto-fade del título al interactuar con el mouse, scroll o tocar
@@ -106,7 +106,7 @@
     }
   });
 
-  // Base Paisajística del Territorio (Oculta en Stage 1 para no tapar la esfera)
+  // Base Paisajística del Territorio (Oculta en la fase de red inicial)
   const sceneBaseGroup = new THREE.Group();
   sceneBaseGroup.visible = false;
   sceneRoot.add(sceneBaseGroup);
@@ -170,13 +170,13 @@
   ];
 
   // =====================================================================
-  // 2. RED BIÓTICA ESFÉRICA 3D COMPLETA (360° CON TODAS SUS RELACIONES)
+  // 2. RED BIÓTICA ESFÉRICA 3D COMPLETA (360° INTERCONECTADA)
   // =====================================================================
   const SWARM_COUNT = 850;
   const swarmGroup = new THREE.Group();
   sceneRoot.add(swarmGroup);
 
-  // Textura nítida de nodo circular con borde oscuro e iluminación interior
+  // Textura nítida de nodo circular con borde oscuro
   function createNodeBadgeTexture() {
     const cvs = document.createElement("canvas");
     cvs.width = 64; cvs.height = 64;
@@ -190,7 +190,7 @@
     ctx.fillStyle = radGlow;
     ctx.fillRect(0, 0, 64, 64);
 
-    // Círculo central definido con borde
+    // Círculo central
     ctx.beginPath();
     ctx.arc(32, 32, 16, 0, Math.PI * 2);
     ctx.fillStyle = "#ffffff";
@@ -204,7 +204,7 @@
 
   const nodeBadgeTex = createNodeBadgeTexture();
 
-  // Material de Nodos
+  // Material de Nodos (Desaparece completamente al materializar)
   const nodeMat = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0.0 },
@@ -221,11 +221,11 @@
       
       void main() {
         vColor = aNodeColor;
-        vAlpha = max(0.0, 1.0 - uMorph * 1.4);
+        // Desvanecimiento rápido y total al comenzar la explosión
+        vAlpha = max(0.0, 1.0 - uMorph * 3.5);
         
         vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * mvPos;
-        // Escala calibrada: grande y nítida al hacer zoom
         gl_PointSize = aNodeScale * (420.0 / -mvPos.z) * vAlpha;
       }
     `,
@@ -256,11 +256,8 @@
   for (let i = 0; i < SWARM_COUNT; i++) {
     const species = SPECIES_CATALOG[i % SPECIES_CATALOG.length];
 
-    // Distribución esférica de Fibonacci que cubre 360 grados sin ningún hueco
     const phi = Math.acos(1.0 - 2.0 * (i + 0.5) / SWARM_COUNT);
     const theta = Math.PI * (1.0 + Math.sqrt(5.0)) * i;
-    
-    // Profundidad en el volumen esférico
     const r = SPHERE_RADIUS * (0.6 + 0.4 * Math.pow((i % 17) / 16.0, 0.5));
 
     const x = r * Math.sin(phi) * Math.cos(theta);
@@ -277,7 +274,7 @@
     nodeColors[i * 3 + 1] = col.g;
     nodeColors[i * 3 + 2] = col.b;
 
-    nodeScales[i] = 1.2 + (i % 5 === 0 ? 0.4 : 0.0);
+    nodeScales[i] = 1.25 + (i % 5 === 0 ? 0.35 : 0.0);
 
     swarmNodes.push({
       id: i,
@@ -300,13 +297,12 @@
   const nodePoints = new THREE.Points(nodeGeo, nodeMat);
   swarmGroup.add(nodePoints);
 
-  // Generar conexiones para el 100% de los nodos de la esfera (Garantizado en 360°)
+  // Conexiones para el 100% de los nodos de la esfera en 360°
   const MAX_LINKS_PER_NODE = 5;
   const linkList = [];
 
   for (let i = 0; i < SWARM_COUNT; i++) {
     const ni = swarmNodes[i];
-    // Encontrar vecinos más cercanos en 3D
     const dists = [];
     for (let j = 0; j < SWARM_COUNT; j++) {
       if (i === j) continue;
@@ -361,9 +357,9 @@
   const linkLines = new THREE.LineSegments(linkGeo, linkMat);
   swarmGroup.add(linkLines);
 
-  // Actualización fluida de la física y rotación de la esfera completa
+  // Actualización de la esfera: desaparece limpiamente al materializar (Cero domos residuales)
   function updateNetworkSwarm(time, morphProgress) {
-    if (morphProgress > 0.98) {
+    if (morphProgress > 0.28) {
       swarmGroup.visible = false;
       return;
     }
@@ -375,27 +371,20 @@
 
     nodeMat.uniforms.uTime.value = time;
     nodeMat.uniforms.uMorph.value = morphProgress;
-    linkMat.opacity = Math.max(0.0, (1.0 - morphProgress * 1.4) * 0.45);
+    linkMat.opacity = Math.max(0.0, (1.0 - morphProgress * 3.5) * 0.45);
 
     const posArr = nodeGeo.attributes.position.array;
     const lPosArr = linkGeo.attributes.position.array;
 
     for (let i = 0; i < SWARM_COUNT; i++) {
       const d = swarmNodes[i];
-      const waveY = Math.sin(time * 1.1 + d.phase) * 0.5;
-      const waveX = Math.cos(time * 0.9 + d.phase) * 0.4;
-      const waveZ = Math.sin(time * 1.0 + d.phase * 1.5) * 0.4;
+      const waveY = Math.sin(time * 1.1 + d.phase) * 0.45;
+      const waveX = Math.cos(time * 0.9 + d.phase) * 0.35;
+      const waveZ = Math.sin(time * 1.0 + d.phase * 1.5) * 0.35;
 
-      // Dispersión radial simétrica durante la explosión
-      const morphScatter = morphProgress * 130.0;
-      const normLen = Math.sqrt(d.baseX**2 + d.baseY**2 + d.baseZ**2) || 1.0;
-      const dirX = d.baseX / normLen;
-      const dirY = d.baseY / normLen;
-      const dirZ = d.baseZ / normLen;
-
-      const curX = d.baseX + waveX + dirX * morphScatter;
-      const curY = d.baseY + waveY + dirY * morphScatter;
-      const curZ = d.baseZ + waveZ + dirZ * morphScatter;
+      const curX = d.baseX + waveX;
+      const curY = d.baseY + waveY;
+      const curZ = d.baseZ + waveZ;
 
       d.x = curX; d.y = curY; d.z = curZ;
 
@@ -404,7 +393,6 @@
       posArr[i * 3 + 2] = curZ;
     }
 
-    // Actualizar líneas durante movimiento
     for (let l = 0; l < totalLinks; l++) {
       const [i, j] = linkList[l];
       const ni = swarmNodes[i];
@@ -447,23 +435,23 @@
       float t = uMorphProgress;
       float ease = smoothstep(0.0, 1.0, t);
       
-      // Vórtice de Explosión Esférico Cósmico (Limpio, sin masas desplazadas arriba)
+      // Vórtice de Explosión Esférico Cósmico (Limpio y perfectamente balanceado)
       float explosionIntensity = sin(ease * 3.14159);
       vec3 spiralVortex = vec3(
-        sin(uTime * 1.3 + aPhase * 3.14) * 38.0 * explosionIntensity + cos(uTime * 0.9 + position.z * 0.04) * 26.0 * explosionIntensity,
-        cos(uTime * 1.1 + aPhase * 2.0) * 38.0 * explosionIntensity + sin(uTime * 1.5 + position.x * 0.05) * 26.0 * explosionIntensity,
-        sin(uTime * 1.4 + aPhase * 4.2) * 38.0 * explosionIntensity + cos(uTime * 1.0 + position.y * 0.06) * 26.0 * explosionIntensity
+        sin(uTime * 1.3 + aPhase * 3.14) * 36.0 * explosionIntensity + cos(uTime * 0.9 + position.z * 0.04) * 22.0 * explosionIntensity,
+        cos(uTime * 1.1 + aPhase * 2.0) * 32.0 * explosionIntensity + sin(uTime * 1.5 + position.x * 0.05) * 22.0 * explosionIntensity,
+        sin(uTime * 1.4 + aPhase * 4.2) * 36.0 * explosionIntensity + cos(uTime * 1.0 + position.y * 0.06) * 22.0 * explosionIntensity
       );
       
       // Movimiento orgánico territorial en estado ensamblado
       vec3 territorialIdle = vec3(0.0);
       if (aCategory < 0.5) {
-        // Ondulación fluida en el agua de los humedales
-        territorialIdle.y = sin(uTime * 2.8 + position.x * 0.18 + position.z * 0.18) * 0.5 * ease;
+        // Ondulación fluida en el agua
+        territorialIdle.y = sin(uTime * 2.8 + position.x * 0.18 + position.z * 0.18) * 0.45 * ease;
       } else if (aCategory < 1.5) {
-        // Brisa suave en el dosel
-        territorialIdle.x = sin(uTime * 1.9 + aPhase * 4.0) * 0.35 * ease;
-        territorialIdle.z = cos(uTime * 1.6 + aPhase * 4.0) * 0.35 * ease;
+        // Brisa en el dosel
+        territorialIdle.x = sin(uTime * 1.9 + aPhase * 4.0) * 0.3 * ease;
+        territorialIdle.z = cos(uTime * 1.6 + aPhase * 4.0) * 0.3 * ease;
       }
       
       // Onda interactiva expansiva
@@ -471,9 +459,10 @@
       float rippleRadius = uRippleTime * 140.0;
       float rippleDist = abs(distToRipple - rippleRadius);
       float rippleWave = smoothstep(26.0, 0.0, rippleDist) * max(0.0, 1.0 - uRippleTime * 0.65) * ease;
-      territorialIdle.y += sin(rippleDist * 0.25 - uTime * 4.0) * rippleWave * 3.2;
+      territorialIdle.y += sin(rippleDist * 0.25 - uTime * 4.0) * rippleWave * 3.0;
       vRippleBoost = rippleWave;
       
+      // En estado ensamblado territorial (ease >= 0.95), la posición es 100% el territorio (CERO residuo de domo)
       vec3 swarmOrbit = aSwarmPos;
       vec3 targetPos = position + territorialIdle;
       vec3 currentPos = mix(swarmOrbit, targetPos, ease) + spiralVortex;
@@ -481,13 +470,12 @@
       vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
       
-      // Tamaño calibrado
-      float distFactor = clamp(260.0 / -mvPosition.z, 0.4, 1.9);
-      gl_PointSize = (aSize + rippleWave * 1.2 + explosionIntensity * 0.8) * uPixelRatio * distFactor;
+      // Tamaño calibrado moderado (no excesivamente particuloso)
+      float distFactor = clamp(260.0 / -mvPosition.z, 0.35, 1.7);
+      gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.6) * uPixelRatio * distFactor;
       
-      // En Stage 1 las partículas del territorio son 0% invisibles.
-      // Solo aparecen directamente de la explosión esférica.
-      vAlpha = smoothstep(0.05, 0.85, ease) * 0.95 + explosionIntensity * 0.35;
+      // Invisibilidad total en Stage 1 y despegue suave
+      vAlpha = smoothstep(0.06, 0.8, ease) * 0.95 + explosionIntensity * 0.3;
     }
   `;
 
@@ -545,9 +533,9 @@
   function randomSwarmCluster(idx) {
     const node = swarmNodes[idx % SWARM_COUNT];
     return {
-      x: node.baseX + (Math.random() - 0.5) * 1.8,
-      y: node.baseY + (Math.random() - 0.5) * 1.8,
-      z: node.baseZ + (Math.random() - 0.5) * 1.8
+      x: node.baseX + (Math.random() - 0.5) * 1.5,
+      y: node.baseY + (Math.random() - 0.5) * 1.5,
+      z: node.baseZ + (Math.random() - 0.5) * 1.5
     };
   }
 
@@ -570,13 +558,13 @@
   }
 
   // =====================================================================
-  // 4. CARGA DE CAPAS GEOGRÁFICAS (AGUA AZUL VIBRANTE, EDIFICIOS TRAVERTINO CÁLIDO)
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (AGUA AZUL LAGOON, EDIFICIOS MORADOS/VIOLETA)
   // =====================================================================
   function loadWater() {
     return fetch(WATER_URL)
       .then(r => r.json())
       .then(waterBodies => {
-        // Cuerpos de agua en Azul Laguna Profundo & Azul Cielo
+        // Cuerpos de agua en Azul Cielo y Azul Laguna Profundo
         const colSkyBlue = new THREE.Color(0x0ea5e9);  // Azul cielo acuático
         const colAzure = new THREE.Color(0x0284c7);    // Azul lago profundo
         const colCyanGlow = new THREE.Color(0x38bdf8); // Destello cian
@@ -607,7 +595,7 @@
               
               const c = (s % 2 === 0) ? colSkyBlue : colAzure;
               pColor.push(c.r, c.g, c.b);
-              pSize.push(1.6);
+              pSize.push(1.3);
               pPhase.push(Math.random() * 10);
               pCat.push(0.0); // 0 = agua
             }
@@ -619,7 +607,7 @@
             pTarget.push(p.x, 0.3, p.z);
             pSwarm.push(sw.x, sw.y, sw.z);
             pColor.push(colCyanGlow.r, colCyanGlow.g, colCyanGlow.b);
-            pSize.push(1.8);
+            pSize.push(1.4);
             pPhase.push(i * 0.3);
             pCat.push(0.0);
           }
@@ -656,7 +644,7 @@
           pTarget.push(p.x, crownY, p.z);
           pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
           pColor.push(folCol.r, folCol.g, folCol.b);
-          pSize.push(1.9);
+          pSize.push(1.4);
           pPhase.push(i * 0.25);
           pCat.push(1.0); // 1 = arbol
 
@@ -672,7 +660,7 @@
             pTarget.push(sx, sy, sz);
             pSwarm.push(swSub.x, swSub.y, swSub.z);
             pColor.push(folCol.r * 1.02, folCol.g * 1.02, folCol.b * 1.02);
-            pSize.push(1.5);
+            pSize.push(1.2);
             pPhase.push(i + k * 1.5);
             pCat.push(1.0);
           }
@@ -681,7 +669,7 @@
           pTarget.push(p.x, 0.1, p.z);
           pSwarm.push(swBase.x, swBase.y, swBase.z);
           pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
-          pSize.push(1.3);
+          pSize.push(1.1);
           pPhase.push(i * 0.1);
           pCat.push(1.0);
         });
@@ -696,7 +684,7 @@
       .then(r => r.json())
       .then(edges => {
         const colRoad = new THREE.Color(0x3f3f46);  // Grafito asfalto sobrio
-        const colMajor = new THREE.Color(0x94a3b8); // Vías principales plata nítida
+        const colMajor = new THREE.Color(0x71717a); // Vías principales plata sobria
 
         edges.forEach(([kind, pts], edgeIdx) => {
           const isMajor = (edgeIdx % 4 === 0);
@@ -708,7 +696,7 @@
             pTarget.push(a.x, 0.08, a.z);
             pSwarm.push(sw.x, sw.y, sw.z);
             pColor.push(c.r, c.g, c.b);
-            pSize.push(isMajor ? 1.4 : 1.1);
+            pSize.push(isMajor ? 1.2 : 0.95);
             pPhase.push(edgeIdx * 0.35);
             pCat.push(3.0); // 3 = via
           }
@@ -723,11 +711,12 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta de Edificios Travertino Cálido & Arcilla Arquitectónica (Sin blanco chillón ni azul)
-        const colSandstone = new THREE.Color(0xd6d3d1);  // Piedra arenisca cálida
-        const colTravertine = new THREE.Color(0xa8a29e); // Travertino cálido
-        const colWarmRoof = new THREE.Color(0xd97706);   // Remate ámbar arcilla
-        const colSavanna = new THREE.Color(0x064e3b);    // Base verde sabana profunda
+        // Paleta de Edificios en Pizarra Morada / Violeta Arquitectónica (CERO BLANCO)
+        const colPurpleDeep = new THREE.Color(0x6366f1);  // Índigo violeta
+        const colPurpleMid = new THREE.Color(0x7c3aed);   // Violeta arquitectónico
+        const colPurpleWarm = new THREE.Color(0x8b5cf6);  // Lavanda cálida
+        const colAmberRoof = new THREE.Color(0xd97706);   // Remate ámbar arcilla
+        const colSavanna = new THREE.Color(0x064e3b);     // Base verde sabana profunda
 
         buildings.forEach((b, bIdx) => {
           const pts = b.pts;
@@ -736,7 +725,10 @@
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.height || 10) * SCALE;
           
-          const bldgCol = (bIdx % 5 === 0) ? colWarmRoof : ((bIdx % 2 === 0) ? colSandstone : colTravertine);
+          let bldgCol = colPurpleMid;
+          if (bIdx % 6 === 0) bldgCol = colAmberRoof;
+          else if (bIdx % 3 === 0) bldgCol = colPurpleDeep;
+          else if (bIdx % 3 === 1) bldgCol = colPurpleWarm;
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
@@ -747,7 +739,7 @@
               pTarget.push(p.x, y, p.z);
               pSwarm.push(sw.x, sw.y, sw.z);
               pColor.push(bldgCol.r, bldgCol.g, bldgCol.b);
-              pSize.push(1.3);
+              pSize.push(1.1);
               pPhase.push(bIdx + step);
               pCat.push(2.0); // 2 = edificio
             }
@@ -755,7 +747,7 @@
         });
 
         // Suelo de relleno territorial
-        for (let s = 0; s < 4200; s++) {
+        for (let s = 0; s < 3800; s++) {
           const rad = 25 + Math.sqrt(Math.random()) * 210;
           const ang = Math.random() * Math.PI * 2;
           const gx = Math.cos(ang) * rad;
@@ -766,7 +758,7 @@
           pTarget.push(gx, gy, gz);
           pSwarm.push(sw.x, sw.y, sw.z);
           pColor.push(colSavanna.r, colSavanna.g, colSavanna.b);
-          pSize.push(1.1);
+          pSize.push(0.95);
           pPhase.push(s * 0.5);
           pCat.push(4.0);
         }
@@ -787,7 +779,7 @@
   // 5. INSPECCIÓN INTERACTIVA DE ESPECIES Y RED TRÓFICA (RAYCASTING)
   // =====================================================================
   const raycaster = new THREE.Raycaster();
-  raycaster.params.Points.threshold = 2.2;
+  raycaster.params.Points.threshold = 2.4;
   const mouseVec = new THREE.Vector2();
   let hoveredNodeId = -1;
 
@@ -824,7 +816,6 @@
     if (cardDiet) cardDiet.textContent = sp.diet;
     if (cardIcon) cardIcon.innerHTML = `<i class="fa-solid ${sp.icon}"></i>`;
 
-    // Conexiones de la especie con sus vecinos reales
     const connectedSpeciesNames = node.neighbors
       .slice(0, 4)
       .map(nid => swarmNodes[nid].species.common);
@@ -873,8 +864,8 @@
     }
     isTerritory = targetMorph > 0.45;
 
-    // Mostrar el plano base solo en modo territorio
-    sceneBaseGroup.visible = targetMorph > 0.05;
+    // Mostrar el plano base únicamente en modo territorio
+    sceneBaseGroup.visible = targetMorph > 0.15;
 
     if (btnActionText) {
       btnActionText.textContent = isTerritory ? "DISPERSAR A RED BIÓTICA" : "MATERIALIZAR";
@@ -1069,7 +1060,7 @@
     particleUniforms.uMorphProgress.value = currentMorph;
     particleUniforms.uTime.value = time;
 
-    // Actualizar física de la esfera biótica completa
+    // Actualizar física de la esfera biótica única (desaparece limpiamente al materializar)
     updateNetworkSwarm(time, currentMorph);
 
     // Vuelo de cámara en Modo Video
