@@ -1172,6 +1172,28 @@ window.onerror = function(msg, url, line, col, error) {
   const sceneRoot = new THREE.Group();
   scene.add(sceneRoot);
 
+  const networkGroup = new THREE.Group();
+  sceneRoot.add(networkGroup);
+  const nodeSprites = [];
+  const rawNodes = [];
+  const rawEdges = [];
+  const edgeDetailsMap = {};
+
+  const sceneBaseGroup = new THREE.Group();
+  sceneBaseGroup.visible = false;
+  sceneRoot.add(sceneBaseGroup);
+
+  const territoryBeaconsGroup = new THREE.Group();
+  territoryBeaconsGroup.visible = false;
+  sceneRoot.add(territoryBeaconsGroup);
+  const territoryBeacons = [];
+
+  const speciesConstellationGroup = new THREE.Group();
+  sceneRoot.add(speciesConstellationGroup);
+
+  const activeTreeIndicatorGroup = new THREE.Group();
+  sceneRoot.add(activeTreeIndicatorGroup);
+
   let currentFov = 44;
   const aspect = window.innerWidth / window.innerHeight;
   const camera = new THREE.PerspectiveCamera(currentFov, aspect, 0.8, 9500);
@@ -1241,16 +1263,12 @@ window.onerror = function(msg, url, line, col, error) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
-    if (particleMat) {
+    if (typeof particleMat !== "undefined" && particleMat && particleMat.uniforms && particleMat.uniforms.uPixelRatio) {
       particleMat.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio || 1, 2);
     }
   });
 
   // Base Paisajística del Territorio
-  const sceneBaseGroup = new THREE.Group();
-  sceneBaseGroup.visible = false;
-  sceneRoot.add(sceneBaseGroup);
-
   function createExpansiveBase() {
     const discGeo = new THREE.RingGeometry(5, 1700, 80);
     const discMat = new THREE.MeshBasicMaterial({ color: 0x070709, transparent: true, opacity: 0.94, side: THREE.DoubleSide });
@@ -1280,6 +1298,12 @@ window.onerror = function(msg, url, line, col, error) {
   };
 
     const TAXONOMIC_CONVENTIONS = {
+    0: { color: "#84A48B", hex: 0x84A48B, name: "Flora & Arbolado SIGAU", catIdx: 0 },
+    1: { color: "#38BDF8", hex: 0x38BDF8, name: "Aves", catIdx: 1 },
+    2: { color: "#F59E0B", hex: 0xF59E0B, name: "Mamíferos", catIdx: 2 },
+    3: { color: "#EC4899", hex: 0xEC4899, name: "Moluscos", catIdx: 3 },
+    4: { color: "#10B981", hex: 0x10B981, name: "Anfibios", catIdx: 4 },
+    5: { color: "#A855F7", hex: 0xA855F7, name: "Reptiles", catIdx: 5 },
     "Flora SIGAU": { color: "#84A48B", hex: 0x84A48B, name: "Flora & Arbolado SIGAU", catIdx: 0 },
     "Flora & Arbolado SIGAU": { color: "#84A48B", hex: 0x84A48B, name: "Flora & Arbolado SIGAU", catIdx: 0 },
     "Aves": { color: "#38BDF8", hex: 0x38BDF8, name: "Aves", catIdx: 1 },
@@ -1688,11 +1712,7 @@ window.onerror = function(msg, url, line, col, error) {
 
   const fullTaxa = buildFullDataset();
   const rawTaxa = fullTaxa;
-  const rawNodes = [];
-  const nodeSprites = [];
-  const networkGroup = new THREE.Group();
-  sceneRoot.add(networkGroup);
-
+  // (rawNodes, nodeSprites declared at top)
   const SPHERE_RADIUS = 32.0;
 
   // Texturas circulares pregeneradas en Canvas para los taxones
@@ -1804,8 +1824,7 @@ window.onerror = function(msg, url, line, col, error) {
   // =====================================================================
   // 2. GENERADOR CONSCIENTE DE RELACIONES BIÓTICAS (EVIDENCIA ECOLÓGICA REAL)
   // =====================================================================
-  const rawEdges = [];
-  const edgeDetailsMap = {};
+  // (rawEdges, edgeDetailsMap declared at top)
 
   const INTER_TYPES = {
     PREDATION:    { id: 0, name: 'Depredación', color: '#C96349' },
@@ -2568,14 +2587,12 @@ window.onerror = function(msg, url, line, col, error) {
 
   // 5. CONSTELACIONES DINÁMICAS Y FOCO VISUAL DE ESPECIES DE ÁRBOLES
   // =====================================================================
-  const speciesConstellationGroup = new THREE.Group();
-  sceneRoot.add(speciesConstellationGroup);
+  // (speciesConstellationGroup declared at top)
 
   let activeConstellationPoints = null;
   let activeConstellationLines = null;
 
-  const activeTreeIndicatorGroup = new THREE.Group();
-  sceneRoot.add(activeTreeIndicatorGroup);
+  // (activeTreeIndicatorGroup declared at top)
 
   const focusDotGeo = new THREE.CircleGeometry(1.6, 24);
   const focusDotMat = new THREE.MeshBasicMaterial({ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0 });
@@ -2745,11 +2762,7 @@ window.onerror = function(msg, url, line, col, error) {
 // =====================================================================
   // 5.B BALIZAS Y MARCADORES DE ESPECIES EN EL TERRITORIO 3D DE KENNEDY
   // =====================================================================
-  const territoryBeaconsGroup = new THREE.Group();
-  territoryBeaconsGroup.visible = false;
-  sceneRoot.add(territoryBeaconsGroup);
-
-  const territoryBeacons = [];
+  // (territoryBeaconsGroup already declared at top)
 
   // Categorías e íconos para Tooltips y Pop-ups
   const CAT_EMOJIS = {
@@ -2765,7 +2778,7 @@ window.onerror = function(msg, url, line, col, error) {
   function calculateTerritoryCoordinate(t, idx, total) {
     const cat = t.cat;
 
-    if (cat === "Anfibios") {
+    if (cat === 4 || cat === "Anfibios") {
       const waterHubs = [
         { x: 209.56, z: -10.93, name: "Humedal El Burro — Espejo Central" },
         { x: 67.66, z: 118.17, name: "Humedal La Vaca — Sector Norte" },
@@ -2778,7 +2791,7 @@ window.onerror = function(msg, url, line, col, error) {
       const ang = (idx * 2.3) % (Math.PI * 2);
       const rad = 5.0 + (idx % 4) * 3.5;
       return { x: hub.x + Math.cos(ang) * rad, y: 1.2, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
-    } else if (cat === "Moluscos") {
+    } else if (cat === 3 || cat === "Moluscos") {
       const hubs = [
         { x: 205.0, z: -15.0, name: "Humedal El Burro — Juncal de Ribera" },
         { x: 72.0, z: 112.0, name: "Humedal La Vaca — Fango Húmedo" },
@@ -2788,7 +2801,7 @@ window.onerror = function(msg, url, line, col, error) {
       const ang = (idx * 1.7) % (Math.PI * 2);
       const rad = 6.0 + (idx % 3) * 4.0;
       return { x: hub.x + Math.cos(ang) * rad, y: 0.9, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
-    } else if (cat === "Reptiles") {
+    } else if (cat === 5 || cat === "Reptiles") {
       const hubs = [
         { x: 230.0, z: 5.0, name: "Humedal El Burro — Talud Soleado" },
         { x: 275.0, z: -65.0, name: "Humedal de Techo — Matorral Pedregoso" },
@@ -2799,7 +2812,7 @@ window.onerror = function(msg, url, line, col, error) {
       const ang = (idx * 2.1) % (Math.PI * 2);
       const rad = 10.0 + (idx % 4) * 5.0;
       return { x: hub.x + Math.cos(ang) * rad, y: 1.4, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
-    } else if (cat === "Mamíferos") {
+    } else if (cat === 2 || cat === "Mamíferos") {
       const hubs = [
         { x: 195.0, z: -25.0, name: "Humedal El Burro — Matorral Denso" },
         { x: 225.0, z: 30.0, name: "Humedal El Burro — Franja Protectora" },
@@ -2810,7 +2823,7 @@ window.onerror = function(msg, url, line, col, error) {
       const ang = (idx * 1.9) % (Math.PI * 2);
       const rad = 12.0 + (idx % 5) * 5.0;
       return { x: hub.x + Math.cos(ang) * rad, y: 1.8, z: hub.z + Math.sin(ang) * rad, locName: hub.name };
-    } else if (cat === "Aves") {
+    } else if (cat === 1 || cat === "Aves") {
       const hubs = [
         { x: 209.56, z: -10.93, h: 4.5, name: "Humedal El Burro — Espejo de Agua" },
         { x: 67.66, z: 118.17, h: 3.8, name: "Humedal La Vaca — Totoral" },
