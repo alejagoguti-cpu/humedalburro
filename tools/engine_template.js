@@ -19,9 +19,6 @@
   const loadingVeil = document.getElementById("loadingVeil");
   const topHeader = document.getElementById("topHeader");
   const sideDrawer = document.getElementById("sideDrawer");
-  const nodeInspector = document.getElementById("nodeInspector");
-  const chatWidgetBtn = document.getElementById("chatWidgetBtn");
-  const chatWindow = document.getElementById("chatWindow");
 
   const slider = document.getElementById("morphSlider");
   const btnToggle = document.getElementById("btnToggleView");
@@ -131,9 +128,11 @@
   };
 
   function hideVeil() {
-    if (loadingVeil) {
-      loadingVeil.style.opacity = "0";
-      setTimeout(() => { loadingVeil.style.display = "none"; }, 400);
+    const veil = document.getElementById("loadingVeil");
+    if (veil) {
+      veil.style.opacity = "0";
+      veil.style.pointerEvents = "none";
+      setTimeout(() => { veil.style.display = "none"; }, 300);
     }
   }
 
@@ -180,29 +179,55 @@
   // =====================================================================
   /*__DATASET_PLACEHOLDER__*/
 
-  // Helper para generar Texturas SVG de Especies
-  function generateSpeciesSvgDataUri(taxonId, speciesName, cat) {
-    const meta = CATEGORY_META[cat] || { color: '#84A48B' };
+  // Generador Síncrono de Texturas de Nodos
+  function createSpeciesCanvasTexture(taxonId, speciesName, cat) {
+    const cvs = document.createElement("canvas");
+    cvs.width = 128;
+    cvs.height = 128;
+    const ctx = cvs.getContext("2d");
+    const meta = CATEGORY_META[cat] || { color: "#84A48B" };
     const c = meta.color;
-    const shortName = speciesName.length > 17 ? speciesName.substring(0, 15) + '..' : speciesName;
-    const initial = speciesName.charAt(0).toUpperCase();
 
-    const svgString = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-      <defs>
-        <radialGradient id="g_${taxonId}" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="${c}" stop-opacity="0.95"/>
-          <stop offset="65%" stop-color="${c}" stop-opacity="0.65"/>
-          <stop offset="100%" stop-color="${c}" stop-opacity="0.0"/>
-        </radialGradient>
-      </defs>
-      <circle cx="64" cy="64" r="58" fill="url(#g_${taxonId})" />
-      <circle cx="64" cy="64" r="44" fill="#0c121e" stroke="${c}" stroke-width="3.5" />
-      <text x="64" y="60" font-family="'IBM Plex Mono', monospace, sans-serif" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">${initial}</text>
-      <text x="64" y="80" font-family="'Inter', sans-serif" font-size="9" font-weight="700" fill="${c}" text-anchor="middle" dominant-baseline="middle">${taxonId}</text>
-      <text x="64" y="116" font-family="'Inter', sans-serif" font-size="8.5" font-weight="600" fill="#ffffff" text-anchor="middle">${shortName}</text>
-    </svg>`;
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+    // Gradiente exterior
+    const grad = ctx.createRadialGradient(64, 64, 10, 64, 64, 60);
+    grad.addColorStop(0, c);
+    grad.addColorStop(0.7, c + "88");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(64, 64, 60, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Círculo central
+    ctx.fillStyle = "#0c121e";
+    ctx.beginPath();
+    ctx.arc(64, 64, 44, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+
+    // Inicial
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "900 22px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(speciesName.charAt(0).toUpperCase(), 64, 52);
+
+    // ID
+    ctx.fillStyle = c;
+    ctx.font = "bold 11px sans-serif";
+    ctx.fillText(taxonId, 64, 76);
+
+    // Nombre recortado
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "600 9.5px sans-serif";
+    const shortName = speciesName.length > 16 ? speciesName.substring(0, 14) + ".." : speciesName;
+    ctx.fillText(shortName, 64, 114);
+
+    const tex = new THREE.CanvasTexture(cvs);
+    tex.minFilter = THREE.LinearFilter;
+    return tex;
   }
 
   // =====================================================================
@@ -500,7 +525,7 @@
         });
       })
       .catch(err => {
-        console.warn("Using procedural fallback geometry for Kennedy buildings:", err.message);
+        console.warn("Procedural fallback for Kennedy buildings");
         for (let bx = -250; bx <= 250; bx += 25) {
           for (let bz = -250; bz <= 250; bz += 25) {
             if (Math.abs(bx) < 40 && Math.abs(bz) < 40) continue;
@@ -593,7 +618,7 @@
         });
       })
       .catch(err => {
-        console.warn("Using procedural fallback for Kennedy trees:", err.message);
+        console.warn("Procedural fallback for Kennedy trees");
         for (let i = 0; i < 600; i++) {
           const ang = Math.random() * Math.PI * 2;
           const rad = 25 + Math.random() * 220;
@@ -648,7 +673,7 @@
         });
       })
       .catch(err => {
-        console.warn("Using procedural fallback for Kennedy wetlands:", err.message);
+        console.warn("Procedural fallback for Kennedy wetlands");
         const colWater = new THREE.Color(0x00B4D8);
         for (let a = 0; a < Math.PI * 2; a += 0.05) {
           const wx = Math.cos(a) * 35 + 209;
@@ -733,16 +758,22 @@
     dirLight.position.set(50, 150, 50);
     scene.add(dirLight);
 
-    setupLayouts();
+    // 1. PRIMERO construimos la red para poblar rawNodes
     buildConscientiousBioticNetwork();
+
+    // 2. LUEGO configuramos las posiciones espaciales de los 451 nodos
+    setupLayouts();
+
+    // 3. Creamos los sprites de los nodos y las líneas
     createNodeSprites();
     createEdgeLinesMesh();
     buildTerritorySpeciesBeacons();
 
-    // Iniciar render loop y ocultar velo de carga de inmediato
+    // 4. Iniciar bucle de animación y ocultar velo de carga
+    animate();
     hideVeil();
 
-    // Cargar datos geográficos de Kennedy en segundo plano
+    // 5. Cargar datos geográficos de Kennedy en segundo plano
     Promise.all([
       loadBuildings(),
       loadTrees(),
@@ -759,16 +790,16 @@
     setupEventListeners();
     updateWaypointsBar();
     renderPieCharts();
-    animate();
-    hideVeil();
   }
 
   // Setup Layouts de la Red
   function setupLayouts() {
     const count = rawNodes.length;
+    if (count === 0) return;
     const phi = Math.PI * (3 - Math.sqrt(5));
 
     rawNodes.forEach((n, i) => {
+      // Circular
       const angle = (i / count) * Math.PI * 2;
       const radius = 58 + (n.cat * 7.5);
       n.circPos = new THREE.Vector3(
@@ -777,6 +808,7 @@
         Math.sin(angle) * radius
       );
 
+      // Force / Trófico por estratos
       const yFloor = (n.cat === 0 ? -28 : n.cat === 1 ? 24 : (n.cat - 2.5) * 10);
       const radF = 35 + Math.random() * 45;
       const angF = Math.random() * Math.PI * 2;
@@ -786,12 +818,14 @@
         Math.sin(angF) * radF
       );
 
+      // Jerárquico
       const rowY = 36 - (n.cat * 14);
       const colsInCat = 20;
       const colX = ((i % colsInCat) - colsInCat / 2) * 6.5;
       const depthZ = (Math.floor(i / colsInCat) - 2) * 12;
       n.hierPos = new THREE.Vector3(colX, rowY, depthZ);
 
+      // Esférico Fibonacci
       const ySph = 1 - (i / (count - 1)) * 2;
       const radiusSph = Math.sqrt(1 - ySph * ySph) * 65;
       const theta = phi * i;
@@ -815,12 +849,8 @@
   // 6. CREACIÓN DE NODOS SPRITES Y LÍNEAS DE INTERACCIÓN
   // =====================================================================
   function createNodeSprites() {
-    const textureLoader = new THREE.TextureLoader();
-
     rawNodes.forEach((n, idx) => {
-      const svgUri = generateSpeciesSvgDataUri(n.id, n.name, n.cat);
-      const tex = textureLoader.load(svgUri);
-      tex.minFilter = THREE.LinearFilter;
+      const tex = createSpeciesCanvasTexture(n.id, n.name, n.cat);
 
       const mat = new THREE.SpriteMaterial({
         map: tex,
@@ -835,8 +865,10 @@
       sprite.scale.set(baseScale, baseScale, 1.0);
 
       const targetPos = getNodeTargetPos(n);
-      sprite.position.copy(targetPos);
-      sprite.userData = { taxonData: n, baseScale: baseScale, basePos: targetPos.clone(), index: idx };
+      if (targetPos) {
+        sprite.position.copy(targetPos);
+        sprite.userData = { taxonData: n, baseScale: baseScale, basePos: targetPos.clone(), index: idx };
+      }
 
       nodeSprites.push(sprite);
       networkGroup.add(sprite);
@@ -854,6 +886,7 @@
 
       const sPos = getNodeTargetPos(s);
       const tPos = getNodeTargetPos(t);
+      if (!sPos || !tPos) return;
 
       positions.push(sPos.x, sPos.y, sPos.z);
       positions.push(tPos.x, tPos.y, tPos.z);
@@ -862,6 +895,10 @@
       colors.push(c.r, c.g, c.b);
       colors.push(c.r, c.g, c.b);
     });
+
+    if (edgeLinesMesh) {
+      networkGroup.remove(edgeLinesMesh);
+    }
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
@@ -993,16 +1030,12 @@
   }
 
   function buildTerritorySpeciesBeacons() {
-    const textureLoader = new THREE.TextureLoader();
-
     rawNodes.forEach((t, idx) => {
       const pos = calculateTerritoryCoordinate(t, idx, rawNodes.length);
       t.territoryPos = new THREE.Vector3(pos.x, pos.y, pos.z);
       t.loc = pos.locName || t.loc;
 
-      const svgUri = generateSpeciesSvgDataUri(t.id, t.name, t.cat);
-      const tex = textureLoader.load(svgUri);
-      tex.minFilter = THREE.LinearFilter;
+      const tex = createSpeciesCanvasTexture(t.id, t.name, t.cat);
 
       const mat = new THREE.SpriteMaterial({
         map: tex,
@@ -1181,8 +1214,9 @@
 
     const imgEl = document.getElementById("ttSpeciesImg");
     if (imgEl) {
-      imgEl.src = t.img || generateSpeciesSvgDataUri(t.id, t.name, t.cat);
-      imgEl.onerror = () => { imgEl.src = generateSpeciesSvgDataUri(t.id, t.name, t.cat); };
+      imgEl.src = t.img || "";
+      imgEl.onerror = () => { imgEl.style.display = "none"; };
+      imgEl.onload = () => { imgEl.style.display = "block"; };
     }
 
     territoryTooltip.style.display = "block";
@@ -1236,8 +1270,9 @@
 
     const imgEl = document.getElementById("modalSpeciesImg");
     if (imgEl) {
-      imgEl.src = t.img || generateSpeciesSvgDataUri(t.id, t.name, t.cat);
-      imgEl.onerror = () => { imgEl.src = generateSpeciesSvgDataUri(t.id, t.name, t.cat); };
+      imgEl.src = t.img || "";
+      imgEl.onerror = () => { imgEl.style.display = "none"; };
+      imgEl.onload = () => { imgEl.style.display = "block"; };
     }
 
     territoryModal.style.display = "flex";
@@ -1541,13 +1576,12 @@
       { percent: 0.031, color: '#E7C878', name: 'Bacterias y Protistas' }
     ]);
 
-    // Torta C: Fuentes de Evidencia
+    // Torta C: Fuentes de Evidencia (iNaturalist ~68.8%, JBB ~21.5%, eBird ~6.2%, GBIF ~3.5%)
     drawSvgPie('pieSvgC', [
-      { percent: 0.361, color: '#84A48B', name: 'Artículos Científicos & PEDH' },
-      { percent: 0.258, color: '#E7C878', name: 'iNaturalist Kennedy' },
-      { percent: 0.234, color: '#A386A9', name: 'Censo Forestal SIGAU / JBB' },
-      { percent: 0.097, color: '#F79E70', name: 'eBird Hotspots' },
-      { percent: 0.050, color: '#6B9080', name: 'GBIF Biodiversidad' }
+      { percent: 0.688, color: '#74AC00', name: 'iNaturalist Kennedy' },
+      { percent: 0.215, color: '#84A48B', name: 'Jardín Botánico de Bogotá (JBB / SIGAU)' },
+      { percent: 0.062, color: '#00B4D8', name: 'eBird Hotspots' },
+      { percent: 0.035, color: '#E7C878', name: 'GBIF Biodiversidad' }
     ]);
   }
 
@@ -1583,7 +1617,7 @@
 
     rawNodes.forEach((n, idx) => {
       const targetPos = getNodeTargetPos(n);
-      if (nodeSprites[idx]) {
+      if (nodeSprites[idx] && targetPos) {
         nodeSprites[idx].userData.basePos = targetPos.clone();
         nodeSprites[idx].position.copy(targetPos);
       }
