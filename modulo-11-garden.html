@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>
+window.onerror = function(msg, url, line, col, error) {
+  console.error("Global JS Error:", msg, "at line:", line, error);
+  var box = document.getElementById("errorBanner");
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "errorBanner";
+    box.style.position = "fixed";
+    box.style.top = "10px";
+    box.style.left = "50%";
+    box.style.transform = "translateX(-50%)";
+    box.style.zIndex = "99999";
+    box.style.background = "#ff3366";
+    box.style.color = "#fff";
+    box.style.padding = "10px 20px";
+    box.style.borderRadius = "8px";
+    box.style.fontFamily = "monospace";
+    box.style.fontSize = "12px";
+    box.style.boxShadow = "0 8px 30px rgba(0,0,0,0.8)";
+    document.body ? document.body.appendChild(box) : document.documentElement.appendChild(box);
+  }
+  box.innerText = "⚠️ Error: " + msg + " (Línea: " + line + ")";
+};
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -435,8 +460,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
+<div id="canvasContainer" style="position:fixed; inset:0; width:100vw; height:100vh; z-index:0;">
+  <canvas id="sceneCanvas" style="display:block; width:100%; height:100%;"></canvas>
+</div>
 
-<div id="loadingVeil">
+
+<div id="loadingVeil" style="display:none !important;">
   <div class="veil-title">SISTEMA SOCIOECOLÓGICO KENNEDY</div>
   <div class="veil-bar"><div class="veil-bar-fill"></div></div>
 </div>
@@ -990,10 +1019,8 @@
   </div>
 </div>
 
-<div id="canvasContainer">
-  <canvas id="sceneCanvas"></canvas>
-</div>
 
-<script src="modulo-11-garden.js?v=20261007_V9_CONSCIENTIOUS_BIOTIC"></script>
+
+<script src="modulo-11-garden.js?v=1791395289"></script>
 </body>
 </html>

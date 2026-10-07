@@ -94,14 +94,25 @@
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.25;
 
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.055;
-  controls.screenSpacePanning = true;
-  controls.maxDistance = 3500;
-  controls.minDistance = 1.8;
-  controls.maxPolarAngle = Math.PI;
-  controls.target.copy(swarmTarget);
+  let controls;
+  try {
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.055;
+    controls.screenSpacePanning = true;
+    controls.maxDistance = 3500;
+    controls.minDistance = 1.8;
+    controls.maxPolarAngle = Math.PI;
+    controls.target.copy(swarmTarget);
+  } catch(e) {
+    console.warn("OrbitControls not available, using fallback:", e);
+    controls = {
+      enableDamping: false,
+      target: new THREE.Vector3(0, 0, 0),
+      update: () => {},
+      addEventListener: () => {}
+    };
+  }
 
   window.addEventListener("resize", () => {
     const w = window.innerWidth, h = window.innerHeight;
