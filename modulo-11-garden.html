@@ -3,263 +3,206 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Axonometría Molecular 3D — Kennedy & Humedal El Burro</title>
+<title>El Jardín de las Aguas — Kennedy en Partículas 3D</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #04070d;
-    --panel-bg: rgba(7, 12, 20, 0.82);
-    --panel-border: rgba(0, 240, 255, 0.22);
+    --bg: #030508;
     --accent: #00f0ff;
-    --accent-glow: rgba(0, 240, 255, 0.45);
-    --botanical: #10b981;
-    --water: #06b6d4;
-    --amber: #f59e0b;
+    --emerald: #10b981;
+    --gold: #fbbf24;
     --ink: #f8fafc;
-    --ink-dim: #94a3b8;
+    --ink-dim: rgba(248, 250, 252, 0.55);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   html, body {
     width: 100%; height: 100%; overflow: hidden; background: var(--bg);
     color: var(--ink); font-family: 'Inter', sans-serif;
   }
-  
+
   #canvasContainer {
     position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
+    cursor: grab;
   }
+  #canvasContainer:active { cursor: grabbing; }
   #sceneCanvas { display: block; width: 100%; height: 100%; }
 
-  /* Vignette & Cinematic Film Grain / Glow */
+  /* Vignette & Cinematic Film Grain */
   .vignette-overlay {
     position: absolute; inset: 0; pointer-events: none; z-index: 2;
-    background: radial-gradient(circle at center, transparent 35%, rgba(2, 4, 8, 0.75) 80%, #020408 100%);
+    background: radial-gradient(circle at center, transparent 30%, rgba(2, 4, 8, 0.65) 75%, #020306 100%);
   }
 
-  /* Top Left HUD */
-  .header-hud {
-    position: absolute; top: 22px; left: 24px; z-index: 10; pointer-events: auto;
-    display: flex; flex-direction: column; gap: 8px;
+  /* Top Navigation Bar */
+  .top-bar {
+    position: absolute; top: 28px; left: 0; width: 100%; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 36px; pointer-events: none;
   }
-  .nav-back-btn {
-    display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 20px;
-    background: rgba(10, 18, 30, 0.85); border: 1px solid var(--panel-border);
-    color: var(--accent); text-decoration: none; font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
-    backdrop-filter: blur(14px); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); width: fit-content;
+  .nav-back-link {
+    pointer-events: auto; display: inline-flex; align-items: center; gap: 10px;
+    color: var(--ink-dim); text-decoration: none; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase; transition: all 0.3s ease;
+    padding: 8px 16px; border-radius: 20px; background: rgba(10, 16, 26, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);
   }
-  .nav-back-btn:hover {
-    background: rgba(0, 240, 255, 0.2); border-color: var(--accent);
-    box-shadow: 0 0 20px var(--accent-glow); transform: translateX(2px);
+  .nav-back-link:hover {
+    color: var(--accent); border-color: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.25); transform: translateX(-2px);
   }
-  .header-title-box {
-    background: var(--panel-bg); border: 1px solid var(--panel-border);
-    padding: 14px 20px; border-radius: 14px; backdrop-filter: blur(16px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6); max-width: 480px;
+
+  .top-center-brand {
+    text-align: center; pointer-events: none;
   }
-  .header-title-box h1 {
-    font-family: 'Cinzel', serif; font-size: 19px; font-weight: 700; letter-spacing: 0.06em;
-    background: linear-gradient(135deg, #ffffff 20%, #38bdf8 65%, #10b981 100%);
+  .top-center-brand h1 {
+    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.65) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
-  .header-title-box .subtitle {
-    font-size: 11.5px; color: var(--ink-dim); font-weight: 300; margin-top: 4px; line-height: 1.45;
-  }
-  .stats-badges {
-    display: flex; gap: 8px; margin-top: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
-  }
-  .badge {
-    padding: 3px 8px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-    color: #cbd5e1; display: flex; align-items: center; gap: 5px;
-  }
-  .badge i { color: var(--accent); }
-
-  /* Top Right Bar */
-  .top-right-bar {
-    position: absolute; top: 22px; right: 24px; z-index: 10;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .hud-btn {
-    padding: 8px 16px; border-radius: 12px; background: var(--panel-bg);
-    border: 1px solid var(--panel-border); color: var(--ink); font-size: 11.5px; font-weight: 500;
-    cursor: pointer; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(14px);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .hud-btn:hover {
-    background: rgba(0, 240, 255, 0.15); border-color: var(--accent); color: var(--accent);
-    box-shadow: 0 0 16px var(--accent-glow); transform: translateY(-1px);
-  }
-  .hud-btn.active {
-    background: rgba(0, 240, 255, 0.25); border-color: var(--accent); color: #fff;
-    box-shadow: 0 0 18px var(--accent-glow);
+  .top-center-brand p {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+    letter-spacing: 0.24em; color: var(--accent); text-transform: uppercase; margin-top: 3px;
+    opacity: 0.85;
   }
 
-  /* Bottom Controls Capsule */
-  .bottom-capsule {
-    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 10;
-    display: flex; align-items: center; gap: 18px; padding: 10px 24px;
-    background: rgba(6, 11, 19, 0.90); border: 1px solid rgba(0, 240, 255, 0.3);
-    border-radius: 36px; backdrop-filter: blur(24px); box-shadow: 0 16px 50px rgba(0, 0, 0, 0.75);
+  .sound-btn {
+    pointer-events: auto; width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(10, 16, 26, 0.45); border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--ink-dim); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px); font-size: 13px;
   }
-  .main-explode-btn {
-    padding: 10px 22px; border-radius: 24px; font-family: 'Cinzel', serif; font-size: 13px;
-    font-weight: 700; letter-spacing: 0.05em; cursor: pointer; display: flex; align-items: center; gap: 9px;
-    border: 1px solid var(--accent); background: linear-gradient(135deg, rgba(0,240,255,0.3), rgba(16,185,129,0.3));
-    color: #ffffff; text-shadow: 0 0 12px rgba(0,240,255,0.9); box-shadow: 0 0 22px var(--accent-glow);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .main-explode-btn:hover {
-    transform: scale(1.05); box-shadow: 0 0 32px rgba(0,240,255,0.7);
-  }
-  .capsule-divider { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.16); }
-
-  .slider-unit {
-    display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--ink-dim);
-  }
-  .slider-unit label { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: 500; }
-  .slider-unit input[type="range"] {
-    -webkit-appearance: none; width: 120px; height: 5px; background: rgba(255, 255, 255, 0.15);
-    border-radius: 3px; outline: none; transition: background 0.2s; cursor: pointer;
-  }
-  .slider-unit input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 10px var(--accent); cursor: pointer;
+  .sound-btn:hover, .sound-btn.active {
+    color: var(--accent); border-color: var(--accent);
+    box-shadow: 0 0 18px rgba(0, 240, 255, 0.35); transform: scale(1.05);
   }
 
-  .preset-btns-group {
-    display: flex; gap: 6px;
+  /* Bottom Minimalist Cinematic Scrub Bar */
+  .bottom-experience-bar {
+    position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    pointer-events: auto;
   }
-  .mini-btn {
-    padding: 6px 12px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    color: var(--ink-dim); font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  .scrub-container {
+    display: flex; align-items: center; gap: 20px; padding: 12px 28px;
+    background: rgba(8, 13, 22, 0.72); border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 40px; backdrop-filter: blur(20px);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8); transition: border-color 0.3s;
   }
-  .mini-btn:hover, .mini-btn.active {
-    background: rgba(0, 240, 255, 0.18); border-color: var(--accent); color: var(--accent);
+  .scrub-container:hover {
+    border-color: rgba(0, 240, 255, 0.35);
+  }
+  .scrub-label {
+    font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.16em;
+    color: var(--ink-dim); text-transform: uppercase; cursor: pointer; transition: color 0.2s;
+  }
+  .scrub-label.active, .scrub-label:hover {
+    color: #ffffff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+  }
+  .experience-toggle-btn {
+    padding: 8px 18px; border-radius: 20px; font-family: 'Cinzel', serif;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.14em; cursor: pointer;
+    border: 1px solid rgba(0, 240, 255, 0.6);
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(16, 185, 129, 0.2));
+    color: #ffffff; text-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.25); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .experience-toggle-btn:hover {
+    transform: scale(1.06); box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+    border-color: #00f0ff;
+  }
+  .custom-scrub-slider {
+    -webkit-appearance: none; width: 180px; height: 3px; background: rgba(255, 255, 255, 0.18);
+    border-radius: 2px; outline: none; cursor: pointer; transition: background 0.3s;
+  }
+  .custom-scrub-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+    background: #00f0ff; box-shadow: 0 0 14px #00f0ff, 0 0 28px rgba(0, 240, 255, 0.6);
+    cursor: pointer; transition: transform 0.2s;
+  }
+  .custom-scrub-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+  .drag-hint {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+    letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.38); text-transform: uppercase;
   }
 
-  /* Loading Screen */
-  #loadingScreen {
-    position: fixed; inset: 0; z-index: 100; background: #03060a;
+  /* Minimalist Loading Veil */
+  #loadingVeil {
+    position: fixed; inset: 0; z-index: 100; background: #030508;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 16px; transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 14px; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
   }
-  #loadingScreen.hide { opacity: 0; pointer-events: none; }
-  .loader-spinner {
-    width: 54px; height: 54px; border: 3px solid rgba(0, 240, 255, 0.15);
-    border-top: 3px solid var(--accent); border-radius: 50%;
-    animation: spin 1s linear infinite; box-shadow: 0 0 25px var(--accent-glow);
+  #loadingVeil.hide { opacity: 0; }
+  .veil-title {
+    font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 0.3em;
+    color: rgba(255, 255, 255, 0.85); text-transform: uppercase;
   }
-  @keyframes spin { 100% { transform: rotate(360deg); } }
-  .loader-text {
-    font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 0.12em; color: #cbd5e1;
+  .veil-bar {
+    width: 140px; height: 1.5px; background: rgba(255, 255, 255, 0.12);
+    position: relative; overflow: hidden;
   }
-  .loader-sub {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent);
+  .veil-bar-fill {
+    position: absolute; top: 0; left: 0; height: 100%; width: 50%;
+    background: var(--accent); box-shadow: 0 0 10px var(--accent);
+    animation: veilPulse 1.4s ease-in-out infinite alternate;
   }
-
-  /* FPS & Perf Counter */
-  .perf-tag {
-    position: absolute; bottom: 26px; right: 24px; z-index: 10;
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #64748b;
-    background: var(--panel-bg); padding: 6px 12px; border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.08); pointer-events: none;
+  @keyframes veilPulse {
+    0% { left: 0%; width: 20%; }
+    100% { left: 80%; width: 30%; }
   }
-  .perf-tag span { color: #10b981; font-weight: 600; }
 </style>
 
-<!-- Three.js & OrbitControls -->
+<!-- Three.js, OrbitControls, GSAP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
 
-<div id="loadingScreen">
-  <div class="loader-spinner"></div>
-  <div class="loader-text">GENERANDO MATRIZ MOLECULAR</div>
-  <div class="loader-sub" id="loadingProgress">Cargando cartografía y volumetría 3D de Kennedy...</div>
+<div id="loadingVeil">
+  <div class="veil-title">EL JARDÍN DE LAS AGUAS</div>
+  <div class="veil-bar"><div class="veil-bar-fill"></div></div>
 </div>
 
 <div class="vignette-overlay"></div>
 
-<!-- Header HUD -->
-<div class="header-hud">
-  <a href="modulo-08-3d.html" class="nav-back-btn">
-    <i class="fa-solid fa-arrow-left"></i> Volver a Axonometría Tradicional
+<!-- Top Minimalist Bar -->
+<div class="top-bar">
+  <a href="modulo-08-3d.html" class="nav-back-link">
+    <i class="fa-solid fa-arrow-left"></i> Axonometría
   </a>
-  <div class="header-title-box">
-    <h1>AXONOMETRÍA MOLECULAR 3D</h1>
-    <div class="subtitle">
-      Modelo arquitectónico tridimensional de Kennedy y Humedal El Burro en red cuántica de moléculas y átomos interconectados.
-    </div>
-    <div class="stats-badges">
-      <div class="badge"><i class="fa-solid fa-cubes"></i> <span id="statNodes">~85,000</span> Átomos 3D</div>
-      <div class="badge"><i class="fa-solid fa-building"></i> 143k Edificios</div>
-      <div class="badge"><i class="fa-solid fa-water"></i> Humedal El Burro</div>
-    </div>
+  <div class="top-center-brand">
+    <h1>El Jardín de las Aguas</h1>
+    <p>Kennedy · Nube de Partículas 3D</p>
   </div>
-</div>
-
-<!-- Top Right Tools -->
-<div class="top-right-bar">
-  <button id="btnSound" class="hud-btn" title="Activar/Desactivar Paisaje Sonoro">
-    <i class="fa-solid fa-volume-xmark"></i> Audio Generativo
-  </button>
-  <button id="btnWireVol" class="hud-btn active" title="Mostrar/Ocultar Volúmenes Holográficos de Edificios">
-    <i class="fa-solid fa-cube"></i> Volumetría Holográfica
-  </button>
-  <button id="btnWaterGlow" class="hud-btn active" title="Espejo de Agua Fluido">
-    <i class="fa-solid fa-water"></i> Espejo Bio-Fluido
+  <button id="soundToggle" class="sound-btn" title="Paisaje Sonoro de Penderecki">
+    <i class="fa-solid fa-volume-xmark"></i>
   </button>
 </div>
 
-<!-- Bottom Control Capsule -->
-<div class="bottom-capsule">
-  <button id="btnExplodeToggle" class="main-explode-btn">
-    <i class="fa-solid fa-atom"></i> <span id="explodeBtnText">DESINTEGRAR EN MOLÉCULAS</span>
-  </button>
-
-  <div class="capsule-divider"></div>
-
-  <!-- Explosion Slider -->
-  <div class="slider-unit">
-    <label for="sliderExplosion"><i class="fa-solid fa-burst"></i> Dispersión:</label>
-    <input type="range" id="sliderExplosion" min="0" max="100" value="0">
-    <span id="labelExplosion" style="font-family:'IBM Plex Mono'; font-size:10px; width:34px; color:var(--accent);">0%</span>
+<!-- Bottom Minimalist Experience Bar -->
+<div class="bottom-experience-bar">
+  <div class="scrub-container">
+    <span class="scrub-label" id="labelAssemble">Territorio</span>
+    <input type="range" id="experienceSlider" class="custom-scrub-slider" min="0" max="100" value="0">
+    <span class="scrub-label" id="labelNebula">Nebulosa</span>
+    <button id="btnPlayTransition" class="experience-toggle-btn">
+      <i class="fa-solid fa-atom"></i> <span id="btnActionText">DESINTEGRAR</span>
+    </button>
   </div>
-
-  <div class="capsule-divider"></div>
-
-  <!-- View Presets -->
-  <div class="slider-unit">
-    <label><i class="fa-solid fa-camera"></i> Vista:</label>
-    <div class="preset-btns-group">
-      <button class="mini-btn active" data-view="axo">Axonometría</button>
-      <button class="mini-btn" data-view="burro">Humedal</button>
-      <button class="mini-btn" data-view="orbit">Perspectiva</button>
-    </div>
-  </div>
-
-  <div class="capsule-divider"></div>
-
-  <!-- Color Palettes -->
-  <div class="slider-unit">
-    <label><i class="fa-solid fa-palette"></i> Paleta:</label>
-    <div class="preset-btns-group">
-      <button class="mini-btn active" data-palette="penderecki">Penderecki</button>
-      <button class="mini-btn" data-palette="biocyan">Bio-Cian</button>
-      <button class="mini-btn" data-palette="sabana">Sabana</button>
-      <button class="mini-btn" data-palette="quantum">Oro Cuántico</button>
-    </div>
-  </div>
+  <div class="drag-hint">Gira 360° · Rueda para Zoom · Desliza para Dispersión</div>
 </div>
-
-<div class="perf-tag">GPU GLSL · <span id="fpsCounter">60 FPS</span></div>
 
 <div id="canvasContainer">
   <canvas id="sceneCanvas"></canvas>
 </div>
 
-<script src="modulo-11-garden.js?v=20261006_02"></script>
+<script src="modulo-11-garden.js?v=20261006_03"></script>
 </body>
 </html>
