@@ -23,8 +23,8 @@
   const canvas = document.getElementById("sceneCanvas");
   const wrap = document.getElementById("sceneWrap");
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xdbe8d4);
-  scene.fog = new THREE.Fog(0xdbe8d4, 900, 3400);
+  scene.background = new THREE.Color(0x141416);
+  scene.fog = new THREE.Fog(0x141416, 1000, 3600);
   // Todo el contenido del mapa (vias, edificios, arboles, agua, vehiculos)
   // se agrega a este grupo, no directamente a la escena, para poder
   // rotarlo entero en X/Y/Z con los controles manuales de orientacion.
@@ -189,7 +189,10 @@
     controls.update();
     resize();
     camera.updateProjectionMatrix();
-    perspToggleBtn.textContent = usingPersp ? "📏 Ver en axonométrica" : "📐 Ver en perspectiva";
+    perspToggleBtn.innerHTML = usingPersp 
+      ? '<i class="fa-solid fa-compass"></i> Ver en axonométrica' 
+      : '<i class="fa-solid fa-cube"></i> Ver en perspectiva';
+    perspToggleBtn.classList.toggle("active", usingPersp);
     if (typeof updateSectionBox === "function") updateSectionBox(); // refrescar el cuadro de coordenadas con la nueva proyeccion
   });
 
@@ -1051,7 +1054,55 @@
     controls.update();
     if (typeof updateLiveCameraCoordsUI === "function") updateLiveCameraCoordsUI();
   }
-    // 7. Event listeners de la línea de tiempo histórica
+
+  // Preset Buttons
+  function setActivePreset(activeBtn) {
+    document.querySelectorAll(".preset-btn").forEach(b => {
+      if (b.id !== "perspToggle") b.classList.remove("active");
+    });
+    if (activeBtn) activeBtn.classList.add("active");
+  }
+
+  const btnViewOverview = document.getElementById("btnViewOverview");
+  if (btnViewOverview) {
+    btnViewOverview.addEventListener("click", () => {
+      setActivePreset(btnViewOverview);
+      transitionCameraTo(
+        new THREE.Vector3(117.21, 724.68, 628.88),
+        new THREE.Vector3(219.64, -56.32, -92.84),
+        1.35,
+        1800
+      );
+    });
+  }
+
+  const btnViewBurro = document.getElementById("btnViewBurro");
+  if (btnViewBurro) {
+    btnViewBurro.addEventListener("click", () => {
+      setActivePreset(btnViewBurro);
+      transitionCameraTo(
+        new THREE.Vector3(117.21, 724.68, 628.88),
+        new THREE.Vector3(219.64, -56.32, -92.84),
+        2.25,
+        1800
+      );
+    });
+  }
+
+  const btnViewTecho = document.getElementById("btnViewTecho");
+  if (btnViewTecho) {
+    btnViewTecho.addEventListener("click", () => {
+      setActivePreset(btnViewTecho);
+      transitionCameraTo(
+        new THREE.Vector3(50.39, 695.32, 825.02),
+        new THREE.Vector3(171.99, -60.08, 79.42),
+        2.23,
+        2000
+      );
+    });
+  }
+
+  // 7. Event listeners de la línea de tiempo histórica
   document.querySelectorAll(".year-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       setHistoricalYear(parseInt(btn.dataset.year, 10), true);

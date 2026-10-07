@@ -163,35 +163,35 @@
   // TANGERINE = 0xED773C, SKY = 0x9ED6DF, RED_PASSION = 0xC63F3E, MUTED_BLACK = 0x1D1D1B
 
   const SPECIES_CATALOG = [
-    // Flora: VERDE BOSQUE NATURAL & MUSGO (Territorio Green)
-    { common: "Sauco del Humedal", scientific: "Sambucus nigra", taxon: "Plantae", icon: "fa-leaf", habitat: "Bosque ripario y orillas de El Burro", diet: "Fotosíntesis y nutrientes del humedal", relations: ["Frutos para aves migratorias", "Fijación de taludes", "Sombra y microclima"], color: 0x3B6E4C },
-    { common: "Junco de Agua", scientific: "Schoenoplectus californicus", taxon: "Plantae", icon: "fa-spa", habitat: "Zonas de inundación permanente", diet: "Filtración hídrica fitorremediadora", relations: ["Filtro de metales pesados", "Nidación de Tingua Bogotana", "Refugio de alevines"], color: 0x4D7C59 },
-    { common: "Lenteja de Agua", scientific: "Lemna minor", taxon: "Plantae", icon: "fa-seedling", habitat: "Espejos de agua lénticos", diet: "Absorción de nitrógeno y fósforo", relations: ["Alimento de aves acuáticas", "Oxigenación", "Control de algas"], color: 0x588157 },
-    { common: "Urapán", scientific: "Fraxinus chinensis", taxon: "Plantae", icon: "fa-tree", habitat: "Dosel urbano y rondas de canal", diet: "Nutrición edáfica y fotosíntesis", relations: ["Percha de rapaces", "Hábitat de murciélagos", "Captura de CO2"], color: 0x3B6E4C },
-    { common: "Capulí", scientific: "Prunus serotina", taxon: "Plantae", icon: "fa-tree", habitat: "Borde de quebradas y reservas", diet: "Nutrientes de suelo aluvial", relations: ["Alimento de cusumbos", "Polinización por abejas", "Corredor biológico"], color: 0x4D7C59 },
-    { common: "Aliso Sabanero", scientific: "Alnus acuminata", taxon: "Plantae", icon: "fa-tree", habitat: "Ronda hidráulica Río Bogotá", diet: "Fijación biológica de nitrógeno", relations: ["Fijación de suelo", "Refugio de curíes", "Aporte de materia orgánica"], color: 0x3B6E4C },
+    // Flora: VERDE FRESCO BOTÁNICO (Restaurado como le gustó)
+    { common: "Sauco del Humedal", scientific: "Sambucus nigra", taxon: "Plantae", icon: "fa-leaf", habitat: "Bosque ripario y orillas de El Burro", diet: "Fotosíntesis y nutrientes del humedal", relations: ["Frutos para aves migratorias", "Fijación de taludes", "Sombra y microclima"], color: 0x2E8B57 },
+    { common: "Junco de Agua", scientific: "Schoenoplectus californicus", taxon: "Plantae", icon: "fa-spa", habitat: "Zonas de inundación permanente", diet: "Filtración hídrica fitorremediadora", relations: ["Filtro de metales pesados", "Nidación de Tingua Bogotana", "Refugio de alevines"], color: 0x48BB78 },
+    { common: "Lenteja de Agua", scientific: "Lemna minor", taxon: "Plantae", icon: "fa-seedling", habitat: "Espejos de agua lénticos", diet: "Absorción de nitrógeno y fósforo", relations: ["Alimento de aves acuáticas", "Oxigenación", "Control de algas"], color: 0x52B788 },
+    { common: "Urapán", scientific: "Fraxinus chinensis", taxon: "Plantae", icon: "fa-tree", habitat: "Dosel urbano y rondas de canal", diet: "Nutrición edáfica y fotosíntesis", relations: ["Percha de rapaces", "Hábitat de murciélagos", "Captura de CO2"], color: 0x2E8B57 },
+    { common: "Capulí", scientific: "Prunus serotina", taxon: "Plantae", icon: "fa-tree", habitat: "Borde de quebradas y reservas", diet: "Nutrientes de suelo aluvial", relations: ["Alimento de cusumbos", "Polinización por abejas", "Corredor biológico"], color: 0x48BB78 },
+    { common: "Aliso Sabanero", scientific: "Alnus acuminata", taxon: "Plantae", icon: "fa-tree", habitat: "Ronda hidráulica Río Bogotá", diet: "Fijación biológica de nitrógeno", relations: ["Fijación de suelo", "Refugio de curíes", "Aporte de materia orgánica"], color: 0x2E8B57 },
 
-    // Invertebrados / Polinizadores: ÁMBAR SOLAR TOUCHDESIGNER (Futuras partículas de arquitectura)
-    { common: "Abejorro Sabanero", scientific: "Bombus rubicundus", taxon: "Insecta", icon: "fa-clover", habitat: "Flores de Sauco, Tingua y Jardines", diet: "Néctar y polen silvestre", relations: ["Polinizador clave", "Zumbido de alta vibración", "Mutualismo floral"], color: 0xF59E0B },
-    { common: "Murciélago Mastín", scientific: "Molossus molossus", taxon: "Mammalia", icon: "fa-bat", habitat: "Huecos de árboles y cielo nocturno", diet: "Insectos voladores nocturnos y polillas", relations: ["Control biológico de plagas", "Bioacústica ultrasónica", "Polinización nocturna"], color: 0xD97706 },
-    { common: "Libélula Azul", scientific: "Rhionaeschna marchali", taxon: "Insecta", icon: "fa-bug", habitat: "Ronda hidráulica y espejos de agua", diet: "Mosquitos adultos y moscas", relations: ["Depredador aéreo de plagas", "Fase larvaria bentónica", "Presa de aves"], color: 0x00A8CC },
-    { common: "Mariposa Espejito", scientific: "Dione vanillae", taxon: "Insecta", icon: "fa-worm", habitat: "Jardines y enredaderas de pasiflora", diet: "Néctar floral y hojas nutricias", relations: ["Polinizadora diurna", "Metamorfosis en orillas", "Alimento de aves"], color: 0xF59E0B },
-    { common: "Hongo Micorrícico", scientific: "Glomus intraradices", taxon: "Fungi", icon: "fa-cube", habitat: "Suelo rizosférico del humedal", diet: "Azúcares de raíces de sauce y junco", relations: ["Red de transporte de fósforo", "Biofiltro del suelo", "Conexión simbiótica"], color: 0xF59E0B },
+    // Invertebrados / Polinizadores: CREMITA ARQUITECTÓNICO CÁLIDO
+    { common: "Abejorro Sabanero", scientific: "Bombus rubicundus", taxon: "Insecta", icon: "fa-clover", habitat: "Flores de Sauco, Tingua y Jardines", diet: "Néctar y polen silvestre", relations: ["Polinizador clave", "Zumbido de alta vibración", "Mutualismo floral"], color: 0xE2D9CC },
+    { common: "Murciélago Mastín", scientific: "Molossus molossus", taxon: "Mammalia", icon: "fa-bat", habitat: "Huecos de árboles y cielo nocturno", diet: "Insectos voladores nocturnos y polillas", relations: ["Control biológico de plagas", "Bioacústica ultrasónica", "Polinización nocturna"], color: 0xD0C4AF },
+    { common: "Libélula Azul", scientific: "Rhionaeschna marchali", taxon: "Insecta", icon: "fa-bug", habitat: "Ronda hidráulica y espejos de agua", diet: "Mosquitos adultos y moscas", relations: ["Depredador aéreo de plagas", "Fase larvaria bentónica", "Presa de aves"], color: 0x00B4D8 },
+    { common: "Mariposa Espejito", scientific: "Dione vanillae", taxon: "Insecta", icon: "fa-worm", habitat: "Jardines y enredaderas de pasiflora", diet: "Néctar floral y hojas nutricias", relations: ["Polinizadora diurna", "Metamorfosis en orillas", "Alimento de aves"], color: 0xE2D9CC },
+    { common: "Hongo Micorrícico", scientific: "Glomus intraradices", taxon: "Fungi", icon: "fa-cube", habitat: "Suelo rizosférico del humedal", diet: "Azúcares de raíces de sauce y junco", relations: ["Red de transporte de fósforo", "Biofiltro del suelo", "Conexión simbiótica"], color: 0xD0C4AF },
 
-    // Avifauna: AZUL CIAN HUMEDAL (Territorio Water)
-    { common: "Tingua Azul", scientific: "Porphyrio martinica", taxon: "Aves", icon: "fa-feather", habitat: "Lámina de agua y vegetación flotante", diet: "Lenteja de agua, semillas y moluscos", relations: ["Ave migratoria", "Nidificación en juncales", "Dispersora de macrófitas"], color: 0x00A8CC },
-    { common: "Tingua Bogotana", scientific: "Rallus semiplumbeus", taxon: "Aves", icon: "fa-dove", habitat: "Densos juncales del Humedal El Burro", diet: "Invertebrados acuáticos y brotes tiernos", relations: ["Especie endémica en peligro", "Bioindicador de conservación", "Nidos flotantes"], color: 0x00A8CC },
-    { common: "Garza Real", scientific: "Ardea alba", taxon: "Aves", icon: "fa-dove", habitat: "Orillas abiertas del Humedal El Burro", diet: "Ranas sabaneras, peces y coleópteros", relations: ["Depredador acuático tope", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0x00A8CC },
-    { common: "Pato Turrio", scientific: "Oxyura jamaicensis", taxon: "Aves", icon: "fa-water", habitat: "Lagunas profundas de Kennedy", diet: "Larvas de quironómidos y plantas sumergidas", relations: ["Buceo profundo", "Oxigenación de sedimentos", "Comensalismo con tinguas"], color: 0x00A8CC },
-    { common: "Alcaraván Sabanero", scientific: "Vanellus chilensis", taxon: "Aves", icon: "fa-dove", habitat: "Campos abiertos y riberas secas", diet: "Gusanos, escarabajos y pequeños moluscos", relations: ["Guardián del territorio", "Alarma sonora comunitaria", "Nidos en suelo"], color: 0x00A8CC },
+    // Avifauna: AZUL HUMEDAL VIBRANTE
+    { common: "Tingua Azul", scientific: "Porphyrio martinica", taxon: "Aves", icon: "fa-feather", habitat: "Lámina de agua y vegetación flotante", diet: "Lenteja de agua, semillas y moluscos", relations: ["Ave migratoria", "Nidificación en juncales", "Dispersora de macrófitas"], color: 0x00B4D8 },
+    { common: "Tingua Bogotana", scientific: "Rallus semiplumbeus", taxon: "Aves", icon: "fa-dove", habitat: "Densos juncales del Humedal El Burro", diet: "Invertebrados acuáticos y brotes tiernos", relations: ["Especie endémica en peligro", "Bioindicador de conservación", "Nidos flotantes"], color: 0x00B4D8 },
+    { common: "Garza Real", scientific: "Ardea alba", taxon: "Aves", icon: "fa-dove", habitat: "Orillas abiertas del Humedal El Burro", diet: "Ranas sabaneras, peces y coleópteros", relations: ["Depredador acuático tope", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0x00B4D8 },
+    { common: "Pato Turrio", scientific: "Oxyura jamaicensis", taxon: "Aves", icon: "fa-water", habitat: "Lagunas profundas de Kennedy", diet: "Larvas de quironómidos y plantas sumergidas", relations: ["Buceo profundo", "Oxigenación de sedimentos", "Comensalismo con tinguas"], color: 0x00B4D8 },
+    { common: "Alcaraván Sabanero", scientific: "Vanellus chilensis", taxon: "Aves", icon: "fa-dove", habitat: "Campos abiertos y riberas secas", diet: "Gusanos, escarabajos y pequeños moluscos", relations: ["Guardián del territorio", "Alarma sonora comunitaria", "Nidos en suelo"], color: 0x00B4D8 },
 
-    // Fauna / Mamíferos / Herpetos: ÁMBAR SOLAR & VERDE
-    { common: "Rana Sabanera", scientific: "Dendropsophus molitor", taxon: "Amphibia", icon: "fa-frog", habitat: "Espejos de agua y juncales de El Burro", diet: "Insectos acuáticos, larvas y dípteros", relations: ["Control de mosquitos", "Alimento de Garza Real", "Refugio en Juncos"], color: 0x00A8CC },
-    { common: "Serpiente Sabanera", scientific: "Atractus crassicaudatus", taxon: "Reptilia", icon: "fa-staff-snake", habitat: "Suelo húmedo y pastizales de ribera", diet: "Lombrices de tierra y babosas", relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0x3B6E4C },
-    { common: "Cusumbo Andino", scientific: "Nasua olivacea", taxon: "Mammalia", icon: "fa-paw", habitat: "Reserva Umbral Horizontes / El Burro", diet: "Frutos de Sauco, semillas e invertebrados", relations: ["Dispersión de semillas", "Forrajeo en dosel", "Polinización indirecta"], color: 0xF59E0B },
-    { common: "Comadreja Andina", scientific: "Neogale frenata", taxon: "Mammalia", icon: "fa-paw", habitat: "Ribera del Río Bogotá y canales", diet: "Pequeños roedores y anfibios", relations: ["Depredador tope", "Control poblacional", "Madrigueras en taludes"], color: 0xD97706 },
-    { common: "Hicotea del Humedal", scientific: "Trachemys callirostris", taxon: "Reptilia", icon: "fa-shield-halved", habitat: "Zonas de remanso y asoleaderos de agua", diet: "Vegetación sumergida y detritos acuáticos", relations: ["Limpieza de detritos", "Asoleo en troncos", "Nidación en ribera"], color: 0x00A8CC },
-    { common: "Curí Sabanero", scientific: "Cavia aperea", taxon: "Mammalia", icon: "fa-paw", habitat: "Pastizales inundables y rondas", diet: "Gramíneas, pasto kikuyo y hojas", relations: ["Herbívoro primario", "Presa clave", "Túneles ecológicos"], color: 0x3B6E4C }
+    // Fauna / Mamíferos / Herpetos: CREMITA & VERDE
+    { common: "Rana Sabanera", scientific: "Dendropsophus molitor", taxon: "Amphibia", icon: "fa-frog", habitat: "Espejos de agua y juncales de El Burro", diet: "Insectos acuáticos, larvas y dípteros", relations: ["Control de mosquitos", "Alimento de Garza Real", "Refugio en Juncos"], color: 0x00B4D8 },
+    { common: "Serpiente Sabanera", scientific: "Atractus crassicaudatus", taxon: "Reptilia", icon: "fa-staff-snake", habitat: "Suelo húmedo y pastizales de ribera", diet: "Lombrices de tierra y babosas", relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0x2E8B57 },
+    { common: "Cusumbo Andino", scientific: "Nasua olivacea", taxon: "Mammalia", icon: "fa-paw", habitat: "Reserva Umbral Horizontes / El Burro", diet: "Frutos de Sauco, semillas e invertebrados", relations: ["Dispersión de semillas", "Forrajeo en dosel", "Polinización indirecta"], color: 0xE2D9CC },
+    { common: "Comadreja Andina", scientific: "Neogale frenata", taxon: "Mammalia", icon: "fa-paw", habitat: "Ribera del Río Bogotá y canales", diet: "Pequeños roedores y anfibios", relations: ["Depredador tope", "Control poblacional", "Madrigueras en taludes"], color: 0xD0C4AF },
+    { common: "Hicotea del Humedal", scientific: "Trachemys callirostris", taxon: "Reptilia", icon: "fa-shield-halved", habitat: "Zonas de remanso y asoleaderos de agua", diet: "Vegetación sumergida y detritos acuáticos", relations: ["Limpieza de detritos", "Asoleo en troncos", "Nidación en ribera"], color: 0x00B4D8 },
+    { common: "Curí Sabanero", scientific: "Cavia aperea", taxon: "Mammalia", icon: "fa-paw", habitat: "Pastizales inundables y rondas", diet: "Gramíneas, pasto kikuyo y hojas", relations: ["Herbívoro primario", "Presa clave", "Túneles ecológicos"], color: 0x2E8B57 }
   ];
 
   // =====================================================================
@@ -567,15 +567,15 @@
   }
 
   // =====================================================================
-  // 4. CARGA DE CAPAS GEOGRÁFICAS (TOUCHDESIGNER COHESIVE PALETTE)
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (PALETA RESTAURADA & CREMITA SUAVE)
   // =====================================================================
   function loadWater() {
     return fetch(WATER_URL)
       .then(r => r.json())
       .then(waterBodies => {
-        // Cuerpos de Agua: Azul Cian Humedal Nítido y Cristalino
-        const colWaterMain = new THREE.Color(0x00A8CC); // Azul Humedal (#00A8CC)
-        const colWaterDeep = new THREE.Color(0x028090); // Azul Laguna Profunda (#028090)
+        // Cuerpos de Agua: Azul Nítido y Luminoso (#00B4D8 & #0077B6)
+        const colWaterMain = new THREE.Color(0x00B4D8); // Azul Humedal Brillante (#00B4D8)
+        const colWaterDeep = new THREE.Color(0x0077B6); // Azul Profundo (#0077B6)
 
         waterBodies.forEach(w => {
           const pts = w.pts;
@@ -630,24 +630,24 @@
     return fetch(TREES_URL)
       .then(r => r.json())
       .then(trees => {
-        // Vegetación en VERDE BOSQUE & MUSGO NATURAL (Cero neón, orgánico, profundo)
-        const colTreeForest = new THREE.Color(0x3B6E4C); // Verde Bosque Natural (#3B6E4C)
-        const colTreeMoss   = new THREE.Color(0x4D7C59); // Verde Musgo / Follaje (#4D7C59)
-        const colTrunk      = new THREE.Color(0x1F2421); // Base oscura
+        // Vegetación en VERDE FRESCO BOTÁNICO VIBRANTE (#2E8B57 & #48BB78)
+        const colTreeLush = new THREE.Color(0x2E8B57);    // Verde Esmeralda / Bosque (#2E8B57)
+        const colTreeBright = new THREE.Color(0x48BB78);  // Verde Hoja Fresco (#48BB78)
+        const colTrunk = new THREE.Color(0x1A202C);       // Tronco oscuro (#1A202C)
 
         trees.forEach((t, i) => {
           const [x, y, hMeters] = t;
           const p = toScene(x, y);
           const h = Math.max(0.7, (hMeters || 8) * SCALE);
 
-          const folCol = (i % 2 === 0) ? colTreeForest : colTreeMoss;
+          const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
 
           const crownY = h * 0.85;
           const swCrown = randomSwarmCluster(currentParticleIndex++);
           pTarget.push(p.x, crownY, p.z);
           pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
           pColor.push(folCol.r, folCol.g, folCol.b);
-          pSize.push(1.55);
+          pSize.push(1.6);
           pPhase.push(i * 0.25);
           pCat.push(1.0); // 1 = arbol
 
@@ -662,8 +662,8 @@
             const swSub = randomSwarmCluster(currentParticleIndex++);
             pTarget.push(sx, sy, sz);
             pSwarm.push(swSub.x, swSub.y, swSub.z);
-            pColor.push(folCol.r * 1.04, folCol.g * 1.04, folCol.b * 1.04);
-            pSize.push(1.35);
+            pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
+            pSize.push(1.4);
             pPhase.push(i + k * 1.5);
             pCat.push(1.0);
           }
@@ -687,7 +687,7 @@
       .then(r => r.json())
       .then(edges => {
         const colRoad = new THREE.Color(0x27272A);        // Asfalto Grafito Muted
-        const colMajor = new THREE.Color(0x00A8CC);       // Vías Principales Cyan Accent
+        const colMajor = new THREE.Color(0x38BDF8);       // Vías Principales Sky Blue
 
         edges.forEach(([kind, pts], edgeIdx) => {
           const isMajor = (edgeIdx % 4 === 0);
@@ -714,11 +714,11 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta Arquitectónica TouchDesigner: Ámbar Solar & Oro Cálido (#F59E0B / #D97706)
-        const colBldgAmber = new THREE.Color(0xF59E0B);    // Ámbar Solar TouchDesigner (#F59E0B)
-        const colBldgAmberDeep = new THREE.Color(0xD97706);// Ámbar Profundo (#D97706)
-        const colRoofHighlight = new THREE.Color(0xFBBF24); // Remate superior oro brillante
-        const colBaseGround = new THREE.Color(0x161618);   // Fondo negro grafito
+        // Paleta Arquitectónica: Cremita Suave / Lino Cálido (No blanco, no morado, no ámbar)
+        const colBldgCream = new THREE.Color(0xE2D9CC);   // Cremita Suave (#E2D9CC)
+        const colBldgSand  = new THREE.Color(0xD0C4AF);   // Arena Suave (#D0C4AF)
+        const colRoofHighlight = new THREE.Color(0xEDE6DB); // Remate superior crema claro
+        const colBaseGround = new THREE.Color(0x161618);  // Fondo negro grafito
 
         buildings.forEach((b, bIdx) => {
           const pts = b.pts;
@@ -727,8 +727,8 @@
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.height || 10) * SCALE;
           
-          // Estructura volumétrica arquitectónica homogénea
-          const bldgCol = (bIdx % 2 === 0) ? colBldgAmber : colBldgAmberDeep;
+          // Estructura volumétrica arquitectónica homogénea en crema
+          const bldgCol = (bIdx % 2 === 0) ? colBldgCream : colBldgSand;
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
@@ -743,7 +743,7 @@
               const isRoof = (step === steps);
               const c = isRoof ? colRoofHighlight : bldgCol;
               pColor.push(c.r, c.g, c.b);
-              pSize.push(isRoof ? 1.4 : 1.2);
+              pSize.push(isRoof ? 1.35 : 1.15);
               pPhase.push(bIdx + step);
               pCat.push(2.0); // 2 = edificio
             }
