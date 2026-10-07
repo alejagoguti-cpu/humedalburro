@@ -194,192 +194,192 @@
     { common: "Curí Sabanero", scientific: "Cavia aperea", taxon: "Mammalia", icon: "fa-paw", habitat: "Pastizales inundables y rondas", diet: "Gramíneas, pasto kikuyo y hojas", relations: ["Herbívoro primario", "Presa clave", "Túneles ecológicos"], color: 0x2E8B57 }
   ];
 
-  // Catálogo Georreferenciado Exacto de Especies y Árboles en Kennedy (Censo Forestal Real & Humedales)
+  // Catálogo Georreferenciado Exacto de ÁRBOLES en Kennedy (Censo Forestal Real)
   const SPECIES_GEO_NODES = [
+    {
+      id: "chicala",
+      name: "Chicalá / Flor Amarillo",
+      sci: "Tecoma stans",
+      type: "Árbol Urbano Melífero",
+      count: "6,884 árboles",
+      avgHeight: "2.6 m (hasta 6 m)",
+      img: "./assets/inat_timboco.png",
+      pos: { x: 210.4, y: 13.0, z: 96.0 },
+      camPos: { x: 210.4, y: 48, z: 155 },
+      camTarget: { x: 210.4, y: 0, z: 96.0 },
+      habitat: "Parques zonales, separadores viales y bordes del humedal",
+      role: "Especie arbórea más abundante de Kennedy. Floración dorada que nutre colibríes y abejas nativas.",
+      color: 0xEAC119
+    },
+    {
+      id: "jazmin",
+      name: "Jazmín del Cabo / Laurel Huesito",
+      sci: "Pittosporum undulatum",
+      type: "Árbol de Sombra y Seto",
+      count: "5,650 árboles",
+      avgHeight: "3.2 m (hasta 9 m)",
+      img: "./assets/inat_sauco.png",
+      pos: { x: 234.8, y: 13.5, z: 102.9 },
+      camPos: { x: 234.8, y: 50, z: 162 },
+      camTarget: { x: 234.8, y: 0, z: 102.9 },
+      habitat: "Andenes anchos, plazoletas y micro-bosques urbanos",
+      role: "Follaje denso perenne que absorbe partículas contaminantes y provee sombra protectora en corredores.",
+      color: 0x48BB78
+    },
     {
       id: "sauco",
       name: "Sauco del Humedal",
       sci: "Sambucus nigra",
-      type: "Flora / Árbol Nativo",
+      type: "Árbol Nativo Ripario",
       count: "5,553 árboles",
       avgHeight: "3.1 m (hasta 8 m)",
       img: "./assets/inat_sauco.png",
-      pos: { x: 221, y: 14, z: 125 },
-      camPos: { x: 221, y: 55, z: 185 },
-      camTarget: { x: 221, y: 0, z: 125 },
-      habitat: "Bosque ripario y orillas de El Burro",
-      role: "Fitorremediación de taludes, néctar para polinizadores y alimento primario de aves acuáticas y migratorias.",
+      pos: { x: 221.0, y: 13.0, z: 124.7 },
+      camPos: { x: 221.0, y: 48, z: 182 },
+      camTarget: { x: 221.0, y: 0, z: 124.7 },
+      habitat: "Bosque ripario y orillas del Humedal El Burro",
+      role: "Fitorremediación de taludes hídricos, bayas nutritivas esenciales para aves acuáticas y migratorias.",
+      color: 0x2E8B57
+    },
+    {
+      id: "falso_pimiento",
+      name: "Falso Pimiento",
+      sci: "Schinus molle",
+      type: "Árbol Protector de Suelo",
+      count: "4,548 árboles",
+      avgHeight: "3.6 m (hasta 10 m)",
+      img: "./assets/inat_espino.png",
+      pos: { x: 192.2, y: 14.0, z: 88.6 },
+      camPos: { x: 192.2, y: 52, z: 148 },
+      camTarget: { x: 192.2, y: 0, z: 88.6 },
+      habitat: "Zonas verdes comunales y rondas de canal",
+      role: "Raíces profundas que fijan terrenos blandos y hojas aromáticas que repelen plagas naturalmente.",
+      color: 0x2E8B57
+    },
+    {
+      id: "eugenia",
+      name: "Eugenia",
+      sci: "Eugenia myrtifolia",
+      type: "Árbol / Arbusto Estructural",
+      count: "4,370 árboles",
+      avgHeight: "3.5 m (hasta 8 m)",
+      img: "./assets/inat_chilca.png",
+      pos: { x: 209.7, y: 13.5, z: 78.8 },
+      camPos: { x: 209.7, y: 50, z: 138 },
+      camTarget: { x: 209.7, y: 0, z: 78.8 },
+      habitat: "Barreras vivas y separadores ambientales",
+      role: "Conformación de cercas vivas densas que amortiguan el ruido urbano hacia el humedal.",
+      color: 0x48BB78
+    },
+    {
+      id: "palma_yuca",
+      name: "Palma Yuca / Palmiche",
+      sci: "Yucca gigantea",
+      type: "Palma Arborescente",
+      count: "4,356 árboles",
+      avgHeight: "2.9 m (hasta 7 m)",
+      img: "./assets/inat_mastuerzo.png",
+      pos: { x: 188.7, y: 12.5, z: 180.1 },
+      camPos: { x: 188.7, y: 48, z: 240 },
+      camTarget: { x: 188.7, y: 0, z: 180.1 },
+      habitat: "Sectores residenciales de Kennedy Central",
+      role: "Especie xerofítica de bajo consumo hídrico y refugio para nidos de aves urbanas.",
+      color: 0x2E8B57
+    },
+    {
+      id: "urapan",
+      name: "Urapán / Fresno",
+      sci: "Fraxinus chinensis",
+      type: "Árbol de Gran Porte / Dosel Alto",
+      count: "3,113 árboles",
+      avgHeight: "8.5 m (hasta 20 m)",
+      img: "./assets/cx_urapan.png",
+      pos: { x: 251.2, y: 19.0, z: 142.5 },
+      camPos: { x: 251.2, y: 68, z: 205 },
+      camTarget: { x: 251.2, y: 0, z: 142.5 },
+      habitat: "Parques metropolitanos y dosel superior de Kennedy",
+      role: "Árbol de mayor porte en la localidad, percha principal de aves rapaces y capturador masivo de CO2.",
+      color: 0x2E8B57
+    },
+    {
+      id: "caucho",
+      name: "Caucho Sabanero",
+      sci: "Ficus soatensis",
+      type: "Árbol Nativo Emblemático",
+      count: "2,860 árboles",
+      avgHeight: "6.3 m (hasta 15 m)",
+      img: "./assets/inat_espino.png",
+      pos: { x: 172.3, y: 16.0, z: 138.1 },
+      camPos: { x: 172.3, y: 58, z: 198 },
+      camTarget: { x: 172.3, y: 0, z: 138.1 },
+      habitat: "Rondas de humedales y reservas ecológicas",
+      role: "Copa perenne amplia que amortigua lluvias torrenciales y crea microclimas frescos.",
+      color: 0x2E8B57
+    },
+    {
+      id: "cipres",
+      name: "Ciprés / Pino",
+      sci: "Cupressus lusitanica",
+      type: "Conífera de Protección",
+      count: "2,828 árboles",
+      avgHeight: "4.9 m (hasta 16 m)",
+      img: "./assets/arbol_real4.png",
+      pos: { x: 277.8, y: 15.0, z: 124.1 },
+      camPos: { x: 277.8, y: 55, z: 184 },
+      camTarget: { x: 277.8, y: 0, z: 124.1 },
+      habitat: "Barreras de viento y bordes perimetrales",
+      role: "Barrera cortaviento que protege las láminas de agua del humedal de la desecación eólica.",
+      color: 0x48BB78
+    },
+    {
+      id: "acacia",
+      name: "Acacia Sabanera",
+      sci: "Acacia melanoxylon",
+      type: "Árbol Forestal Urbano",
+      count: "2,160 árboles",
+      avgHeight: "3.9 m (hasta 12 m)",
+      img: "./assets/inat_chilca.png",
+      pos: { x: 166.1, y: 14.0, z: 93.1 },
+      camPos: { x: 166.1, y: 52, z: 153 },
+      camTarget: { x: 166.1, y: 0, z: 93.1 },
+      habitat: "Taludes, vías arterias y separadores",
+      role: "Crecimiento vigoroso y aporte de biomasa orgánica a los suelos del territorio.",
       color: 0x2E8B57
     },
     {
       id: "capulin",
       name: "Capulí / Cerezo",
       sci: "Prunus serotina",
-      type: "Flora / Árbol Frutal Silvestre",
+      type: "Árbol Frutal Silvestre",
       count: "1,901 árboles",
       avgHeight: "3.7 m (hasta 12 m)",
       img: "./assets/inat_capulin.png",
-      pos: { x: 209, y: 15, z: 141 },
-      camPos: { x: 209, y: 60, z: 200 },
-      camTarget: { x: 209, y: 0, z: 141 },
-      habitat: "Borde de quebradas, rondas hidráulicas y reservas",
-      role: "Frutos dulces esenciales para aves frugívoras y murciélagos, atracción de abejas nativas y enriquecimiento del suelo.",
+      pos: { x: 208.9, y: 14.5, z: 141.0 },
+      camPos: { x: 208.9, y: 52, z: 200 },
+      camTarget: { x: 208.9, y: 0, z: 141.0 },
+      habitat: "Rondas hidráulicas y borde de humedales",
+      role: "Frutos dulces que alimentan aves frugívoras, murciélagos y enriquecen la fauna local.",
       color: 0x48BB78
-    },
-    {
-      id: "urapan",
-      name: "Urapán / Fresno",
-      sci: "Fraxinus chinensis",
-      type: "Flora / Árbol de Dosel Alto",
-      count: "3,113 árboles",
-      avgHeight: "8.5 m (hasta 20 m)",
-      img: "./assets/cx_urapan.png",
-      pos: { x: 251, y: 22, z: 142 },
-      camPos: { x: 251, y: 75, z: 205 },
-      camTarget: { x: 251, y: 0, z: 142 },
-      habitat: "Dosel urbano, parques y corredores biológicos de Kennedy",
-      role: "Árbol de gran porte que conforma el estrato alto, percha preferida de gavilanes y rapaces, y capturador masivo de CO2.",
-      color: 0x2E8B57
-    },
-    {
-      id: "chicala",
-      name: "Chicalá / Flor Amarillo",
-      sci: "Tecoma stans",
-      type: "Flora / Árbol Melífero",
-      count: "6,884 árboles",
-      avgHeight: "2.6 m (hasta 6 m)",
-      img: "./assets/inat_timboco.png",
-      pos: { x: 210, y: 14, z: 96 },
-      camPos: { x: 210, y: 55, z: 155 },
-      camTarget: { x: 210, y: 0, z: 96 },
-      habitat: "Parques zonales, separadores y bordes de humedal",
-      role: "Floración dorada continua que nutre colibríes y abejorros sabaneros a lo largo de todo el año.",
-      color: 0xEAC119
-    },
-    {
-      id: "caucho",
-      name: "Caucho Sabanero",
-      sci: "Ficus soatensis",
-      type: "Flora / Árbol Nativo Emblemático",
-      count: "2,860 árboles",
-      avgHeight: "6.3 m (hasta 15 m)",
-      img: "./assets/inat_espino.png",
-      pos: { x: 172, y: 18, z: 138 },
-      camPos: { x: 172, y: 65, z: 198 },
-      camTarget: { x: 172, y: 0, z: 138 },
-      habitat: "Borde de lagunas y rondas de conservación",
-      role: "Copas densas perennes que regulan la temperatura microclimática y ofrecen refugio a colonias de aves.",
-      color: 0x2E8B57
     },
     {
       id: "aliso",
       name: "Aliso Sabanero",
       sci: "Alnus acuminata",
-      type: "Flora / Árbol Fijador de Nitrógeno",
+      type: "Árbol Ripario Fijador de Nitrógeno",
       count: "1,058 árboles",
       avgHeight: "2.7 m (hasta 12 m)",
       img: "./assets/inat_chilca.png",
-      pos: { x: 203, y: 15, z: -102 },
-      camPos: { x: 203, y: 55, z: -45 },
-      camTarget: { x: 203, y: 0, z: -102 },
-      habitat: "Rondas inundables y riberas del Río Bogotá",
-      role: "Fijación simbiótica de nitrógeno que recupera suelos degradados y previene la erosión hídrica.",
+      pos: { x: 203.4, y: 13.5, z: -102.2 },
+      camPos: { x: 203.4, y: 50, z: -42 },
+      camTarget: { x: 203.4, y: 0, z: -102.2 },
+      habitat: "Zonas inundables y riberas del Río Bogotá",
+      role: "Fijación de nitrógeno en raíces y regeneración natural de suelos húmedos.",
       color: 0x48BB78
-    },
-    {
-      id: "junco",
-      name: "Junco de Agua",
-      sci: "Schoenoplectus californicus",
-      type: "Macrófita Emergente",
-      count: "14,200 matas",
-      avgHeight: "2.2 m",
-      img: "./assets/inat_juncal.png",
-      pos: { x: 210, y: 9, z: -10 },
-      camPos: { x: 210, y: 45, z: 45 },
-      camTarget: { x: 210, y: 0, z: -10 },
-      habitat: "Espejos de agua y lámina permanente de El Burro",
-      role: "Biofiltro natural de metales pesados y sitio exclusivo de nidación de la amenazada Tingua Bogotana.",
-      color: 0x00B4D8
-    },
-    {
-      id: "tingua",
-      name: "Tingua Bogotana",
-      sci: "Rallus semiplumbeus",
-      type: "Fauna / Ave Acuática Endémica",
-      count: "320 individuos",
-      avgHeight: "28 cm de longitud",
-      img: "./assets/tingua.png",
-      pos: { x: 216, y: 8, z: 5 },
-      camPos: { x: 216, y: 40, z: 55 },
-      camTarget: { x: 216, y: 0, z: 5 },
-      habitat: "Juncales densos de El Burro y La Vaca",
-      role: "Especie paraguas del altiplano cundiboyacense en peligro de extinción, bioindicador de aguas limpias.",
-      color: 0x00B4D8
-    },
-    {
-      id: "garza",
-      name: "Garza Real",
-      sci: "Ardea alba",
-      type: "Fauna / Ave Pescadora",
-      count: "180 individuos",
-      avgHeight: "90 cm de envergadura",
-      img: "./assets/inat_garza.png",
-      pos: { x: 228, y: 11, z: -25 },
-      camPos: { x: 228, y: 45, z: 30 },
-      camTarget: { x: 228, y: 0, z: -25 },
-      habitat: "Orillas lodosas y aguas someras de El Burro",
-      role: "Control poblacional de peces invasores (guppy) y anfibios en las lagunas de Kennedy.",
-      color: 0x00B4D8
-    },
-    {
-      id: "rana",
-      name: "Rana Sabanera",
-      sci: "Dendropsophus molitor",
-      type: "Fauna / Anfibio Silvestre",
-      count: "8,500 individuos",
-      avgHeight: "4.5 cm",
-      img: "./assets/inat_rana.png",
-      pos: { x: 195, y: 7, z: -18 },
-      camPos: { x: 195, y: 35, z: 30 },
-      camTarget: { x: 195, y: 0, z: -18 },
-      habitat: "Espejos de agua lénticos y hojarasca húmeda",
-      role: "Control biológico masivo de zancudos y larvas, y presa esencial para la avifauna del humedal.",
-      color: 0x48BB78
-    },
-    {
-      id: "pato",
-      name: "Pato Turrio",
-      sci: "Oxyura jamaicensis",
-      type: "Fauna / Ave Buceadora",
-      count: "240 individuos",
-      avgHeight: "43 cm",
-      img: "./assets/inat_oxyura.png",
-      pos: { x: 65, y: 10, z: 125 },
-      camPos: { x: 65, y: 45, z: 180 },
-      camTarget: { x: 65, y: 0, z: 125 },
-      habitat: "Laguna profunda del Humedal La Vaca",
-      role: "Buceador que remueve sedimentos del fondo, oxigenando el lecho lacustre y consumiendo larvas bentónicas.",
-      color: 0x00B4D8
-    },
-    {
-      id: "mariposa",
-      name: "Mariposa Espejito / Polinizadores",
-      sci: "Dione vanillae",
-      type: "Fauna / Insecto Polinizador",
-      count: "9,800 individuos",
-      avgHeight: "7 cm de envergadura",
-      img: "./assets/inat_mariposa.png",
-      pos: { x: 235, y: 13, z: -60 },
-      camPos: { x: 235, y: 50, z: -10 },
-      camTarget: { x: 235, y: 0, z: -60 },
-      habitat: "Jardines florales, pasifloras y copas de Saucos",
-      role: "Polinizadora diurna indispensable que mantiene la diversidad genética de las plantas con flor de Kennedy.",
-      color: 0xE2D9CC
     }
   ];
 
   // =====================================================================
-  // 2. RED BIÓTICA: ATRACTOR GENERATIVO FLUIDO (TOUCHDESIGNER VORTEX CLOUD)
+  // 2. RED BIÓTICA: ESFERA FIBONACCI PERFECTA (BOLITA 360° INTERCONECTADA)
   // =====================================================================
   const SWARM_COUNT = 850;
   const swarmGroup = new THREE.Group();
@@ -393,8 +393,8 @@
 
     const radGlow = ctx.createRadialGradient(32, 32, 1, 32, 32, 30);
     radGlow.addColorStop(0, "rgba(255, 255, 255, 1.0)");
-    radGlow.addColorStop(0.2, "rgba(245, 158, 11, 0.95)");
-    radGlow.addColorStop(0.55, "rgba(217, 119, 6, 0.4)");
+    radGlow.addColorStop(0.25, "rgba(234, 193, 25, 0.95)");
+    radGlow.addColorStop(0.6, "rgba(46, 139, 87, 0.45)");
     radGlow.addColorStop(1, "rgba(20, 20, 22, 0)");
     ctx.fillStyle = radGlow;
     ctx.fillRect(0, 0, 64, 64);
@@ -424,7 +424,7 @@
         
         vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * mvPos;
-        gl_PointSize = aNodeScale * (400.0 / -mvPos.z) * vAlpha;
+        gl_PointSize = aNodeScale * (420.0 / -mvPos.z) * vAlpha;
       }
     `,
     fragmentShader: `
@@ -449,42 +449,40 @@
   const nodeColors = new Float32Array(SWARM_COUNT * 3);
   const nodeScales = new Float32Array(SWARM_COUNT);
 
-  // Generación tipo Atractor Toroidal / Curl-Noise Nebula (TouchDesigner aesthetic)
+  // Esfera perfecta de Fibonacci (360° homogénea, completa y bien distribuida)
+  const SPHERE_RADIUS = 31.0;
+  const goldenAngle = Math.PI * (3.0 - Math.sqrt(5.0));
+
   for (let i = 0; i < SWARM_COUNT; i++) {
     const species = SPECIES_CATALOG[i % SPECIES_CATALOG.length];
 
-    const u = (i / SWARM_COUNT) * Math.PI * 2 * 3.0;
-    const v = ((i % 31) / 31.0) * Math.PI * 2;
-    const R = 25.0 + 7.0 * Math.sin(i * 0.35);
-    const r = 10.5 + 4.5 * Math.cos(i * 0.45);
-    
-    // Nube orgánica toroidal con torsión espacial
-    const x = (R + r * Math.cos(v)) * Math.cos(u);
-    const z = (R + r * Math.cos(v)) * Math.sin(u);
-    const y = r * Math.sin(v) * 0.85 + Math.sin(u * 2.0) * 6.0;
+    const y = 1.0 - (i / (SWARM_COUNT - 1.0)) * 2.0; // De 1 a -1
+    const radiusAtY = Math.sqrt(Math.max(0.0, 1.0 - y * y));
+    const theta = goldenAngle * i;
+
+    const x = Math.cos(theta) * radiusAtY * SPHERE_RADIUS;
+    const z = Math.sin(theta) * radiusAtY * SPHERE_RADIUS;
+    const sy = y * SPHERE_RADIUS;
 
     const col = new THREE.Color(species.color);
 
     nodePositions[i * 3]     = x;
-    nodePositions[i * 3 + 1] = y;
+    nodePositions[i * 3 + 1] = sy;
     nodePositions[i * 3 + 2] = z;
 
     nodeColors[i * 3]     = col.r;
     nodeColors[i * 3 + 1] = col.g;
     nodeColors[i * 3 + 2] = col.b;
 
-    nodeScales[i] = 1.35 + (i % 3 === 0 ? 0.45 : 0.0);
+    nodeScales[i] = 1.4 + (i % 4 === 0 ? 0.4 : 0.0);
 
     swarmNodes.push({
       id: i,
       species: species,
-      baseX: x, baseY: y, baseZ: z,
-      x: x, y: y, z: z,
+      baseX: x, baseY: sy, baseZ: z,
+      x: x, y: sy, z: z,
       phase: Math.random() * Math.PI * 2,
-      orbitSpeed: 0.25 + Math.random() * 0.35,
-      radius: Math.sqrt(x * x + z * z),
-      baseAngle: Math.atan2(z, x),
-      ampY: 2.0 + Math.random() * 3.5,
+      orbitSpeed: 0.2 + Math.random() * 0.3,
       scale: nodeScales[i],
       color: col,
       neighbors: [],
@@ -578,14 +576,11 @@
 
     for (let i = 0; i < SWARM_COUNT; i++) {
       const d = swarmNodes[i];
-      // Flujo de rotación toroidal continuo tipo TouchDesigner
-      const curAngle = d.baseAngle + time * d.orbitSpeed * 0.4;
-      const waveRadial = Math.sin(time * 1.1 + d.phase) * 2.5;
-      const r = d.radius + waveRadial;
-
-      const curX = Math.cos(curAngle) * r;
-      const curZ = Math.sin(curAngle) * r;
-      const curY = d.baseY + Math.sin(time * 1.3 + d.phase) * d.ampY + Math.cos(curAngle * 2.0) * 2.0;
+      // Respiración sutil en la superficie de la esfera (360° bolita perfecta)
+      const pulse = 1.0 + Math.sin(time * 1.6 + d.phase) * 0.025;
+      const curX = d.baseX * pulse;
+      const curY = d.baseY * pulse;
+      const curZ = d.baseZ * pulse;
 
       d.x = curX; d.y = curY; d.z = curZ;
 
@@ -988,23 +983,27 @@
       ctx.clearRect(0, 0, 128, 128);
       ctx.save();
       
-      // Fondo y resplandor circular exterior
+      // Sombra suave circular
       ctx.beginPath();
-      ctx.arc(64, 64, 60, 0, Math.PI * 2);
-      ctx.strokeStyle = colorHex;
-      ctx.lineWidth = 8;
-      ctx.shadowColor = colorHex;
-      ctx.shadowBlur = 14;
-      ctx.stroke();
+      ctx.arc(64, 64, 52, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fill();
 
-      // Recorte circular nítido de la fotografía
+      // Recorte circular de la fotografía real del árbol
       ctx.beginPath();
-      ctx.arc(64, 64, 54, 0, Math.PI * 2);
+      ctx.arc(64, 64, 48, 0, Math.PI * 2);
       ctx.closePath();
       ctx.clip();
       
-      ctx.drawImage(img, 10, 10, 108, 108);
+      ctx.drawImage(img, 16, 16, 96, 96);
       ctx.restore();
+
+      // Borde fino nítido luminoso
+      ctx.beginPath();
+      ctx.arc(64, 64, 48, 0, Math.PI * 2);
+      ctx.strokeStyle = colorHex;
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
       
       tex.needsUpdate = true;
     };
@@ -1023,11 +1022,12 @@
       const col = new THREE.Color(spec.color);
       const hexStr = '#' + col.getHexString();
 
-      // 1. Orbe Fotográfico Flotante (Sprite Billboard)
+      // 1. Orbe Fotográfico Flotante Nítido
       const spriteMat = new THREE.SpriteMaterial({
         map: createCircularSpriteTexture(spec.img, hexStr),
         transparent: true,
-        depthWrite: false
+        depthWrite: false,
+        opacity: 0.0
       });
       const sprite = new THREE.Sprite(spriteMat);
       sprite.scale.set(13.5, 13.5, 1);
@@ -1035,43 +1035,46 @@
       sprite.userData = { specIndex: idx, species: spec };
       group.add(sprite);
 
-      // 2. Anillo de Luz Halógena Concéntrico
-      const ringGeo = new THREE.RingGeometry(6.6, 7.8, 36);
-      const ringMat = new THREE.MeshBasicMaterial({
+      // 2. Línea guía vertical ultrafina desde el suelo hasta el orbe
+      const stemHeight = spec.pos.y;
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, -stemHeight, 0)
+      ]);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: col,
+        transparent: true,
+        opacity: 0.0
+      });
+      const dropLine = new THREE.Line(lineGeo, lineMat);
+      group.add(dropLine);
+
+      // 3. Puntito del árbol destacado en el suelo (punto georreferenciado ampliado)
+      const dotGeo = new THREE.CircleGeometry(1.8, 24);
+      const dotMat = new THREE.MeshBasicMaterial({
         color: col,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.0,
         blending: THREE.AdditiveBlending
       });
-      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-      group.add(ringMesh);
+      const groundDot = new THREE.Mesh(dotGeo, dotMat);
+      groundDot.rotation.x = -Math.PI / 2;
+      groundDot.position.set(0, -stemHeight + 0.1, 0);
+      group.add(groundDot);
 
-      // 3. Haz de Luz Vertical / Rayo Láser Conector al Suelo
-      const stemHeight = spec.pos.y;
-      const stemGeo = new THREE.CylinderGeometry(0.18, 0.28, stemHeight, 8);
-      const stemMat = new THREE.MeshBasicMaterial({
-        color: col,
-        transparent: true,
-        opacity: 0.45,
-        blending: THREE.AdditiveBlending
-      });
-      const stemMesh = new THREE.Mesh(stemGeo, stemMat);
-      stemMesh.position.set(0, -stemHeight / 2, 0);
-      group.add(stemMesh);
-
-      // 4. Baliza Pulsante en el Suelo del Bosque / Humedal
-      const groundRingGeo = new THREE.RingGeometry(1.6, 4.8, 36);
+      // 4. Anillo de pulso sutil en el suelo
+      const groundRingGeo = new THREE.RingGeometry(2.0, 3.8, 24);
       const groundRingMat = new THREE.MeshBasicMaterial({
         color: col,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.0,
         blending: THREE.AdditiveBlending
       });
       const groundRing = new THREE.Mesh(groundRingGeo, groundRingMat);
       groundRing.rotation.x = -Math.PI / 2;
-      groundRing.position.set(0, -stemHeight + 0.15, 0);
+      groundRing.position.set(0, -stemHeight + 0.12, 0);
       group.add(groundRing);
 
       speciesBeaconsGroup.add(group);
@@ -1079,7 +1082,8 @@
       beaconInstances.push({
         group,
         sprite,
-        ringMesh,
+        dropLine,
+        groundDot,
         groundRing,
         spec,
         baseY: spec.pos.y,
@@ -1092,7 +1096,7 @@
   buildSpecies3DBeacons();
 
   // =====================================================================
-  // 5.2 CONTROLADOR DEL RECORRIDO BOTÁNICO Y FAUNÍSTICO (TOUR MODE)
+  // 5.2 CONTROLADOR DEL RECORRIDO BOTÁNICO (TOUR DE ÁRBOLES)
   // =====================================================================
   let tourActive = false;
   let tourIndex = 0;
@@ -1179,18 +1183,21 @@
       });
     }
 
-    // Resaltar la baliza 3D activa (escala y brillo)
+    // Activar ÚNICAMENTE la baliza del árbol seleccionado (se ve nítida y destaca su puntito en el territorio)
     beaconInstances.forEach((b, i) => {
       const isCur = (i === idx);
       if (window.gsap) {
+        gsap.to(b.sprite.material, { opacity: isCur ? 1.0 : 0.0, duration: 0.5 });
+        gsap.to(b.dropLine.material, { opacity: isCur ? 0.65 : 0.0, duration: 0.5 });
+        gsap.to(b.groundDot.material, { opacity: isCur ? 0.95 : 0.0, duration: 0.5 });
+        gsap.to(b.groundRing.material, { opacity: isCur ? 0.75 : 0.0, duration: 0.5 });
         gsap.to(b.sprite.scale, {
-          x: isCur ? 21 : 13.5,
-          y: isCur ? 21 : 13.5,
+          x: isCur ? 14.5 : 8.0,
+          y: isCur ? 14.5 : 8.0,
           duration: 0.6,
-          ease: "back.out(1.8)"
+          ease: "back.out(1.6)"
         });
       }
-      b.ringMesh.material.opacity = isCur ? 1.0 : 0.35;
     });
 
     if (soundActive && typeof triggerHarmonicChime === "function") {
@@ -1627,16 +1634,14 @@
 
     updateNetworkSwarm(time, currentMorph);
 
-    // Actualizar animación flotante de balizas y orbes 3D de especies
+    // Actualizar animación flotante de balizas y orbes 3D de árboles
     if (speciesBeaconsGroup && speciesBeaconsGroup.visible) {
       for (let i = 0; i < beaconInstances.length; i++) {
         const b = beaconInstances[i];
-        const bob = Math.sin(time * 2.2 + b.phase) * 0.75;
+        const bob = Math.sin(time * 2.2 + b.phase) * 0.55;
         b.sprite.position.y = bob;
-        b.ringMesh.position.y = bob;
-        b.ringMesh.rotation.z = time * 0.5 + b.phase;
         b.groundRing.rotation.z = -time * 0.35;
-        const groundScale = 1.0 + Math.sin(time * 3.0 + b.phase) * 0.15;
+        const groundScale = 1.0 + Math.sin(time * 3.0 + b.phase) * 0.12;
         b.groundRing.scale.set(groundScale, groundScale, 1.0);
       }
     }
