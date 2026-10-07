@@ -787,9 +787,9 @@
       
       float explosionIntensity = sin(ease * 3.14159);
       vec3 curlVortex = vec3(
-        sin(uTime * 1.6 + position.y * 0.08 + aPhase * 2.0) * 44.0 * explosionIntensity + cos(uTime * 1.1 + position.z * 0.05) * 26.0 * explosionIntensity,
-        cos(uTime * 1.3 + position.x * 0.08 + aPhase * 2.0) * 36.0 * explosionIntensity + sin(uTime * 1.7 + position.z * 0.06) * 22.0 * explosionIntensity,
-        sin(uTime * 1.5 + position.x * 0.08 + aPhase * 3.0) * 44.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.05) * 26.0 * explosionIntensity
+        sin(uTime * 1.6 + position.y * 0.08 + aPhase * 2.0) * 60.0 * explosionIntensity + cos(uTime * 1.1 + position.z * 0.05) * 26.0 * explosionIntensity,
+        cos(uTime * 1.3 + position.x * 0.08 + aPhase * 2.0) * 48.0 * explosionIntensity + sin(uTime * 1.7 + position.z * 0.06) * 22.0 * explosionIntensity,
+        sin(uTime * 1.5 + position.x * 0.08 + aPhase * 3.0) * 60.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.05) * 26.0 * explosionIntensity
       );
       
       vec3 territorialIdle = vec3(0.0);
@@ -826,7 +826,8 @@
       
       gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.7) * uPixelRatio * sizeAttenuation;
       
-      float alphaBase = smoothstep(0.04, 0.8, ease) * 0.95 + explosionIntensity * 0.35;
+      // Red viva a 0% -> Vórtice explosivo en transición -> Territorio consolidado a 100%
+      float alphaBase = mix(0.75, 0.95, ease) + explosionIntensity * 0.45;
       if (uPerspectiveMode > 0.05 && aCategory > 1.8) {
         alphaBase *= mix(1.0, clamp(140.0 / max(20.0, camDist), 0.25, 0.9), uPerspectiveMode);
       }
@@ -1672,7 +1673,7 @@
     isTerritory = targetMorph > 0.45;
 
     sceneBaseGroup.visible = targetMorph > 0.10;
-    networkGroup.visible = targetMorph < 0.95;
+    networkGroup.visible = true;
 
     if (btnActionText) {
       btnActionText.textContent = isTerritory ? "DISPERSAR A RED BIÓTICA" : "MATERIALIZAR";
