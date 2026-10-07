@@ -1913,165 +1913,309 @@ window.onerror = function(msg, url, line, col, error) {
   // =====================================================================
   // 4. CARGA DE CAPAS GIS DEL TERRITORIO (AGUA, ÁRBOLES, VÍAS Y MANZANAS)
   // =====================================================================
-  let treeSpeciesClusters = {};
+  const pTarget = [];
+  const pSwarm = [];
+  const pColor = [];
+  const pSize = [];
+  const pPhase = [];
+  const pCat = [];
 
-  Promise.all([
-    fetch(WATER_URL).then(r => r.json()).catch(() => ({ features: [] })),
-    fetch(TREES_URL).then(r => r.json()).catch(() => ({ features: [] })),
-    fetch(NET_URL).then(r => r.json()).catch(() => ({ features: [] })),
-    fetch(BUILDINGS_URL).then(r => r.json()).catch(() => ({ features: [] }))
-  ]).then(([waterData, treesData, netData, bldData]) => {
-    buildTerritorialPointMatrix(waterData, treesData, netData, bldData);
-    if (loadingVeil) {
-      loadingVeil.style.opacity = "0";
-      setTimeout(() => { loadingVeil.style.display = "none"; }, 600);
+  let currentParticleIndex = 0;
+
+  function randomSwarmCluster(idx) {
+    if (typeof rawNodes !== "undefined" && rawNodes.length > 0) {
+      const node = rawNodes[idx % rawNodes.length];
+      return {
+        x: node.ox + (Math.random() - 0.5) * 5.0,
+        y: node.oy + (Math.random() - 0.5) * 5.0,
+        z: node.oz + (Math.random() - 0.5) * 5.0
+      };
     }
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const radius = 24 + Math.random() * 22;
+    return {
+      x: radius * Math.sin(phi) * Math.cos(theta),
+      y: radius * Math.sin(phi) * Math.sin(theta),
+      z: radius * Math.cos(phi)
+    };
+  }
+
+  function rebuildTerritoryParticles() {
+    if (particlePointsMesh) {
+      sceneRoot.remove(particlePointsMesh);
+      particlePointsMesh.geometry.dispose();
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pTarget, 3));
+    geo.setAttribute("aSwarmPos", new THREE.Float32BufferAttribute(pSwarm, 3));
+    geo.setAttribute("aColor", new THREE.Float32BufferAttribute(pColor, 3));
+    geo.setAttribute("aSize", new THREE.Float32BufferAttribute(pSize, 1));
+    geo.setAttribute("aPhase", new THREE.Float32BufferAttribute(pPhase, 1));
+    geo.setAttribute("aCategory", new THREE.Float32BufferAttribute(pCat, 1));
+
+    particlePointsMesh = new THREE.Points(geo, particleMat);
+    sceneRoot.add(particlePointsMesh);
+  }
+
+  // Base de datos de árboles georreferenciados agrupados por especie para constelaciones
+  const treeSpeciesClusters = {
+    chicala: [],
+    jazmin: [],
+    sauco: [],
+    falso_pimiento: [],
+    eugenia: [],
+    palma_yuca: [],
+    urapan: [],
+    caucho: [],
+    cipres: [],
+    acacia: [],
+    capulin: [],
+    aliso: []
+  };
+
+  function matchSpeciesKey(speciesName) {
+    if (!speciesName) return "sauco";
+    const s = speciesName.toLowerCase();
+    if (s.includes("chicala") || s.includes("chirlobirlo") || s.includes("amarillo") || s.includes("tecoma")) return "chicala";
+    if (s.includes("jazmin") || s.includes("huesito") || s.includes("pittosporum")) return "jazmin";
+    if (s.includes("sauco") || s.includes("sambucus")) return "sauco";
+    if (s.includes("pimiento") || s.includes("schinus")) return "falso_pimiento";
+    if (s.includes("eugenia")) return "eugenia";
+    if (s.includes("palma") || s.includes("yuca") || s.includes("yucca") || s.includes("palmiche")) return "palma_yuca";
+    if (s.includes("urapan") || s.includes("fresno") || s.includes("fraxinus")) return "urapan";
+    if (s.includes("caucho") || s.includes("ficus")) return "caucho";
+    if (s.includes("cipres") || s.includes("pino") || s.includes("cupressus")) return "cipres";
+    if (s.includes("acacia")) return "acacia";
+    if (s.includes("cerezo") || s.includes("capuli") || s.includes("prunus")) return "capulin";
+    if (s.includes("aliso") || s.includes("alnus")) return "aliso";
+    return null;
+  }
+
+  function loadWater() {
+    return fetch(WATER_URL)
+      .then(r => r.json())
+      .then(waterBodies => {
+        const colWaterMain = new THREE.Color(0x00B4D8);
+        const colWaterDeep = new THREE.Color(0x0077B6);
+        const list = Array.isArray(waterBodies) ? waterBodies : (waterBodies.waterBodies || []);
+
+        list.forEach(w => {
+          const pts = w.pts;
+          if (!pts || pts.length < 3) return;
+
+          const sPts = pts.map(p => toScene(p[0], p[1]));
+          const pts2d = sPts.map(p => new THREE.Vector2(p.x, p.z));
+
+          let tris = [];
+          try { tris = THREE.ShapeUtils.triangulateShape(pts2d, []); } catch(e) { tris = []; }
+
+          tris.forEach(([ia, ib, ic]) => {
+            const pa = sPts[ia], pb = sPts[ib], pc = sPts[ic];
+            for (let s = 0; s < 3; s++) {
+              const r1 = Math.random(), r2 = Math.random();
+              const sq1 = Math.sqrt(r1);
+              const wx = (1 - sq1) * pa.x + sq1 * (1 - r2) * pb.x + sq1 * r2 * pc.x;
+              const wz = (1 - sq1) * pa.z + sq1 * (1 - r2) * pb.z + sq1 * r2 * pc.z;
+              const wy = 0.28 + Math.random() * 0.2;
+
+              const sw = randomSwarmCluster(currentParticleIndex++);
+              pTarget.push(wx, wy, wz);
+              pSwarm.push(sw.x, sw.y, sw.z);
+              
+              const c = (s % 2 === 0) ? colWaterMain : colWaterDeep;
+              pColor.push(c.r, c.g, c.b);
+              pSize.push(1.65);
+              pPhase.push(Math.random() * 10);
+              pCat.push(0.0);
+            }
+          });
+
+          for (let i = 0; i < sPts.length; i++) {
+            const p = sPts[i];
+            const sw = randomSwarmCluster(currentParticleIndex++);
+            pTarget.push(p.x, 0.32, p.z);
+            pSwarm.push(sw.x, sw.y, sw.z);
+            pColor.push(colWaterMain.r, colWaterMain.g, colWaterMain.b);
+            pSize.push(1.75);
+            pPhase.push(i * 0.3);
+            pCat.push(0.0);
+          }
+        });
+        rebuildTerritoryParticles();
+      })
+      .catch(err => console.warn("Error agua:", err));
+  }
+
+  function loadTrees() {
+    return fetch(TREES_URL)
+      .then(r => r.json())
+      .then(trees => {
+        const colTreeLush = new THREE.Color(0x2E8B57);
+        const colTreeBright = new THREE.Color(0x48BB78);
+        const colTrunk = new THREE.Color(0x161D26);
+        const list = Array.isArray(trees) ? trees : (trees.trees || []);
+
+        const sampleStep = Math.max(1, Math.floor(list.length / 22000));
+        for (let i = 0; i < list.length; i += sampleStep) {
+          const t = list[i];
+          const [x, y, hMeters, specName] = t;
+          const p = toScene(x, y);
+          const h = Math.max(0.7, (hMeters || 8) * SCALE);
+
+          const sKey = matchSpeciesKey(specName);
+          if (sKey && treeSpeciesClusters[sKey]) {
+            treeSpeciesClusters[sKey].push({ x: p.x, y: h * 0.85, z: p.z, height: h });
+          }
+
+          const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
+          const crownY = h * 0.85;
+          const swCrown = randomSwarmCluster(currentParticleIndex++);
+          pTarget.push(p.x, crownY, p.z);
+          pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
+          pColor.push(folCol.r, folCol.g, folCol.b);
+          pSize.push(1.6);
+          pPhase.push(i * 0.25);
+          pCat.push(1.0);
+
+          const subNodes = 3;
+          const rad = h * 0.45;
+          for (let k = 0; k < subNodes; k++) {
+            const ang = (k / subNodes) * Math.PI * 2 + (i % 7);
+            const sx = p.x + Math.cos(ang) * rad;
+            const sz = p.z + Math.sin(ang) * rad;
+            const sy = crownY + (k % 2 === 0 ? 0.25 : -0.2);
+
+            const swSub = randomSwarmCluster(currentParticleIndex++);
+            pTarget.push(sx, sy, sz);
+            pSwarm.push(swSub.x, swSub.y, swSub.z);
+            pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
+            pSize.push(1.35);
+            pPhase.push(i + k * 1.5);
+            pCat.push(1.0);
+          }
+
+          const swBase = randomSwarmCluster(currentParticleIndex++);
+          pTarget.push(p.x, 0.1, p.z);
+          pSwarm.push(swBase.x, swBase.y, swBase.z);
+          pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
+          pSize.push(1.1);
+          pPhase.push(i * 0.1);
+          pCat.push(1.0);
+        }
+        rebuildTerritoryParticles();
+      })
+      .catch(err => console.warn("Error árboles:", err));
+  }
+
+  function loadRoads() {
+    return fetch(NET_URL)
+      .then(r => r.json())
+      .then(netData => {
+        const colRoad = new THREE.Color(0x232326);
+        const colMajor = new THREE.Color(0x38BDF8);
+        const edgeList = Array.isArray(netData) ? netData : (netData.edges || []);
+
+        edgeList.forEach(([kind, pts], edgeIdx) => {
+          if (edgeIdx % 2 !== 0) return;
+          const isMajor = (edgeIdx % 4 === 0);
+          const c = isMajor ? colMajor : colRoad;
+
+          for (let i = 0; i < pts.length - 1; i++) {
+            const a = toScene(pts[i][0], pts[i][1]);
+            const sw = randomSwarmCluster(currentParticleIndex++);
+            pTarget.push(a.x, 0.08, a.z);
+            pSwarm.push(sw.x, sw.y, sw.z);
+            pColor.push(c.r, c.g, c.b);
+            pSize.push(isMajor ? 1.25 : 0.95);
+            pPhase.push(edgeIdx * 0.35);
+            pCat.push(3.0);
+          }
+        });
+        rebuildTerritoryParticles();
+      })
+      .catch(err => console.warn("Error vías:", err));
+  }
+
+  function loadBuildings() {
+    return fetch(BUILDINGS_URL)
+      .then(r => r.json())
+      .then(buildings => {
+        const colBldgPrimary   = new THREE.Color(0x3A3836);
+        const colBldgSecondary = new THREE.Color(0x484440);
+        const colRoofHighlight = new THREE.Color(0x544E48);
+        const colBaseGround    = new THREE.Color(0x131315);
+        const bldList = Array.isArray(buildings) ? buildings : (buildings.buildings || []);
+
+        const bldStep = Math.max(1, Math.floor(bldList.length / 14000));
+        for (let bIdx = 0; bIdx < bldList.length; bIdx += bldStep) {
+          const b = bldList[bIdx];
+          const pts = b.pts;
+          if (!pts || pts.length < 3) continue;
+
+          const sPts = pts.map(p => toScene(p[0], p[1]));
+          const h = (b.h || b.height || 10) * SCALE;
+          const bldgCol = (bIdx % 2 === 0) ? colBldgPrimary : colBldgSecondary;
+
+          for (let i = 0; i < sPts.length; i += 2) {
+            const p = sPts[i];
+            const steps = Math.max(2, Math.floor(h / 1.4));
+            for (let step = 0; step <= steps; step++) {
+              const y = (step / steps) * h;
+              const sw = randomSwarmCluster(currentParticleIndex++);
+              pTarget.push(p.x, y, p.z);
+              pSwarm.push(sw.x, sw.y, sw.z);
+              
+              const isRoof = (step === steps);
+              const c = isRoof ? colRoofHighlight : bldgCol;
+              pColor.push(c.r, c.g, c.b);
+              pSize.push(isRoof ? 1.25 : 1.05);
+              pPhase.push(bIdx + step);
+              pCat.push(2.0);
+            }
+          }
+        }
+
+        for (let s = 0; s < 3800; s++) {
+          const rad = 25 + Math.sqrt(Math.random()) * 210;
+          const ang = Math.random() * Math.PI * 2;
+          const gx = Math.cos(ang) * rad;
+          const gz = Math.sin(ang) * rad;
+          const gy = 0.02 + Math.random() * 0.2;
+
+          const sw = randomSwarmCluster(currentParticleIndex++);
+          pTarget.push(gx, gy, gz);
+          pSwarm.push(sw.x, sw.y, sw.z);
+          pColor.push(colBaseGround.r, colBaseGround.g, colBaseGround.b);
+          pSize.push(0.92);
+          pPhase.push(s * 0.5);
+          pCat.push(4.0);
+        }
+
+        rebuildTerritoryParticles();
+      })
+      .catch(err => console.warn("Error edificios:", err));
+  }
+
+  Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
+    loadBuildings().then(() => {
+      if (loadingVeil) {
+        loadingVeil.style.opacity = "0";
+        setTimeout(() => { loadingVeil.style.display = "none"; }, 600);
+      }
+    });
   }).catch(err => {
-    console.error("Error al cargar capas del territorio:", err);
+    console.error("Error general al cargar territorio:", err);
     if (loadingVeil) loadingVeil.style.display = "none";
   });
 
-  // Failsafe para asegurar que el velo siempre desaparezca
   setTimeout(() => {
     if (loadingVeil && loadingVeil.style.display !== "none") {
       loadingVeil.style.opacity = "0";
       setTimeout(() => { loadingVeil.style.display = "none"; }, 500);
     }
-  }, 1800);
-
-  function buildTerritorialPointMatrix(waterData, treesData, netData, bldData) {
-    const coords = [];
-    const swarmPos = [];
-    const colors = [];
-    const sizes = [];
-    const phases = [];
-    const categories = [];
-
-    // Helper de puntos en órbita biótica
-    function addPoint(tx, ty, tz, r, g, b, sz, cat, phase) {
-      coords.push(tx, ty, tz);
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const radius = 24 + Math.random() * 22;
-      swarmPos.push(
-        radius * Math.sin(phi) * Math.cos(theta),
-        radius * Math.sin(phi) * Math.sin(theta),
-        radius * Math.cos(phi)
-      );
-      colors.push(r, g, b);
-      sizes.push(sz);
-      phases.push(phase || Math.random() * 6.28);
-      categories.push(cat);
-    }
-
-    // A. Cuerpos de Agua (Humedal El Burro, La Vaca, Techo) - Azul Humedal Puro #00B4D8
-    const waterFeatures = waterData.features || [];
-    const waterColor = { r: 0.0, g: 0.706, b: 0.847 }; // #00B4D8
-    waterFeatures.forEach(feat => {
-      const geom = feat.geometry;
-      if (!geom) return;
-      const rings = geom.type === "Polygon" ? [geom.coordinates] : (geom.type === "MultiPolygon" ? geom.coordinates : []);
-      rings.forEach(polygon => {
-        polygon.forEach(ring => {
-          for (let i = 0; i < ring.length; i++) {
-            const p = toScene(ring[i][0], ring[i][1]);
-            addPoint(p.x, 0.15, p.z, waterColor.r, waterColor.g, waterColor.b, 3.8, 0.0, Math.random() * 6.28);
-            if (i < ring.length - 1) {
-              const pNext = toScene(ring[i+1][0], ring[i+1][1]);
-              for (let k = 1; k <= 3; k++) {
-                const interpX = p.x + (pNext.x - p.x) * (k / 4);
-                const interpZ = p.z + (pNext.z - p.z) * (k / 4);
-                addPoint(interpX, 0.15, interpZ, waterColor.r, waterColor.g, waterColor.b, 3.5, 0.0, Math.random() * 6.28);
-              }
-            }
-          }
-        });
-      });
-    });
-
-    // B. Constelación de Árboles Reales Georreferenciados - Verde Follaje Equilibrado #2E8B57 / #48BB78
-    const treeFeatures = treesData.features || [];
-    treeFeatures.forEach(feat => {
-      const geom = feat.geometry;
-      if (!geom || geom.type !== "Point") return;
-      const p = toScene(geom.coordinates[0], geom.coordinates[1]);
-      const props = feat.properties || {};
-      const height = props.altura_tot || props.height || 3.5;
-      const name = (props.nombre_com || props.especie || "").toLowerCase();
-
-      let specKey = "other";
-      if (name.includes("sauco") || name.includes("sambucus")) specKey = "sauco";
-      else if (name.includes("chicala") || name.includes("tecoma")) specKey = "chicala";
-      else if (name.includes("aliso") || name.includes("alnus")) specKey = "aliso";
-      else if (name.includes("jazmin") || name.includes("pittosporum")) specKey = "jazmin";
-      else if (name.includes("pimiento") || name.includes("schinus")) specKey = "falso_pimiento";
-      else if (name.includes("eugenia")) specKey = "eugenia";
-      else if (name.includes("yuca") || name.includes("yucca")) specKey = "palma_yuca";
-      else if (name.includes("urapan") || name.includes("fraxinus")) specKey = "urapan";
-      else if (name.includes("caucho") || name.includes("ficus")) specKey = "caucho";
-      else if (name.includes("cipres") || name.includes("cupressus")) specKey = "cipres";
-      else if (name.includes("acacia")) specKey = "acacia";
-      else if (name.includes("capuli") || name.includes("prunus")) specKey = "capulin";
-
-      if (!treeSpeciesClusters[specKey]) treeSpeciesClusters[specKey] = [];
-      treeSpeciesClusters[specKey].push({ x: p.x, y: 0.35 + height * 0.45, z: p.z });
-
-      const isKeyNative = (specKey === "sauco" || specKey === "aliso" || specKey === "capulin");
-      const tr = isKeyNative ? 0.28 : 0.18;
-      const tg = isKeyNative ? 0.73 : 0.55;
-      const tb = isKeyNative ? 0.47 : 0.34;
-      addPoint(p.x, 0.35 + height * 0.45, p.z, tr, tg, tb, 4.0, 1.0, Math.random() * 6.28);
-    });
-
-    // C. Malla Vial y Conectividad Urbana - Azul Cielo Suave #38BDF8
-    const netFeatures = netData.features || [];
-    const roadColor = { r: 0.22, g: 0.74, b: 0.97 }; // #38BDF8
-    netFeatures.forEach(feat => {
-      const geom = feat.geometry;
-      if (!geom) return;
-      const lines = geom.type === "LineString" ? [geom.coordinates] : (geom.type === "MultiLineString" ? geom.coordinates : []);
-      lines.forEach(line => {
-        for (let i = 0; i < line.length; i++) {
-          const p = toScene(line[i][0], line[i][1]);
-          addPoint(p.x, 0.05, p.z, roadColor.r, roadColor.g, roadColor.b, 2.2, 2.0, Math.random() * 6.28);
-        }
-      });
-    });
-
-    // D. Manzanas Urbanas y Edificaciones - Tono Piedra Arquitectónico Cálido #3A3836 / #484440
-    const bldFeatures = bldData.features || [];
-    const stoneColor = { r: 0.227, g: 0.220, b: 0.212 }; // #3A3836
-    const stoneHigh = { r: 0.282, g: 0.267, b: 0.251 };  // #484440
-    bldFeatures.forEach(feat => {
-      const geom = feat.geometry;
-      if (!geom) return;
-      const rings = geom.type === "Polygon" ? [geom.coordinates] : (geom.type === "MultiPolygon" ? geom.coordinates : []);
-      const height = (feat.properties && feat.properties.height) || 6.5;
-      rings.forEach(polygon => {
-        polygon.forEach(ring => {
-          for (let i = 0; i < ring.length; i += 2) {
-            const p = toScene(ring[i][0], ring[i][1]);
-            addPoint(p.x, 0.08, p.z, stoneColor.r, stoneColor.g, stoneColor.b, 2.4, 3.0, 0.0);
-            if (height > 5.0 && Math.random() < 0.45) {
-              addPoint(p.x, height * 0.35, p.z, stoneHigh.r, stoneHigh.g, stoneHigh.b, 2.2, 3.0, 0.0);
-            }
-          }
-        });
-      });
-    });
-
-    // Creación del BufferGeometry de Partículas
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute("position", new THREE.Float32BufferAttribute(coords, 3));
-    pGeo.setAttribute("aSwarmPos", new THREE.Float32BufferAttribute(swarmPos, 3));
-    pGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(colors, 3));
-    pGeo.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
-    pGeo.setAttribute("aPhase", new THREE.Float32BufferAttribute(phases, 1));
-    pGeo.setAttribute("aCategory", new THREE.Float32BufferAttribute(categories, 1));
-
-    particlePointsMesh = new THREE.Points(pGeo, particleMat);
-    sceneRoot.add(particlePointsMesh);
-  }
+  }, 2200);
 
   // =====================================================================
   // 5. CONSTELACIONES DINÁMICAS Y FOCO VISUAL DE ESPECIES DE ÁRBOLES
