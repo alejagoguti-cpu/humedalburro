@@ -6,201 +6,314 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Red Biótica & Territorio 3D — Humedal El Burro, Kennedy</title>
+<title>Sistema Socioecológico de Kennedy — Red Biótica & Territorio 3D</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #111113;
-    --accent: #D4AF37;
-    --accent-glow: rgba(212, 175, 55, 0.45);
+    --bg: #000000;
+    --accent: #84A48B;
+    --accent-glow: rgba(132, 164, 139, 0.45);
     --water: #00B4D8;
     --tea: #2E8B57;
-    --lavender: #6E675F;
-    --pink: #59524B;
-    --tangerine: #D97736;
-    --red: #C63F3E;
-    --ink: #EAE4DA;
-    --ink-dim: rgba(234, 228, 218, 0.72);
-    --panel-bg: rgba(18, 18, 20, 0.92);
-    --panel-border: rgba(0, 180, 216, 0.32);
+    --lavender: #A386A9;
+    --terracotta: #C96349;
+    --gold: #E7C878;
+    --tangerine: #F79E70;
+    --ink: #f1f5f9;
+    --ink-dim: #94a3b8;
+    --glass-bg: rgba(6, 9, 15, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.12);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   html, body {
-    width: 100%; height: 100%; overflow: hidden; background: var(--bg);
-    color: var(--ink); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    width: 100%; height: 100%; overflow: hidden; background-color: #000000;
+    color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+    font-size: 12px; -webkit-font-smoothing: antialiased;
   }
 
   #canvasContainer {
     position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
-    cursor: grab;
+    cursor: crosshair;
   }
-  #canvasContainer:active { cursor: grabbing; }
   #sceneCanvas { display: block; width: 100%; height: 100%; }
 
-  /* Vignette */
-  .vignette-overlay {
-    position: absolute; inset: 0; pointer-events: none; z-index: 2;
-    background: radial-gradient(circle at center, transparent 40%, rgba(18, 18, 20, 0.65) 80%, #111113 100%);
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
   }
 
-  /* Top Bar */
-  .top-bar {
-    position: absolute; top: 20px; left: 0; width: 100%; z-index: 10;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 32px; pointer-events: none;
+  /* Top Header */
+  .top-header {
+    position: absolute; top: 12px; left: 12px; right: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    pointer-events: none; z-index: 100;
+    transition: opacity 0.4s ease, transform 0.4s ease;
   }
-  .nav-back-link {
-    pointer-events: auto; display: inline-flex; align-items: center; gap: 8px;
-    color: var(--ink); text-decoration: none; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.12em; text-transform: uppercase; transition: all 0.3s ease;
-    padding: 8px 18px; border-radius: 20px; background: rgba(25, 25, 28, 0.85);
-    border: 1px solid var(--panel-border); backdrop-filter: blur(14px);
+  .nav-group {
+    display: flex; align-items: center; gap: 8px; pointer-events: auto;
   }
-  .nav-back-link:hover {
-    color: var(--accent); border-color: var(--accent);
-    box-shadow: 0 0 20px var(--accent-glow); transform: translateX(-2px);
+  .brand-title {
+    padding: 8px 14px; font-weight: 800; letter-spacing: 0.5px;
+    color: var(--accent); display: flex; align-items: center; gap: 8px;
+    font-size: 11.5px; text-transform: uppercase;
+  }
+  .btn-flat {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1; padding: 7px 12px; border-radius: 6px;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s ease; text-decoration: none;
+  }
+  .btn-flat:hover {
+    background: rgba(132, 164, 139, 0.15);
+    border-color: rgba(132, 164, 139, 0.4);
+    color: #ffffff;
+  }
+  .btn-flat.active {
+    background: rgba(132, 164, 139, 0.2);
+    border-color: #84A48B;
+    color: #84A48B;
+  }
+  .search-box {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #84A48B; padding: 6px 12px; border-radius: 6px;
+    font-family: inherit; font-size: 11px; outline: none; width: 170px;
+    transition: width 0.25s ease;
+  }
+  .search-box:focus { width: 220px; border-color: #84A48B; }
+
+  /* Side Drawer */
+  .side-drawer {
+    position: absolute; top: 62px; left: 12px; width: 320px;
+    max-height: calc(100vh - 140px); overflow-y: auto; padding: 14px;
+    pointer-events: auto; z-index: 90;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border: 1px solid rgba(132, 164, 139, 0.25);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+  }
+  .side-drawer.collapsed {
+    opacity: 0; pointer-events: none; transform: translateX(-14px);
+  }
+  .drawer-header {
+    font-weight: 800; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1px; color: #94a3b8; border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding-bottom: 8px; margin-bottom: 10px; display: flex;
+    justify-content: space-between; align-items: center;
+  }
+  .cat-card {
+    background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px; padding: 9px 11px; margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;
+  }
+  .cat-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--cat-color, #84a48b); box-shadow: 0 0 10px var(--cat-color, #84a48b);
+  }
+  .cat-card:hover {
+    border-color: rgba(132, 164, 139, 0.4); background: rgba(15, 23, 42, 0.9);
+    transform: translateX(3px);
+  }
+  .cat-label-wrap { display: flex; align-items: center; gap: 10px; }
+  .cat-thumb {
+    width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
+    border: 1.5px solid var(--cat-color, #84a48b); flex-shrink: 0;
+  }
+  .badge-count {
+    font-size: 10px; background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15); padding: 3px 8px;
+    border-radius: 6px; color: #84A48B; font-family: ui-monospace, monospace; font-weight: 700;
+  }
+  .toggle-box {
+    width: 17px; height: 17px; border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, 0.5); transition: all 0.15s;
+  }
+  .toggle-box.checked { background: #84A48B; border-color: #84A48B; }
+  .toggle-box.checked::after { content: ""; width: 5px; height: 5px; background: #000000; }
+
+  /* Node Inspector */
+  .node-inspector {
+    position: absolute; top: 62px; right: 12px; width: 370px;
+    max-height: calc(100vh - 140px); overflow-y: auto; padding: 16px;
+    pointer-events: auto; z-index: 150; border-left: 4px solid #84A48B;
+    animation: fadeIn 0.2s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .inspector-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+  }
+  .node-title { font-size: 14px; font-weight: 700; color: #84A48B; }
+  .node-subtitle { font-size: 11px; font-style: italic; color: #cbd5e1; }
+  .btn-close {
+    cursor: pointer; color: #94a3b8; padding: 2px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px;
+  }
+  .btn-close:hover { color: #ffffff; background: rgba(255, 255, 255, 0.1); }
+  .media-preview {
+    width: 100%; height: 145px; object-fit: cover; border-radius: 6px;
+    margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.15); background: #000;
+  }
+  .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .metric-card {
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px; padding: 8px;
+  }
+  .metric-val { font-size: 13px; font-weight: 700; color: #84a48b; font-family: monospace; }
+  .metric-lbl { font-size: 10px; color: #64748b; text-transform: uppercase; }
+  .sec-header {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: #84a48b; margin-bottom: 4px; font-weight: 700;
+  }
+  .text-content {
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px; padding: 8px 10px; color: #cbd5e1; font-size: 11px;
+    line-height: 1.4; margin-bottom: 10px;
+  }
+  .text-content.alert {
+    background: rgba(201, 99, 73, 0.12); border-color: rgba(201, 99, 73, 0.35); color: #ff80a0;
+  }
+  .neighbor-scroll {
+    max-height: 120px; overflow-y: auto; background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px;
+  }
+  .neighbor-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer;
+  }
+  .neighbor-row:hover { background: rgba(132, 164, 139, 0.15); color: #84a48b; }
+
+  /* Subnetwork Modal */
+  .subnetwork-modal {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 680px; height: 480px; background: #050505;
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1.5px solid #84A48B; box-shadow: 0 30px 80px #000000;
+    border-radius: 12px; z-index: 300; display: flex; flex-direction: column;
+    pointer-events: auto; overflow: hidden; animation: fadeIn 0.2s ease-out;
+  }
+  .subnetwork-header {
+    padding: 12px 16px; background: #0a0a0c; border-bottom: 1px solid rgba(132, 164, 139, 0.25);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .subnetwork-canvas-wrap { flex: 1; position: relative; background: #000000; }
+  #subCanvas { width: 100%; height: 100%; display: block; }
+
+  /* FAQ Chat Widget */
+  .chat-widget-btn {
+    position: absolute; bottom: 85px; right: 16px; background: #0a0a0c;
+    border: 1px solid #84A48B; color: #84A48B; padding: 9px 16px;
+    border-radius: 24px; font-size: 11px; font-weight: 700; cursor: pointer;
+    pointer-events: auto; z-index: 180; display: flex; align-items: center;
+    gap: 8px; box-shadow: 0 8px 24px #000000; transition: all 0.2s ease;
+  }
+  .chat-widget-btn:hover {
+    transform: translateY(-2px); background: rgba(132, 164, 139, 0.15); color: #ffffff;
+  }
+  .faq-chat-modal {
+    position: absolute; bottom: 135px; right: 16px; width: 360px; max-height: 480px;
+    display: flex; flex-direction: column; pointer-events: auto; z-index: 180;
+    border: 1px solid rgba(132, 164, 139, 0.3); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95);
+    border-radius: 12px; overflow: hidden; animation: fadeIn 0.2s ease-out;
+  }
+  .chat-header {
+    background: rgba(15, 23, 42, 0.95); padding: 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .chat-body {
+    padding: 12px; overflow-y: auto; max-height: 250px;
+    display: flex; flex-direction: column; gap: 10px; background: rgba(6, 9, 15, 0.85);
+  }
+  .msg-bubble { max-width: 85%; padding: 8px 12px; border-radius: 10px; font-size: 11px; line-height: 1.4; }
+  .msg-bot {
+    background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(132, 164, 139, 0.25);
+    color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 2px;
+  }
+  .msg-user {
+    background: rgba(132, 164, 139, 0.2); border: 1px solid rgba(132, 164, 139, 0.4);
+    color: #ffffff; align-self: flex-end; border-bottom-right-radius: 2px;
+  }
+  .predefined-chips {
+    padding: 10px 12px; background: rgba(10, 15, 26, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .chip-btn {
+    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(132, 164, 139, 0.2);
+    color: #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 10px;
+    font-weight: 600; cursor: pointer; text-align: left; transition: all 0.15s ease;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .chip-btn:hover {
+    background: rgba(132, 164, 139, 0.15); border-color: #84a48b; color: #ffffff; transform: translateX(2px);
   }
 
-  .stage-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-    letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; font-weight: 600;
-    background: rgba(25, 25, 28, 0.85); padding: 7px 18px; border-radius: 20px;
-    border: 1px solid rgba(212, 175, 55, 0.3); backdrop-filter: blur(14px);
+  /* Welcome Modal Overlay */
+  .welcome-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px); display: flex; align-items: center;
+    justify-content: center; z-index: 9999; animation: modalFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .welcome-modal {
+    width: 92%; max-width: 1120px; max-height: 90vh; background: #050505;
+    border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px;
+    box-shadow: 0 30px 90px #000000; padding: 28px; overflow-y: auto;
+    color: #f1f5f9; display: flex; flex-direction: column; gap: 20px;
+  }
+  .welcome-header {
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 16px;
+  }
+  .pie-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .pie-card {
+    background: #0a0a0c; border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px; padding: 18px; display: flex; flex-direction: column;
+    align-items: center; gap: 12px; position: relative; overflow: hidden;
+  }
+  .pie-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #84A48B, transparent); opacity: 0.8;
+  }
+  .pie-card-title {
+    font-size: 13px; font-weight: 800; color: #84A48B; letter-spacing: 0.5px;
+    text-align: center; text-transform: uppercase;
+  }
+  .pie-card-desc { font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.4; }
+  .pie-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .legend-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 10.5px; padding: 5px 10px; background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;
+  }
+  .legend-label { display: flex; align-items: center; gap: 8px; color: #cbd5e1; font-weight: 500; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
-  .top-right-group {
-    display: flex; align-items: center; gap: 10px; pointer-events: auto;
-  }
-  .cinema-mode-btn {
-    display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 20px;
-    background: rgba(25, 25, 28, 0.85); border: 1px solid var(--panel-border);
-    color: var(--ink); font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
-    cursor: pointer; backdrop-filter: blur(14px); transition: all 0.3s;
-    text-transform: uppercase;
-  }
-  .cinema-mode-btn:hover, .cinema-mode-btn.active {
-    color: #111113; border-color: var(--accent); background: var(--accent);
-    box-shadow: 0 0 20px var(--accent-glow);
-  }
-  .sound-btn {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(25, 25, 28, 0.85); border: 1px solid var(--panel-border);
-    color: var(--ink); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(14px); font-size: 12px;
-  }
-  .sound-btn:hover, .sound-btn.active {
-    color: #111113; background: var(--accent); border-color: var(--accent);
-    box-shadow: 0 0 16px var(--accent-glow);
-  }
-
-  /* Dynamic Floating Intro Card (Stage 1) */
-  #swarmIntroBox {
-    position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%);
-    z-index: 15; text-align: center; pointer-events: auto; max-width: 580px;
-    padding: 32px 36px; border-radius: 28px;
-    background: rgba(18, 18, 22, 0.82); border: 1px solid rgba(212, 175, 55, 0.35);
-    backdrop-filter: blur(28px); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(212, 175, 55, 0.15);
-    animation: introFloat 6s ease-in-out infinite alternate;
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  @keyframes introFloat {
-    0% { transform: translate(-50%, -50%) translateY(0px) scale(1); }
-    50% { transform: translate(-50%, -50%) translateY(-8px) scale(1.01); }
-    100% { transform: translate(-50%, -50%) translateY(4px) scale(0.995); }
-  }
-  #swarmIntroBox.fade-out {
-    opacity: 0; transform: translate(-50%, -65%) scale(0.9); pointer-events: none;
-    animation: none;
-  }
-  .intro-title {
-    font-family: 'Inter', sans-serif; font-size: 25px; font-weight: 900; letter-spacing: 0.14em;
-    background: linear-gradient(180deg, #FFFFFF 0%, #D4AF37 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 35px rgba(212, 175, 55, 0.4);
-    line-height: 1.25; text-transform: uppercase;
-  }
-  .intro-sub {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.22em;
-    color: var(--accent); text-transform: uppercase; margin-top: 8px; font-weight: 600;
-  }
-  .intro-desc {
-    font-size: 13.5px; color: var(--ink-dim); font-weight: 400; margin-top: 16px; line-height: 1.65;
-    letter-spacing: 0.01em; padding: 0 10px;
-  }
-  .intro-desc span { color: var(--water); font-weight: 600; }
-  .morph-main-btn {
-    margin-top: 24px; padding: 14px 38px; border-radius: 32px;
-    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
-    cursor: pointer; border: 1px solid var(--accent);
-    background: linear-gradient(135deg, #D4AF37, #D97736);
-    color: #111113; text-shadow: none;
-    box-shadow: 0 0 36px var(--accent-glow); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex; align-items: center; gap: 10px; text-transform: uppercase;
-    position: relative; overflow: hidden;
-  }
-  .morph-main-btn::after {
-    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-    background: linear-gradient(60deg, transparent, rgba(255,255,255,0.35), transparent);
-    transform: rotate(25deg); animation: btnShimmer 3.5s infinite;
-  }
-  @keyframes btnShimmer {
-    0% { transform: translateX(-100%) rotate(25deg); }
-    100% { transform: translateX(100%) rotate(25deg); }
-  }
-  .morph-main-btn:hover {
-    transform: scale(1.06); box-shadow: 0 0 55px rgba(212, 175, 55, 0.85);
-    border-color: #FFFFFF; color: #000;
-  }
-
-  /* Interactive Species Inspector Card (Pop-up on hover / click) */
-  #speciesCard {
-    position: absolute; bottom: 85px; left: 32px; z-index: 20;
-    width: 330px; padding: 16px 20px; border-radius: 16px;
-    background: var(--panel-bg); border: 1px solid var(--panel-border);
-    backdrop-filter: blur(24px); box-shadow: 0 16px 40px rgba(0,0,0,0.85);
-    pointer-events: none; opacity: 0; transform: translateY(15px);
-    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  #speciesCard.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-  .species-card-header {
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
-  }
-  .species-icon-wrap {
-    width: 36px; height: 36px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center; font-size: 16px;
-    background: rgba(234, 193, 25, 0.15); border: 1px solid var(--panel-border);
-    color: var(--accent);
-  }
-  .species-title-wrap h3 {
-    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: #EAE4DA;
-    letter-spacing: 0.02em; line-height: 1.2;
-  }
-  .species-title-wrap em {
-    font-size: 11px; color: var(--accent); font-style: italic; font-weight: 500; display: block; margin-top: 2px;
-  }
-  .species-badge {
-    padding: 3px 8px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace;
-    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-    background: rgba(234, 193, 25, 0.15); border: 1px solid rgba(234, 193, 25, 0.3);
-    color: var(--accent);
-  }
-  .species-meta {
-    margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(234, 228, 218, 0.12);
-    font-size: 11.5px; color: var(--ink-dim); line-height: 1.45;
-  }
-  .species-meta strong { color: #EAE4DA; font-weight: 600; }
-  .species-relations-list {
-    margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px;
-  }
-  .relation-tag {
-    font-size: 10px; font-family: 'IBM Plex Mono', monospace; padding: 2px 7px;
-    border-radius: 5px; background: rgba(158, 214, 223, 0.15); border: 1px solid rgba(158, 214, 223, 0.3);
-    color: #9ED6DF;
+  /* Toast Notification */
+  .toast-notify {
+    position: fixed; top: 78px; left: 50%; transform: translateX(-50%);
+    background: rgba(132, 164, 139, 0.95); color: #000; padding: 8px 18px;
+    border-radius: 20px; font-size: 11px; font-weight: 700; z-index: 500;
+    display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.8); pointer-events: none;
   }
 
   /* Waypoints Bar (Stage 2) */
@@ -211,27 +324,40 @@
   }
   .waypoints-bar.show { opacity: 1; pointer-events: auto; }
   .waypoint-pill {
-    padding: 7px 15px; border-radius: 16px; background: rgba(29, 29, 27, 0.85);
-    border: 1px solid var(--panel-border); color: var(--ink);
+    padding: 7px 15px; border-radius: 16px; background: rgba(25, 25, 28, 0.88);
+    border: 1px solid var(--glass-border); color: var(--ink);
     font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
     cursor: pointer; backdrop-filter: blur(12px); transition: all 0.25s ease;
     display: flex; align-items: center; gap: 6px;
   }
   .waypoint-pill:hover, .waypoint-pill.active {
-    color: #1D1D1B; border-color: var(--accent); background: var(--accent);
+    color: #000; border-color: var(--accent); background: var(--accent);
     box-shadow: 0 0 14px var(--accent-glow); transform: translateY(-1px);
   }
-  .waypoint-pill i { font-size: 10px; }
+
+  /* Active Tree Floating Chip */
+  #activeTreeChip {
+    position: absolute; top: 78px; right: 28px; z-index: 20;
+    display: flex; align-items: center; gap: 8px; padding: 5px 14px 5px 6px;
+    border-radius: 24px; background: rgba(18, 18, 22, 0.92);
+    border: 1px solid rgba(132, 164, 139, 0.4); color: var(--ink);
+    font-size: 11px; font-weight: 700; cursor: pointer; backdrop-filter: blur(16px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6); transition: all 0.3s ease;
+    opacity: 0; pointer-events: none; transform: translateY(-6px);
+  }
+  #activeTreeChip.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  #activeTreeChip:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.04); }
+  #activeTreeChip img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent); }
 
   /* Bottom Control Capsule */
   .bottom-experience-bar {
-    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 10;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 100;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
     pointer-events: auto;
   }
   .scrub-container {
-    display: flex; align-items: center; gap: 16px; padding: 10px 24px;
-    background: var(--panel-bg); border: 1px solid var(--panel-border);
+    display: flex; align-items: center; gap: 16px; padding: 9px 22px;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
     border-radius: 36px; backdrop-filter: blur(24px);
     box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9); transition: border-color 0.3s;
   }
@@ -240,53 +366,41 @@
     font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
     color: var(--ink-dim); text-transform: uppercase; cursor: pointer; transition: color 0.2s;
   }
-  .scrub-label.active, .scrub-label:hover {
-    color: var(--accent); text-shadow: 0 0 12px var(--accent);
-  }
+  .scrub-label.active, .scrub-label:hover { color: var(--accent); text-shadow: 0 0 12px var(--accent); }
   .experience-toggle-btn {
     padding: 8px 20px; border-radius: 20px; font-family: 'Inter', sans-serif;
     font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; cursor: pointer;
-    border: 1px solid var(--accent);
-    background: linear-gradient(135deg, var(--accent), var(--tangerine));
-    color: #1D1D1B; text-shadow: none;
-    box-shadow: 0 0 20px var(--accent-glow); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--accent); background: linear-gradient(135deg, #84A48B, #6B9080);
+    color: #000; text-shadow: none; box-shadow: 0 0 20px var(--accent-glow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .experience-toggle-btn:hover {
-    transform: scale(1.06); box-shadow: 0 0 32px var(--accent-glow);
-    border-color: #EAE4DA;
-  }
+  .experience-toggle-btn:hover { transform: scale(1.06); box-shadow: 0 0 32px var(--accent-glow); }
   .custom-scrub-slider {
-    -webkit-appearance: none; width: 160px; height: 3px; background: rgba(234, 228, 218, 0.2);
-    border-radius: 2px; outline: none; cursor: pointer; transition: background 0.3s;
+    -webkit-appearance: none; width: 160px; height: 3px; background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px; outline: none; cursor: pointer;
   }
   .custom-scrub-slider::-webkit-slider-thumb {
     -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 12px var(--accent);
-    cursor: pointer; transition: transform 0.2s;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent); cursor: pointer;
   }
-  .custom-scrub-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
-
-  .drag-hint {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    letter-spacing: 0.2em; color: rgba(234, 228, 218, 0.5); text-transform: uppercase; font-weight: 500;
+  .status-badge-text {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+    letter-spacing: 0.1em; color: rgba(234, 228, 218, 0.65);
   }
+  .status-badge-text b { color: var(--accent); }
 
   /* Loading Screen */
   #loadingVeil {
-    position: fixed; inset: 0; z-index: 100; background: #1D1D1B;
+    position: fixed; inset: 0; z-index: 1000; background: #000000;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 14px; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
+    gap: 14px; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none;
   }
   #loadingVeil.hide { opacity: 0; }
   .veil-title {
     font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 900; letter-spacing: 0.28em;
     color: #EAE4DA; text-transform: uppercase;
   }
-  .veil-bar {
-    width: 140px; height: 2px; background: rgba(234, 228, 218, 0.15);
-    position: relative; overflow: hidden;
-  }
+  .veil-bar { width: 140px; height: 2px; background: rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; }
   .veil-bar-fill {
     position: absolute; top: 0; left: 0; height: 100%; width: 50%;
     background: var(--accent); box-shadow: 0 0 12px var(--accent);
@@ -296,65 +410,22 @@
     0% { left: 0%; width: 20%; }
     100% { left: 80%; width: 30%; }
   }
-  /* Camera Coordinate Inspector & Save View Tool */
+
+  /* Camera Helper Tool */
   #camInspectorBox {
     position: absolute; bottom: 85px; right: 28px; z-index: 30;
     width: 290px; padding: 14px 18px; border-radius: 14px;
-    background: rgba(20, 20, 18, 0.94); border: 1px solid var(--accent);
+    background: rgba(18, 18, 20, 0.94); border: 1px solid var(--accent);
     backdrop-filter: blur(20px); box-shadow: 0 12px 36px rgba(0,0,0,0.85);
     font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink);
     transition: all 0.35s ease;
   }
   #camInspectorBox.hidden { display: none !important; }
-  .cam-inspector-header {
-    display: flex; align-items: center; justify-content: space-between;
-    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800;
-    color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase;
-    margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(234, 193, 25, 0.25);
-  }
-  .cam-coord-row {
-    display: flex; justify-content: space-between; margin-bottom: 4px;
-    font-size: 10.5px; color: var(--ink-dim);
-  }
-  .cam-coord-row span { color: #EAE4DA; font-weight: 600; }
   .cam-save-btn {
     width: 100%; margin-top: 10px; padding: 9px 12px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent), #ED773C); border: none;
-    color: #1D1D1B; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 900;
+    background: linear-gradient(135deg, #84A48B, #6B9080); border: none;
+    color: #000; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 900;
     letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
-    box-shadow: 0 0 16px var(--accent-glow); transition: all 0.25s ease;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .cam-save-btn:hover {
-    transform: translateY(-1px); box-shadow: 0 0 24px rgba(234, 193, 25, 0.8);
-  }
-  .cam-toast {
-    position: fixed; top: 78px; right: 32px; z-index: 100;
-    background: rgba(36, 94, 85, 0.95); border: 1px solid #9ED6DF;
-    color: #EAE4DA; padding: 10px 20px; border-radius: 12px;
-    font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6); pointer-events: none;
-    opacity: 0; transform: translateY(-10px); transition: all 0.35s ease;
-  }
-  .cam-toast.show { opacity: 1; transform: translateY(0); }
-
-  /* Active Tree Floating Chip (Subtle & Tiny) */
-  #activeTreeChip {
-    position: absolute; top: 78px; right: 32px; z-index: 20;
-    display: flex; align-items: center; gap: 8px; padding: 5px 14px 5px 6px;
-    border-radius: 24px; background: rgba(20, 20, 24, 0.92);
-    border: 1px solid rgba(0, 180, 216, 0.4); color: var(--ink);
-    font-size: 11px; font-weight: 700; cursor: pointer; backdrop-filter: blur(16px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6); transition: all 0.3s ease;
-    opacity: 0; pointer-events: none; transform: translateY(-6px);
-  }
-  #activeTreeChip.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-  #activeTreeChip:hover {
-    border-color: var(--accent); color: var(--accent); transform: scale(1.04);
-  }
-  #activeTreeChip img {
-    width: 26px; height: 26px; border-radius: 50%; object-fit: cover;
-    border: 1.5px solid var(--water);
   }
 </style>
 
@@ -366,69 +437,396 @@
 <body>
 
 <div id="loadingVeil">
-  <div class="veil-title">RED DE RELACIONES BIÓTICAS</div>
+  <div class="veil-title">SISTEMA SOCIOECOLÓGICO KENNEDY</div>
   <div class="veil-bar"><div class="veil-bar-fill"></div></div>
 </div>
 
-<div class="vignette-overlay"></div>
+<div class="toast-notify" id="toastNotify">Nodo ocultado por doble clic</div>
 
-<!-- Top Bar -->
-<div class="top-bar">
-  <a href="modulo-08-3d.html" class="nav-back-link">
-    <i class="fa-solid fa-arrow-left"></i> Axonometría
-  </a>
-  <div class="stage-badge"><i class="fa-solid fa-circle-nodes"></i> <span id="stageLabel">Red Biótica · 850 Especies y Conexiones</span></div>
-  <div class="top-right-group">
-    <button id="btnCinemaTour" class="cinema-mode-btn" title="Vuelo Cinematográfico Continuo">
-      <i class="fa-solid fa-play"></i> <span id="cinemaText">Modo Video</span>
-    </button>
-    <button id="soundToggle" class="sound-btn" title="Paisaje Sonoro">
-      <i class="fa-solid fa-volume-xmark"></i>
-    </button>
-  </div>
-</div>
+<!-- Welcome Modal Overlay: 3 Statistical Pie Charts -->
+<div class="welcome-overlay" id="welcomeModalOverlay" style="display:none;">
+  <div class="welcome-modal">
+    <div class="welcome-header">
+      <div>
+        <div style="font-size:16px; font-weight:900; color:#84a48b; letter-spacing:0.5px; display:flex; align-items:center; gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#84a48b" stroke-width="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+          SISTEMA SOCIOECOLÓGICO DE KENNEDY — METRÍCAS ECOLÓGICAS Y MATRIZ DE EVIDENCIA
+        </div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">Distribución funcional, composición taxonómica y respaldo técnico del modelo (180 taxones)</div>
+      </div>
+      <button class="btn-flat active" style="padding:8px 18px; font-weight:800; font-size:12px;" onclick="closeWelcomeModal()">
+        Explorar Red 3D →
+      </button>
+    </div>
 
-<!-- Center Swarm Intro Prompt (Stage 1) -->
-<div id="swarmIntroBox">
-  <div class="intro-title">RED DE RELACIONES BIÓTICAS</div>
-  <div class="intro-sub">Ecosistema Humedal El Burro · Territorio de Kennedy</div>
-  <div class="intro-desc">
-    Toca o pasa el cursor sobre los <span>nodos bióticos</span> para inspeccionar las especies y sus redes tróficas. Al hacer clic, la esfera se dispersará en un vórtice cósmico sobre el territorio.
-  </div>
-  <button id="btnTriggerMorph" class="morph-main-btn">
-    <i class="fa-solid fa-burst"></i> EXPLOTAR Y DESPLEGAR TERRITORIO
-  </button>
-</div>
+    <div class="pie-grid">
+      <!-- Torta A: Distribución por Tipos de Interacción Biótica -->
+      <div class="pie-card">
+        <div class="pie-card-title">1. Torta A: Tipos de Interacción Biótica</div>
+        <div class="pie-card-desc">Distribución de las relaciones funcionales registradas en la red socioecológica de Kennedy.</div>
+        
+        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
+          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.584 0.812 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.584 0.812 A 1 1 0 0 1 -0.892 -0.452 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.892 -0.452 A 1 1 0 0 1 -0.669 -0.743 Z" fill="#F79E70" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.669 -0.743 A 1 1 0 0 1 -0.463 -0.886 Z" fill="#E69888" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.463 -0.886 A 1 1 0 0 1 1 0 Z" fill="#C96349" stroke="#000000" stroke-width="0.02"/>
+        </svg>
 
-<!-- Interactive Species / Tree Inspector Card (Pop-up on click) -->
-<div id="speciesCard">
-  <div class="species-card-header">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <div class="species-icon-wrap" id="cardIcon"><i class="fa-solid fa-tree"></i></div>
-      <div class="species-title-wrap">
-        <h3 id="cardCommonName">Sauco del Humedal</h3>
-        <em id="cardScientificName">Sambucus nigra</em>
+        <div class="pie-legend">
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>Visita Floral / Polinización</div>
+            <b style="color:#A386A9;">39.18%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Herbivoría Parcial</div>
+            <b style="color:#84A48B;">31.58%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#F79E70;"></div>Nidificación y Refugio</div>
+            <b style="color:#F79E70;">7.44%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#E69888;"></div>Dispersión de Semillas</div>
+            <b style="color:#E69888;">4.88%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#C96349;"></div>Parasitismo / Depredación</div>
+            <b style="color:#C96349;">16.92%</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Torta B: Composición por Reinos Taxonómicos -->
+      <div class="pie-card">
+        <div class="pie-card-title">🌿 2. Torta B: Reinos Taxonómicos</div>
+        <div class="pie-card-desc">Peso proporcional de los reinos biológicos en la matriz ambiental.</div>
+        
+        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
+          <path d="M 0 0 L 1 0 A 1 1 0 1 1 -0.560 -0.828 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.560 -0.828 A 1 1 0 0 1 0.887 -0.462 Z" fill="#6B9080" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 0.887 -0.462 A 1 1 0 0 1 0.988 -0.156 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 0.988 -0.156 A 1 1 0 0 1 1 0 Z" fill="#E7C878" stroke="#000000" stroke-width="0.02"/>
+        </svg>
+
+        <div class="pie-legend">
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Plantae (Flora Nativa)</div>
+            <b style="color:#84A48B;">59.5%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#6B9080;"></div>Animalia (Avifauna / Fauna)</div>
+            <b style="color:#6B9080;">30.4%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>Fungi (Hongos y Micorrizas)</div>
+            <b style="color:#A386A9;">7.0%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#E7C878;"></div>Bacterias y Biofiltro</div>
+            <b style="color:#E7C878;">3.1%</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Torta C: Origen y Soporte de Fuentes de Evidencia -->
+      <div class="pie-card">
+        <div class="pie-card-title">📜 3. Torta C: Fuentes de Evidencia</div>
+        <div class="pie-card-desc">Respaldo técnico del modelo socioecológico a partir del origen del dato.</div>
+        
+        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
+          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.741 0.672 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.741 0.672 A 1 1 0 0 1 -0.722 -0.692 Z" fill="#E7C878" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.722 -0.692 A 1 1 0 0 1 0.584 -0.812 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 0.584 -0.812 A 1 1 0 0 1 0.951 -0.309 Z" fill="#F79E70" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 0.951 -0.309 A 1 1 0 0 1 1 0 Z" fill="#6B9080" stroke="#000000" stroke-width="0.02"/>
+        </svg>
+
+        <div class="pie-legend">
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Artículos Científicos</div>
+            <b style="color:#84A48B;">36.1%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#E7C878;"></div>Registros de Campo</div>
+            <b style="color:#E7C878;">25.8%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>Censo SIGAU / Colecciones</div>
+            <b style="color:#A386A9;">23.4%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#F79E70;"></div>PMA Humedales SDA</div>
+            <b style="color:#F79E70;">9.7%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#6B9080;"></div>Ciencia Participativa</div>
+            <b style="color:#6B9080;">5.0%</b>
+          </div>
+        </div>
       </div>
     </div>
-    <div style="display:flex; align-items:center; gap:6px;">
-      <span class="species-badge" id="cardTaxon">Flora</span>
-      <span style="cursor:pointer; opacity:0.7; color:#EAE4DA; font-size:12px; padding:2px 4px;" id="btnCloseSpeciesCard" title="Cerrar"><i class="fa-solid fa-xmark"></i></span>
-    </div>
-  </div>
-  <div class="species-meta">
-    <p><strong>Censo Georreferenciado:</strong> <span id="cardCount">5,553 árboles</span></p>
-    <p style="margin-top:4px;"><strong>Altura Registrada:</strong> <span id="cardHeight">3.1 m (hasta 8 m)</span></p>
-    <p style="margin-top:4px;"><strong>Hábitat en Kennedy:</strong> <span id="cardHabitat">Bosque ripario El Burro</span></p>
-    <p style="margin-top:4px;"><strong>Rol Ecológico:</strong> <span id="cardDiet">Fitorremediación y frutos</span></p>
-    <div style="margin-top:8px; font-weight:700; color:#EAE4DA; font-size:10.5px;">Conexiones Bióticas:</div>
-    <div class="species-relations-list" id="cardRelations">
-      <span class="relation-tag">Alimento de Aves</span>
-      <span class="relation-tag">Fijación de Taludes</span>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:14px;">
+      <span style="font-size:10.5px; color:#94a3b8;">💡 Puedes volver a abrir estas métricas en cualquier momento con el botón "Métricas" de la barra superior.</span>
+      <button class="btn-flat active" style="padding:9px 24px; font-size:12px; font-weight:800; background:linear-gradient(135deg, #84a48b, #6B9080); color:#000000; border:none;" onclick="closeWelcomeModal()">
+        Entendido, Ingresar al Visor
+      </button>
     </div>
   </div>
 </div>
 
-<!-- Waypoint Buttons: Axonometría Total, Humedal El Burro, Humedal La Vaca, Humedal El Techo, Modo Perspectiva, Recorrido Árboles -->
+<!-- Top Navigation Header -->
+<div class="top-header" id="topHeader">
+  <div class="nav-group">
+    <div class="glass-panel brand-title">
+      <span>SISTEMA SOCIOECOLÓGICO KENNEDY</span>
+    </div>
+
+    <button class="glass-panel btn-flat active" onclick="openWelcomeModal()">
+      <span>Métricas (Tortas A, B, C)</span>
+    </button>
+
+    <button class="glass-panel btn-flat active" id="btnToggleSide" onclick="toggleSideDrawer()">
+      <span>Filtro de Capas Bióticas</span>
+    </button>
+
+    <button class="glass-panel btn-flat" onclick="restoreHiddenNodes()">
+      <span>Restablecer (<span id="lblHiddenCount">0</span>)</span>
+    </button>
+
+    <input type="text" id="searchInput" placeholder="Buscar taxón..." oninput="searchNode(this.value)" class="glass-panel search-box">
+  </div>
+
+  <div class="nav-group">
+    <button class="glass-panel btn-flat active" id="btnLayoutHyp" onclick="setLayout('hyperbolic')">
+      <span>Hiperbólico</span>
+    </button>
+
+    <button class="glass-panel btn-flat" id="btnLayoutClust" onclick="setLayout('clustered')">
+      <span>Por Grupos</span>
+    </button>
+
+    <button class="glass-panel btn-flat" id="btnLayoutConc" onclick="setLayout('concentric')">
+      <span>Anillos</span>
+    </button>
+
+    <button class="glass-panel btn-flat active" id="btnAutoRot" onclick="opts.autoRotate = !opts.autoRotate; this.classList.toggle('active')">
+      <span>Giro 3D</span>
+    </button>
+
+    <button class="glass-panel btn-flat" id="soundToggle" title="Paisaje Sonoro">
+      <i class="fa-solid fa-volume-xmark"></i>
+    </button>
+
+    <button class="glass-panel btn-flat" onclick="resetCamera()">Reset</button>
+  </div>
+</div>
+
+<!-- Side Drawer -->
+<div class="glass-panel side-drawer" id="sideDrawer">
+  <div class="drawer-header">
+    <span>Capas Socioecológicas Kennedy</span>
+    <span style="color:#84A48B; font-size:9px;">DOBLE CLIC = OCULTAR NODO</span>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#84A48B;" onclick="toggleCat(0)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#84A48B;" src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=100" alt="Flora">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Flora & Arbolado SIGAU</div>
+        <div style="font-size:9.5px; color:#94a3b8;">108 Taxones Botánicos Nativo/Urbano</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat0">108</span>
+      <div class="toggle-box checked" id="toggleCat0"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#6B9080;" onclick="toggleCat(1)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#6B9080;" src="https://images.unsplash.com/photo-1520808663317-647b476a81b9?w=100" alt="Avifauna">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Avifauna Evaluada</div>
+        <div style="font-size:9.5px; color:#94a3b8;">38 Taxones Acuáticos & Dosel</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat1">38</span>
+      <div class="toggle-box checked" id="toggleCat1"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#A386A9;" onclick="toggleCat(2)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#A386A9;" src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=100" alt="Micro">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Microorganismos & Biota</div>
+        <div style="font-size:9.5px; color:#94a3b8;">15 Taxones Biofiltro & Suelo</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat2">15</span>
+      <div class="toggle-box checked" id="toggleCat2"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" style="--cat-color:#C96349;" onclick="toggleCat(3)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#C96349;" src="https://images.unsplash.com/photo-1559253664-ca249d4608c6?w=100" alt="Fauna">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Herpetos, Mamíferos & MIA</div>
+        <div style="font-size:9.5px; color:#94a3b8;">12 Taxones Fauna & Bentos</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat3">12</span>
+      <div class="toggle-box checked" id="toggleCat3"></div>
+    </div>
+  </div>
+
+  <!-- Interaction Legend Box -->
+  <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.12);">
+    <div style="font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#84A48B; margin-bottom:8px;">
+      Tipos de Interacción Evaluados:
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px 8px; font-size:9px;">
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#C96349;"></span><span>Depredación</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#84A48B;"></span><span>Herbivoría</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E69888;"></span><span>Dispersión</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E7C878;"></span><span>Mutualismo</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#F79E70;"></span><span>Nidificación</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#A386A9;"></span><span>Visita Floral</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#D1A996;"></span><span>Anidamiento</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#C6B3CA;"></span><span>Parasitismo</span></div>
+      <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#6B9080;"></span><span>Alelopatía</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Pop-Up Inspector Modal -->
+<div class="glass-panel node-inspector" id="nodeInspector" style="display:none;">
+  <div class="inspector-header">
+    <div>
+      <div class="node-title" id="mNodeTitle">Tingua bogotana</div>
+      <div class="node-subtitle" id="mNodeSciName">Rallus semiplumbeus</div>
+    </div>
+    <div class="btn-close" onclick="closeInspector()">×</div>
+  </div>
+
+  <img id="mNodeImg" src="" alt="Fotografía / Taxón" class="media-preview" onerror="this.style.display='none'">
+
+  <div class="data-grid">
+    <div class="metric-card">
+      <div class="metric-val" id="mDegreeVal">16</div>
+      <div class="metric-lbl">Enlaces Activos</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val" id="mTaxaCode">AVE-01</div>
+      <div class="metric-lbl">Código Registro</div>
+    </div>
+  </div>
+
+  <div class="sec-header">Rol Ecológico & Nicho</div>
+  <div class="text-content" id="mRoleBox">Consumidor secundario...</div>
+
+  <div class="sec-header">Ubicación en Kennedy</div>
+  <div class="text-content" id="mLocBox">Humedal El Burro y La Vaca...</div>
+
+  <div class="sec-header">Vulnerabilidad & Presión de Hábitat (IUCN / SDA)</div>
+  <div class="text-content alert" id="mAlertBox">Sensible a pérdida de juncales y contaminación hídrica...</div>
+
+  <div class="sec-header" id="mNeighborHeader">Interacciones Bióticas Directas</div>
+  <div class="neighbor-scroll" id="mNeighborList">
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:6px; margin-top:12px;">
+    <button class="btn-flat" style="justify-content:center; background:rgba(132,164,139,0.2); border-color:#84a48b; color:#ffffff; font-weight:700;" onclick="openSubNetworkModal()">
+      🕸️ Ver Sub-Red de Interacciones a Detalle
+    </button>
+
+    <div style="display:flex; gap:6px;">
+      <button class="btn-flat" style="flex:1; justify-content:center;" onclick="focusSelectedNode()">Centrar</button>
+      <button class="btn-flat" style="flex:1; justify-content:center; background:rgba(201,99,73,0.25); border-color:#C96349; color:#ffffff;" onclick="hideCurrentNode()">Ocultar</button>
+      <button class="btn-flat" style="flex:1; justify-content:center; background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#cbd5e1;" onclick="closeInspector()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sub-Network 2D Graph Interactive Modal Popup -->
+<div class="subnetwork-modal" id="subnetworkModal" style="display:none;">
+  <div class="subnetwork-header">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="font-weight:800; font-size:13px; color:#84a48b;" id="subModalTitle">Sub-Red de Interacciones Bióticas</span>
+      <span style="font-size:10px; color:#94a3b8; font-family:monospace;" id="subModalCode">[AVE-19]</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; max-width:620px;">
+      <button class="btn-flat active" id="subInterToggle0" onclick="toggleSubInteraction(0)" style="font-size:8.5px; padding:2px 6px; border-color:#C96349; color:#C96349; background:rgba(201,99,73,0.15);">Depredación</button>
+      <button class="btn-flat active" id="subInterToggle1" onclick="toggleSubInteraction(1)" style="font-size:8.5px; padding:2px 6px; border-color:#84A48B; color:#84A48B; background:rgba(132,164,139,0.15);">Herbivoría</button>
+      <button class="btn-flat active" id="subInterToggle2" onclick="toggleSubInteraction(2)" style="font-size:8.5px; padding:2px 6px; border-color:#E69888; color:#E69888; background:rgba(230,152,136,0.15);">Dispersión</button>
+      <button class="btn-flat active" id="subInterToggle3" onclick="toggleSubInteraction(3)" style="font-size:8.5px; padding:2px 6px; border-color:#E7C878; color:#E7C878; background:rgba(231,200,120,0.15);">Mutualismo</button>
+      <button class="btn-flat active" id="subInterToggle4" onclick="toggleSubInteraction(4)" style="font-size:8.5px; padding:2px 6px; border-color:#F79E70; color:#F79E70; background:rgba(247,158,112,0.15);">Nidificación</button>
+      <button class="btn-flat active" id="subInterToggle5" onclick="toggleSubInteraction(5)" style="font-size:8.5px; padding:2px 6px; border-color:#A386A9; color:#A386A9; background:rgba(163,134,169,0.15);">Visita Floral</button>
+      <button class="btn-flat active" id="subInterToggle6" onclick="toggleSubInteraction(6)" style="font-size:8.5px; padding:2px 6px; border-color:#D1A996; color:#D1A996; background:rgba(209,169,150,0.15);">Anidamiento</button>
+      <button class="btn-flat active" id="subInterToggle7" onclick="toggleSubInteraction(7)" style="font-size:8.5px; padding:2px 6px; border-color:#C6B3CA; color:#C6B3CA; background:rgba(198,179,202,0.15);">Parasitismo</button>
+      <button class="btn-flat active" id="subInterToggle8" onclick="toggleSubInteraction(8)" style="font-size:8.5px; padding:2px 6px; border-color:#6B9080; color:#6B9080; background:rgba(107,144,128,0.15);">Alelopatía</button>
+      <div class="btn-close" style="margin-left:6px;" onclick="closeSubNetworkModal()">×</div>
+    </div>
+  </div>
+  <div class="subnetwork-canvas-wrap">
+    <canvas id="subCanvas"></canvas>
+  </div>
+</div>
+
+<!-- FAQ Chat Assistant -->
+<button class="chat-widget-btn" id="chatWidgetBtn" onclick="toggleFaqChat()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span>Asistente de Preguntas</span>
+</button>
+
+<div class="glass-panel faq-chat-modal" id="faqChatModal" style="display:none;">
+  <div class="chat-header">
+    <div style="display:flex; align-items:center; gap:8px; color:#84a48b; font-weight:700; font-size:12px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#84a48b" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <span>Consultas Frecuentes de la Red</span>
+    </div>
+    <div class="btn-close" onclick="toggleFaqChat()">×</div>
+  </div>
+
+  <div class="chat-body" id="chatBody">
+    <div class="msg-bubble msg-bot">
+      ¡Hola! 👋 Soy el asistente de la Red Socioecológica de Kennedy. Haz clic en las preguntas preparadas abajo o escribe tu consulta.
+    </div>
+  </div>
+
+  <div class="predefined-chips" style="max-height:200px; overflow-y:auto;">
+    <button class="chip-btn" onclick="askFaq(1)">
+      <span>1. ¿Qué significan las conexiones y evidencia entre especies?</span>
+      <span style="color:#84a48b;">→</span>
+    </button>
+    <button class="chip-btn" onclick="askFaq(2)">
+      <span>2. ¿Por qué existen relaciones entre vegetación y fauna?</span>
+      <span style="color:#84a48b;">→</span>
+    </button>
+    <button class="chip-btn" onclick="askFaq(3)">
+      <span>3. Conjetura: ¿Qué observaciones son datos vs hipótesis?</span>
+      <span style="color:#e7c878;">→</span>
+    </button>
+    <button class="chip-btn" onclick="askFaq(4)">
+      <span>4. Problemática: ¿Qué dependencias amenazan la sostenibilidad?</span>
+      <span style="color:#c96349;">→</span>
+    </button>
+  </div>
+
+  <div style="padding:10px 12px; background:rgba(15,23,42,0.98); border-top:1px solid rgba(132,164,139,0.25); display:flex; gap:8px; align-items:center;">
+    <input type="text" id="chatInput" placeholder="Escribe tu pregunta sobre la red..." onkeydown="if(event.key==='Enter') sendCustomChatMessage()" style="flex:1; background:rgba(0,0,0,0.6); border:1px solid rgba(132,164,139,0.3); color:#ffffff; padding:6px 10px; border-radius:6px; font-size:11px; outline:none;">
+    <button class="btn-flat active" onclick="sendCustomChatMessage()" style="padding:6px 12px; font-weight:700;">Enviar</button>
+  </div>
+</div>
+
+<!-- Waypoints Bar (Stage 2 - Territorio 3D) -->
 <div class="waypoints-bar" id="waypointsBar">
   <button class="waypoint-pill active" data-waypoint="overview">
     <i class="fa-solid fa-compass"></i> Axonometría Total
@@ -442,7 +840,7 @@
   <button class="waypoint-pill" data-waypoint="techo">
     <i class="fa-solid fa-water"></i> Humedal El Techo
   </button>
-  <button class="waypoint-pill" data-waypoint="perspective" style="border-color: #9ED6DF; color: #9ED6DF;">
+  <button class="waypoint-pill" data-waypoint="perspective" style="border-color: #84A48B; color: #84A48B;">
     <i class="fa-solid fa-person-walking"></i> Perspectiva Humedal
   </button>
   <button class="waypoint-pill" id="btnTourSpecies">
@@ -450,30 +848,30 @@
   </button>
 </div>
 
-<!-- Active Tree Floating Chip (Tiny & Clean) -->
+<!-- Active Tree Floating Chip -->
 <button id="activeTreeChip" title="Ver detalles del árbol">
   <img id="activeTreeImg" src="./assets/inat_sauco.png" alt="Árbol">
   <span id="activeTreeName">Sauco</span>
 </button>
 
-<!-- Camera Coordinate Inspector & Save View Tool -->
+<!-- Camera Helper Tool -->
 <div id="camInspectorBox">
-  <div class="cam-inspector-header">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-weight:800; color:#84A48B; font-size:11px;">
     <span><i class="fa-solid fa-video"></i> Ajustar Vista 3D</span>
     <span style="cursor:pointer; opacity:0.7;" id="btnCloseCamInspector" title="Cerrar"><i class="fa-solid fa-xmark"></i></span>
   </div>
-  <div class="cam-coord-row">Posición: <span id="camCoordPos">0, 0, 0</span></div>
-  <div class="cam-coord-row">Objetivo: <span id="camCoordTarget">0, 0, 0</span></div>
+  <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:10.5px; color:#94a3b8;">Posición: <span id="camCoordPos" style="color:#fff;">0, 0, 0</span></div>
+  <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:10.5px; color:#94a3b8;">Objetivo: <span id="camCoordTarget" style="color:#fff;">0, 0, 0</span></div>
   <button id="btnSaveCameraView" class="cam-save-btn">
     <i class="fa-solid fa-cloud-arrow-up"></i> SUBIR ESTA VISTA AL EDITOR
   </button>
 </div>
 
-<div id="camToast" class="cam-toast">
-  <i class="fa-solid fa-circle-check"></i> ¡Vista inicial guardada para el editor!
+<div id="camToast" style="position:fixed; top:78px; right:32px; z-index:100; background:rgba(30,58,52,0.95); border:1px solid #84A48B; color:#f1f5f9; padding:10px 20px; border-radius:12px; font-size:11.5px; font-weight:700; opacity:0; pointer-events:none; transition:opacity 0.3s ease;">
+  ¡Vista inicial guardada para el editor!
 </div>
 
-<!-- Bottom Minimalist Experience Bar -->
+<!-- Bottom Experience Bar with Transition Slider -->
 <div class="bottom-experience-bar">
   <div class="scrub-container">
     <span class="scrub-label active" id="labelSwarm">Red Biótica</span>
@@ -483,13 +881,15 @@
       <i class="fa-solid fa-atom"></i> <span id="btnActionText">MATERIALIZAR</span>
     </button>
   </div>
-  <div class="drag-hint">Toca los nodos para ver especies · Rueda para zoom · Arrastra 360°</div>
+  <div class="status-badge-text">
+    Taxones Visibles: <b id="lblActiveNodes">180</b> | Interacciones: <b id="lblActiveEdges">0</b> | Ocultos: <b id="lblStatusHidden">0</b> • Doble Clic: Ocultar Nodo
+  </div>
 </div>
 
 <div id="canvasContainer">
   <canvas id="sceneCanvas"></canvas>
 </div>
 
-<script src="modulo-11-garden.js?v=20261007_TREES_CENSO_501"></script>
+<script src="modulo-11-garden.js?v=20261007_V6_SOCIOECOLOGICO"></script>
 </body>
 </html>
