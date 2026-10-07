@@ -13,19 +13,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #141416;
-    --accent: #EAC119;
-    --accent-glow: rgba(234, 193, 25, 0.45);
+    --bg: #111113;
+    --accent: #D4AF37;
+    --accent-glow: rgba(212, 175, 55, 0.45);
     --water: #00B4D8;
     --tea: #2E8B57;
-    --lavender: #E2D9CC;
-    --pink: #D0C4AF;
-    --tangerine: #ED773C;
+    --lavender: #6E675F;
+    --pink: #59524B;
+    --tangerine: #D97736;
     --red: #C63F3E;
     --ink: #EAE4DA;
-    --ink-dim: rgba(234, 228, 218, 0.75);
-    --panel-bg: rgba(20, 20, 22, 0.94);
-    --panel-border: rgba(0, 180, 216, 0.35);
+    --ink-dim: rgba(234, 228, 218, 0.72);
+    --panel-bg: rgba(18, 18, 20, 0.92);
+    --panel-border: rgba(0, 180, 216, 0.32);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   html, body {
@@ -43,7 +43,7 @@
   /* Vignette */
   .vignette-overlay {
     position: absolute; inset: 0; pointer-events: none; z-index: 2;
-    background: radial-gradient(circle at center, transparent 45%, rgba(29, 29, 27, 0.6) 80%, #141412 100%);
+    background: radial-gradient(circle at center, transparent 40%, rgba(18, 18, 20, 0.65) 80%, #111113 100%);
   }
 
   /* Top Bar */
@@ -56,7 +56,7 @@
     pointer-events: auto; display: inline-flex; align-items: center; gap: 8px;
     color: var(--ink); text-decoration: none; font-size: 11px; font-weight: 700;
     letter-spacing: 0.12em; text-transform: uppercase; transition: all 0.3s ease;
-    padding: 8px 18px; border-radius: 20px; background: rgba(29, 29, 27, 0.85);
+    padding: 8px 18px; border-radius: 20px; background: rgba(25, 25, 28, 0.85);
     border: 1px solid var(--panel-border); backdrop-filter: blur(14px);
   }
   .nav-back-link:hover {
@@ -64,19 +64,12 @@
     box-shadow: 0 0 20px var(--accent-glow); transform: translateX(-2px);
   }
 
-  .top-center-brand {
-    text-align: center; pointer-events: none;
-  }
-  .top-center-brand h1 {
-    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 900;
-    letter-spacing: 0.22em; text-transform: uppercase;
-    background: linear-gradient(180deg, #EAE4DA 0%, rgba(234, 228, 218, 0.75) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
   .stage-badge {
-    display: inline-flex; align-items: center; gap: 6px; margin-top: 3px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; font-weight: 600;
+    background: rgba(25, 25, 28, 0.85); padding: 7px 18px; border-radius: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.3); backdrop-filter: blur(14px);
   }
 
   .top-right-group {
@@ -84,62 +77,84 @@
   }
   .cinema-mode-btn {
     display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 20px;
-    background: rgba(29, 29, 27, 0.85); border: 1px solid var(--panel-border);
+    background: rgba(25, 25, 28, 0.85); border: 1px solid var(--panel-border);
     color: var(--ink); font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
     cursor: pointer; backdrop-filter: blur(14px); transition: all 0.3s;
     text-transform: uppercase;
   }
   .cinema-mode-btn:hover, .cinema-mode-btn.active {
-    color: var(--bg); border-color: var(--accent); background: var(--accent);
+    color: #111113; border-color: var(--accent); background: var(--accent);
     box-shadow: 0 0 20px var(--accent-glow);
   }
   .sound-btn {
     width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(29, 29, 27, 0.85); border: 1px solid var(--panel-border);
+    background: rgba(25, 25, 28, 0.85); border: 1px solid var(--panel-border);
     color: var(--ink); display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(14px); font-size: 12px;
   }
   .sound-btn:hover, .sound-btn.active {
-    color: var(--bg); background: var(--accent); border-color: var(--accent);
+    color: #111113; background: var(--accent); border-color: var(--accent);
     box-shadow: 0 0 16px var(--accent-glow);
   }
 
-  /* Center Swarm Intro Prompt (Stage 1) */
+  /* Dynamic Floating Intro Card (Stage 1) */
   #swarmIntroBox {
     position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%);
-    z-index: 15; text-align: center; pointer-events: auto; max-width: 560px;
+    z-index: 15; text-align: center; pointer-events: auto; max-width: 580px;
+    padding: 32px 36px; border-radius: 28px;
+    background: rgba(18, 18, 22, 0.82); border: 1px solid rgba(212, 175, 55, 0.35);
+    backdrop-filter: blur(28px); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(212, 175, 55, 0.15);
+    animation: introFloat 6s ease-in-out infinite alternate;
     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  @keyframes introFloat {
+    0% { transform: translate(-50%, -50%) translateY(0px) scale(1); }
+    50% { transform: translate(-50%, -50%) translateY(-8px) scale(1.01); }
+    100% { transform: translate(-50%, -50%) translateY(4px) scale(0.995); }
+  }
   #swarmIntroBox.fade-out {
-    opacity: 0; transform: translate(-50%, -60%) scale(0.92); pointer-events: none;
+    opacity: 0; transform: translate(-50%, -65%) scale(0.9); pointer-events: none;
+    animation: none;
   }
   .intro-title {
-    font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: 0.12em;
-    color: #EAE4DA; text-shadow: 0 0 30px rgba(234, 193, 25, 0.5);
+    font-family: 'Inter', sans-serif; font-size: 25px; font-weight: 900; letter-spacing: 0.14em;
+    background: linear-gradient(180deg, #FFFFFF 0%, #D4AF37 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 35px rgba(212, 175, 55, 0.4);
     line-height: 1.25; text-transform: uppercase;
   }
   .intro-sub {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
-    color: var(--accent); text-transform: uppercase; margin-top: 6px; font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.22em;
+    color: var(--accent); text-transform: uppercase; margin-top: 8px; font-weight: 600;
   }
   .intro-desc {
-    font-size: 13px; color: var(--ink-dim); font-weight: 400; margin-top: 14px; line-height: 1.6;
-    letter-spacing: 0.01em; padding: 0 20px;
+    font-size: 13.5px; color: var(--ink-dim); font-weight: 400; margin-top: 16px; line-height: 1.65;
+    letter-spacing: 0.01em; padding: 0 10px;
   }
   .intro-desc span { color: var(--water); font-weight: 600; }
   .morph-main-btn {
-    margin-top: 22px; padding: 13px 34px; border-radius: 32px;
+    margin-top: 24px; padding: 14px 38px; border-radius: 32px;
     font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
     cursor: pointer; border: 1px solid var(--accent);
-    background: linear-gradient(135deg, rgba(234, 193, 25, 0.85), rgba(237, 119, 60, 0.85));
-    color: #1D1D1B; text-shadow: none;
-    box-shadow: 0 0 32px var(--accent-glow); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #D4AF37, #D97736);
+    color: #111113; text-shadow: none;
+    box-shadow: 0 0 36px var(--accent-glow); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex; align-items: center; gap: 10px; text-transform: uppercase;
+    position: relative; overflow: hidden;
+  }
+  .morph-main-btn::after {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: linear-gradient(60deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: rotate(25deg); animation: btnShimmer 3.5s infinite;
+  }
+  @keyframes btnShimmer {
+    0% { transform: translateX(-100%) rotate(25deg); }
+    100% { transform: translateX(100%) rotate(25deg); }
   }
   .morph-main-btn:hover {
-    transform: scale(1.06); box-shadow: 0 0 50px rgba(234, 193, 25, 0.9);
-    border-color: #EAE4DA; color: #000;
+    transform: scale(1.06); box-shadow: 0 0 55px rgba(212, 175, 55, 0.85);
+    border-color: #FFFFFF; color: #000;
   }
 
   /* Interactive Species Inspector Card (Pop-up on hover / click) */

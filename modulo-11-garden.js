@@ -1,6 +1,6 @@
 // =====================================================================
-// El Jardín de las Aguas — Red Biótica Esférica & Territorio de Kennedy 3D
-// Digital Experience using the official graphic color palette & accurate GIS waypoints
+// El Jardín de las Aguas — Red Biótica Dinámica & Territorio de Kennedy 3D
+// Living Biotic Network, Organic Chords, Dynamic Constellation & Perspective View
 // =====================================================================
 
 (() => {
@@ -32,6 +32,7 @@
   const cardHabitat = document.getElementById("cardHabitat");
   const cardDiet = document.getElementById("cardDiet");
   const cardRelations = document.getElementById("cardRelations");
+  const btnCloseSpeciesCard = document.getElementById("btnCloseSpeciesCard");
 
   // Elementos del Inspector de Cámara
   const camInspectorBox = document.getElementById("camInspectorBox");
@@ -42,21 +43,21 @@
   const camToast = document.getElementById("camToast");
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x1D1D1B); // MUTED BLACK
-  scene.fog = new THREE.FogExp2(0x1D1D1B, 0.0006);
+  scene.background = new THREE.Color(0x111113); // DEEP GRAPHITE
+  scene.fog = new THREE.FogExp2(0x111113, 0.00075);
 
   const sceneRoot = new THREE.Group();
   scene.add(sceneRoot);
 
-  const fov = 44;
+  let currentFov = 44;
   const aspect = window.innerWidth / window.innerHeight;
-  const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 9500);
+  const camera = new THREE.PerspectiveCamera(currentFov, aspect, 0.8, 9500);
   
-  // Posición inicial: perfectamente centrada en la esfera
+  // Posición inicial: perfectamente centrada en la esfera viva
   const swarmCamPos = new THREE.Vector3(0, 0, 75);
   const swarmTarget = new THREE.Vector3(0, 0, 0);
 
-  // Vista territorial por defecto (o cargada desde localStorage si el usuario ya la guardó)
+  // Vista territorial por defecto
   let territoryCamPos = new THREE.Vector3(180, 270, 310);
   let territoryTarget = new THREE.Vector3(35, 0, 10);
 
@@ -74,13 +75,14 @@
     }
   } catch(e) {}
 
-  // Waypoints con coordenadas EXACTAS y verificadas con el shapefile GIS
+  // Waypoints con coordenadas verificadas y FOV específico
   const waypoints = {
-    overview:    { pos: territoryCamPos, target: territoryTarget },
-    burro:       { pos: new THREE.Vector3(210, 85, 95),  target: new THREE.Vector3(210, 0, -10) },   // Humedal El Burro (W[14])
-    vaca:        { pos: new THREE.Vector3(65, 80, 215),  target: new THREE.Vector3(65, 0, 125) },    // Humedal La Vaca (W[16] junto a Corabastos)
-    techo:       { pos: new THREE.Vector3(292, 80, 10),  target: new THREE.Vector3(292, 0, -80) },   // Humedal de Techo (W[18] adyacente a El Burro)
-    perspective: { pos: new THREE.Vector3(204, 2.6, -14), target: new THREE.Vector3(216, 2.2, 42) } // Modo Perspectiva a nivel de agua/suelo
+    overview:    { pos: territoryCamPos, target: territoryTarget, fov: 44 },
+    burro:       { pos: new THREE.Vector3(210, 85, 95),  target: new THREE.Vector3(210, 0, -10), fov: 46 },
+    vaca:        { pos: new THREE.Vector3(65, 80, 215),  target: new THREE.Vector3(65, 0, 125), fov: 46 },
+    techo:       { pos: new THREE.Vector3(292, 80, 10),  target: new THREE.Vector3(292, 0, -80), fov: 46 },
+    // Perspectiva humana a nivel de orilla del humedal con visión panorámica inmersiva
+    perspective: { pos: new THREE.Vector3(206, 3.8, 50), target: new THREE.Vector3(214, 3.2, 135), fov: 68 }
   };
 
   camera.position.copy(swarmCamPos);
@@ -93,19 +95,17 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.35;
+  renderer.toneMappingExposure = 1.25;
 
-  // OrbitControls: Zoom profundo y rotación 360° sin restricciones
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.06;
+  controls.dampingFactor = 0.055;
   controls.screenSpacePanning = true;
   controls.maxDistance = 3500;
-  controls.minDistance = 2.0;
+  controls.minDistance = 1.8;
   controls.maxPolarAngle = Math.PI;
   controls.target.copy(swarmTarget);
 
-  // Auto-fade del título al interactuar con el mouse, scroll o tocar
   let userHasInteracted = false;
   function triggerTitleFadeOut() {
     if (!userHasInteracted) {
@@ -118,7 +118,6 @@
   window.addEventListener("wheel", triggerTitleFadeOut, { passive: true });
   window.addEventListener("touchmove", triggerTitleFadeOut, { passive: true });
 
-  // Resize handler
   window.addEventListener("resize", () => {
     const w = window.innerWidth, h = window.innerHeight;
     camera.aspect = w / h;
@@ -129,7 +128,7 @@
     }
   });
 
-  // Base Paisajística del Territorio (Oculta en la fase de red inicial)
+  // Base Paisajística del Territorio
   const sceneBaseGroup = new THREE.Group();
   sceneBaseGroup.visible = false;
   sceneRoot.add(sceneBaseGroup);
@@ -137,7 +136,7 @@
   function createExpansiveBase() {
     const discGeo = new THREE.RingGeometry(5, 1700, 80);
     const discMat = new THREE.MeshBasicMaterial({
-      color: 0x141412,
+      color: 0x111113,
       transparent: true,
       opacity: 0.94,
       side: THREE.DoubleSide
@@ -147,7 +146,7 @@
     disc.position.y = -0.6;
     sceneBaseGroup.add(disc);
 
-    const grid = new THREE.GridHelper(2800, 100, 0x245E55, 0x1D1D1B);
+    const grid = new THREE.GridHelper(2800, 100, 0x1E3A34, 0x111113);
     grid.position.y = -0.55;
     grid.material.opacity = 0.35;
     grid.material.transparent = true;
@@ -156,45 +155,41 @@
   createExpansiveBase();
 
   // =====================================================================
-  // 1. PALETA OFICIAL & BASE DE DATOS DE ESPECIES
+  // 1. BASE DE DATOS DE ESPECIES Y RED TRÓFICA (PALETA EQUILIBRADA Y ORGÁNICA)
   // =====================================================================
-  // Paleta oficial:
-  // TEA = 0x245E55, MUSTARD = 0xEAC119, LAVENDER = 0x808BC5, PINK_QUARTZ = 0xEAA7C7,
-  // TANGERINE = 0xED773C, SKY = 0x9ED6DF, RED_PASSION = 0xC63F3E, MUTED_BLACK = 0x1D1D1B
-
   const SPECIES_CATALOG = [
-    // Flora: VERDE FRESCO BOTÁNICO (Restaurado como le gustó)
-    { common: "Sauco del Humedal", scientific: "Sambucus nigra", taxon: "Plantae", icon: "fa-leaf", habitat: "Bosque ripario y orillas de El Burro", diet: "Fotosíntesis y nutrientes del humedal", relations: ["Frutos para aves migratorias", "Fijación de taludes", "Sombra y microclima"], color: 0x2E8B57 },
-    { common: "Junco de Agua", scientific: "Schoenoplectus californicus", taxon: "Plantae", icon: "fa-spa", habitat: "Zonas de inundación permanente", diet: "Filtración hídrica fitorremediadora", relations: ["Filtro de metales pesados", "Nidación de Tingua Bogotana", "Refugio de alevines"], color: 0x48BB78 },
-    { common: "Lenteja de Agua", scientific: "Lemna minor", taxon: "Plantae", icon: "fa-seedling", habitat: "Espejos de agua lénticos", diet: "Absorción de nitrógeno y fósforo", relations: ["Alimento de aves acuáticas", "Oxigenación", "Control de algas"], color: 0x52B788 },
-    { common: "Urapán", scientific: "Fraxinus chinensis", taxon: "Plantae", icon: "fa-tree", habitat: "Dosel urbano y rondas de canal", diet: "Nutrición edáfica y fotosíntesis", relations: ["Percha de rapaces", "Hábitat de murciélagos", "Captura de CO2"], color: 0x2E8B57 },
-    { common: "Capulí", scientific: "Prunus serotina", taxon: "Plantae", icon: "fa-tree", habitat: "Borde de quebradas y reservas", diet: "Nutrientes de suelo aluvial", relations: ["Alimento de cusumbos", "Polinización por abejas", "Corredor biológico"], color: 0x48BB78 },
-    { common: "Aliso Sabanero", scientific: "Alnus acuminata", taxon: "Plantae", icon: "fa-tree", habitat: "Ronda hidráulica Río Bogotá", diet: "Fijación biológica de nitrógeno", relations: ["Fijación de suelo", "Refugio de curíes", "Aporte de materia orgánica"], color: 0x2E8B57 },
+    // Flora: VERDE BOTÁNICO FRESCO
+    { id: "sauco", common: "Sauco del Humedal", scientific: "Sambucus nigra", guild: "producer", icon: "fa-leaf", habitat: "Bosque ripario y orillas de El Burro", diet: "Fotosíntesis y nutrientes del humedal", relations: ["Frutos para aves migratorias", "Fijación de taludes", "Refugio de insectos"], color: 0x2E8B57 },
+    { id: "junco", common: "Junco de Agua", scientific: "Schoenoplectus californicus", guild: "producer", icon: "fa-spa", habitat: "Zonas de inundación permanente", diet: "Filtración hídrica fitorremediadora", relations: ["Filtro de metales pesados", "Nidación de Tingua Bogotana", "Refugio de alevines"], color: 0x48BB78 },
+    { id: "lenteja", common: "Lenteja de Agua", scientific: "Lemna minor", guild: "producer", icon: "fa-seedling", habitat: "Espejos de agua lénticos", diet: "Absorción de nitrógeno y fósforo", relations: ["Alimento de patos y tinguas", "Oxigenación acuática", "Control de algas"], color: 0x52B788 },
+    { id: "urapan", common: "Urapán", scientific: "Fraxinus chinensis", guild: "producer", icon: "fa-tree", habitat: "Dosel urbano y rondas de canal", diet: "Nutrición edáfica y fotosíntesis", relations: ["Percha de rapaces", "Hábitat de murciélagos", "Captura de CO2"], color: 0x2E8B57 },
+    { id: "capuli", common: "Capulí", scientific: "Prunus serotina", guild: "producer", icon: "fa-tree", habitat: "Borde de quebradas y reservas", diet: "Nutrientes de suelo aluvial", relations: ["Alimento de cusumbos", "Polinización por abejas", "Corredor biológico"], color: 0x48BB78 },
+    { id: "aliso", common: "Aliso Sabanero", scientific: "Alnus acuminata", guild: "producer", icon: "fa-tree", habitat: "Ronda hidráulica Río Bogotá", diet: "Fijación biológica de nitrógeno", relations: ["Fijación de suelo", "Refugio de curíes", "Aporte de materia orgánica"], color: 0x2E8B57 },
 
-    // Invertebrados / Polinizadores: CREMITA ARQUITECTÓNICO CÁLIDO
-    { common: "Abejorro Sabanero", scientific: "Bombus rubicundus", taxon: "Insecta", icon: "fa-clover", habitat: "Flores de Sauco, Tingua y Jardines", diet: "Néctar y polen silvestre", relations: ["Polinizador clave", "Zumbido de alta vibración", "Mutualismo floral"], color: 0xE2D9CC },
-    { common: "Murciélago Mastín", scientific: "Molossus molossus", taxon: "Mammalia", icon: "fa-bat", habitat: "Huecos de árboles y cielo nocturno", diet: "Insectos voladores nocturnos y polillas", relations: ["Control biológico de plagas", "Bioacústica ultrasónica", "Polinización nocturna"], color: 0xD0C4AF },
-    { common: "Libélula Azul", scientific: "Rhionaeschna marchali", taxon: "Insecta", icon: "fa-bug", habitat: "Ronda hidráulica y espejos de agua", diet: "Mosquitos adultos y moscas", relations: ["Depredador aéreo de plagas", "Fase larvaria bentónica", "Presa de aves"], color: 0x00B4D8 },
-    { common: "Mariposa Espejito", scientific: "Dione vanillae", taxon: "Insecta", icon: "fa-worm", habitat: "Jardines y enredaderas de pasiflora", diet: "Néctar floral y hojas nutricias", relations: ["Polinizadora diurna", "Metamorfosis en orillas", "Alimento de aves"], color: 0xE2D9CC },
-    { common: "Hongo Micorrícico", scientific: "Glomus intraradices", taxon: "Fungi", icon: "fa-cube", habitat: "Suelo rizosférico del humedal", diet: "Azúcares de raíces de sauce y junco", relations: ["Red de transporte de fósforo", "Biofiltro del suelo", "Conexión simbiótica"], color: 0xD0C4AF },
+    // Invertebrados / Polinizadores: OCRE CÁLIDO / MIEL SUAVE (NO AMARILLO CHILLÓN)
+    { id: "abejorro", common: "Abejorro Sabanero", scientific: "Bombus rubicundus", guild: "pollinator", icon: "fa-clover", habitat: "Flores de Sauco, Tingua y Jardines", diet: "Néctar y polen silvestre", relations: ["Polinizador clave", "Zumbido de alta vibración", "Mutualismo floral"], color: 0xD4AF37 },
+    { id: "murcielago", common: "Murciélago Mastín", scientific: "Molossus molossus", guild: "predator", icon: "fa-bat", habitat: "Huecos de árboles y cielo nocturno", diet: "Insectos voladores nocturnos y polillas", relations: ["Control biológico de plagas", "Bioacústica ultrasónica", "Polinización nocturna"], color: 0x8C8275 },
+    { id: "libelula", common: "Libélula Azul", scientific: "Rhionaeschna marchali", guild: "predator", icon: "fa-bug", habitat: "Ronda hidráulica y espejos de agua", diet: "Mosquitos adultos y moscas", relations: ["Depredador aéreo de plagas", "Fase larvaria bentónica", "Presa de aves"], color: 0x00B4D8 },
+    { id: "mariposa", common: "Mariposa Espejito", scientific: "Dione vanillae", guild: "pollinator", icon: "fa-worm", habitat: "Jardines y enredaderas de pasiflora", diet: "Néctar floral y hojas nutricias", relations: ["Polinizadora diurna", "Metamorfosis en orillas", "Alimento de aves"], color: 0xD97736 },
+    { id: "hongo", common: "Hongo Micorrícico", scientific: "Glomus intraradices", guild: "decomposer", icon: "fa-cube", habitat: "Suelo rizosférico del humedal", diet: "Azúcares de raíces de sauce y junco", relations: ["Red de transporte de fósforo", "Biofiltro del suelo", "Conexión simbiótica"], color: 0x7E766C },
 
-    // Avifauna: AZUL HUMEDAL VIBRANTE
-    { common: "Tingua Azul", scientific: "Porphyrio martinica", taxon: "Aves", icon: "fa-feather", habitat: "Lámina de agua y vegetación flotante", diet: "Lenteja de agua, semillas y moluscos", relations: ["Ave migratoria", "Nidificación en juncales", "Dispersora de macrófitas"], color: 0x00B4D8 },
-    { common: "Tingua Bogotana", scientific: "Rallus semiplumbeus", taxon: "Aves", icon: "fa-dove", habitat: "Densos juncales del Humedal El Burro", diet: "Invertebrados acuáticos y brotes tiernos", relations: ["Especie endémica en peligro", "Bioindicador de conservación", "Nidos flotantes"], color: 0x00B4D8 },
-    { common: "Garza Real", scientific: "Ardea alba", taxon: "Aves", icon: "fa-dove", habitat: "Orillas abiertas del Humedal El Burro", diet: "Ranas sabaneras, peces y coleópteros", relations: ["Depredador acuático tope", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0x00B4D8 },
-    { common: "Pato Turrio", scientific: "Oxyura jamaicensis", taxon: "Aves", icon: "fa-water", habitat: "Lagunas profundas de Kennedy", diet: "Larvas de quironómidos y plantas sumergidas", relations: ["Buceo profundo", "Oxigenación de sedimentos", "Comensalismo con tinguas"], color: 0x00B4D8 },
-    { common: "Alcaraván Sabanero", scientific: "Vanellus chilensis", taxon: "Aves", icon: "fa-dove", habitat: "Campos abiertos y riberas secas", diet: "Gusanos, escarabajos y pequeños moluscos", relations: ["Guardián del territorio", "Alarma sonora comunitaria", "Nidos en suelo"], color: 0x00B4D8 },
+    // Avifauna: AZUL HUMEDAL LUMINOSO
+    { id: "tingua_azul", common: "Tingua Azul", scientific: "Porphyrio martinica", guild: "bird", icon: "fa-feather", habitat: "Lámina de agua y vegetación flotante", diet: "Lenteja de agua, semillas y moluscos", relations: ["Ave migratoria", "Nidificación en juncales", "Dispersora de macrófitas"], color: 0x00B4D8 },
+    { id: "tingua_bog", common: "Tingua Bogotana", scientific: "Rallus semiplumbeus", guild: "bird", icon: "fa-dove", habitat: "Densos juncales del Humedal El Burro", diet: "Invertebrados acuáticos y brotes tiernos", relations: ["Especie endémica en peligro", "Bioindicador de conservación", "Nidos flotantes"], color: 0x00B4D8 },
+    { id: "garza", common: "Garza Real", scientific: "Ardea alba", guild: "bird", icon: "fa-dove", habitat: "Orillas abiertas del Humedal El Burro", diet: "Ranas sabaneras, peces y coleópteros", relations: ["Depredador acuático tope", "Indicador de calidad hídrica", "Vuelo en bandadas"], color: 0x0096C7 },
+    { id: "pato", common: "Pato Turrio", scientific: "Oxyura jamaicensis", guild: "bird", icon: "fa-water", habitat: "Lagunas profundas de Kennedy", diet: "Larvas de quironómidos y plantas sumergidas", relations: ["Buceo profundo", "Oxigenación de sedimentos", "Comensalismo con tinguas"], color: 0x00B4D8 },
+    { id: "alcaravan", common: "Alcaraván Sabanero", scientific: "Vanellus chilensis", guild: "bird", icon: "fa-dove", habitat: "Campos abiertos y riberas secas", diet: "Gusanos, escarabajos y pequeños moluscos", relations: ["Guardián del territorio", "Alarma sonora comunitaria", "Nidos en suelo"], color: 0x00B4D8 },
 
-    // Fauna / Mamíferos / Herpetos: CREMITA & VERDE
-    { common: "Rana Sabanera", scientific: "Dendropsophus molitor", taxon: "Amphibia", icon: "fa-frog", habitat: "Espejos de agua y juncales de El Burro", diet: "Insectos acuáticos, larvas y dípteros", relations: ["Control de mosquitos", "Alimento de Garza Real", "Refugio en Juncos"], color: 0x00B4D8 },
-    { common: "Serpiente Sabanera", scientific: "Atractus crassicaudatus", taxon: "Reptilia", icon: "fa-staff-snake", habitat: "Suelo húmedo y pastizales de ribera", diet: "Lombrices de tierra y babosas", relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0x2E8B57 },
-    { common: "Cusumbo Andino", scientific: "Nasua olivacea", taxon: "Mammalia", icon: "fa-paw", habitat: "Reserva Umbral Horizontes / El Burro", diet: "Frutos de Sauco, semillas e invertebrados", relations: ["Dispersión de semillas", "Forrajeo en dosel", "Polinización indirecta"], color: 0xE2D9CC },
-    { common: "Comadreja Andina", scientific: "Neogale frenata", taxon: "Mammalia", icon: "fa-paw", habitat: "Ribera del Río Bogotá y canales", diet: "Pequeños roedores y anfibios", relations: ["Depredador tope", "Control poblacional", "Madrigueras en taludes"], color: 0xD0C4AF },
-    { common: "Hicotea del Humedal", scientific: "Trachemys callirostris", taxon: "Reptilia", icon: "fa-shield-halved", habitat: "Zonas de remanso y asoleaderos de agua", diet: "Vegetación sumergida y detritos acuáticos", relations: ["Limpieza de detritos", "Asoleo en troncos", "Nidación en ribera"], color: 0x00B4D8 },
-    { common: "Curí Sabanero", scientific: "Cavia aperea", taxon: "Mammalia", icon: "fa-paw", habitat: "Pastizales inundables y rondas", diet: "Gramíneas, pasto kikuyo y hojas", relations: ["Herbívoro primario", "Presa clave", "Túneles ecológicos"], color: 0x2E8B57 }
+    // Fauna / Anfibios / Mamíferos
+    { id: "rana", common: "Rana Sabanera", scientific: "Dendropsophus molitor", guild: "amphibian", icon: "fa-frog", habitat: "Espejos de agua y juncales de El Burro", diet: "Insectos acuáticos, larvas y dípteros", relations: ["Control de mosquitos", "Alimento de Garza Real", "Refugio en Juncos"], color: 0x48BB78 },
+    { id: "serpiente", common: "Serpiente Sabanera", scientific: "Atractus crassicaudatus", guild: "predator", icon: "fa-staff-snake", habitat: "Suelo húmedo y pastizales de ribera", diet: "Lombrices de tierra y babosas", relations: ["Control de babosas", "Caza bajo hojarasca", "Presa de Gavilanes"], color: 0x2E8B57 },
+    { id: "cusumbo", common: "Cusumbo Andino", scientific: "Nasua olivacea", guild: "mammal", icon: "fa-paw", habitat: "Reserva Umbral Horizontes / El Burro", diet: "Frutos de Sauco, semillas e invertebrados", relations: ["Dispersión de semillas", "Forrajeo en dosel", "Polinización indirecta"], color: 0xA3988C },
+    { id: "comadreja", common: "Comadreja Andina", scientific: "Neogale frenata", guild: "mammal", icon: "fa-paw", habitat: "Ribera del Río Bogotá y canales", diet: "Pequeños roedores y anfibios", relations: ["Depredador tope", "Control poblacional", "Madrigueras en taludes"], color: 0x7E766C },
+    { id: "hicotea", common: "Hicotea del Humedal", scientific: "Trachemys callirostris", guild: "reptile", icon: "fa-shield-halved", habitat: "Zonas de remanso y asoleaderos de agua", diet: "Vegetación sumergida y detritos acuáticos", relations: ["Limpieza de detritos", "Asoleo en troncos", "Nidación en ribera"], color: 0x00B4D8 },
+    { id: "curi", common: "Curí Sabanero", scientific: "Cavia aperea", guild: "mammal", icon: "fa-paw", habitat: "Pastizales inundables y rondas", diet: "Gramíneas, pasto kikuyo y hojas", relations: ["Herbívoro primario", "Presa clave", "Túneles ecológicos"], color: 0x2E8B57 }
   ];
 
-  // Catálogo Georreferenciado Exacto de ÁRBOLES en Kennedy (Censo Forestal Real)
+  // Catálogo de ÁRBOLES en Kennedy (Censo Forestal Real Georreferenciado)
   const SPECIES_GEO_NODES = [
     {
       id: "chicala",
@@ -209,7 +204,7 @@
       camTarget: { x: 210.4, y: 0, z: 96.0 },
       habitat: "Parques zonales, separadores viales y bordes del humedal",
       role: "Especie arbórea más abundante de Kennedy. Floración dorada que nutre colibríes y abejas nativas.",
-      color: 0xEAC119
+      color: 0xD4AF37
     },
     {
       id: "jazmin",
@@ -379,13 +374,12 @@
   ];
 
   // =====================================================================
-  // 2. RED BIÓTICA: ESFERA FIBONACCI PERFECTA (BOLITA 360° INTERCONECTADA)
+  // 2. RED BIÓTICA DINÁMICA: CONEXIONES TRÓFICAS COMPLEJAS & CHORDS
   // =====================================================================
   const SWARM_COUNT = 850;
   const swarmGroup = new THREE.Group();
   sceneRoot.add(swarmGroup);
 
-  // Textura suave y etérea con núcleo luminoso tipo TouchDesigner
   function createNodeGlowTexture() {
     const cvs = document.createElement("canvas");
     cvs.width = 64; cvs.height = 64;
@@ -393,9 +387,9 @@
 
     const radGlow = ctx.createRadialGradient(32, 32, 1, 32, 32, 30);
     radGlow.addColorStop(0, "rgba(255, 255, 255, 1.0)");
-    radGlow.addColorStop(0.25, "rgba(234, 193, 25, 0.95)");
-    radGlow.addColorStop(0.6, "rgba(46, 139, 87, 0.45)");
-    radGlow.addColorStop(1, "rgba(20, 20, 22, 0)");
+    radGlow.addColorStop(0.22, "rgba(212, 175, 55, 0.95)");
+    radGlow.addColorStop(0.55, "rgba(46, 139, 87, 0.45)");
+    radGlow.addColorStop(1, "rgba(17, 17, 19, 0)");
     ctx.fillStyle = radGlow;
     ctx.fillRect(0, 0, 64, 64);
 
@@ -449,14 +443,13 @@
   const nodeColors = new Float32Array(SWARM_COUNT * 3);
   const nodeScales = new Float32Array(SWARM_COUNT);
 
-  // Esfera perfecta de Fibonacci (360° homogénea, completa y bien distribuida)
   const SPHERE_RADIUS = 31.0;
   const goldenAngle = Math.PI * (3.0 - Math.sqrt(5.0));
 
   for (let i = 0; i < SWARM_COUNT; i++) {
     const species = SPECIES_CATALOG[i % SPECIES_CATALOG.length];
 
-    const y = 1.0 - (i / (SWARM_COUNT - 1.0)) * 2.0; // De 1 a -1
+    const y = 1.0 - (i / (SWARM_COUNT - 1.0)) * 2.0;
     const radiusAtY = Math.sqrt(Math.max(0.0, 1.0 - y * y));
     const theta = goldenAngle * i;
 
@@ -474,7 +467,7 @@
     nodeColors[i * 3 + 1] = col.g;
     nodeColors[i * 3 + 2] = col.b;
 
-    nodeScales[i] = 1.4 + (i % 4 === 0 ? 0.4 : 0.0);
+    nodeScales[i] = 1.35 + (i % 5 === 0 ? 0.45 : 0.0);
 
     swarmNodes.push({
       id: i,
@@ -482,11 +475,9 @@
       baseX: x, baseY: sy, baseZ: z,
       x: x, y: sy, z: z,
       phase: Math.random() * Math.PI * 2,
-      orbitSpeed: 0.2 + Math.random() * 0.3,
       scale: nodeScales[i],
       color: col,
-      neighbors: [],
-      highlighted: false
+      neighbors: []
     });
   }
 
@@ -498,9 +489,21 @@
   const nodePoints = new THREE.Points(nodeGeo, nodeMat);
   swarmGroup.add(nodePoints);
 
-  const MAX_LINKS_PER_NODE = 4;
+  // Generación de conexiones tróficas auténticas: 35% locales + 65% acordes biológicos cruzados de larga distancia
   const linkList = [];
+  const addedLinks = new Set();
 
+  function addLink(a, b, isLongRange = false) {
+    if (a === b) return;
+    const key = a < b ? `${a}_${b}` : `${b}_${a}`;
+    if (addedLinks.has(key)) return;
+    addedLinks.add(key);
+    linkList.push({ a, b, isLongRange, phase: Math.random() * Math.PI * 2 });
+    if (!swarmNodes[a].neighbors.includes(b)) swarmNodes[a].neighbors.push(b);
+    if (!swarmNodes[b].neighbors.includes(a)) swarmNodes[b].neighbors.push(a);
+  }
+
+  // 1. Enlaces locales (microhábitat)
   for (let i = 0; i < SWARM_COUNT; i++) {
     const ni = swarmNodes[i];
     const dists = [];
@@ -508,19 +511,37 @@
       if (i === j) continue;
       const nj = swarmNodes[j];
       const dSq = (ni.baseX - nj.baseX)**2 + (ni.baseY - nj.baseY)**2 + (ni.baseZ - nj.baseZ)**2;
-      dists.push({ id: j, dSq: dSq });
+      dists.push({ id: j, dSq });
     }
     dists.sort((a, b) => a.dSq - b.dSq);
 
-    for (let k = 0; k < MAX_LINKS_PER_NODE; k++) {
-      const neighbor = dists[k];
-      if (neighbor && neighbor.dSq < 200) {
-        if (!ni.neighbors.includes(neighbor.id)) {
-          ni.neighbors.push(neighbor.id);
-          if (i < neighbor.id) {
-            linkList.push([i, neighbor.id]);
-          }
-        }
+    // Conectar con 1 o 2 vecinos cercanos
+    for (let k = 0; k < 2; k++) {
+      if (dists[k] && dists[k].dSq < 240) {
+        addLink(i, dists[k].id, false);
+      }
+    }
+  }
+
+  // 2. Acordes ecológicos de larga distancia (Interacciones biológicas cruzadas)
+  // Conectores clave: Polinizadores <-> Plantas, Aves <-> Macrófitas acuáticas, Fungi <-> Raíces, Depredadores <-> Presas
+  for (let i = 0; i < SWARM_COUNT; i++) {
+    const spI = swarmNodes[i].species;
+    // Buscar compañeros funcionales a través de la esfera
+    for (let tries = 0; tries < 3; tries++) {
+      const targetIdx = Math.floor(Math.random() * SWARM_COUNT);
+      const spJ = swarmNodes[targetIdx].species;
+
+      let isEcologicallyCompatible = false;
+      if (spI.guild === "producer" && (spJ.guild === "pollinator" || spJ.guild === "bird" || spJ.guild === "decomposer")) isEcologicallyCompatible = true;
+      if (spI.guild === "pollinator" && spJ.guild === "producer") isEcologicallyCompatible = true;
+      if (spI.guild === "bird" && (spJ.guild === "producer" || spJ.guild === "amphibian" || spJ.guild === "mammal")) isEcologicallyCompatible = true;
+      if (spI.guild === "amphibian" && (spJ.guild === "predator" || spJ.guild === "producer")) isEcologicallyCompatible = true;
+      if (spI.guild === "decomposer" && spJ.guild === "producer") isEcologicallyCompatible = true;
+
+      if (isEcologicallyCompatible) {
+        addLink(i, targetIdx, true);
+        break;
       }
     }
   }
@@ -530,18 +551,19 @@
   const linkCol = new Float32Array(totalLinks * 2 * 3);
 
   for (let l = 0; l < totalLinks; l++) {
-    const [i, j] = linkList[l];
-    const ni = swarmNodes[i];
-    const nj = swarmNodes[j];
+    const { a, b, isLongRange } = linkList[l];
+    const na = swarmNodes[a];
+    const nb = swarmNodes[b];
     const ptr = l * 6;
 
-    linkPos[ptr]     = ni.baseX; linkPos[ptr + 1] = ni.baseY; linkPos[ptr + 2] = ni.baseZ;
-    linkPos[ptr + 3] = nj.baseX; linkPos[ptr + 4] = nj.baseY; linkPos[ptr + 5] = nj.baseZ;
+    linkPos[ptr]     = na.baseX; linkPos[ptr + 1] = na.baseY; linkPos[ptr + 2] = na.baseZ;
+    linkPos[ptr + 3] = nb.baseX; linkPos[ptr + 4] = nb.baseY; linkPos[ptr + 5] = nb.baseZ;
 
-    const c1 = ni.color;
-    const c2 = nj.color;
-    linkCol[ptr]     = c1.r * 0.85; linkCol[ptr + 1] = c1.g * 0.85; linkCol[ptr + 2] = c1.b * 0.85;
-    linkCol[ptr + 3] = c2.r * 0.85; linkCol[ptr + 4] = c2.g * 0.85; linkCol[ptr + 5] = c2.b * 0.85;
+    const ca = na.color;
+    const cb = nb.color;
+    const dim = isLongRange ? 0.7 : 0.85;
+    linkCol[ptr]     = ca.r * dim; linkCol[ptr + 1] = ca.g * dim; linkCol[ptr + 2] = ca.b * dim;
+    linkCol[ptr + 3] = cb.r * dim; linkCol[ptr + 4] = cb.g * dim; linkCol[ptr + 5] = cb.b * dim;
   }
 
   const linkGeo = new THREE.BufferGeometry();
@@ -551,11 +573,43 @@
   const linkMat = new THREE.LineBasicMaterial({
     vertexColors: true,
     transparent: true,
-    opacity: 0.35,
+    opacity: 0.38,
     blending: THREE.AdditiveBlending
   });
   const linkLines = new THREE.LineSegments(linkGeo, linkMat);
   swarmGroup.add(linkLines);
+
+  // Impulsos luminosos que viajan a través de los acordes biológicos (Potenciales de acción bióticos)
+  const SIGNAL_PULSES_COUNT = 140;
+  const pulsePos = new Float32Array(SIGNAL_PULSES_COUNT * 3);
+  const pulseCol = new Float32Array(SIGNAL_PULSES_COUNT * 3);
+  const pulseLinks = [];
+
+  for (let p = 0; p < SIGNAL_PULSES_COUNT; p++) {
+    const randLink = linkList[Math.floor(Math.random() * linkList.length)];
+    pulseLinks.push({
+      link: randLink,
+      progress: Math.random(),
+      speed: 0.25 + Math.random() * 0.4
+    });
+    pulseCol[p * 3]     = 0.95;
+    pulseCol[p * 3 + 1] = 0.85;
+    pulseCol[p * 3 + 2] = 0.4;
+  }
+
+  const pulseGeo = new THREE.BufferGeometry();
+  pulseGeo.setAttribute("position", new THREE.BufferAttribute(pulsePos, 3));
+  pulseGeo.setAttribute("color", new THREE.BufferAttribute(pulseCol, 3));
+
+  const pulseMat = new THREE.PointsMaterial({
+    size: 2.2,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.85,
+    blending: THREE.AdditiveBlending
+  });
+  const pulsePoints = new THREE.Points(pulseGeo, pulseMat);
+  swarmGroup.add(pulsePoints);
 
   function updateNetworkSwarm(time, morphProgress) {
     if (morphProgress > 0.28) {
@@ -564,23 +618,27 @@
     }
     swarmGroup.visible = true;
 
-    swarmGroup.rotation.y = time * 0.035;
-    swarmGroup.rotation.x = Math.sin(time * 0.02) * 0.03;
+    // Rotación suave del ecosistema esférico
+    swarmGroup.rotation.y = time * 0.04;
+    swarmGroup.rotation.x = Math.sin(time * 0.025) * 0.035;
 
     nodeMat.uniforms.uTime.value = time;
     nodeMat.uniforms.uMorph.value = morphProgress;
-    linkMat.opacity = Math.max(0.0, (1.0 - morphProgress * 3.2) * 0.35);
+    const fade = Math.max(0.0, (1.0 - morphProgress * 3.2));
+    linkMat.opacity = fade * 0.38;
+    pulseMat.opacity = fade * 0.85;
 
     const posArr = nodeGeo.attributes.position.array;
     const lPosArr = linkGeo.attributes.position.array;
+    const pPosArr = pulseGeo.attributes.position.array;
 
+    // Ondulación orgánica y respiración biótica de la esfera
     for (let i = 0; i < SWARM_COUNT; i++) {
       const d = swarmNodes[i];
-      // Respiración sutil en la superficie de la esfera (360° bolita perfecta)
-      const pulse = 1.0 + Math.sin(time * 1.6 + d.phase) * 0.025;
-      const curX = d.baseX * pulse;
-      const curY = d.baseY * pulse;
-      const curZ = d.baseZ * pulse;
+      const harmonicPulse = 1.0 + Math.sin(time * 1.8 + d.phase) * 0.035 + Math.cos(time * 0.85 + d.baseY * 0.07) * 0.025;
+      const curX = d.baseX * harmonicPulse;
+      const curY = d.baseY * harmonicPulse;
+      const curZ = d.baseZ * harmonicPulse;
 
       d.x = curX; d.y = curY; d.z = curZ;
 
@@ -590,24 +648,46 @@
     }
 
     for (let l = 0; l < totalLinks; l++) {
-      const [i, j] = linkList[l];
-      const ni = swarmNodes[i];
-      const nj = swarmNodes[j];
+      const { a, b } = linkList[l];
+      const na = swarmNodes[a];
+      const nb = swarmNodes[b];
       const ptr = l * 6;
 
-      lPosArr[ptr]     = ni.x; lPosArr[ptr + 1] = ni.y; lPosArr[ptr + 2] = ni.z;
-      lPosArr[ptr + 3] = nj.x; lPosArr[ptr + 4] = nj.y; lPosArr[ptr + 5] = nj.z;
+      lPosArr[ptr]     = na.x; lPosArr[ptr + 1] = na.y; lPosArr[ptr + 2] = na.z;
+      lPosArr[ptr + 3] = nb.x; lPosArr[ptr + 4] = nb.y; lPosArr[ptr + 5] = nb.z;
+    }
+
+    // Actualizar impulsos bio-eléctricos viajando por los acordes
+    for (let p = 0; p < SIGNAL_PULSES_COUNT; p++) {
+      const item = pulseLinks[p];
+      item.progress += 0.006 * item.speed;
+      if (item.progress > 1.0) {
+        item.progress = 0.0;
+        item.link = linkList[Math.floor(Math.random() * linkList.length)];
+      }
+
+      const na = swarmNodes[item.link.a];
+      const nb = swarmNodes[item.link.b];
+      const px = THREE.MathUtils.lerp(na.x, nb.x, item.progress);
+      const py = THREE.MathUtils.lerp(na.y, nb.y, item.progress);
+      const pz = THREE.MathUtils.lerp(na.z, nb.z, item.progress);
+
+      pPosArr[p * 3]     = px;
+      pPosArr[p * 3 + 1] = py;
+      pPosArr[p * 3 + 2] = pz;
     }
 
     nodeGeo.attributes.position.needsUpdate = true;
     linkGeo.attributes.position.needsUpdate = true;
+    pulseGeo.attributes.position.needsUpdate = true;
   }
 
   // =====================================================================
-  // 3. GLSL SHADER DE EXPLOSIÓN EN VÓRTICE & SIMULACIÓN TOUCHDESIGNER
+  // 3. GLSL SHADER DE TERRITORIO CON PERSPECTIVA SUAVE Y SIN SOBREEXPOSICIÓN
   // =====================================================================
   const vertexShader = `
     uniform float uMorphProgress;
+    uniform float uPerspectiveMode;
     uniform float uTime;
     uniform float uPixelRatio;
     uniform vec3 uRipplePos;
@@ -623,6 +703,7 @@
     varying float vCategory;
     varying float vAlpha;
     varying float vRippleBoost;
+    varying float vDistToCam;
     
     void main() {
       vColor = aColor;
@@ -631,20 +712,19 @@
       float t = uMorphProgress;
       float ease = smoothstep(0.0, 1.0, t);
       
-      // Simulación generativa de fluidos tipo TouchDesigner (Vórtice advectivo)
       float explosionIntensity = sin(ease * 3.14159);
       vec3 curlVortex = vec3(
-        sin(uTime * 1.6 + position.y * 0.08 + aPhase * 2.0) * 46.0 * explosionIntensity + cos(uTime * 1.1 + position.z * 0.05) * 28.0 * explosionIntensity,
-        cos(uTime * 1.3 + position.x * 0.08 + aPhase * 2.0) * 38.0 * explosionIntensity + sin(uTime * 1.7 + position.z * 0.06) * 24.0 * explosionIntensity,
-        sin(uTime * 1.5 + position.x * 0.08 + aPhase * 3.0) * 46.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.05) * 28.0 * explosionIntensity
+        sin(uTime * 1.6 + position.y * 0.08 + aPhase * 2.0) * 44.0 * explosionIntensity + cos(uTime * 1.1 + position.z * 0.05) * 26.0 * explosionIntensity,
+        cos(uTime * 1.3 + position.x * 0.08 + aPhase * 2.0) * 36.0 * explosionIntensity + sin(uTime * 1.7 + position.z * 0.06) * 22.0 * explosionIntensity,
+        sin(uTime * 1.5 + position.x * 0.08 + aPhase * 3.0) * 44.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.05) * 26.0 * explosionIntensity
       );
       
       vec3 territorialIdle = vec3(0.0);
       if (aCategory < 0.5) {
-        territorialIdle.y = sin(uTime * 2.8 + position.x * 0.18 + position.z * 0.18) * 0.45 * ease;
+        territorialIdle.y = sin(uTime * 2.6 + position.x * 0.16 + position.z * 0.16) * 0.4 * ease;
       } else if (aCategory < 1.5) {
-        territorialIdle.x = sin(uTime * 1.9 + aPhase * 4.0) * 0.3 * ease;
-        territorialIdle.z = cos(uTime * 1.6 + aPhase * 4.0) * 0.3 * ease;
+        territorialIdle.x = sin(uTime * 1.8 + aPhase * 4.0) * 0.28 * ease;
+        territorialIdle.z = cos(uTime * 1.5 + aPhase * 4.0) * 0.28 * ease;
       }
       
       float distToRipple = length(position.xz - uRipplePos.xz);
@@ -661,10 +741,27 @@
       vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
       
-      float distFactor = clamp(260.0 / -mvPosition.z, 0.35, 1.7);
-      gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.7) * uPixelRatio * distFactor;
+      float camDist = -mvPosition.z;
+      vDistToCam = camDist;
       
-      vAlpha = smoothstep(0.04, 0.8, ease) * 0.95 + explosionIntensity * 0.35;
+      // En modo perspectiva, atenuar tamaño según distancia para evitar quemaduras blancas
+      float sizeAttenuation = clamp(260.0 / max(1.0, camDist), 0.2, 1.6);
+      if (uPerspectiveMode > 0.05) {
+        if (aCategory > 1.8) {
+          // Edificios lejanos atenuados en perspectiva
+          sizeAttenuation *= mix(1.0, clamp(70.0 / max(10.0, camDist), 0.35, 1.0), uPerspectiveMode);
+        }
+      }
+      
+      gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.7) * uPixelRatio * sizeAttenuation;
+      
+      // Control de transparencia progresiva
+      float alphaBase = smoothstep(0.04, 0.8, ease) * 0.95 + explosionIntensity * 0.35;
+      if (uPerspectiveMode > 0.05 && aCategory > 1.8) {
+        // Suavizar fondo urbano en perspectiva para destacar el humedal
+        alphaBase *= mix(1.0, clamp(140.0 / max(20.0, camDist), 0.25, 0.9), uPerspectiveMode);
+      }
+      vAlpha = alphaBase;
     }
   `;
 
@@ -673,6 +770,8 @@
     varying float vCategory;
     varying float vAlpha;
     varying float vRippleBoost;
+    varying float vDistToCam;
+    uniform float uPerspectiveMode;
     
     void main() {
       if (vAlpha < 0.01) discard;
@@ -680,12 +779,29 @@
       float dist = length(coord);
       if (dist > 0.5) discard;
       
-      float edgeAlpha = smoothstep(0.5, 0.06, dist);
-      
+      float edgeAlpha = smoothstep(0.5, 0.08, dist);
       vec3 col = vColor;
+      
       if (vRippleBoost > 0.05) {
-        col = mix(col, vec3(0.0, 0.66, 0.8), vRippleBoost * 0.65);
+        col = mix(col, vec3(0.0, 0.7, 0.85), vRippleBoost * 0.65);
       }
+      
+      // Definición mejorada en Perspectiva Humedal:
+      if (uPerspectiveMode > 0.05) {
+        if (vCategory < 0.5) {
+          // Agua del humedal: brillo azul profundo nítido
+          col = mix(col, vec3(0.0, 0.75, 0.95), uPerspectiveMode * 0.35);
+        } else if (vCategory < 1.5) {
+          // Árboles ribereños: verde botánico rico
+          col = mix(col, vec3(0.2, 0.65, 0.38), uPerspectiveMode * 0.25);
+        } else if (vCategory > 1.8) {
+          // Edificios lejanos: tono arquitectónico piedra/basalto sin quemar
+          col = mix(col, vec3(0.25, 0.24, 0.23), uPerspectiveMode * 0.45);
+        }
+      }
+      
+      // Mapeo tonal suave para evitar quemaduras blancas por acumulación aditiva
+      col = col / (1.0 + col * 0.35);
       
       gl_FragColor = vec4(col, edgeAlpha * vAlpha);
     }
@@ -693,6 +809,7 @@
 
   const particleUniforms = {
     uMorphProgress: { value: 0.0 },
+    uPerspectiveMode: { value: 0.0 },
     uTime: { value: 0.0 },
     uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) },
     uRipplePos: { value: new THREE.Vector3(0, 0, 0) },
@@ -746,15 +863,14 @@
   }
 
   // =====================================================================
-  // 4. CARGA DE CAPAS GEOGRÁFICAS (PALETA RESTAURADA & CREMITA SUAVE)
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (PIEDRA ARQUITECTÓNICA & AGUA VIBRANTE)
   // =====================================================================
   function loadWater() {
     return fetch(WATER_URL)
       .then(r => r.json())
       .then(waterBodies => {
-        // Cuerpos de Agua: Azul Nítido y Luminoso (#00B4D8 & #0077B6)
-        const colWaterMain = new THREE.Color(0x00B4D8); // Azul Humedal Brillante (#00B4D8)
-        const colWaterDeep = new THREE.Color(0x0077B6); // Azul Profundo (#0077B6)
+        const colWaterMain = new THREE.Color(0x00B4D8);
+        const colWaterDeep = new THREE.Color(0x0077B6);
 
         waterBodies.forEach(w => {
           const pts = w.pts;
@@ -782,9 +898,9 @@
               
               const c = (s % 2 === 0) ? colWaterMain : colWaterDeep;
               pColor.push(c.r, c.g, c.b);
-              pSize.push(1.6);
+              pSize.push(1.65);
               pPhase.push(Math.random() * 10);
-              pCat.push(0.0); // 0 = agua
+              pCat.push(0.0);
             }
           });
 
@@ -794,7 +910,7 @@
             pTarget.push(p.x, 0.32, p.z);
             pSwarm.push(sw.x, sw.y, sw.z);
             pColor.push(colWaterMain.r, colWaterMain.g, colWaterMain.b);
-            pSize.push(1.7);
+            pSize.push(1.75);
             pPhase.push(i * 0.3);
             pCat.push(0.0);
           }
@@ -805,22 +921,59 @@
       .catch(err => console.warn("Error agua:", err));
   }
 
+  // Base de datos de árboles georreferenciados agrupados por especie
+  const treeSpeciesClusters = {
+    chicala: [],
+    jazmin: [],
+    sauco: [],
+    falso_pimiento: [],
+    eugenia: [],
+    palma_yuca: [],
+    urapan: [],
+    caucho: [],
+    cipres: [],
+    acacia: [],
+    capulin: [],
+    aliso: []
+  };
+
+  function matchSpeciesKey(speciesName) {
+    if (!speciesName) return "sauco";
+    const s = speciesName.toLowerCase();
+    if (s.includes("chicala") || s.includes("chirlobirlo") || s.includes("amarillo")) return "chicala";
+    if (s.includes("jazmin") || s.includes("huesito")) return "jazmin";
+    if (s.includes("sauco")) return "sauco";
+    if (s.includes("pimiento")) return "falso_pimiento";
+    if (s.includes("eugenia")) return "eugenia";
+    if (s.includes("palma") || s.includes("yuca") || s.includes("palmiche")) return "palma_yuca";
+    if (s.includes("urapan") || s.includes("fresno")) return "urapan";
+    if (s.includes("caucho")) return "caucho";
+    if (s.includes("cipres") || s.includes("pino")) return "cipres";
+    if (s.includes("acacia")) return "acacia";
+    if (s.includes("cerezo") || s.includes("capuli")) return "capulin";
+    if (s.includes("aliso")) return "aliso";
+    return null;
+  }
+
   function loadTrees() {
     return fetch(TREES_URL)
       .then(r => r.json())
       .then(trees => {
-        // Vegetación en VERDE FRESCO BOTÁNICO VIBRANTE (#2E8B57 & #48BB78)
-        const colTreeLush = new THREE.Color(0x2E8B57);    // Verde Esmeralda / Bosque (#2E8B57)
-        const colTreeBright = new THREE.Color(0x48BB78);  // Verde Hoja Fresco (#48BB78)
-        const colTrunk = new THREE.Color(0x1A202C);       // Tronco oscuro (#1A202C)
+        const colTreeLush = new THREE.Color(0x2E8B57);
+        const colTreeBright = new THREE.Color(0x48BB78);
+        const colTrunk = new THREE.Color(0x161D26);
 
         trees.forEach((t, i) => {
-          const [x, y, hMeters] = t;
+          const [x, y, hMeters, specName] = t;
           const p = toScene(x, y);
           const h = Math.max(0.7, (hMeters || 8) * SCALE);
 
-          const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
+          const sKey = matchSpeciesKey(specName);
+          if (sKey && treeSpeciesClusters[sKey]) {
+            treeSpeciesClusters[sKey].push({ x: p.x, y: h * 0.85, z: p.z, height: h });
+          }
 
+          const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
           const crownY = h * 0.85;
           const swCrown = randomSwarmCluster(currentParticleIndex++);
           pTarget.push(p.x, crownY, p.z);
@@ -828,7 +981,7 @@
           pColor.push(folCol.r, folCol.g, folCol.b);
           pSize.push(1.6);
           pPhase.push(i * 0.25);
-          pCat.push(1.0); // 1 = arbol
+          pCat.push(1.0);
 
           const subNodes = 4;
           const rad = h * 0.45;
@@ -865,8 +1018,8 @@
     return fetch(NET_URL)
       .then(r => r.json())
       .then(edges => {
-        const colRoad = new THREE.Color(0x27272A);        // Asfalto Grafito Muted
-        const colMajor = new THREE.Color(0x38BDF8);       // Vías Principales Sky Blue
+        const colRoad = new THREE.Color(0x232326);
+        const colMajor = new THREE.Color(0x38BDF8);
 
         edges.forEach(([kind, pts], edgeIdx) => {
           const isMajor = (edgeIdx % 4 === 0);
@@ -880,7 +1033,7 @@
             pColor.push(c.r, c.g, c.b);
             pSize.push(isMajor ? 1.25 : 0.95);
             pPhase.push(edgeIdx * 0.35);
-            pCat.push(3.0); // 3 = via
+            pCat.push(3.0);
           }
         });
 
@@ -893,11 +1046,11 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta Arquitectónica: Piedra y Basalto Cálido (No blanco, no morado, no crema pálido)
-        const colBldgPrimary   = new THREE.Color(0x6E675F); // Piedra Arquitectónica Cálida (#6E675F)
-        const colBldgSecondary = new THREE.Color(0x59524B); // Basalto / Pizarra Cálida (#59524B)
-        const colRoofHighlight = new THREE.Color(0x7B746C); // Remate de cornisa pétrea (#7B746C)
-        const colBaseGround    = new THREE.Color(0x161618); // Fondo negro grafito
+        // Paleta Arquitectónica: Piedra de Cantera, Pizarra y Basalto Oscuro (Sin blanco)
+        const colBldgPrimary   = new THREE.Color(0x3A3836);
+        const colBldgSecondary = new THREE.Color(0x484440);
+        const colRoofHighlight = new THREE.Color(0x544E48);
+        const colBaseGround    = new THREE.Color(0x131315);
 
         buildings.forEach((b, bIdx) => {
           const pts = b.pts;
@@ -905,8 +1058,6 @@
 
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.height || 10) * SCALE;
-          
-          // Estructura volumétrica arquitectónica homogénea en piedra cálida
           const bldgCol = (bIdx % 2 === 0) ? colBldgPrimary : colBldgSecondary;
 
           for (let i = 0; i < sPts.length; i++) {
@@ -918,18 +1069,16 @@
               pTarget.push(p.x, y, p.z);
               pSwarm.push(sw.x, sw.y, sw.z);
               
-              // Remates superiores nítidos
               const isRoof = (step === steps);
               const c = isRoof ? colRoofHighlight : bldgCol;
               pColor.push(c.r, c.g, c.b);
-              pSize.push(isRoof ? 1.35 : 1.15);
+              pSize.push(isRoof ? 1.3 : 1.1);
               pPhase.push(bIdx + step);
-              pCat.push(2.0); // 2 = edificio
+              pCat.push(2.0);
             }
           }
         });
 
-        // Suelo de relleno territorial en negro profundo y matices sutiles
         for (let s = 0; s < 3800; s++) {
           const rad = 25 + Math.sqrt(Math.random()) * 210;
           const ang = Math.random() * Math.PI * 2;
@@ -941,7 +1090,7 @@
           pTarget.push(gx, gy, gz);
           pSwarm.push(sw.x, sw.y, sw.z);
           pColor.push(colBaseGround.r, colBaseGround.g, colBaseGround.b);
-          pSize.push(0.95);
+          pSize.push(0.92);
           pPhase.push(s * 0.5);
           pCat.push(4.0);
         }
@@ -959,71 +1108,120 @@
   });
 
   // =====================================================================
-  // 5.1 INDICADORES SUTILES GEORREFERENCIADOS DE ÁRBOLES EN EL SUELO
+  // 5. CONSTELACIÓN GEORREFERENCIADA DE ÁRBOLES EN EL TERRITORIO (LEVE & SUAVE)
   // =====================================================================
-  const treeGroundIndicatorsGroup = new THREE.Group();
-  treeGroundIndicatorsGroup.visible = false;
-  sceneRoot.add(treeGroundIndicatorsGroup);
+  const speciesConstellationGroup = new THREE.Group();
+  speciesConstellationGroup.visible = false;
+  sceneRoot.add(speciesConstellationGroup);
 
-  const treeIndicatorMeshes = [];
+  let activeConstellationPoints = null;
+  let activeConstellationLines = null;
+  const activeTreeIndicatorGroup = new THREE.Group();
+  sceneRoot.add(activeTreeIndicatorGroup);
 
-  function buildTreeGroundIndicators() {
-    treeGroundIndicatorsGroup.clear();
-    treeIndicatorMeshes.length = 0;
+  // Anillo de pulso sutil en el árbol principal
+  const focusDotGeo = new THREE.CircleGeometry(2.4, 24);
+  const focusDotMat = new THREE.MeshBasicMaterial({ color: 0x48BB78, side: THREE.DoubleSide, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending });
+  const focusDotMesh = new THREE.Mesh(focusDotGeo, focusDotMat);
+  focusDotMesh.rotation.x = -Math.PI / 2;
+  activeTreeIndicatorGroup.add(focusDotMesh);
 
-    SPECIES_GEO_NODES.forEach((spec, idx) => {
-      const col = new THREE.Color(spec.color);
-      
-      const dotGeo = new THREE.CircleGeometry(2.4, 24);
-      const dotMat = new THREE.MeshBasicMaterial({
-        color: col,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.0,
-        blending: THREE.AdditiveBlending
-      });
-      const groundDot = new THREE.Mesh(dotGeo, dotMat);
-      groundDot.rotation.x = -Math.PI / 2;
-      groundDot.position.set(spec.pos.x, 0.18, spec.pos.z);
-      treeGroundIndicatorsGroup.add(groundDot);
+  const focusRingGeo = new THREE.RingGeometry(2.8, 5.4, 24);
+  const focusRingMat = new THREE.MeshBasicMaterial({ color: 0x48BB78, side: THREE.DoubleSide, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending });
+  const focusRingMesh = new THREE.Mesh(focusRingGeo, focusRingMat);
+  focusRingMesh.rotation.x = -Math.PI / 2;
+  activeTreeIndicatorGroup.add(focusRingMesh);
 
-      const ringGeo = new THREE.RingGeometry(2.8, 5.2, 24);
-      const ringMat = new THREE.MeshBasicMaterial({
-        color: col,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.0,
-        blending: THREE.AdditiveBlending
-      });
-      const groundRing = new THREE.Mesh(ringGeo, ringMat);
-      groundRing.rotation.x = -Math.PI / 2;
-      groundRing.position.set(spec.pos.x, 0.20, spec.pos.z);
-      treeGroundIndicatorsGroup.add(groundRing);
+  function renderTreeConstellation(specId, colHex) {
+    speciesConstellationGroup.clear();
 
-      treeIndicatorMeshes.push({
-        groundDot,
-        groundRing,
-        spec,
-        phase: idx * 0.75
-      });
+    const cluster = treeSpeciesClusters[specId] || [];
+    if (cluster.length === 0) return;
+
+    // Tomar una muestra representativa elegante para renderizar sin sobrecargar (hasta 800 árboles)
+    const sampleSize = Math.min(cluster.length, 750);
+    const step = Math.max(1, Math.floor(cluster.length / sampleSize));
+    const sampled = [];
+    for (let i = 0; i < cluster.length && sampled.length < sampleSize; i += step) {
+      sampled.push(cluster[i]);
+    }
+
+    const pos = new Float32Array(sampled.length * 3);
+    const cols = new Float32Array(sampled.length * 3);
+    const colObj = new THREE.Color(colHex);
+
+    for (let i = 0; i < sampled.length; i++) {
+      const t = sampled[i];
+      pos[i * 3]     = t.x;
+      pos[i * 3 + 1] = t.y + 0.2;
+      pos[i * 3 + 2] = t.z;
+
+      cols[i * 3]     = colObj.r;
+      cols[i * 3 + 1] = colObj.g;
+      cols[i * 3 + 2] = colObj.b;
+    }
+
+    const cGeo = new THREE.BufferGeometry();
+    cGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    cGeo.setAttribute("color", new THREE.BufferAttribute(cols, 3));
+
+    const cMat = new THREE.PointsMaterial({
+      size: 2.8,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.0,
+      blending: THREE.AdditiveBlending
     });
+    activeConstellationPoints = new THREE.Points(cGeo, cMat);
+    speciesConstellationGroup.add(activeConstellationPoints);
+
+    // Filamentos de conexión suave entre árboles vecinos de la misma especie
+    const linePairs = [];
+    for (let i = 0; i < sampled.length; i++) {
+      const a = sampled[i];
+      for (let j = i + 1; j < sampled.length; j++) {
+        const b = sampled[j];
+        const distSq = (a.x - b.x)**2 + (a.z - b.z)**2;
+        if (distSq < 180 && linePairs.length < 350) {
+          linePairs.push(a.x, a.y + 0.2, a.z, b.x, b.y + 0.2, b.z);
+        }
+      }
+    }
+
+    if (linePairs.length > 0) {
+      const lGeo = new THREE.BufferGeometry();
+      lGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePairs, 3));
+      const lMat = new THREE.LineBasicMaterial({
+        color: colObj,
+        transparent: true,
+        opacity: 0.0,
+        blending: THREE.AdditiveBlending
+      });
+      activeConstellationLines = new THREE.LineSegments(lGeo, lMat);
+      speciesConstellationGroup.add(activeConstellationLines);
+    }
+
+    speciesConstellationGroup.visible = true;
+
+    if (window.gsap) {
+      gsap.to(cMat, { opacity: 0.85, duration: 1.2, ease: "power2.out" });
+      if (activeConstellationLines) {
+        gsap.to(activeConstellationLines.material, { opacity: 0.35, duration: 1.2, ease: "power2.out" });
+      }
+    }
   }
 
-  buildTreeGroundIndicators();
-
   // =====================================================================
-  // 5.2 CONTROLADOR DEL RECORRIDO BOTÁNICO (TOUR DE ÁRBOLES) & CHIP MINIMALISTA
+  // 6. CONTROLADOR BOTÁNICO & CHIP FLOTANTE MINIMALISTA
   // =====================================================================
   let tourActive = false;
   let tourIndex = 0;
-  let tourPlaying = true;
   let tourTimer = null;
 
   const btnTourSpecies = document.getElementById("btnTourSpecies");
   const activeTreeChip = document.getElementById("activeTreeChip");
   const activeTreeImg = document.getElementById("activeTreeImg");
   const activeTreeName = document.getElementById("activeTreeName");
-  const btnCloseSpeciesCard = document.getElementById("btnCloseSpeciesCard");
 
   if (btnCloseSpeciesCard) {
     btnCloseSpeciesCard.addEventListener("click", () => {
@@ -1042,17 +1240,14 @@
     tourIndex = idx;
     const spec = SPECIES_GEO_NODES[idx];
 
-    // Si aún estamos en la red inicial, materializar territorio automáticamente
     if (currentMorph < 0.45) {
       animateToStage(1.0);
     }
 
-    // Actualizar chip flotante superior derecho (pequeño y limpio)
     if (activeTreeImg) activeTreeImg.src = spec.img;
     if (activeTreeName) activeTreeName.textContent = spec.name.split('/')[0].trim();
     if (activeTreeChip) activeTreeChip.classList.add("show");
 
-    // Actualizar ficha modal de detalles
     if (cardCommonName) cardCommonName.textContent = spec.name;
     if (cardScientificName) cardScientificName.textContent = spec.sci;
     if (cardTaxon) cardTaxon.textContent = "Flora / Censo";
@@ -1070,47 +1265,52 @@
       `;
     }
 
-    // Transición suave de cámara hacia el conglomerado de la especie
+    // Transición fluida de cámara hacia el conglomerado georreferenciado
     if (window.gsap) {
       gsap.to(camera.position, {
         x: spec.camPos.x,
         y: spec.camPos.y,
         z: spec.camPos.z,
-        duration: 2.4,
+        duration: 2.5,
         ease: "power2.inOut"
       });
       gsap.to(controls.target, {
         x: spec.camTarget.x,
         y: spec.camTarget.y,
         z: spec.camTarget.z,
-        duration: 2.4,
+        duration: 2.5,
         ease: "power2.inOut"
       });
     }
 
-    // Destacar sutilmente el puntito del árbol en el suelo
-    treeIndicatorMeshes.forEach((item, i) => {
-      const isCur = (i === idx);
-      if (window.gsap) {
-        gsap.to(item.groundDot.material, { opacity: isCur ? 0.95 : 0.0, duration: 0.5 });
-        gsap.to(item.groundRing.material, { opacity: isCur ? 0.75 : 0.0, duration: 0.5 });
-      }
-    });
+    // Actualizar anillo indicador focal
+    focusDotMesh.position.set(spec.pos.x, 0.22, spec.pos.z);
+    focusRingMesh.position.set(spec.pos.x, 0.24, spec.pos.z);
+    const colObj = new THREE.Color(spec.color);
+    focusDotMat.color = colObj;
+    focusRingMat.color = colObj;
+
+    if (window.gsap) {
+      gsap.to(focusDotMat, { opacity: 0.95, duration: 0.4 });
+      gsap.to(focusRingMat, { opacity: 0.8, duration: 0.4 });
+    }
+
+    // Desplegar constelación completa de árboles de esta especie en todo Kennedy
+    renderTreeConstellation(spec.id, spec.color);
 
     if (soundActive && typeof triggerHarmonicChime === "function") {
-      triggerHarmonicChime(0.5 + (idx / SPECIES_GEO_NODES.length) * 0.5);
+      triggerHarmonicChime(0.45 + (idx / SPECIES_GEO_NODES.length) * 0.5);
     }
   }
 
   function startSpeciesTour() {
     tourActive = true;
-    tourPlaying = true;
     if (btnTourSpecies) btnTourSpecies.classList.add("active");
     focusSpecies(tourIndex, true);
 
     clearInterval(tourTimer);
     tourTimer = setInterval(() => {
-      if (!tourPlaying) return;
+      if (!tourActive) return;
       tourIndex = (tourIndex + 1) % SPECIES_GEO_NODES.length;
       focusSpecies(tourIndex, true);
     }, 7000);
@@ -1120,12 +1320,12 @@
     tourActive = false;
     clearInterval(tourTimer);
     if (btnTourSpecies) btnTourSpecies.classList.remove("active");
-    treeIndicatorMeshes.forEach(item => {
-      if (window.gsap) {
-        gsap.to(item.groundDot.material, { opacity: 0.0, duration: 0.4 });
-        gsap.to(item.groundRing.material, { opacity: 0.0, duration: 0.4 });
-      }
-    });
+    if (window.gsap) {
+      gsap.to(focusDotMat, { opacity: 0.0, duration: 0.4 });
+      gsap.to(focusRingMat, { opacity: 0.0, duration: 0.4 });
+      if (activeConstellationPoints) gsap.to(activeConstellationPoints.material, { opacity: 0.0, duration: 0.5 });
+      if (activeConstellationLines) gsap.to(activeConstellationLines.material, { opacity: 0.0, duration: 0.5 });
+    }
   }
 
   if (btnTourSpecies) {
@@ -1139,7 +1339,7 @@
   }
 
   // =====================================================================
-  // 5.3 INSPECCIÓN INTERACTIVA DE ESPECIES Y RED TRÓFICA EN ESFERA (RAYCASTING)
+  // 7. INSPECCIÓN INTERACTIVA EN ESFERA (RAYCASTING)
   // =====================================================================
   const raycaster = new THREE.Raycaster();
   raycaster.params.Points.threshold = 2.4;
@@ -1196,10 +1396,7 @@
     }
   }
 
-  window.addEventListener("pointermove", (e) => {
-    checkSwarmHover(e);
-  });
-
+  window.addEventListener("pointermove", checkSwarmHover);
   window.addEventListener("pointerdown", (e) => {
     if (!e.target.closest("#speciesCard") && !e.target.closest("#activeTreeChip") && !e.target.closest(".top-bar") && !e.target.closest(".bottom-experience-bar") && !e.target.closest(".waypoints-bar")) {
       checkSwarmHover(e);
@@ -1207,7 +1404,7 @@
   });
 
   // =====================================================================
-  // 6. METAMORFOSIS ANIMADA: EXPLOSIÓN CUÁNTICA & GSAP TRANSITION
+  // 8. METAMORFOSIS ANIMADA: VÓRTICE ADVECTION & GSAP TRANSITION
   // =====================================================================
   let targetMorph = 0.0;
   let currentMorph = 0.0;
@@ -1226,8 +1423,6 @@
       slider.value = Math.round(targetMorph * 100);
     }
     isTerritory = targetMorph > 0.45;
-
-    // Mostrar el plano base únicamente en modo territorio
     sceneBaseGroup.visible = targetMorph > 0.15;
 
     if (btnActionText) {
@@ -1241,7 +1436,7 @@
     }
 
     if (swarmIntroBox) {
-      swarmIntroBox.classList.toggle("fade-out", targetMorph > 0.1 || userHasInteracted);
+      swarmIntroBox.classList.toggle("fade-out", targetMorph > 0.08 || userHasInteracted);
     }
     if (speciesCard) {
       speciesCard.classList.toggle("show", targetMorph < 0.15 && hoveredNodeId !== -1);
@@ -1249,7 +1444,6 @@
     if (waypointsBar) {
       waypointsBar.classList.toggle("show", targetMorph > 0.65);
     }
-    treeGroundIndicatorsGroup.visible = targetMorph > 0.35;
     if (targetMorph < 0.25) {
       if (activeTreeChip) activeTreeChip.classList.remove("show");
       if (speciesCard && hoveredNodeId === -1) speciesCard.classList.remove("show");
@@ -1304,6 +1498,18 @@
       duration: 3.2,
       ease: "power3.inOut"
     });
+
+    // Resetear FOV a 44 al volver a la esfera o vista general
+    gsap.to(camera, {
+      fov: 44,
+      duration: 3.2,
+      ease: "power3.inOut",
+      onUpdate: () => camera.updateProjectionMatrix()
+    });
+    gsap.to(particleUniforms.uPerspectiveMode, {
+      value: 0.0,
+      duration: 2.5
+    });
   }
 
   if (slider) {
@@ -1315,21 +1521,18 @@
 
   if (btnToggle) {
     btnToggle.addEventListener("click", () => {
-      const next = isTerritory ? 0.0 : 1.0;
-      animateToStage(next);
+      animateToStage(isTerritory ? 0.0 : 1.0);
     });
   }
 
   if (btnTriggerMorph) {
-    btnTriggerMorph.addEventListener("click", () => {
-      animateToStage(1.0);
-    });
+    btnTriggerMorph.addEventListener("click", () => animateToStage(1.0));
   }
 
   if (labelSwarm) labelSwarm.addEventListener("click", () => animateToStage(0.0));
   if (labelTerritory) labelTerritory.addEventListener("click", () => animateToStage(1.0));
 
-  // Waypoints con las coordenadas EXACTAS del archivo GIS
+  // Waypoints con soporte nativo de Perspectiva Humana e interpolación FOV
   document.querySelectorAll(".waypoint-pill").forEach(pill => {
     pill.addEventListener("click", () => {
       document.querySelectorAll(".waypoint-pill").forEach(p => p.classList.remove("active"));
@@ -1337,8 +1540,28 @@
       const wpKey = pill.getAttribute("data-waypoint");
       const wp = waypoints[wpKey];
       if (wp && window.gsap) {
-        gsap.to(camera.position, { x: wp.pos.x, y: wp.pos.y, z: wp.pos.z, duration: 2.2, ease: "power2.inOut" });
-        gsap.to(controls.target, { x: wp.target.x, y: wp.target.y, z: wp.target.z, duration: 2.2, ease: "power2.inOut" });
+        const isPersp = (wpKey === "perspective");
+
+        gsap.to(camera.position, { x: wp.pos.x, y: wp.pos.y, z: wp.pos.z, duration: 2.6, ease: "power2.inOut" });
+        gsap.to(controls.target, { x: wp.target.x, y: wp.target.y, z: wp.target.z, duration: 2.6, ease: "power2.inOut" });
+        
+        // Transición de FOV (68° para perspectiva humana inmersiva, 44° para axonometría)
+        gsap.to(camera, {
+          fov: wp.fov || 44,
+          duration: 2.6,
+          ease: "power2.inOut",
+          onUpdate: () => camera.updateProjectionMatrix()
+        });
+
+        gsap.to(particleUniforms.uPerspectiveMode, {
+          value: isPersp ? 1.0 : 0.0,
+          duration: 2.2,
+          ease: "power2.inOut"
+        });
+
+        if (soundActive && typeof triggerWaterResonance === "function" && isPersp) {
+          triggerWaterResonance();
+        }
       }
     });
   });
@@ -1362,7 +1585,7 @@
   }
 
   // =====================================================================
-  // 7. INSPECTOR DE CÁMARA & HERRAMIENTA "SUBIR ESTA VISTA AL EDITOR"
+  // 9. INSPECTOR DE CÁMARA & HERRAMIENTA DE GUARDADO
   // =====================================================================
   function updateCamInspectorDisplay() {
     if (!camInspectorBox || camInspectorBox.classList.contains("hidden")) return;
@@ -1388,19 +1611,16 @@
         localStorage.setItem("hide_cam_helper", "true");
       } catch(e){}
 
-      // Actualizar la vista territorial en memoria
       territoryCamPos.set(savedState.pos.x, savedState.pos.y, savedState.pos.z);
       territoryTarget.set(savedState.target.x, savedState.target.y, savedState.target.z);
       waypoints.overview.pos = territoryCamPos;
       waypoints.overview.target = territoryTarget;
 
-      // Copiar código al portapapeles para el editor
       const snippet = `const territoryCamPos = new THREE.Vector3(${savedState.pos.x}, ${savedState.pos.y}, ${savedState.pos.z});\nconst territoryTarget = new THREE.Vector3(${savedState.target.x}, ${savedState.target.y}, ${savedState.target.z});`;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(snippet).catch(() => {});
       }
 
-      // Mostrar toast de éxito y ocultar panel de coordenadas para siempre
       if (camToast) {
         camToast.classList.add("show");
         setTimeout(() => camToast.classList.remove("show"), 4000);
@@ -1419,11 +1639,14 @@
   }
 
   // =====================================================================
-  // 8. SÍNTESIS DE AUDIO WEB (ECOSISTEMA & PAISAJE SONORO)
+  // 10. SÍNTESIS DE AUDIO WEB (ECOSISTEMA, AGUA & RESONANCIA ARMÓNICA)
   // =====================================================================
   let audioCtx = null;
   let soundActive = false;
   let masterGain = null;
+  let natureDroneOsc1 = null;
+  let natureDroneOsc2 = null;
+  let natureDroneGain = null;
 
   function initBioAudio() {
     if (audioCtx) return;
@@ -1431,8 +1654,25 @@
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AudioContext();
       masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+      masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
       masterGain.connect(audioCtx.destination);
+
+      // Drone armónico biótico de fondo
+      natureDroneGain = audioCtx.createGain();
+      natureDroneGain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+      natureDroneGain.connect(masterGain);
+
+      natureDroneOsc1 = audioCtx.createOscillator();
+      natureDroneOsc1.type = "sine";
+      natureDroneOsc1.frequency.setValueAtTime(108, audioCtx.currentTime); // Nota La baja profunda
+      natureDroneOsc1.connect(natureDroneGain);
+      natureDroneOsc1.start();
+
+      natureDroneOsc2 = audioCtx.createOscillator();
+      natureDroneOsc2.type = "triangle";
+      natureDroneOsc2.frequency.setValueAtTime(162, audioCtx.currentTime); // Quinta armónica Mi
+      natureDroneOsc2.connect(natureDroneGain);
+      natureDroneOsc2.start();
     } catch(e) { console.warn("Audio no disponible:", e); }
   }
 
@@ -1440,19 +1680,53 @@
     if (!audioCtx || !soundActive) return;
     try {
       const osc = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = "sine";
-      const baseFreq = 260 + freqMultiplier * 480;
-      osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, audioCtx.currentTime + 1.2);
 
-      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      osc.type = "sine";
+      osc2.type = "triangle";
+      const baseFreq = 240 + freqMultiplier * 460;
+      osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, audioCtx.currentTime + 1.4);
+
+      osc2.frequency.setValueAtTime(baseFreq * 2.0, audioCtx.currentTime);
+      osc2.frequency.exponentialRampToValueAtTime(baseFreq * 2.5, audioCtx.currentTime + 1.2);
+
+      gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
 
       osc.connect(gain);
+      osc2.connect(gain);
       gain.connect(masterGain);
-      osc.start();
+
+      osc.start(); osc2.start();
       osc.stop(audioCtx.currentTime + 1.8);
+      osc2.stop(audioCtx.currentTime + 1.8);
+    } catch(e){}
+  }
+
+  function triggerWaterResonance() {
+    if (!audioCtx || !soundActive) return;
+    try {
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          if (!audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          const f = 520 + Math.random() * 380;
+          osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(f * 0.7, audioCtx.currentTime + 0.35);
+
+          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.35);
+        }, i * 140);
+      }
     } catch(e){}
   }
 
@@ -1469,9 +1743,10 @@
   }
 
   // =====================================================================
-  // 9. BUCLE PRINCIPAL DE ANIMACIÓN
+  // 11. BUCLE PRINCIPAL DE ANIMACIÓN CON GRAVEDAD & TOUCHDESIGNER VIBES
   // =====================================================================
   const clock = new THREE.Clock();
+  let idleTime = 0.0;
 
   function animate() {
     requestAnimationFrame(animate);
@@ -1485,16 +1760,25 @@
 
     updateNetworkSwarm(time, currentMorph);
 
-    // Actualizar animación sutil de pulso en el suelo para el árbol activo
-    if (treeGroundIndicatorsGroup && treeGroundIndicatorsGroup.visible) {
-      for (let i = 0; i < treeIndicatorMeshes.length; i++) {
-        const item = treeIndicatorMeshes[i];
-        if (item.groundRing.material.opacity > 0.05) {
-          item.groundRing.rotation.z = -time * 0.45;
-          const groundScale = 1.0 + Math.sin(time * 3.2 + item.phase) * 0.15;
-          item.groundRing.scale.set(groundScale, groundScale, 1.0);
-        }
-      }
+    // Animación sutil del pulso del árbol activo
+    if (focusRingMat.opacity > 0.05) {
+      focusRingMesh.rotation.z = -time * 0.45;
+      const groundScale = 1.0 + Math.sin(time * 3.2) * 0.15;
+      focusRingMesh.scale.set(groundScale, groundScale, 1.0);
+    }
+
+    // Suave oscilación de la constelación de árboles activos
+    if (activeConstellationPoints && activeConstellationPoints.material.opacity > 0.05) {
+      activeConstellationPoints.material.size = 2.8 + Math.sin(time * 2.5) * 0.45;
+    }
+
+    // Dinámica viva al inicio (leve respiración de cámara cuando está inactivo)
+    if (!userHasInteracted && currentMorph < 0.05) {
+      idleTime += delta * 0.25;
+      const camHoverX = Math.sin(idleTime) * 3.5;
+      const camHoverY = Math.cos(idleTime * 0.8) * 2.2;
+      camera.position.x = swarmCamPos.x + camHoverX;
+      camera.position.y = swarmCamPos.y + camHoverY;
     }
 
     if (cinemaRunning && isTerritory) {
