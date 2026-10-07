@@ -1794,7 +1794,7 @@ window.onerror = function(msg, url, line, col, error) {
     attribute vec3 aColor;
     attribute float aSize;
     attribute float aPhase;
-    attribute float aCategory;
+    attribute float aCategory; // 0=agua, 1=arbol, 2=edificio, 3=via, 4=fondo
     
     varying vec3 vColor;
     varying float vCategory;
@@ -1811,9 +1811,9 @@ window.onerror = function(msg, url, line, col, error) {
       
       float explosionIntensity = sin(ease * 3.14159);
       vec3 curlVortex = vec3(
-        sin(uTime * 1.6 + position.y * 0.08 + aPhase * 2.0) * 60.0 * explosionIntensity + cos(uTime * 1.1 + position.z * 0.05) * 26.0 * explosionIntensity,
-        cos(uTime * 1.3 + position.x * 0.08 + aPhase * 2.0) * 48.0 * explosionIntensity + sin(uTime * 1.7 + position.z * 0.06) * 22.0 * explosionIntensity,
-        sin(uTime * 1.5 + position.x * 0.08 + aPhase * 3.0) * 60.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.05) * 26.0 * explosionIntensity
+        sin(uTime * 1.6 + position.y * 0.08 + aPhase * 2.0) * 44.0 * explosionIntensity + cos(uTime * 1.1 + position.z * 0.05) * 26.0 * explosionIntensity,
+        cos(uTime * 1.3 + position.x * 0.08 + aPhase * 2.0) * 36.0 * explosionIntensity + sin(uTime * 1.7 + position.z * 0.06) * 22.0 * explosionIntensity,
+        sin(uTime * 1.5 + position.x * 0.08 + aPhase * 3.0) * 44.0 * explosionIntensity + cos(uTime * 0.9 + position.y * 0.05) * 26.0 * explosionIntensity
       );
       
       vec3 territorialIdle = vec3(0.0);
@@ -1850,8 +1850,7 @@ window.onerror = function(msg, url, line, col, error) {
       
       gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.7) * uPixelRatio * sizeAttenuation;
       
-      // Red viva a 0% -> Vórtice explosivo en transición -> Territorio consolidado a 100%
-      float alphaBase = mix(0.75, 0.95, ease) + explosionIntensity * 0.45;
+      float alphaBase = smoothstep(0.04, 0.8, ease) * 0.95 + explosionIntensity * 0.35;
       if (uPerspectiveMode > 0.05 && aCategory > 1.8) {
         alphaBase *= mix(1.0, clamp(140.0 / max(20.0, camDist), 0.25, 0.9), uPerspectiveMode);
       }
@@ -1868,25 +1867,31 @@ window.onerror = function(msg, url, line, col, error) {
     uniform float uPerspectiveMode;
     
     void main() {
+      if (vAlpha < 0.01) discard;
       vec2 coord = gl_PointCoord - vec2(0.5);
       float dist = length(coord);
       if (dist > 0.5) discard;
       
-      float softCircle = smoothstep(0.5, 0.08, dist);
-      float innerCore = smoothstep(0.24, 0.0, dist);
-      
+      float edgeAlpha = smoothstep(0.5, 0.08, dist);
       vec3 col = vColor;
-      col += innerCore * 0.22;
-      col += vec3(0.12, 0.35, 0.32) * vRippleBoost;
       
-      if (uPerspectiveMode > 0.05 && vCategory > 1.8) {
-        float fogFactor = clamp((vDistToCam - 15.0) / 160.0, 0.0, 0.85);
-        col = mix(col, vec3(0.08, 0.09, 0.11), fogFactor * uPerspectiveMode);
+      if (vRippleBoost > 0.05) {
+        col = mix(col, vec3(0.0, 0.7, 0.85), vRippleBoost * 0.65);
+      }
+      
+      if (uPerspectiveMode > 0.05) {
+        if (vCategory < 0.5) {
+          col = mix(col, vec3(0.0, 0.75, 0.95), uPerspectiveMode * 0.35);
+        } else if (vCategory < 1.5) {
+          col = mix(col, vec3(0.2, 0.65, 0.38), uPerspectiveMode * 0.25);
+        } else if (vCategory > 1.8) {
+          col = mix(col, vec3(0.25, 0.24, 0.23), uPerspectiveMode * 0.45);
+        }
       }
       
       col = col / (1.0 + col * 0.35);
       
-      gl_FragColor = vec4(col, softCircle * vAlpha);
+      gl_FragColor = vec4(col, edgeAlpha * vAlpha);
     }
   `;
 
@@ -1900,18 +1905,16 @@ window.onerror = function(msg, url, line, col, error) {
   };
 
   const particleMat = new THREE.ShaderMaterial({
-    vertexShader,
-    fragmentShader,
     uniforms: particleUniforms,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
     transparent: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending
   });
 
-  let particlePointsMesh = null;
-
   // =====================================================================
-  // 4. CARGA DE CAPAS GIS DEL TERRITORIO (AGUA, ÁRBOLES, VÍAS Y MANZANAS)
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (PIEDRA ARQUITECTÓNICA & AGUA VIBRANTE)
   // =====================================================================
   const pTarget = [];
   const pSwarm = [];
@@ -1920,20 +1923,21 @@ window.onerror = function(msg, url, line, col, error) {
   const pPhase = [];
   const pCat = [];
 
+  let particlePoints = null;
   let currentParticleIndex = 0;
 
   function randomSwarmCluster(idx) {
     if (typeof rawNodes !== "undefined" && rawNodes.length > 0) {
       const node = rawNodes[idx % rawNodes.length];
       return {
-        x: node.ox + (Math.random() - 0.5) * 5.0,
-        y: node.oy + (Math.random() - 0.5) * 5.0,
-        z: node.oz + (Math.random() - 0.5) * 5.0
+        x: node.ox + (Math.random() - 0.5) * 2.0,
+        y: node.oy + (Math.random() - 0.5) * 2.0,
+        z: node.oz + (Math.random() - 0.5) * 2.0
       };
     }
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
-    const radius = 24 + Math.random() * 22;
+    const radius = 28.0 + (Math.random() - 0.5) * 4.0;
     return {
       x: radius * Math.sin(phi) * Math.cos(theta),
       y: radius * Math.sin(phi) * Math.sin(theta),
@@ -1942,9 +1946,9 @@ window.onerror = function(msg, url, line, col, error) {
   }
 
   function rebuildTerritoryParticles() {
-    if (particlePointsMesh) {
-      sceneRoot.remove(particlePointsMesh);
-      particlePointsMesh.geometry.dispose();
+    if (particlePoints) {
+      sceneRoot.remove(particlePoints);
+      particlePoints.geometry.dispose();
     }
 
     const geo = new THREE.BufferGeometry();
@@ -1955,42 +1959,8 @@ window.onerror = function(msg, url, line, col, error) {
     geo.setAttribute("aPhase", new THREE.Float32BufferAttribute(pPhase, 1));
     geo.setAttribute("aCategory", new THREE.Float32BufferAttribute(pCat, 1));
 
-    particlePointsMesh = new THREE.Points(geo, particleMat);
-    sceneRoot.add(particlePointsMesh);
-  }
-
-  // Base de datos de árboles georreferenciados agrupados por especie para constelaciones
-  const treeSpeciesClusters = {
-    chicala: [],
-    jazmin: [],
-    sauco: [],
-    falso_pimiento: [],
-    eugenia: [],
-    palma_yuca: [],
-    urapan: [],
-    caucho: [],
-    cipres: [],
-    acacia: [],
-    capulin: [],
-    aliso: []
-  };
-
-  function matchSpeciesKey(speciesName) {
-    if (!speciesName) return "sauco";
-    const s = speciesName.toLowerCase();
-    if (s.includes("chicala") || s.includes("chirlobirlo") || s.includes("amarillo") || s.includes("tecoma")) return "chicala";
-    if (s.includes("jazmin") || s.includes("huesito") || s.includes("pittosporum")) return "jazmin";
-    if (s.includes("sauco") || s.includes("sambucus")) return "sauco";
-    if (s.includes("pimiento") || s.includes("schinus")) return "falso_pimiento";
-    if (s.includes("eugenia")) return "eugenia";
-    if (s.includes("palma") || s.includes("yuca") || s.includes("yucca") || s.includes("palmiche")) return "palma_yuca";
-    if (s.includes("urapan") || s.includes("fresno") || s.includes("fraxinus")) return "urapan";
-    if (s.includes("caucho") || s.includes("ficus")) return "caucho";
-    if (s.includes("cipres") || s.includes("pino") || s.includes("cupressus")) return "cipres";
-    if (s.includes("acacia")) return "acacia";
-    if (s.includes("cerezo") || s.includes("capuli") || s.includes("prunus")) return "capulin";
-    if (s.includes("aliso") || s.includes("alnus")) return "aliso";
-    return null;
+    particlePoints = new THREE.Points(geo, particleMat);
+    sceneRoot.add(particlePoints);
   }
 
   function loadWater() {
@@ -2013,6 +1983,7 @@ window.onerror = function(msg, url, line, col, error) {
 
           tris.forEach(([ia, ib, ic]) => {
             const pa = sPts[ia], pb = sPts[ib], pc = sPts[ic];
+
             for (let s = 0; s < 3; s++) {
               const r1 = Math.random(), r2 = Math.random();
               const sq1 = Math.sqrt(r1);
@@ -2043,9 +2014,44 @@ window.onerror = function(msg, url, line, col, error) {
             pCat.push(0.0);
           }
         });
+
         rebuildTerritoryParticles();
       })
       .catch(err => console.warn("Error agua:", err));
+  }
+
+  // Base de datos de árboles georreferenciados agrupados por especie
+  const treeSpeciesClusters = {
+    chicala: [],
+    jazmin: [],
+    sauco: [],
+    falso_pimiento: [],
+    eugenia: [],
+    palma_yuca: [],
+    urapan: [],
+    caucho: [],
+    cipres: [],
+    acacia: [],
+    capulin: [],
+    aliso: []
+  };
+
+  function matchSpeciesKey(speciesName) {
+    if (!speciesName) return "sauco";
+    const s = speciesName.toLowerCase();
+    if (s.includes("chicala") || s.includes("chirlobirlo") || s.includes("amarillo")) return "chicala";
+    if (s.includes("jazmin") || s.includes("huesito")) return "jazmin";
+    if (s.includes("sauco")) return "sauco";
+    if (s.includes("pimiento")) return "falso_pimiento";
+    if (s.includes("eugenia")) return "eugenia";
+    if (s.includes("palma") || s.includes("yuca") || s.includes("palmiche")) return "palma_yuca";
+    if (s.includes("urapan") || s.includes("fresno")) return "urapan";
+    if (s.includes("caucho")) return "caucho";
+    if (s.includes("cipres") || s.includes("pino")) return "cipres";
+    if (s.includes("acacia")) return "acacia";
+    if (s.includes("cerezo") || s.includes("capuli")) return "capulin";
+    if (s.includes("aliso")) return "aliso";
+    return null;
   }
 
   function loadTrees() {
@@ -2057,9 +2063,7 @@ window.onerror = function(msg, url, line, col, error) {
         const colTrunk = new THREE.Color(0x161D26);
         const list = Array.isArray(trees) ? trees : (trees.trees || []);
 
-        const sampleStep = Math.max(1, Math.floor(list.length / 22000));
-        for (let i = 0; i < list.length; i += sampleStep) {
-          const t = list[i];
+        list.forEach((t, i) => {
           const [x, y, hMeters, specName] = t;
           const p = toScene(x, y);
           const h = Math.max(0.7, (hMeters || 8) * SCALE);
@@ -2079,7 +2083,7 @@ window.onerror = function(msg, url, line, col, error) {
           pPhase.push(i * 0.25);
           pCat.push(1.0);
 
-          const subNodes = 3;
+          const subNodes = 4;
           const rad = h * 0.45;
           for (let k = 0; k < subNodes; k++) {
             const ang = (k / subNodes) * Math.PI * 2 + (i % 7);
@@ -2091,7 +2095,7 @@ window.onerror = function(msg, url, line, col, error) {
             pTarget.push(sx, sy, sz);
             pSwarm.push(swSub.x, swSub.y, swSub.z);
             pColor.push(folCol.r * 1.05, folCol.g * 1.05, folCol.b * 1.05);
-            pSize.push(1.35);
+            pSize.push(1.4);
             pPhase.push(i + k * 1.5);
             pCat.push(1.0);
           }
@@ -2103,7 +2107,8 @@ window.onerror = function(msg, url, line, col, error) {
           pSize.push(1.1);
           pPhase.push(i * 0.1);
           pCat.push(1.0);
-        }
+        });
+
         rebuildTerritoryParticles();
       })
       .catch(err => console.warn("Error árboles:", err));
@@ -2112,13 +2117,12 @@ window.onerror = function(msg, url, line, col, error) {
   function loadRoads() {
     return fetch(NET_URL)
       .then(r => r.json())
-      .then(netData => {
+      .then(edges => {
         const colRoad = new THREE.Color(0x232326);
         const colMajor = new THREE.Color(0x38BDF8);
-        const edgeList = Array.isArray(netData) ? netData : (netData.edges || []);
+        const edgeList = Array.isArray(edges) ? edges : (edges.edges || []);
 
         edgeList.forEach(([kind, pts], edgeIdx) => {
-          if (edgeIdx % 2 !== 0) return;
           const isMajor = (edgeIdx % 4 === 0);
           const c = isMajor ? colMajor : colRoad;
 
@@ -2133,6 +2137,7 @@ window.onerror = function(msg, url, line, col, error) {
             pCat.push(3.0);
           }
         });
+
         rebuildTerritoryParticles();
       })
       .catch(err => console.warn("Error vías:", err));
@@ -2142,25 +2147,24 @@ window.onerror = function(msg, url, line, col, error) {
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
+        // Paleta Arquitectónica: Piedra de Cantera, Pizarra y Basalto Oscuro (Sin blanco)
         const colBldgPrimary   = new THREE.Color(0x3A3836);
         const colBldgSecondary = new THREE.Color(0x484440);
         const colRoofHighlight = new THREE.Color(0x544E48);
         const colBaseGround    = new THREE.Color(0x131315);
         const bldList = Array.isArray(buildings) ? buildings : (buildings.buildings || []);
 
-        const bldStep = Math.max(1, Math.floor(bldList.length / 14000));
-        for (let bIdx = 0; bIdx < bldList.length; bIdx += bldStep) {
-          const b = bldList[bIdx];
+        bldList.forEach((b, bIdx) => {
           const pts = b.pts;
-          if (!pts || pts.length < 3) continue;
+          if (!pts || pts.length < 3) return;
 
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.h || b.height || 10) * SCALE;
           const bldgCol = (bIdx % 2 === 0) ? colBldgPrimary : colBldgSecondary;
 
-          for (let i = 0; i < sPts.length; i += 2) {
+          for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];
-            const steps = Math.max(2, Math.floor(h / 1.4));
+            const steps = Math.max(3, Math.floor(h / 1.1));
             for (let step = 0; step <= steps; step++) {
               const y = (step / steps) * h;
               const sw = randomSwarmCluster(currentParticleIndex++);
@@ -2170,12 +2174,12 @@ window.onerror = function(msg, url, line, col, error) {
               const isRoof = (step === steps);
               const c = isRoof ? colRoofHighlight : bldgCol;
               pColor.push(c.r, c.g, c.b);
-              pSize.push(isRoof ? 1.25 : 1.05);
+              pSize.push(isRoof ? 1.3 : 1.1);
               pPhase.push(bIdx + step);
               pCat.push(2.0);
             }
           }
-        }
+        });
 
         for (let s = 0; s < 3800; s++) {
           const rad = 25 + Math.sqrt(Math.random()) * 210;
@@ -2199,25 +2203,13 @@ window.onerror = function(msg, url, line, col, error) {
   }
 
   Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
-    loadBuildings().then(() => {
-      if (loadingVeil) {
-        loadingVeil.style.opacity = "0";
-        setTimeout(() => { loadingVeil.style.display = "none"; }, 600);
-      }
-    });
-  }).catch(err => {
-    console.error("Error general al cargar territorio:", err);
-    if (loadingVeil) loadingVeil.style.display = "none";
+    loadBuildings();
+    setTimeout(() => {
+      if (loadingVeil) loadingVeil.classList.add("hide");
+    }, 300);
   });
 
-  setTimeout(() => {
-    if (loadingVeil && loadingVeil.style.display !== "none") {
-      loadingVeil.style.opacity = "0";
-      setTimeout(() => { loadingVeil.style.display = "none"; }, 500);
-    }
-  }, 2200);
 
-  // =====================================================================
   // 5. CONSTELACIONES DINÁMICAS Y FOCO VISUAL DE ESPECIES DE ÁRBOLES
   // =====================================================================
   const speciesConstellationGroup = new THREE.Group();
