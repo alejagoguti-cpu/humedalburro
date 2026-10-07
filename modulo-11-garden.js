@@ -711,12 +711,13 @@
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(buildings => {
-        // Paleta de Edificios en Pizarra Morada / Violeta Arquitectónica (CERO BLANCO)
-        const colPurpleDeep = new THREE.Color(0x6366f1);  // Índigo violeta
-        const colPurpleMid = new THREE.Color(0x7c3aed);   // Violeta arquitectónico
-        const colPurpleWarm = new THREE.Color(0x8b5cf6);  // Lavanda cálida
-        const colAmberRoof = new THREE.Color(0xd97706);   // Remate ámbar arcilla
-        const colSavanna = new THREE.Color(0x064e3b);     // Base verde sabana profunda
+        // Paleta de Edificios en Púrpura y Violeta Vibrante (CERO BLANCO)
+        const colPurpleRoyal = new THREE.Color(0x9333ea);  // Púrpura real vibrante
+        const colPurpleMid = new THREE.Color(0x7c3aed);    // Violeta intenso
+        const colPurpleWarm = new THREE.Color(0xa855f7);   // Amatista luminoso
+        const colPurpleDark = new THREE.Color(0x581c87);   // Púrpura profundo sombra
+        const colAmberRoof = new THREE.Color(0xd97706);    // Remate ámbar arcilla
+        const colSavanna = new THREE.Color(0x064e3b);      // Base verde sabana profunda
 
         buildings.forEach((b, bIdx) => {
           const pts = b.pts;
@@ -725,10 +726,11 @@
           const sPts = pts.map(p => toScene(p[0], p[1]));
           const h = (b.height || 10) * SCALE;
           
-          let bldgCol = colPurpleMid;
+          let bldgCol = colPurpleRoyal;
           if (bIdx % 6 === 0) bldgCol = colAmberRoof;
-          else if (bIdx % 3 === 0) bldgCol = colPurpleDeep;
-          else if (bIdx % 3 === 1) bldgCol = colPurpleWarm;
+          else if (bIdx % 4 === 0) bldgCol = colPurpleDark;
+          else if (bIdx % 2 === 0) bldgCol = colPurpleMid;
+          else bldgCol = colPurpleWarm;
 
           for (let i = 0; i < sPts.length; i++) {
             const p = sPts[i];

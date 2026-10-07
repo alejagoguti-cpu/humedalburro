@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Red Biótica & Territorio 3D — Humedal El Burro, Kennedy</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +18,7 @@
     --accent-glow: rgba(16, 185, 129, 0.55);
     --water: #0284c7;
     --gold: #f59e0b;
+    --purple: #9333ea;
     --ink: #f8fafc;
     --ink-dim: rgba(248, 250, 252, 0.7);
     --panel-bg: rgba(6, 12, 22, 0.88);
@@ -181,7 +185,7 @@
     color: #a7f3d0;
   }
 
-  /* Waypoints Bar (Stage 2) */
+  /* Waypoints Bar (Visible in Territory Stage: Axonometría Total, Humedal El Burro, Humedal La Vaca, Humedal El Techo) */
   .waypoints-bar {
     position: absolute; top: 78px; left: 50%; transform: translateX(-50%); z-index: 10;
     display: flex; gap: 8px; pointer-events: auto; opacity: 0; pointer-events: none;
@@ -201,7 +205,7 @@
   }
   .waypoint-pill i { color: var(--accent); font-size: 10px; }
 
-  /* Bottom Control Capsule */
+  /* Bottom Minimalist Experience Bar */
   .bottom-experience-bar {
     position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 10;
     display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -297,7 +301,7 @@
   </a>
   <div class="top-center-brand">
     <h1>El Jardín de las Aguas</h1>
-    <div class="stage-badge"><i class="fa-solid fa-circle-nodes"></i> <span id="stageLabel">Red Biótica · 1200 Especies y Conexiones</span></div>
+    <div class="stage-badge"><i class="fa-solid fa-circle-nodes"></i> <span id="stageLabel">Red Biótica · 850 Especies y Conexiones</span></div>
   </div>
   <div class="top-right-group">
     <button id="btnCinemaTour" class="cinema-mode-btn" title="Vuelo Cinematográfico Continuo">
@@ -378,6 +382,6 @@
   <canvas id="sceneCanvas"></canvas>
 </div>
 
-<script src="modulo-11-garden.js?v=20261006_11"></script>
+<script src="modulo-11-garden.js?v=20261006_VIOLET_EDIFICIOS_FINAL_999"></script>
 </body>
 </html>
