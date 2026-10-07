@@ -1339,7 +1339,6 @@ window.onerror = function(msg, url, line, col, error) {
     sceneBaseGroup.add(grid);
   }
   createExpansiveBase();
-  generateProceduralKennedyTerritory();
 
   // =====================================================================
   // 1. CONVENCIONES TAXONÓMICAS & BASE DE DATOS BIOECOLÓGICA DE KENNEDY
@@ -2464,20 +2463,21 @@ window.onerror = function(msg, url, line, col, error) {
       .catch(err => console.warn("Error edificios:", err));
   }
 
-  Promise.all([loadWater(), loadTrees(), loadRoads()])
-    .then(() => {
+  // Generar inmediatamente la geometría del Territorio 3D de Kennedy
+  generateProceduralKennedyTerritory();
+
+  // Intentar enriquecer con capas GIS locales si están disponibles
+  try {
+    Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
       loadBuildings();
-      setTimeout(() => {
-        if (pTarget.length < 500) generateProceduralKennedyTerritory();
-        if (loadingVeil) loadingVeil.classList.add("hide");
-      }, 400);
-    })
-    .catch(() => {
-      generateProceduralKennedyTerritory();
-      setTimeout(() => {
-        if (loadingVeil) loadingVeil.classList.add("hide");
-      }, 400);
+      if (loadingVeil) loadingVeil.classList.add("hide");
+    }).catch((e) => {
+      console.log("Territorio 3D activo mediante motor procedural:", e);
+      if (loadingVeil) loadingVeil.classList.add("hide");
     });
+  } catch(e) {
+    if (loadingVeil) loadingVeil.classList.add("hide");
+  }
 
 
   // 5. CONSTELACIONES DINÁMICAS Y FOCO VISUAL DE ESPECIES DE ÁRBOLES
