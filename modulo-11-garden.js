@@ -772,7 +772,6 @@
       })
       .catch(err => console.warn("Error edificios:", err));
   }
-  }
 
   Promise.all([loadWater(), loadTrees(), loadRoads()]).then(() => {
     loadBuildings();
