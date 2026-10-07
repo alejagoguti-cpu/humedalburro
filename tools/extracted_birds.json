@@ -1,0 +1,2234 @@
+[
+  {
+    "idx": 1,
+    "id": "AVE-001",
+    "name": "Turdus fuscater gigas",
+    "sciname": "Turdus fuscater gigas",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28830194/medium.jpeg",
+    "place": "46293677609",
+    "cat": 1
+  },
+  {
+    "idx": 2,
+    "id": "AVE-002",
+    "name": "Zenaida auriculata pentheria",
+    "sciname": "Zenaida auriculata pentheria",
+    "img": "https://static.inaturalist.org/photos/69243507/medium.png",
+    "place": "46389048525",
+    "cat": 1
+  },
+  {
+    "idx": 3,
+    "id": "AVE-003",
+    "name": "Thraupis palmarum atripennis",
+    "sciname": "Thraupis palmarum atripennis",
+    "img": "https://static.inaturalist.org/photos/69262665/medium.png",
+    "place": "46420617522",
+    "cat": 1
+  },
+  {
+    "idx": 4,
+    "id": "AVE-004",
+    "name": "Zonotrichia capensis costaricensis",
+    "sciname": "Zonotrichia capensis costaricensis",
+    "img": "https://static.inaturalist.org/photos/69267335/medium.png",
+    "place": "46423397871",
+    "cat": 1
+  },
+  {
+    "idx": 5,
+    "id": "AVE-005",
+    "name": "Troglodytes musculus columbae",
+    "sciname": "Troglodytes musculus columbae",
+    "img": "https://static.inaturalist.org/photos/69268565/medium.png",
+    "place": "46430539943",
+    "cat": 1
+  },
+  {
+    "idx": 6,
+    "id": "AVE-006",
+    "name": "Sicalis luteola bogotensis",
+    "sciname": "Sicalis luteola bogotensis",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/80930992/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 7,
+    "id": "AVE-007",
+    "name": "Stelgidopteryx ruficollis uropygialis",
+    "sciname": "Stelgidopteryx ruficollis uropygialis",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/104545434/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 8,
+    "id": "AVE-008",
+    "name": "Vanellus chilensis cayennensis",
+    "sciname": "Vanellus chilensis cayennensis",
+    "img": "https://static.inaturalist.org/photos/212375432/medium.jpeg",
+    "place": "Universidad Distrital Francisco JosÃ© De Caldas - Sede Bosa El Porvenir",
+    "cat": 1
+  },
+  {
+    "idx": 9,
+    "id": "AVE-009",
+    "name": "Asio stygius robustus",
+    "sciname": "Asio stygius robustus",
+    "img": "https://static.inaturalist.org/photos/662406205/medium.jpg",
+    "place": "46505373953",
+    "cat": 1
+  },
+  {
+    "idx": 10,
+    "id": "AVE-010",
+    "name": "Geranoaetus melanoleucus australis",
+    "sciname": "Geranoaetus melanoleucus australis",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/705103444/medium.jpg",
+    "place": "Urb. La Estancia, FontibÃ³n, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 11,
+    "id": "AVE-011",
+    "name": "Geranoaetus",
+    "sciname": "ÃÁguilas y Aguiluchos",
+    "img": "https://static.inaturalist.org/photos/84465685/medium.jpeg",
+    "place": "4673194742",
+    "cat": 1
+  },
+  {
+    "idx": 12,
+    "id": "AVE-012",
+    "name": "Anas platyrhynchos domesticus",
+    "sciname": "ÃÁnade azulÃón domÃéstico",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28247708/medium.jpeg",
+    "place": "4629392008",
+    "cat": 1
+  },
+  {
+    "idx": 13,
+    "id": "AVE-013",
+    "name": "Ganso cisne domÃéstico",
+    "sciname": "Anser cygnoides domesticus",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/506023235/medium.jpg",
+    "place": "Mundo Aventura, BogotÃ¡, BogotÃ¡, CO",
+    "cat": 1
+  },
+  {
+    "idx": 14,
+    "id": "AVE-014",
+    "name": "Gallinago delicata",
+    "sciname": "Agachona Norteamericana",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/80929427/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 15,
+    "id": "AVE-015",
+    "name": "Buteo platypterus",
+    "sciname": "Aguililla Alas Anchas",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/58063696/medium.jpeg",
+    "place": "46293677609",
+    "cat": 1
+  },
+  {
+    "idx": 16,
+    "id": "AVE-016",
+    "name": "Aguililla caminera",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/40566509/medium.jpeg",
+    "place": "BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 17,
+    "id": "AVE-017",
+    "name": "Geranoaetus albicaudatus",
+    "sciname": "Aguililla cola blanca",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/85693611/medium.jpg",
+    "place": "4675932",
+    "cat": 1
+  },
+  {
+    "idx": 18,
+    "id": "AVE-018",
+    "name": "Buteo brachyurus",
+    "sciname": "Aguililla cola corta",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/87051610/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 19,
+    "id": "AVE-019",
+    "name": "Buteo",
+    "sciname": "Aguilillas y parientes",
+    "img": "https://static.inaturalist.org/photos/451244758/medium.jpeg",
+    "place": "46415094829",
+    "cat": 1
+  },
+  {
+    "idx": 20,
+    "id": "AVE-020",
+    "name": "Phaetusa simplex",
+    "sciname": "AtÃí",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/303533503/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 21,
+    "id": "AVE-021",
+    "name": "Systellura longirostris",
+    "sciname": "Atajacaminos ÃñaÃñarca",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/420734/medium.jpg",
+    "place": "4677146",
+    "cat": 1
+  },
+  {
+    "idx": 22,
+    "id": "AVE-022",
+    "name": "Atlapetes pallidinucha",
+    "sciname": "atlapetes cabecipÃ¡lido",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28648187/medium.jpeg",
+    "place": "46429069541",
+    "cat": 1
+  },
+  {
+    "idx": 23,
+    "id": "AVE-023",
+    "name": "Megascops choliba",
+    "sciname": "Autillo comÃún",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/84447821/medium.jpeg",
+    "place": "4676085",
+    "cat": 1
+  },
+  {
+    "idx": 24,
+    "id": "AVE-024",
+    "name": "Vanellus chilensis",
+    "sciname": "AvefrÃía Tero",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6277889/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 25,
+    "id": "AVE-025",
+    "name": "Aves",
+    "sciname": "Aves",
+    "img": "",
+    "place": "46760118",
+    "cat": 1
+  },
+  {
+    "idx": 26,
+    "id": "AVE-026",
+    "name": "Passeriformes",
+    "sciname": "Aves de percha",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/100766814/medium.jpeg",
+    "place": "4629157",
+    "cat": 1
+  },
+  {
+    "idx": 27,
+    "id": "AVE-027",
+    "name": "Elanus leucurus leucurus",
+    "sciname": "BailarÃín",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/29281312/medium.jpeg",
+    "place": "46293677609",
+    "cat": 1
+  },
+  {
+    "idx": 28,
+    "id": "AVE-028",
+    "name": "Asio flammeus bogotensis",
+    "sciname": "BÃúho Campestre de los Andes Ecuatoriales",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/31149636/medium.jpeg",
+    "place": "46743864429",
+    "cat": 1
+  },
+  {
+    "idx": 29,
+    "id": "AVE-029",
+    "name": "BÃúho Cara Blanca",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/40563582/medium.jpeg",
+    "place": "Kr 79 - Cl 10D - 59, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 30,
+    "id": "AVE-030",
+    "name": "Bubo virginianus",
+    "sciname": "BÃúho cornudo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/86248675/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 31,
+    "id": "AVE-031",
+    "name": "Asio flammeus",
+    "sciname": "BÃúho Sabanero",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/84548198/medium.jpeg",
+    "place": "4676189",
+    "cat": 1
+  },
+  {
+    "idx": 32,
+    "id": "AVE-032",
+    "name": "Asio",
+    "sciname": "BÃúhos orejones",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/746127614/medium.jpg",
+    "place": "46717629782",
+    "cat": 1
+  },
+  {
+    "idx": 33,
+    "id": "AVE-033",
+    "name": "BÃúhos y tecolotes",
+    "sciname": "Strigidae",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/452910772/medium.jpeg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 34,
+    "id": "AVE-034",
+    "name": "Strigiformes",
+    "sciname": "BÃúhos, lechuzas y tecolotes",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/87058787/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 35,
+    "id": "AVE-035",
+    "name": "Heliodoxa jacula",
+    "sciname": "Brillante Coroniverde",
+    "img": "https://static.inaturalist.org/photos/44626780/medium.jpg",
+    "place": "46619727593",
+    "cat": 1
+  },
+  {
+    "idx": 36,
+    "id": "AVE-036",
+    "name": "Contopus fumigatus",
+    "sciname": "Burlisto copetÃón",
+    "img": "https://static.inaturalist.org/photos/251178470/medium.jpeg",
+    "place": "46577984112",
+    "cat": 1
+  },
+  {
+    "idx": 37,
+    "id": "AVE-037",
+    "name": "Burrito pico rojo",
+    "sciname": "Mustelirallus erythrops",
+    "img": "https://static.inaturalist.org/photos/110513662/medium.jpg",
+    "place": "Transversal 81, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 38,
+    "id": "AVE-038",
+    "name": "Buteo platypterus platypterus",
+    "sciname": "Busardo aliancho continental",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28830202/medium.jpeg",
+    "place": "46293677609",
+    "cat": 1
+  },
+  {
+    "idx": 39,
+    "id": "AVE-039",
+    "name": "Buteonine Hawks, Kites, and allies",
+    "sciname": "Buteoninae",
+    "img": "https://static.inaturalist.org/photos/285661203/medium.jpg",
+    "place": "Calle 6D, BogotÃ¡, CO",
+    "cat": 1
+  },
+  {
+    "idx": 40,
+    "id": "AVE-040",
+    "name": "caica de pÃ¡ramo",
+    "sciname": "Gallinago nobilis",
+    "img": "https://static.inaturalist.org/photos/37745697/medium.jpg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 41,
+    "id": "AVE-041",
+    "name": "Icterus galbula",
+    "sciname": "Calandria de Baltimore",
+    "img": "https://static.inaturalist.org/photos/259498126/medium.jpeg",
+    "place": "4631371805",
+    "cat": 1
+  },
+  {
+    "idx": 42,
+    "id": "AVE-042",
+    "name": "Icterus chrysater",
+    "sciname": "Calandria Dorso Amarillo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28649688/medium.jpeg",
+    "place": "4645174",
+    "cat": 1
+  },
+  {
+    "idx": 43,
+    "id": "AVE-043",
+    "name": "Icteridae",
+    "sciname": "Calandrias, tordos, caciques, oropÃéndolas, zanates, praderos y parientes",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/193365965/medium.jpg",
+    "place": "46769762",
+    "cat": 1
+  },
+  {
+    "idx": 44,
+    "id": "AVE-044",
+    "name": "Calzadito Cobrizo",
+    "sciname": "Eriocnemis cupreoventris",
+    "img": "https://static.inaturalist.org/photos/210513135/medium.jpeg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 45,
+    "id": "AVE-045",
+    "name": "Eriocnemis vestita",
+    "sciname": "Calzadito Reluciente",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/572871407/medium.jpg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 46,
+    "id": "AVE-046",
+    "name": "Sicalis flaveola",
+    "sciname": "Canario coronado",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28247750/medium.jpeg",
+    "place": "46280082229",
+    "cat": 1
+  },
+  {
+    "idx": 47,
+    "id": "AVE-047",
+    "name": "Canarios o Jilgueros",
+    "sciname": "Sicalis",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/102429012/medium.jpeg",
+    "place": "AV. Esperanza - KR 96H, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 48,
+    "id": "AVE-048",
+    "name": "Tricolored Munia",
+    "sciname": "Lonchura malacca",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/41187316/medium.jpg",
+    "place": "Carrera 83 7D-02, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 49,
+    "id": "AVE-049",
+    "name": "Caracara plancus",
+    "sciname": "Carancho",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/80821565/medium.jpeg",
+    "place": "46743864429",
+    "cat": 1
+  },
+  {
+    "idx": 50,
+    "id": "AVE-050",
+    "name": "Carpintero habado",
+    "sciname": "Melanerpes rubricapillus",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/605760289/medium.jpg",
+    "place": "11011, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 51,
+    "id": "AVE-051",
+    "name": "Aramus guarauna",
+    "sciname": "Carrao",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/107872383/medium.jpeg",
+    "place": "46760118",
+    "cat": 1
+  },
+  {
+    "idx": 52,
+    "id": "AVE-052",
+    "name": "Mimus gilvus",
+    "sciname": "Centzontle tropical",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28247740/medium.jpeg",
+    "place": "46294653826",
+    "cat": 1
+  },
+  {
+    "idx": 53,
+    "id": "AVE-053",
+    "name": "Centzontles",
+    "sciname": "Mimus",
+    "img": "https://static.inaturalist.org/photos/362079735/medium.jpg",
+    "place": "Carrera 72C, BogotÃ¡, BogotÃ¡, CO",
+    "cat": 1
+  },
+  {
+    "idx": 54,
+    "id": "AVE-054",
+    "name": "Blue-winged Teal",
+    "sciname": "Spatula discors",
+    "img": "https://static.inaturalist.org/photos/17142991/medium.jpeg",
+    "place": "Cra. 80f #41b Sur-1 a 41b Sur-37, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 55,
+    "id": "AVE-055",
+    "name": "Falco sparverius",
+    "sciname": "CernÃícalo americano",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/112161199/medium.jpeg",
+    "place": "46766210267",
+    "cat": 1
+  },
+  {
+    "idx": 56,
+    "id": "AVE-056",
+    "name": "Synallaxis subpudica",
+    "sciname": "chamicero cundiboyacense",
+    "img": "https://static.inaturalist.org/photos/77155379/medium.jpeg",
+    "place": "4640971",
+    "cat": 1
+  },
+  {
+    "idx": 57,
+    "id": "AVE-057",
+    "name": "Chlidonias niger",
+    "sciname": "CharrÃ¡n negro",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/193324778/medium.jpg",
+    "place": "46769762",
+    "cat": 1
+  },
+  {
+    "idx": 58,
+    "id": "AVE-058",
+    "name": "ChimachimÃ¡",
+    "sciname": "Daptrius chimachima",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/334885041/medium.jpeg",
+    "place": "Cra. 112c #12c-2 a Avenida Carrera 68, 12c, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 59,
+    "id": "AVE-059",
+    "name": "Northern Yellow Warbler",
+    "sciname": "Setophaga aestiva",
+    "img": "https://static.inaturalist.org/photos/17141267/medium.jpeg",
+    "place": "Cra. 80f #41b Sur-2 a 41b Sur-38, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 60,
+    "id": "AVE-060",
+    "name": "Setophaga striata",
+    "sciname": "Chipe Cabeza Negra",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/341535264/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 61,
+    "id": "AVE-061",
+    "name": "Setophaga castanea",
+    "sciname": "Chipe castaÃño",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/104483730/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 62,
+    "id": "AVE-062",
+    "name": "Setophaga cerulea",
+    "sciname": "Chipe Celeste",
+    "img": "https://static.inaturalist.org/photos/259222138/medium.jpeg",
+    "place": "46319101388",
+    "cat": 1
+  },
+  {
+    "idx": 63,
+    "id": "AVE-063",
+    "name": "Parkesia noveboracensis",
+    "sciname": "Chipe charquero",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/100765922/medium.jpeg",
+    "place": "4629157",
+    "cat": 1
+  },
+  {
+    "idx": 64,
+    "id": "AVE-064",
+    "name": "Cardellina canadensis",
+    "sciname": "Chipe de collar",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28647713/medium.jpeg",
+    "place": "4645174",
+    "cat": 1
+  },
+  {
+    "idx": 65,
+    "id": "AVE-065",
+    "name": "Geothlypis philadelphia",
+    "sciname": "Chipe de Pechera",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/117224741/medium.jpeg",
+    "place": "46271157",
+    "cat": 1
+  },
+  {
+    "idx": 66,
+    "id": "AVE-066",
+    "name": "Setophaga fusca",
+    "sciname": "Chipe garganta naranja",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28649943/medium.jpeg",
+    "place": "46293186343",
+    "cat": 1
+  },
+  {
+    "idx": 67,
+    "id": "AVE-067",
+    "name": "Leiothlypis peregrina",
+    "sciname": "Chipe peregrino",
+    "img": "https://static.inaturalist.org/photos/263195271/medium.jpeg",
+    "place": "46314281625",
+    "cat": 1
+  },
+  {
+    "idx": 68,
+    "id": "AVE-068",
+    "name": "Setophaga pitiayumi",
+    "sciname": "Chipe Tropical",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/86362077/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 69,
+    "id": "AVE-069",
+    "name": "Chipes",
+    "sciname": "Setophaga",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/730486836/medium.jpg",
+    "place": "Diagonal 2A, BogotÃ¡, BogotÃ¡, CO",
+    "cat": 1
+  },
+  {
+    "idx": 70,
+    "id": "AVE-070",
+    "name": "Vireo chivi",
+    "sciname": "ChivÃí ChivÃí",
+    "img": "https://static.inaturalist.org/photos/260911087/medium.jpeg",
+    "place": "46316850535",
+    "cat": 1
+  },
+  {
+    "idx": 71,
+    "id": "AVE-071",
+    "name": "Charadrius vociferus",
+    "sciname": "Chorlo tildÃío",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/422670709/medium.jpeg",
+    "place": "4657177983",
+    "cat": 1
+  },
+  {
+    "idx": 72,
+    "id": "AVE-072",
+    "name": "Chordeiles",
+    "sciname": "Chotacabras",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/602039457/medium.jpg",
+    "place": "46718485195",
+    "cat": 1
+  },
+  {
+    "idx": 73,
+    "id": "AVE-073",
+    "name": "Chotacabras zumbÃón",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/165134161/medium.jpeg",
+    "place": "Saturno, FontibÃ³n, BogotÃ¡, Bogota, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 74,
+    "id": "AVE-074",
+    "name": "colibrÃí aliazul",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/676373428/medium.jpg",
+    "place": "4618491926",
+    "cat": 1
+  },
+  {
+    "idx": 75,
+    "id": "AVE-075",
+    "name": "ColibrÃí Colilargo Mayor",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/481712500/medium.jpg",
+    "place": "46799200875",
+    "cat": 1
+  },
+  {
+    "idx": 76,
+    "id": "AVE-076",
+    "name": "ColibrÃí de Mulsant",
+    "sciname": "Chaetocercus mulsant",
+    "img": "https://static.inaturalist.org/photos/471468500/medium.jpeg",
+    "place": "Ciudad Kennedy Occidental, Antonio NariÃ±o, BogotÃ¡, Bogota, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 77,
+    "id": "AVE-077",
+    "name": "ColibrÃí picoespada",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/703800163/medium.jpg",
+    "place": "46568453771",
+    "cat": 1
+  },
+  {
+    "idx": 78,
+    "id": "AVE-078",
+    "name": "Colibri coruscans",
+    "sciname": "ColibrÃí Rutilante",
+    "img": "https://static.inaturalist.org/photos/17113330/medium.jpeg",
+    "place": "46475246359",
+    "cat": 1
+  },
+  {
+    "idx": 79,
+    "id": "AVE-079",
+    "name": "ColibrÃíes",
+    "sciname": "Trochilidae",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/70401785/medium.jpg",
+    "place": "Carrera 69D, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 80,
+    "id": "AVE-080",
+    "name": "Colibri",
+    "sciname": "ColibrÃíes oreja violeta",
+    "img": "https://static.inaturalist.org/photos/36851695/medium.jpeg",
+    "place": "4675038",
+    "cat": 1
+  },
+  {
+    "idx": 81,
+    "id": "AVE-081",
+    "name": "Grallaria ruficapilla",
+    "sciname": "ComprapÃ¡n",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/142836531/medium.jpeg",
+    "place": "46719713738",
+    "cat": 1
+  },
+  {
+    "idx": 82,
+    "id": "AVE-082",
+    "name": "Coccyzus americanus",
+    "sciname": "Cuclillo pico amarillo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6395578/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 83,
+    "id": "AVE-083",
+    "name": "Aves",
+    "sciname": "1960",
+    "img": "https://static.inaturalist.org/photos/106127904/medium.jpeg",
+    "place": "46409066667",
+    "cat": 1
+  },
+  {
+    "idx": 84,
+    "id": "AVE-084",
+    "name": "Phimosus infuscatus",
+    "sciname": "Cuervillo cara pelada",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/31149631/medium.jpeg",
+    "place": "46743864429",
+    "cat": 1
+  },
+  {
+    "idx": 85,
+    "id": "AVE-085",
+    "name": "Cranioleuca curtata",
+    "sciname": "curutiÃé cejigrÃís",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/361096496/medium.jpg",
+    "place": "467384688",
+    "cat": 1
+  },
+  {
+    "idx": 86,
+    "id": "AVE-086",
+    "name": "North American White-tailed Kite",
+    "sciname": "Elanus leucurus majusculus",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/583975065/medium.jpg",
+    "place": "Villa Nelly Iii, BogotÃ¡, BogotÃ¡, CO",
+    "cat": 1
+  },
+  {
+    "idx": 87,
+    "id": "AVE-087",
+    "name": "Falco columbarius columbarius",
+    "sciname": "esmerejÃón de la taiga",
+    "img": "https://static.inaturalist.org/photos/335767168/medium.jpeg",
+    "place": "46753555243",
+    "cat": 1
+  },
+  {
+    "idx": 88,
+    "id": "AVE-088",
+    "name": "Aves",
+    "sciname": "9487",
+    "img": "https://static.inaturalist.org/photos/61908202/medium.jpeg",
+    "place": "46418533333",
+    "cat": 1
+  },
+  {
+    "idx": 89,
+    "id": "AVE-089",
+    "name": "Aves",
+    "sciname": "16733",
+    "img": "https://static.inaturalist.org/photos/155736971/medium.jpeg",
+    "place": "46174",
+    "cat": 1
+  },
+  {
+    "idx": 90,
+    "id": "AVE-090",
+    "name": "FiofÃío silbÃón",
+    "sciname": "Elaenia albiceps",
+    "img": "https://static.inaturalist.org/photos/380590501/medium.jpeg",
+    "place": "Mandalay, Antonio NariÃ±o, BogotÃ¡, Bogota, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 91,
+    "id": "AVE-091",
+    "name": "Fulica americana columbiana",
+    "sciname": "Focha comÃún",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/302944605/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 92,
+    "id": "AVE-092",
+    "name": "Fulica americana",
+    "sciname": "Gallareta americana",
+    "img": "https://static.inaturalist.org/photos/16932433/medium.jpeg",
+    "place": "46292648",
+    "cat": 1
+  },
+  {
+    "idx": 93,
+    "id": "AVE-093",
+    "name": "Gallaretas, polluelas y pollas de agua",
+    "sciname": "Rallidae",
+    "img": "https://static.inaturalist.org/photos/153053230/medium.jpeg",
+    "place": "Humedal El Burro",
+    "cat": 1
+  },
+  {
+    "idx": 94,
+    "id": "AVE-094",
+    "name": "Common Gallinule",
+    "sciname": "Gallinula galeata",
+    "img": "https://static.inaturalist.org/photos/5186393/medium.jpeg",
+    "place": "Santaf? de Bogot?, CO-CU, CO",
+    "cat": 1
+  },
+  {
+    "idx": 95,
+    "id": "AVE-095",
+    "name": "Gallineta morada",
+    "sciname": "Porphyrio martinica",
+    "img": "https://static.inaturalist.org/photos/17119463/medium.jpeg",
+    "place": "Cra. 80f #41b Sur-2 a 41b Sur-38, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 96,
+    "id": "AVE-096",
+    "name": "Gallinetas",
+    "sciname": "Gallinula",
+    "img": "https://static.inaturalist.org/photos/192220079/medium.jpeg",
+    "place": "humedal la vaca",
+    "cat": 1
+  },
+  {
+    "idx": 97,
+    "id": "AVE-097",
+    "name": "Ganso comÃún",
+    "sciname": "Anser anser",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/569423540/medium.jpg",
+    "place": "Carrera 103A, BogotÃ¡, BogotÃ¡, CO",
+    "cat": 1
+  },
+  {
+    "idx": 98,
+    "id": "AVE-098",
+    "name": "Egretta caerulea",
+    "sciname": "Garceta azul",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/117080828/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 99,
+    "id": "AVE-099",
+    "name": "Ardea ibis",
+    "sciname": "Garcilla bueyera occidental",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/37331000/medium.jpeg",
+    "place": "4675038",
+    "cat": 1
+  },
+  {
+    "idx": 100,
+    "id": "AVE-100",
+    "name": "Green Heron",
+    "sciname": "Butorides virescens",
+    "img": "https://static.inaturalist.org/photos/60568039/medium.jpg",
+    "place": "Humedal La Vaca, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 101,
+    "id": "AVE-101",
+    "name": "Striated Heron",
+    "sciname": "Butorides striata",
+    "img": "https://static.inaturalist.org/photos/17119902/medium.jpeg",
+    "place": "Cra. 80f #41b Sur-2 a 41b Sur-38, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 102,
+    "id": "AVE-102",
+    "name": "Garrapatero mayor",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/41948585/medium.jpeg",
+    "place": "Sabanagrande, BogotÃ¡, Bogota, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 103,
+    "id": "AVE-103",
+    "name": "Garza blanca",
+    "sciname": "Ardea alba",
+    "img": "https://static.inaturalist.org/photos/40076197/medium.jpg",
+    "place": "Carrera 80A 17-75, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 104,
+    "id": "AVE-104",
+    "name": "Aves",
+    "sciname": "4940",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/255853704/medium.jpeg",
+    "place": "46443466667",
+    "cat": 1
+  },
+  {
+    "idx": 105,
+    "id": "AVE-105",
+    "name": "Nycticorax nycticorax",
+    "sciname": "Garza Nocturna Corona Negra",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/37466342/medium.jpeg",
+    "place": "46760118",
+    "cat": 1
+  },
+  {
+    "idx": 106,
+    "id": "AVE-106",
+    "name": "Garzas",
+    "sciname": "Ardeidae",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/133432980/medium.jpeg",
+    "place": "San Bernardino",
+    "cat": 1
+  },
+  {
+    "idx": 107,
+    "id": "AVE-107",
+    "name": "Ardeinae",
+    "sciname": "Garzas, garcetas, garcillas y martinetes",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/86409219/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 108,
+    "id": "AVE-108",
+    "name": "Chondrohierax uncinatus",
+    "sciname": "GavilÃ¡n Pico de Gancho",
+    "img": "https://static.inaturalist.org/photos/659819383/medium.jpg",
+    "place": "46591442186",
+    "cat": 1
+  },
+  {
+    "idx": 109,
+    "id": "AVE-109",
+    "name": "Aves",
+    "sciname": "68826",
+    "img": "https://static.inaturalist.org/photos/51249409/medium.jpeg",
+    "place": "46285733333",
+    "cat": 1
+  },
+  {
+    "idx": 110,
+    "id": "AVE-110",
+    "name": "Progne tapera",
+    "sciname": "Golondrina parda",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/91291310/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 111,
+    "id": "AVE-111",
+    "name": "Orochelidon murina",
+    "sciname": "Golondrina plomiza",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/45088394/medium.jpg",
+    "place": "46416767812",
+    "cat": 1
+  },
+  {
+    "idx": 112,
+    "id": "AVE-112",
+    "name": "Riparia riparia",
+    "sciname": "Golondrina ribereÃña",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/123837685/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 113,
+    "id": "AVE-113",
+    "name": "Petrochelidon pyrrhonota",
+    "sciname": "Golondrina risquera",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/320292995/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 114,
+    "id": "AVE-114",
+    "name": "Hirundo rustica",
+    "sciname": "Golondrina tijereta",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/91713248/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 115,
+    "id": "AVE-115",
+    "name": "Hirundinidae",
+    "sciname": "Golondrinas",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/86432367/medium.jpeg",
+    "place": "46754799913",
+    "cat": 1
+  },
+  {
+    "idx": 116,
+    "id": "AVE-116",
+    "name": "Progne",
+    "sciname": "Golondrinas o martines",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/320294290/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 117,
+    "id": "AVE-117",
+    "name": "Aves",
+    "sciname": "9869",
+    "img": "https://static.inaturalist.org/photos/415629/medium.jpg",
+    "place": "4645461",
+    "cat": 1
+  },
+  {
+    "idx": 118,
+    "id": "AVE-118",
+    "name": "Zonotrichia capensis",
+    "sciname": "GorriÃón Chingolo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6277742/medium.jpeg",
+    "place": "4629265",
+    "cat": 1
+  },
+  {
+    "idx": 119,
+    "id": "AVE-119",
+    "name": "Zonotrichia",
+    "sciname": "Gorriones y Copetones",
+    "img": "",
+    "place": "4640971",
+    "cat": 1
+  },
+  {
+    "idx": 120,
+    "id": "AVE-120",
+    "name": "Grandes garzas",
+    "sciname": "Ardea",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/192171408/medium.jpg",
+    "place": "Carrera 96F, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 121,
+    "id": "AVE-121",
+    "name": "Steatornis caripensis",
+    "sciname": "GuÃ¡charo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/143620420/medium.jpeg",
+    "place": "46566293641",
+    "cat": 1
+  },
+  {
+    "idx": 122,
+    "id": "AVE-122",
+    "name": "Guacamaya roja",
+    "sciname": "Ara macao",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/478983634/medium.jpg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 123,
+    "id": "AVE-123",
+    "name": "Falco columbarius",
+    "sciname": "HalcÃón esmerejÃón",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/104986527/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 124,
+    "id": "AVE-124",
+    "name": "Falco deiroleucus",
+    "sciname": "HalcÃón Pecho Canela",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/178837882/medium.jpeg",
+    "place": "46564249455",
+    "cat": 1
+  },
+  {
+    "idx": 125,
+    "id": "AVE-125",
+    "name": "Falco peregrinus",
+    "sciname": "HalcÃón Peregrino",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/112160847/medium.jpeg",
+    "place": "46766424129",
+    "cat": 1
+  },
+  {
+    "idx": 126,
+    "id": "AVE-126",
+    "name": "Halcones",
+    "sciname": "Falco",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/332396046/medium.jpg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 127,
+    "id": "AVE-127",
+    "name": "Zenaida Doves",
+    "sciname": "Zenaida",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/216027476/medium.jpeg",
+    "place": "BogotÃ¡, D.C. , CO-CU, CO",
+    "cat": 1
+  },
+  {
+    "idx": 128,
+    "id": "AVE-128",
+    "name": "Threskiornithidae",
+    "sciname": "Ibis y espÃ¡tulas",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/193322163/medium.jpg",
+    "place": "46769762",
+    "cat": 1
+  },
+  {
+    "idx": 129,
+    "id": "AVE-129",
+    "name": "Coeligena prunellei",
+    "sciname": "Inca Negro",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/335807086/medium.jpeg",
+    "place": "46723190833",
+    "cat": 1
+  },
+  {
+    "idx": 130,
+    "id": "AVE-130",
+    "name": "Gallito de ciÃénaga",
+    "sciname": "Jacana jacana",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/709931923/medium.jpg",
+    "place": "San Francisco, Mosquera, Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 131,
+    "id": "AVE-131",
+    "name": "Spinus psaltria",
+    "sciname": "Jilguerito Dominico",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28648034/medium.jpeg",
+    "place": "46433560857",
+    "cat": 1
+  },
+  {
+    "idx": 132,
+    "id": "AVE-132",
+    "name": "Spinus psaltria colombianus",
+    "sciname": "Jilguerito Dominico SureÃño",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28830183/medium.jpeg",
+    "place": "46293677609",
+    "cat": 1
+  },
+  {
+    "idx": 133,
+    "id": "AVE-133",
+    "name": "Spinus",
+    "sciname": "Jilgueritos",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/76958132/medium.jpeg",
+    "place": "4675915838",
+    "cat": 1
+  },
+  {
+    "idx": 134,
+    "id": "AVE-134",
+    "name": "Spinus spinescens",
+    "sciname": "Jilguero andino",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/29281306/medium.jpeg",
+    "place": "46293677609",
+    "cat": 1
+  },
+  {
+    "idx": 135,
+    "id": "AVE-135",
+    "name": "Jilguero pechinegro",
+    "sciname": "Spinus xanthogastrus",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/583975849/medium.jpg",
+    "place": "Calle 40C Sur, BogotÃ¡, BogotÃ¡, CO",
+    "cat": 1
+  },
+  {
+    "idx": 136,
+    "id": "AVE-136",
+    "name": "Tyto furcata",
+    "sciname": "lechuza comÃún americana",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/76900690/medium.jpg",
+    "place": "46753587936",
+    "cat": 1
+  },
+  {
+    "idx": 137,
+    "id": "AVE-137",
+    "name": "Oxyura ferruginea andina",
+    "sciname": "MalvasÃía colombiana",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28647341/medium.jpeg",
+    "place": "4640971",
+    "cat": 1
+  },
+  {
+    "idx": 138,
+    "id": "AVE-138",
+    "name": "Arremon assimilis",
+    "sciname": "Matorralero de cabeza listada",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/572858141/medium.jpg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 139,
+    "id": "AVE-139",
+    "name": "Metallura tyrianthina",
+    "sciname": "Metalura Tiria",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/561598335/medium.jpg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 140,
+    "id": "AVE-140",
+    "name": "Conirostrum rufum",
+    "sciname": "Mielero Rufo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/18413744/medium.jpeg",
+    "place": "46417092666",
+    "cat": 1
+  },
+  {
+    "idx": 141,
+    "id": "AVE-141",
+    "name": "Aves",
+    "sciname": "5277",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/5862274/medium.jpg",
+    "place": "4672814",
+    "cat": 1
+  },
+  {
+    "idx": 142,
+    "id": "AVE-142",
+    "name": "Ictinia mississippiensis",
+    "sciname": "Milano de Mississippi",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/320449970/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 143,
+    "id": "AVE-143",
+    "name": "Elanus",
+    "sciname": "Milanos de alas negras",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/61151014/medium.jpg",
+    "place": "46749096823",
+    "cat": 1
+  },
+  {
+    "idx": 144,
+    "id": "AVE-144",
+    "name": "Accipitridae",
+    "sciname": "Milanos, aguilillas, gavilanes y Ã¡guilas",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/89337841/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 145,
+    "id": "AVE-145",
+    "name": "Turdus fuscater",
+    "sciname": "Mirla patinaranja",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6421371/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 146,
+    "id": "AVE-146",
+    "name": "Turdus",
+    "sciname": "Mirlos",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/160762021/medium.jpeg",
+    "place": "46252502784",
+    "cat": 1
+  },
+  {
+    "idx": 147,
+    "id": "AVE-147",
+    "name": "Chrysomus icterocephalus bogotensis",
+    "sciname": "monjita bogotana",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/45088298/medium.jpg",
+    "place": "46416767812",
+    "cat": 1
+  },
+  {
+    "idx": 148,
+    "id": "AVE-148",
+    "name": "Chrysomus icterocephalus",
+    "sciname": "Monjita Cabeciamarilla",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6277979/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 149,
+    "id": "AVE-149",
+    "name": "Camptostoma obsoletum",
+    "sciname": "Mosquerito silbador",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/686762812/medium.jpg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 150,
+    "id": "AVE-150",
+    "name": "Mosquero cardenal",
+    "sciname": "Pyrocephalus rubinus",
+    "img": "https://static.inaturalist.org/photos/16805548/medium.jpeg",
+    "place": "Cra. 81c #40c Sur-21 a 40c Sur-35, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 151,
+    "id": "AVE-151",
+    "name": "Mosquero Elaenia CopetÃón",
+    "sciname": "Elaenia flavogaster",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/44754102/medium.jpg",
+    "place": "PEDH La Vaca",
+    "cat": 1
+  },
+  {
+    "idx": 152,
+    "id": "AVE-152",
+    "name": "Aves",
+    "sciname": "16721",
+    "img": "https://static.inaturalist.org/photos/50424092/medium.jpeg",
+    "place": "46765533333",
+    "cat": 1
+  },
+  {
+    "idx": 153,
+    "id": "AVE-153",
+    "name": "Mosqueros Elaenia",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/618969517/medium.jpg",
+    "place": "AV. A. MejÃ­a - CL 15A, Kennedy, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 154,
+    "id": "AVE-154",
+    "name": "Paloma DomÃéstica",
+    "sciname": "Columba livia domestica",
+    "img": "https://static.inaturalist.org/photos/16019684/medium.jpg",
+    "place": "Humedal La Vaca, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 155,
+    "id": "AVE-155",
+    "name": "Palomas del Viejo Mundo",
+    "sciname": "Columba",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/130978913/medium.jpg",
+    "place": "Transversal 87 Bis A, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 156,
+    "id": "AVE-156",
+    "name": "Columbidae",
+    "sciname": "Palomas, tortolitas y coquitas",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/90981196/medium.jpeg",
+    "place": "46663450495",
+    "cat": 1
+  },
+  {
+    "idx": 157,
+    "id": "AVE-157",
+    "name": "Columbiformes",
+    "sciname": "Palomas, tortolitas y coquitas",
+    "img": "https://static.inaturalist.org/photos/125243282/medium.jpg",
+    "place": "46217259516",
+    "cat": 1
+  },
+  {
+    "idx": 158,
+    "id": "AVE-158",
+    "name": "Zenaida auriculata",
+    "sciname": "Palomita montera",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6277734/medium.jpeg",
+    "place": "4629265",
+    "cat": 1
+  },
+  {
+    "idx": 159,
+    "id": "AVE-159",
+    "name": "Empidonax alnorum",
+    "sciname": "Papamoscas Ailero",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/434529573/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 160,
+    "id": "AVE-160",
+    "name": "Papamoscas Boreal",
+    "sciname": "Contopus cooperi",
+    "img": "https://static.inaturalist.org/photos/100390012/medium.jpg",
+    "place": "Carrera 106, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 161,
+    "id": "AVE-161",
+    "name": "Papamoscas",
+    "sciname": "Contopus",
+    "img": "https://static.inaturalist.org/photos/17142297/medium.jpeg",
+    "place": "Cra. 80f #41b Sur-2 a 41b Sur-38, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 162,
+    "id": "AVE-162",
+    "name": "Papamoscas del Este",
+    "sciname": "Contopus virens",
+    "img": "https://static.inaturalist.org/photos/5180114/medium.jpeg",
+    "place": "Carrera 86 #6d-2 a 6d-82 Bogot?",
+    "cat": 1
+  },
+  {
+    "idx": 163,
+    "id": "AVE-163",
+    "name": "Western Wood-Pewee",
+    "sciname": "Contopus sordidulus",
+    "img": "https://static.inaturalist.org/photos/54760519/medium.jpg",
+    "place": "Carrera 80D, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 164,
+    "id": "AVE-164",
+    "name": "Empidonax",
+    "sciname": "Papamoscas Empidonax",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/90250049/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 165,
+    "id": "AVE-165",
+    "name": "Myiarchus",
+    "sciname": "Papamoscas Myiarchus",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/86419016/medium.jpeg",
+    "place": "46749988",
+    "cat": 1
+  },
+  {
+    "idx": 166,
+    "id": "AVE-166",
+    "name": "Papamoscas negro",
+    "sciname": "Aves",
+    "img": "https://static.inaturalist.org/photos/58581477/medium.jpg",
+    "place": "Calle 40Bs, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 167,
+    "id": "AVE-167",
+    "name": "Myiodynastes maculatus",
+    "sciname": "Papamoscas Rayado Cheje",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/252456478/medium.jpeg",
+    "place": "4666261",
+    "cat": 1
+  },
+  {
+    "idx": 168,
+    "id": "AVE-168",
+    "name": "Myiodynastes luteiventris",
+    "sciname": "Papamoscas Rayado ComÃún",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28647894/medium.jpeg",
+    "place": "46423722699",
+    "cat": 1
+  },
+  {
+    "idx": 169,
+    "id": "AVE-169",
+    "name": "Myiodynastes",
+    "sciname": "Papamoscas Rayados",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/263155431/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 170,
+    "id": "AVE-170",
+    "name": "Empidonax traillii",
+    "sciname": "Papamoscas Saucero",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/170049449/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 171,
+    "id": "AVE-171",
+    "name": "Contopus bogotensis",
+    "sciname": "Papamoscas Tropical NorteÃño",
+    "img": "https://static.inaturalist.org/photos/688797191/medium.jpg",
+    "place": "46431653523",
+    "cat": 1
+  },
+  {
+    "idx": 172,
+    "id": "AVE-172",
+    "name": "Empidonax virescens",
+    "sciname": "Papamoscas Verdoso",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/126107768/medium.jpg",
+    "place": "46203132095",
+    "cat": 1
+  },
+  {
+    "idx": 173,
+    "id": "AVE-173",
+    "name": "Great Crested Flycatcher",
+    "sciname": "Myiarchus crinitus",
+    "img": "https://static.inaturalist.org/photos/101230015/medium.jpg",
+    "place": "Calle 40bisa Sur, BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 174,
+    "id": "AVE-174",
+    "name": "Tringa melanoleuca",
+    "sciname": "Patamarilla mayor",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/80931395/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 175,
+    "id": "AVE-175",
+    "name": "Tringa flavipes",
+    "sciname": "Patamarilla menor",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6277719/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 176,
+    "id": "AVE-176",
+    "name": "Tringa",
+    "sciname": "Patamarillas y parientes",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/91290819/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 177,
+    "id": "AVE-177",
+    "name": "Pato careto",
+    "sciname": "Dendrocygna viduata",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/334885637/medium.jpeg",
+    "place": "FontibÃ³n, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 178,
+    "id": "AVE-178",
+    "name": "Nomonyx dominicus",
+    "sciname": "Pato Enmascarado",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/378268837/medium.jpeg",
+    "place": "46424597512",
+    "cat": 1
+  },
+  {
+    "idx": 179,
+    "id": "AVE-179",
+    "name": "Anas bahamensis",
+    "sciname": "Pato gargantilla",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/263931949/medium.jpeg",
+    "place": "46442218169",
+    "cat": 1
+  },
+  {
+    "idx": 180,
+    "id": "AVE-180",
+    "name": "Cairina moschata domestica",
+    "sciname": "Pato real domÃéstico",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/228079443/medium.jpeg",
+    "place": "46217137",
+    "cat": 1
+  },
+  {
+    "idx": 181,
+    "id": "AVE-181",
+    "name": "Oxyura ferruginea",
+    "sciname": "pato zambullidor grande",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28648060/medium.jpeg",
+    "place": "4645174",
+    "cat": 1
+  },
+  {
+    "idx": 182,
+    "id": "AVE-182",
+    "name": "Anatidae",
+    "sciname": "Patos, gansos, cisnes y parientes",
+    "img": "https://static.inaturalist.org/photos/16930698/medium.jpeg",
+    "place": "46292648",
+    "cat": 1
+  },
+  {
+    "idx": 183,
+    "id": "AVE-183",
+    "name": "Penelope montagnii",
+    "sciname": "Pava Andina",
+    "img": "https://static.inaturalist.org/photos/100963464/medium.jpeg",
+    "place": "46271156819",
+    "cat": 1
+  },
+  {
+    "idx": 184,
+    "id": "AVE-184",
+    "name": "Aves",
+    "sciname": "10247",
+    "img": "https://static.inaturalist.org/photos/60598519/medium.jpeg",
+    "place": "462776",
+    "cat": 1
+  },
+  {
+    "idx": 185,
+    "id": "AVE-185",
+    "name": "Diglossa sittoides",
+    "sciname": "Payador canela",
+    "img": "https://static.inaturalist.org/photos/17113041/medium.jpeg",
+    "place": "46476048376",
+    "cat": 1
+  },
+  {
+    "idx": 186,
+    "id": "AVE-186",
+    "name": "Tyrannus melancholicus melancholicus",
+    "sciname": "Pepite",
+    "img": "https://static.inaturalist.org/photos/69230568/medium.png",
+    "place": "46391186765",
+    "cat": 1
+  },
+  {
+    "idx": 187,
+    "id": "AVE-187",
+    "name": "Forpus conspicillatus",
+    "sciname": "Perico de anteojos",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/61147541/medium.jpeg",
+    "place": "4675038",
+    "cat": 1
+  },
+  {
+    "idx": 188,
+    "id": "AVE-188",
+    "name": "Aves",
+    "sciname": "19339",
+    "img": "https://static.inaturalist.org/photos/351975257/medium.jpg",
+    "place": "46417609444",
+    "cat": 1
+  },
+  {
+    "idx": 189,
+    "id": "AVE-189",
+    "name": "Aves",
+    "sciname": "19076",
+    "img": "https://static.inaturalist.org/photos/259002412/medium.jpg",
+    "place": "46344099444",
+    "cat": 1
+  },
+  {
+    "idx": 190,
+    "id": "AVE-190",
+    "name": "Aves",
+    "sciname": "9839",
+    "img": "https://static.inaturalist.org/photos/84218241/medium.jpeg",
+    "place": "46422316667",
+    "cat": 1
+  },
+  {
+    "idx": 191,
+    "id": "AVE-191",
+    "name": "Diglossa humeralis",
+    "sciname": "Picaflor negro",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/475325208/medium.jpeg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 192,
+    "id": "AVE-192",
+    "name": "Pheucticus ludovicianus",
+    "sciname": "Picogordo Degollado",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/60867058/medium.jpeg",
+    "place": "46293677609",
+    "cat": 1
+  },
+  {
+    "idx": 193,
+    "id": "AVE-193",
+    "name": "Dendrocygna autumnalis",
+    "sciname": "Pijije Alas Blancas",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6395683/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 194,
+    "id": "AVE-194",
+    "name": "Dendrocygna bicolor",
+    "sciname": "Pijije canelo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/300867706/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 195,
+    "id": "AVE-195",
+    "name": "Mecocerculus leucophrys",
+    "sciname": "Piojito gargantilla",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/561608689/medium.jpg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 196,
+    "id": "AVE-196",
+    "name": "Catamenia analis",
+    "sciname": "Piquitodeoro chico",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/45088291/medium.jpg",
+    "place": "46416767812",
+    "cat": 1
+  },
+  {
+    "idx": 197,
+    "id": "AVE-197",
+    "name": "Piranga olivacea",
+    "sciname": "Piranga escarlata",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6395747/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 198,
+    "id": "AVE-198",
+    "name": "Piranga rubra",
+    "sciname": "Piranga roja",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6277748/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 199,
+    "id": "AVE-199",
+    "name": "Piranga",
+    "sciname": "Pirangas",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28649823/medium.jpeg",
+    "place": "4640971",
+    "cat": 1
+  },
+  {
+    "idx": 200,
+    "id": "AVE-200",
+    "name": "Actitis macularius",
+    "sciname": "Playero alzacolita",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/87058477/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 201,
+    "id": "AVE-201",
+    "name": "Calidris melanotos",
+    "sciname": "Playero Pectoral",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/102048655/medium.jpeg",
+    "place": "46750708034",
+    "cat": 1
+  },
+  {
+    "idx": 202,
+    "id": "AVE-202",
+    "name": "Tringa solitaria",
+    "sciname": "Playero Solitario",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28647754/medium.jpeg",
+    "place": "4640971",
+    "cat": 1
+  },
+  {
+    "idx": 203,
+    "id": "AVE-203",
+    "name": "Scolopacidae",
+    "sciname": "Playeros, zarapitos, picopandos, vuelvepiedras, costureros y falaropos",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/102048760/medium.jpeg",
+    "place": "46750708034",
+    "cat": 1
+  },
+  {
+    "idx": 204,
+    "id": "AVE-204",
+    "name": "Polla de agua sabanera",
+    "sciname": "Porphyriops melanops bogotensis",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6434661/medium.jpg",
+    "place": "Calle 40c Sur #80j-2 a 80j-98 BogotÃ¡",
+    "cat": 1
+  },
+  {
+    "idx": 205,
+    "id": "AVE-205",
+    "name": "Polluela sora",
+    "sciname": "Porzana carolina",
+    "img": "https://static.inaturalist.org/photos/54760573/medium.jpg",
+    "place": "BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 206,
+    "id": "AVE-206",
+    "name": "Sturnella magna",
+    "sciname": "Pradero Tortillaconchile",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/11603503/medium.jpg",
+    "place": "46760118",
+    "cat": 1
+  },
+  {
+    "idx": 207,
+    "id": "AVE-207",
+    "name": "Pardirallus maculatus",
+    "sciname": "RascÃón pinto",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/61213213/medium.jpg",
+    "place": "4675038",
+    "cat": 1
+  },
+  {
+    "idx": 208,
+    "id": "AVE-208",
+    "name": "Troglodytes",
+    "sciname": "Ratonas",
+    "img": "https://static.inaturalist.org/photos/17111435/medium.jpeg",
+    "place": "4647497902",
+    "cat": 1
+  },
+  {
+    "idx": 209,
+    "id": "AVE-209",
+    "name": "Pheucticus aureoventris",
+    "sciname": "Rey del bosque",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/470865574/medium.jpeg",
+    "place": "Cundinamarca, CO",
+    "cat": 1
+  },
+  {
+    "idx": 210,
+    "id": "AVE-210",
+    "name": "SaÃíra de antifaz",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/677502272/medium.jpg",
+    "place": "46409061702",
+    "cat": 1
+  },
+  {
+    "idx": 211,
+    "id": "AVE-211",
+    "name": "Troglodytes musculus",
+    "sciname": "Saltapared ComÃún SureÃño",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6277769/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 212,
+    "id": "AVE-212",
+    "name": "Aves",
+    "sciname": "17289",
+    "img": "https://static.inaturalist.org/photos/414609468/medium.jpg",
+    "place": "46424869722",
+    "cat": 1
+  },
+  {
+    "idx": 213,
+    "id": "AVE-213",
+    "name": "Palm Tanager",
+    "sciname": "Thraupis palmarum",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/150064441/medium.jpeg",
+    "place": "Kennedy, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 214,
+    "id": "AVE-214",
+    "name": "Cissopis leverianus",
+    "sciname": "TÃ¡ngara urraca",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/88619399/medium.jpeg",
+    "place": "46271157",
+    "cat": 1
+  },
+  {
+    "idx": 215,
+    "id": "AVE-215",
+    "name": "Tangara azulgris",
+    "sciname": "Thraupis episcopus",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/44754628/medium.jpg",
+    "place": "PEDH LA VACA",
+    "cat": 1
+  },
+  {
+    "idx": 216,
+    "id": "AVE-216",
+    "name": "Thraupidae",
+    "sciname": "Tangaras, mieleros, semilleros y parientes",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/119482412/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 217,
+    "id": "AVE-217",
+    "name": "Chuck-will's-widow",
+    "sciname": "Antrostomus carolinensis",
+    "img": "https://static.inaturalist.org/photos/62857404/medium.jpg",
+    "place": "BogotÃ¡, DC, CO",
+    "cat": 1
+  },
+  {
+    "idx": 218,
+    "id": "AVE-218",
+    "name": "TapicurÃú",
+    "sciname": "Mesembrinibis cayennensis",
+    "img": "https://static.inaturalist.org/photos/291552888/medium.jpeg",
+    "place": "Humedal Meandro del Say, BogotÃ¡ FontibÃ³n",
+    "cat": 1
+  },
+  {
+    "idx": 219,
+    "id": "AVE-219",
+    "name": "Rallus semiplumbeus",
+    "sciname": "Tingua bogotana",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/2958982/medium.jpg",
+    "place": "46500205815",
+    "cat": 1
+  },
+  {
+    "idx": 220,
+    "id": "AVE-220",
+    "name": "Porphyriops melanops",
+    "sciname": "Tingua moteada",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/244561718/medium.jpeg",
+    "place": "46742280662",
+    "cat": 1
+  },
+  {
+    "idx": 221,
+    "id": "AVE-221",
+    "name": "Tyrannus tyrannus",
+    "sciname": "Tirano dorso negro",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/11603419/medium.jpg",
+    "place": "46760118",
+    "cat": 1
+  },
+  {
+    "idx": 222,
+    "id": "AVE-222",
+    "name": "Tyrannus niveigularis",
+    "sciname": "Tirano GolinÃíveo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/579248653/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 223,
+    "id": "AVE-223",
+    "name": "Tyrannus dominicensis",
+    "sciname": "Tirano gris",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/80627842/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 224,
+    "id": "AVE-224",
+    "name": "Tirano PirirÃí",
+    "sciname": "Tyrannus melancholicus",
+    "img": "https://static.inaturalist.org/photos/16452109/medium.jpg",
+    "place": "Cl. 7a Bis #80b-1 a 80b-55, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 225,
+    "id": "AVE-225",
+    "name": "Tyrannus savana",
+    "sciname": "Tirano Tijereta Gris",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/27959531/medium.jpeg",
+    "place": "46287087201",
+    "cat": 1
+  },
+  {
+    "idx": 226,
+    "id": "AVE-226",
+    "name": "Tiranos",
+    "sciname": "Tyrannus",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/461205635/medium.jpg",
+    "place": "Calle 15, BogotÃ¡, BogotÃ¡, CO",
+    "cat": 1
+  },
+  {
+    "idx": 227,
+    "id": "AVE-227",
+    "name": "Tyrannidae",
+    "sciname": "tiranos, papamoscas y parientes",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6395710/medium.jpeg",
+    "place": "4641913",
+    "cat": 1
+  },
+  {
+    "idx": 228,
+    "id": "AVE-228",
+    "name": "Serpophaga cinerea",
+    "sciname": "Tiranuelo saltarroyo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/275827892/medium.jpg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 229,
+    "id": "AVE-229",
+    "name": "Molothrus bonariensis",
+    "sciname": "Tordo Sudamericano",
+    "img": "https://static.inaturalist.org/photos/16931351/medium.jpeg",
+    "place": "46292648",
+    "cat": 1
+  },
+  {
+    "idx": 230,
+    "id": "AVE-230",
+    "name": "Molothrus",
+    "sciname": "Tordos",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/126107805/medium.jpg",
+    "place": "4620294099",
+    "cat": 1
+  },
+  {
+    "idx": 231,
+    "id": "AVE-231",
+    "name": "Tucancito Esmeralda",
+    "sciname": "Aves",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/253138747/medium.jpg",
+    "place": "46577441951",
+    "cat": 1
+  },
+  {
+    "idx": 232,
+    "id": "AVE-232",
+    "name": "Tuquito gris",
+    "sciname": "Empidonomus aurantioatrocristatus",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/55851600/medium.jpeg",
+    "place": "Pio XII, Bogota, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 233,
+    "id": "AVE-233",
+    "name": "Empidonomus varius",
+    "sciname": "Tuquito rayado",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/88027697/medium.jpeg",
+    "place": "46794927514",
+    "cat": 1
+  },
+  {
+    "idx": 234,
+    "id": "AVE-234",
+    "name": "Icterus icterus",
+    "sciname": "Turpial",
+    "img": "https://static.inaturalist.org/photos/31284953/medium.jpeg",
+    "place": "46212337903",
+    "cat": 1
+  },
+  {
+    "idx": 235,
+    "id": "AVE-235",
+    "name": "Gymnomystax mexicanus",
+    "sciname": "Turpial lagunero",
+    "img": "https://static.inaturalist.org/photos/16932113/medium.jpeg",
+    "place": "46292648",
+    "cat": 1
+  },
+  {
+    "idx": 236,
+    "id": "AVE-236",
+    "name": "Aves",
+    "sciname": "Streptoprocne zonaris",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/132996057/medium.jpeg",
+    "place": "Cra. 105b #69a Sur-1 a 69a Sur-55, BogotÃ¡, Colombia",
+    "cat": 1
+  },
+  {
+    "idx": 237,
+    "id": "AVE-237",
+    "name": "Vireo olivaceus",
+    "sciname": "Vireo Ojos Rojos",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/86418551/medium.jpg",
+    "place": "46749988",
+    "cat": 1
+  },
+  {
+    "idx": 238,
+    "id": "AVE-238",
+    "name": "Vireo verdeamarillo",
+    "sciname": "Vireo flavoviridis",
+    "img": "https://static.inaturalist.org/photos/121364171/medium.jpeg",
+    "place": "Parque Aloha",
+    "cat": 1
+  },
+  {
+    "idx": 239,
+    "id": "AVE-239",
+    "name": "Aves",
+    "sciname": "17355",
+    "img": "https://static.inaturalist.org/photos/51249966/medium.jpeg",
+    "place": "463003",
+    "cat": 1
+  },
+  {
+    "idx": 240,
+    "id": "AVE-240",
+    "name": "Podilymbus podiceps",
+    "sciname": "Zambullidor pico grueso",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/155037890/medium.jpeg",
+    "place": "46427512307",
+    "cat": 1
+  },
+  {
+    "idx": 241,
+    "id": "AVE-241",
+    "name": "Quiscalus lugubris",
+    "sciname": "Zanate caribeÃño",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28647360/medium.jpeg",
+    "place": "4645174",
+    "cat": 1
+  },
+  {
+    "idx": 242,
+    "id": "AVE-242",
+    "name": "Quiscalus",
+    "sciname": "Zanates",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/101272492/medium.jpeg",
+    "place": "46279508814",
+    "cat": 1
+  },
+  {
+    "idx": 243,
+    "id": "AVE-243",
+    "name": "Coragyps atratus",
+    "sciname": "Zopilote comÃún",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/37420938/medium.jpeg",
+    "place": "46760118",
+    "cat": 1
+  },
+  {
+    "idx": 244,
+    "id": "AVE-244",
+    "name": "Aves",
+    "sciname": "4761",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/84462992/medium.jpg",
+    "place": "4675705",
+    "cat": 1
+  },
+  {
+    "idx": 245,
+    "id": "AVE-245",
+    "name": "Cathartes",
+    "sciname": "Zopilotes",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/457553370/medium.jpeg",
+    "place": "46749827603",
+    "cat": 1
+  },
+  {
+    "idx": 246,
+    "id": "AVE-246",
+    "name": "Catharus fuscescens",
+    "sciname": "Zorzal Canelo",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/100765272/medium.jpeg",
+    "place": "4629157",
+    "cat": 1
+  },
+  {
+    "idx": 247,
+    "id": "AVE-247",
+    "name": "Catharus ustulatus",
+    "sciname": "Zorzal de Anteojos",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/6395647/medium.jpeg",
+    "place": "4629265",
+    "cat": 1
+  },
+  {
+    "idx": 248,
+    "id": "AVE-248",
+    "name": "Catharus",
+    "sciname": "Zorzales",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/113281446/medium.jpeg",
+    "place": "46479286552",
+    "cat": 1
+  }
+]

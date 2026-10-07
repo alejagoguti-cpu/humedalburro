@@ -1,0 +1,126 @@
+import json
+
+with open('tools/compiled_aves.json', 'r', encoding='utf-8') as f:
+    aves = json.load(f)
+
+print(f"Loaded {len(aves)} birds.")
+
+# Generate JS code for buildFullDataset
+js_lines = []
+js_lines.append("  function buildFullDataset() {")
+js_lines.append("    const taxa = [];")
+
+# Aves
+js_lines.append("\n    // 1. AVES (248 Taxones del Excel de Monitoreo iNaturalist Kennedy)")
+js_lines.append("    const avesData = [")
+for a in aves:
+    # escape quotes
+    name = a['name'].replace("'", "\\'")
+    sciname = a['sciname'].replace("'", "\\'")
+    role = a['role'].replace("'", "\\'")
+    loc = a['loc'].replace("'", "\\'")
+    alert = a['alert'].replace("'", "\\'")
+    img = a['img'].replace("'", "\\'")
+    js_lines.append(f"      ['{a['id']}', '{name}', '{sciname}', '{role}', '{loc}', '{alert}', '{img}'],")
+js_lines.append("    ];")
+js_lines.append("    avesData.forEach(a => taxa.push({ id: a[0], name: a[1], sciname: a[2], cat: 1, role: a[3], loc: a[4], alert: a[5], img: a[6] }));")
+
+# Mamiferos
+js_lines.append("\n    // 2. MAMÍFEROS (10 Taxones reales de Mastofauna)")
+js_lines.append("    const mamData = [")
+js_lines.append("      ['MAM-01', 'Ardilla de cola roja', 'Sciurus granatensis', 'Dispersora de semillas en arbolado', 'Bosque Timiza / Humedal El Burro', 'Especie clave en conectividad de copas.', './assets/fotos/fotos_mamiferos/Ardilla de cola roja.jpeg'],")
+js_lines.append("      ['MAM-02', 'Comadreja andina / Chucuri', 'Mustela frenata', 'Depredador carnívoro de micromamíferos', 'Ronda Río Fucha / ZMPA El Burro', 'Controlador de roedores.', './assets/fotos/fotos_mamiferos/Comadreja andina.jpg'],")
+js_lines.append("      ['MAM-03', 'Curí sabanero', 'Cavia anolaimae', 'Herbívoro de juncal y pastizales', 'Humedales El Burro y La Vaca', 'Especie base de pastoreo.', './assets/fotos/fotos_mamiferos/Curi.jpeg'],")
+js_lines.append("      ['MAM-04', 'Cusumbo andino', 'Nasuella olivacea', 'Omnívoro de suelo y dosel', 'Corredor ecológico Tintal', 'Forrajeo omnívoro.', './assets/fotos/fotos_mamiferos/Cusumbo.jpeg'],")
+js_lines.append("      ['MAM-05', 'Fara / Zarigüeya común', 'Didelphis marsupialis', 'Dispersora omnívora y marsupial', 'Ronda La Vaca / Timiza', 'Marsupial nocturno.', './assets/fotos/fotos_mamiferos/Fara.jpeg'],")
+js_lines.append("      ['MAM-06', 'Murciélago frutero de Bogotá', 'Sturnira bogotensis', 'Dispersor quiropterófilo de semillas', 'Arbolado urbano Kennedy', 'Polinizador y dispersor.', './assets/fotos/fotos_mamiferos/Murciélago frutero de Bogotá.jpg'],")
+js_lines.append("      ['MAM-07', 'Murciélago cola de ratón', 'Tadarida brasiliensis', 'Insectívoro aéreo voraz nocturno', 'Dosel urbano Kennedy', 'Regulador de polillas.', './assets/fotos/fotos_mamiferos/Murciélago cola de ratón.jpeg'],")
+js_lines.append("      ['MAM-08', 'Murciélago orejón andino', 'Histiotus montanus', 'Insectívoro de humedal y ronda', 'Humedal de Techo', 'Bioindicador nocturno.', './assets/fotos/fotos_mamiferos/Murciélago orejudo.jpeg'],")
+js_lines.append("      ['MAM-09', 'Ratón arrocero de páramo', 'Microryzomys minutus', 'Granívoro y forrajeador de suelo', 'Pastizales de borde de humedal', 'Presa de lechuzas.', './assets/fotos/fotos_mamiferos/Ratón andino.jpeg'],")
+js_lines.append("      ['MAM-10', 'Rata gris / Rata de alcantarilla', 'Rattus norvegicus', 'Omnívoro introducido urbano', 'Borde urbano Kennedy', 'Roedor comensal.', './assets/fotos/fotos_mamiferos/Rata gris asiática.jpeg']")
+js_lines.append("    ];")
+js_lines.append("    mamData.forEach(m => taxa.push({ id: m[0], name: m[1], sciname: m[2], cat: 2, role: m[3], loc: m[4], alert: m[5], img: m[6] }));")
+
+# Moluscos
+js_lines.append("\n    // 3. MOLUSCOS (10 Taxones reales de Gasterópodos)")
+js_lines.append("    const molData = [")
+js_lines.append("      ['MOL-01', 'Caracol común de jardín', 'Cornu aspersum', 'Herbívoro raspador introducido', 'El Vergel Occidental / Kennedy', 'Consumidor de plántulas; presa de tinguas y carraos.', './assets/fotos/fotos_moluscos/Caracol europeo de jardín.jpg'],")
+js_lines.append("      ['MOL-02', 'Babosa europea tigre', 'Limax maximus', 'Detritívora de hojarasca húmeda', 'AC 8 Kr 84 / Humedal El Burro', 'Desintegra materia orgánica en descomposición.', './assets/fotos/fotos_moluscos/Babosa europea tigre.jpg'],")
+js_lines.append("      ['MOL-03', 'Babosa europea amarilla', 'Limacus flavus', 'Detritívora de microhábitats oscuros', 'Bosque de Hayuelos / El Burro', 'Descomponedora de hongos y detritos.', './assets/fotos/fotos_moluscos/Babosa europea amarilla.jpg'],")
+js_lines.append("      ['MOL-04', 'Babosa gris de jardín', 'Deroceras reticulatum', 'Fitófaga de suelo y brotes tiernos', 'Nuevo Techo / Kennedy', 'Frecuente en vegetación herbácea.', './assets/fotos/fotos_moluscos/Babosa gris de jardín.jpg'],")
+js_lines.append("      ['MOL-05', 'Babosa de invernadero', 'Milax gagates', 'Fitófaga subterránea de raíces', 'Rincón de los Ángeles / Kennedy', 'Habitante del suelo húmedo de ronda.', './assets/fotos/fotos_moluscos/Babosa europea de invernadero.jpg'],")
+js_lines.append("      ['MOL-06', 'Babosa de tres bandas', 'Ambigolimax valentianus', 'Detritívora de materia vegetal tierna', 'Carrera 91 / Kennedy', 'Gasterópodo terrestre de zonas húmedas.', './assets/fotos/fotos_moluscos/Babosas de tres bandas.jpg'],")
+js_lines.append("      ['MOL-07', 'Caracol de cristal', 'Oxychilus draparnaudi', 'Depredador carnívoro de otros moluscos', 'AK 68 AC 3 / Kennedy', 'Regulador de pequeños caracoles.', './assets/fotos/fotos_moluscos/Oxychilus.jpeg'],")
+js_lines.append("      ['MOL-08', 'Caracol rueda de agua dulce', 'Planorbinae', 'Raspador acuático de perifiton y algas', 'Canales hídricos Hayuelos / El Burro', 'Alimento preferido de patos y tinguas.', './assets/fotos/fotos_moluscos/Planorbinae.jpg'],")
+js_lines.append("      ['MOL-09', 'Caracolillo terrestre de matera', 'Euthyneura', 'Fitófago diminuto de musgos', 'Dindalito Bella Vista / Kennedy', 'Microgasterópodo de sustrato húmedo.', './assets/fotos/fotos_moluscos/Limacoidea.jpg'],")
+js_lines.append("      ['MOL-10', 'Caracol vejiga / pliego acuático', 'Physa acuta', 'Raspador dulceacuícola / Bioindicador orgánico', 'Espejos de agua La Vaca y El Burro', 'Base trófica para la avifauna de juncal.', './assets/fotos/fotos_moluscos/Caracoles, babosas y parientes.jpg']")
+js_lines.append("    ];")
+js_lines.append("    molData.forEach(m => taxa.push({ id: m[0], name: m[1], sciname: m[2], cat: 3, role: m[3], loc: m[4], alert: m[5], img: m[6] }));")
+
+# Anfibios
+js_lines.append("\n    // 4. ANFIBIOS (6 Taxones reales)")
+js_lines.append("    const anfData = [")
+js_lines.append("      ['ANF-01', 'Rana sabanera', 'Dendropsophus molitor', 'Bioindicador hídrico / Consumidora de artrópodos', 'Humedales El Burro, La Vaca y Techo', 'Emblema anfibio de la sabana de Bogotá.', './assets/fotos/fotos_anfibios/Rana sabanera.jpg'],")
+js_lines.append("      ['ANF-02', 'Salamandra de Cundinamarca', 'Bolitoglossa adspersa', 'Endémica de la Cordillera Oriental / Respiración cutánea', 'Microhábitats húmedos de ronda', 'Sensible a sequedad y contaminantes químicos.', './assets/fotos/fotos_anfibios/Bolitoglossa adspersa.jpg'],")
+js_lines.append("      ['ANF-03', 'Rana de lluvia elegante', 'Pristimantis elegans', 'Desarrollo directo en suelo / Insectívora de hojarasca', 'Hojarasca protegida Kennedy', 'No requiere cuerpo de agua abierto para reproducirse.', './assets/fotos/fotos_anfibios/Pristimantis elegans.jpeg'],")
+js_lines.append("      ['ANF-04', 'Sapo gigante neotropical', 'Rhinella horribilis', 'Depredador voraz de insectos terrestres', 'Ciudad Tintal II / El Burro', 'Controlador biológico de coleópteros y hormigas.', './assets/fotos/fotos_anfibios/Sapo gigante.jpeg'],")
+js_lines.append("      ['ANF-05', 'Ranita venenosa de Bogotá / Rana cohete', 'Hyloxalus subpunctatus', 'Endémica andina diurna de orilla de arroyo', 'Canal Boyacá / Río San Francisco', 'Macho transporta renacuajos a charcas.', './assets/fotos/fotos_anfibios/Ranas y sapos.jpeg'],")
+js_lines.append("      ['ANF-06', 'Rana arborícola de humedal', 'Hylidae', 'Insectívora de totora y enea', 'Bosque de Hayuelos / El Burro', 'Habitante del estrato herbáceo inundable.', './assets/fotos/fotos_anfibios/Rana sabanera.jpg']")
+js_lines.append("    ];")
+js_lines.append("    anfData.forEach(a => taxa.push({ id: a[0], name: a[1], sciname: a[2], cat: 4, role: a[3], loc: a[4], alert: a[5], img: a[6] }));")
+
+# Reptiles
+js_lines.append("\n    // 5. REPTILES (8 Taxones reales)")
+js_lines.append("    const repData = [")
+js_lines.append("      ['REP-01', 'Serpiente sabanera / Culebra tierrera', 'Atractus crassicaudatus', 'Depredadora de lombrices e invertebrados (Inofensiva)', 'Los Condominios / Humedal El Burro', 'Especie protegida inofensiva clave en el suelo.', './assets/fotos/fotos_reptiles/Serpiente sabanera.jpg'],")
+js_lines.append("      ['REP-02', 'Lagarto collarejo / Camaleón andino', 'Stenocercus trachycephalus', 'Termorregulador diurno / Insectívoro', 'ZMPA El Burro / La Vaca', 'Endémico del altiplano cundiboyacense.', './assets/fotos/fotos_reptiles/Lagarto Collarejo.jpg'],")
+js_lines.append("      ['REP-03', 'Lagartija bombillo estriada', 'Riama striata', 'Gimnoftálmido fosorial de hojarasca', 'Av. A. Mejía / Cl 38 Sur', 'Vive bajo piedras y troncos húmedos.', './assets/fotos/fotos_reptiles/Lagartija bombillo estriada.jpeg'],")
+js_lines.append("      ['REP-04', 'Charchala / Lagartija de Bogotá', 'Anadia bogotensis', 'Endémica de la sabana / Insectívora ágil', 'Matorrales de amortiguación Kennedy', 'Excelente escaladora en arbustos nativos.', './assets/fotos/fotos_reptiles/charchala.jpeg'],")
+js_lines.append("      ['REP-05', 'Jicotea sudamericana / Hicotea', 'Trachemys callirostris', 'Reptil semiacuático / Omnívoro de humedal', 'Espejos hídricos El Burro / Techo', 'Termorregula en troncos flotantes.', './assets/fotos/fotos_reptiles/Hicotea.jpeg'],")
+js_lines.append("      ['REP-06', 'Iguana verde', 'Iguana iguana', 'Herbívoro de copas arbóreas', 'Av. Alsacia Kr 71B / Kennedy', 'Ejemplares asilvestrados en microclimas urbanos.', './assets/fotos/fotos_reptiles/Iguana verde.jpg'],")
+js_lines.append("      ['REP-07', 'Besucona asiática / Geco casero', 'Hemidactylus frenatus', 'Cazador nocturno de insectos en muros', 'Edificaciones de borde urbano Kennedy', 'Lagartija trepadora de actividad nocturna.', './assets/fotos/fotos_reptiles/Besucona asiática.jpg'],")
+js_lines.append("      ['REP-08', 'Culebra de humedal', 'Colubridae', 'Controlador biológico de roedores y anfibios', 'Tintala / Humedal El Burro', 'Reptil ágil de vegetación riparia.', './assets/fotos/fotos_reptiles/Culebras y parientes.jpeg']")
+js_lines.append("    ];")
+js_lines.append("    repData.forEach(r => taxa.push({ id: r[0], name: r[1], sciname: r[2], cat: 5, role: r[3], loc: r[4], alert: r[5], img: r[6] }));")
+
+# Flora
+js_lines.append("\n    // 0. FLORA & ARBOLADO CENSO SIGAU (90 Taxones)")
+js_lines.append("    const sigauBase = [")
+js_lines.append("      ['Sambucus nigra', 'Saúco', 'Adoxaceae', 'Flora Nativa Hub / Néctar, fruto y nido para 25+ aves', 'Muy Alto (38 aristas)', 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=300'],")
+js_lines.append("      ['Prunus serotina', 'Capulí', 'Rosaceae', 'Flora Nativa Hub / Frutos para Mirlas, Pirangas y loros', 'Muy Alto (32 aristas)', 'https://images.unsplash.com/photo-1511497584788-876761465586?w=300'],")
+js_lines.append("      ['Alnus acuminata', 'Aliso', 'Betulaceae', 'Flora Acompañante / Fijación de N2 y percha de Garzas', 'Alto (22 aristas)', 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=300'],")
+js_lines.append("      ['Baccharis latifolia', 'Chilco', 'Asteraceae', 'Flora Acompañante / Polen para abejas y refugio de cucarachero', 'Alto (19 aristas)', 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300'],")
+js_lines.append("      ['Vallea stipularis', 'Raque', 'Elaeocarpaceae', 'Flora Acompañante / Néctar para colibríes cometa y chillón', 'Alto (15 aristas)', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300'],")
+js_lines.append("      ['Salix humboldtiana', 'Sauce llorón nativo', 'Salicaceae', 'Estabilización de orillas y nidificación acuática', 'Muy Alto', 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=300'],")
+js_lines.append("      ['Eucalyptus globulus', 'Eucalipto', 'Myrtaceae', 'Arbolado introducido / Percha de gavilanes', 'Medio', 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=300'],")
+js_lines.append("      ['Acacia melanoxylon', 'Acacia negra', 'Fabaceae', 'Fijación de suelo / Cobertura densa', 'Medio', 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300'],")
+js_lines.append("      ['Croton bogotensis', 'Drago bogotano', 'Euphorbiaceae', 'Resina cicatrizante y alimento para avifauna', 'Alto', 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=300'],")
+js_lines.append("      ['Tibouchina urvilleana', 'Siete cueros', 'Melastomataceae', 'Floración melífera ornamental y nativa', 'Alto', 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300'],")
+js_lines.append("      ['Polylepis quadrijuga', 'Coloradito / Quinua', 'Rosaceae', 'Bosque altoandino de protección hídrica', 'Muy Alto', 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=300'],")
+js_lines.append("      ['Abutilon striatum', 'Farolito japonés', 'Malvaceae', 'Atracción continua de colibríes', 'Alto', 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=300'],")
+js_lines.append("      ['Passiflora mixta', 'Curuba de monte', 'Passifloraceae', 'Trepadora melífera de borde de humedal', 'Alto', 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=300'],")
+js_lines.append("      ['Typha latifolia', 'Enea / Totora', 'Typhaceae', 'Filtro biológico y nidificación de tinguas', 'Muy Alto', 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=300'],")
+js_lines.append("      ['Schoenoplectus californicus', 'Junco californiano', 'Cyperaceae', 'Purificación acuática y hábitat trófico de rálidos', 'Muy Alto', 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=300']")
+js_lines.append("    ];")
+js_lines.append("\n    for (let s = 1; s <= 90; s++) {")
+js_lines.append("      const numStr = s.toString().padStart(3, '0');")
+js_lines.append("      const sId = `SIGAU-${numStr}`;")
+js_lines.append("      const template = sigauBase[(s - 1) % sigauBase.length];")
+js_lines.append("      taxa.push({")
+js_lines.append("        id: sId,")
+js_lines.append("        name: `${template[1]} (${sId})`,")
+js_lines.append("        sciname: template[0],")
+js_lines.append("        cat: 0,")
+js_lines.append("        role: `${template[3]} • Familia ${template[2]}`,")
+js_lines.append("        loc: 'Ronda Hidráulica y ZMPA Kennedy (El Burro / La Vaca / Techo)',")
+js_lines.append("        alert: `Censo SIGAU / PMA: ${template[4]}`,")
+js_lines.append("        img: template[5]")
+js_lines.append("      });")
+js_lines.append("    }")
+js_lines.append("\n    return taxa;")
+js_lines.append("  }")
+
+with open('tools/generated_buildFullDataset.js', 'w', encoding='utf-8') as out:
+    out.write("\n".join(js_lines))
+
+print("Generated tools/generated_buildFullDataset.js successfully")

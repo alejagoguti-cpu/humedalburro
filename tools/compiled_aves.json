@@ -1,0 +1,2482 @@
+[
+  {
+    "id": "AVE-001",
+    "name": "Turdus fuscater gigas",
+    "sciname": "Turdus fuscater gigas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Turdus fuscater gigas.jpeg"
+  },
+  {
+    "id": "AVE-002",
+    "name": "Zenaida auriculata pentheria",
+    "sciname": "Zenaida auriculata pentheria",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zenaida auriculata pentheria.png"
+  },
+  {
+    "id": "AVE-003",
+    "name": "Thraupis palmarum atripennis",
+    "sciname": "Thraupis palmarum atripennis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/69262665/medium.png"
+  },
+  {
+    "id": "AVE-004",
+    "name": "Zonotrichia capensis costaricensis",
+    "sciname": "Zonotrichia capensis costaricensis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zonotrichia capensis costaricensis.png"
+  },
+  {
+    "id": "AVE-005",
+    "name": "Troglodytes musculus columbae",
+    "sciname": "Troglodytes musculus columbae",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Troglodytes musculus columbae.png"
+  },
+  {
+    "id": "AVE-006",
+    "name": "Sicalis luteola bogotensis",
+    "sciname": "Sicalis luteola bogotensis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Sicalis luteola bogotensis.jpeg"
+  },
+  {
+    "id": "AVE-007",
+    "name": "Stelgidopteryx ruficollis uropygialis",
+    "sciname": "Stelgidopteryx ruficollis uropygialis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Stelgidopteryx ruficollis uropygialis.jpg"
+  },
+  {
+    "id": "AVE-008",
+    "name": "Vanellus chilensis cayennensis",
+    "sciname": "Vanellus chilensis cayennensis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Universidad Distrital Francisco JosÃ© De Caldas - Sede Bosa El Porvenir",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Vanellus chilensis cayennensis.jpeg"
+  },
+  {
+    "id": "AVE-009",
+    "name": "Asio stygius robustus",
+    "sciname": "Asio stygius robustus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Asio stygius robustus.jpg"
+  },
+  {
+    "id": "AVE-010",
+    "name": "Geranoaetus melanoleucus australis",
+    "sciname": "Geranoaetus melanoleucus australis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Urb. La Estancia, FontibÃ³n, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/705103444/medium.jpg"
+  },
+  {
+    "id": "AVE-011",
+    "name": "Geranoaetus",
+    "sciname": "ÃÁguilas y Aguiluchos",
+    "cat": 1,
+    "role": "Depredador tope / Control biológico de roedores y reptiles",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Águilas y Aguiluchos.jpeg"
+  },
+  {
+    "id": "AVE-012",
+    "name": "Anas platyrhynchos domesticus",
+    "sciname": "ÃÁnade azulÃón domÃéstico",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28247708/medium.jpeg"
+  },
+  {
+    "id": "AVE-013",
+    "name": "Ganso cisne domÃéstico",
+    "sciname": "Anser cygnoides domesticus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Mundo Aventura, BogotÃ¡, BogotÃ¡, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/506023235/medium.jpg"
+  },
+  {
+    "id": "AVE-014",
+    "name": "Gallinago delicata",
+    "sciname": "Agachona Norteamericana",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Agachona Norteamericana.jpeg"
+  },
+  {
+    "id": "AVE-015",
+    "name": "Buteo platypterus",
+    "sciname": "Aguililla Alas Anchas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aguililla Alas Anchas.jpeg"
+  },
+  {
+    "id": "AVE-016",
+    "name": "Aguililla caminera",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aguililla caminera.jpeg"
+  },
+  {
+    "id": "AVE-017",
+    "name": "Geranoaetus albicaudatus",
+    "sciname": "Aguililla cola blanca",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aguililla cola blanca.jpg"
+  },
+  {
+    "id": "AVE-018",
+    "name": "Buteo brachyurus",
+    "sciname": "Aguililla cola corta",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aguililla cola corta.jpeg"
+  },
+  {
+    "id": "AVE-019",
+    "name": "Buteo",
+    "sciname": "Aguilillas y parientes",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aguilillas y parientes.jpeg"
+  },
+  {
+    "id": "AVE-020",
+    "name": "Phaetusa simplex",
+    "sciname": "AtÃí",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/303533503/medium.jpg"
+  },
+  {
+    "id": "AVE-021",
+    "name": "Systellura longirostris",
+    "sciname": "Atajacaminos ÃñaÃñarca",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/420734/medium.jpg"
+  },
+  {
+    "id": "AVE-022",
+    "name": "Atlapetes pallidinucha",
+    "sciname": "atlapetes cabecipÃ¡lido",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28648187/medium.jpeg"
+  },
+  {
+    "id": "AVE-023",
+    "name": "Megascops choliba",
+    "sciname": "Autillo comÃún",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/84447821/medium.jpeg"
+  },
+  {
+    "id": "AVE-024",
+    "name": "Vanellus chilensis",
+    "sciname": "AvefrÃía Tero",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Vanellus chilensis cayennensis.jpeg"
+  },
+  {
+    "id": "AVE-025",
+    "name": "Aves",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-026",
+    "name": "Passeriformes",
+    "sciname": "Aves de percha",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-027",
+    "name": "Elanus leucurus leucurus",
+    "sciname": "BailarÃín",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/29281312/medium.jpeg"
+  },
+  {
+    "id": "AVE-028",
+    "name": "Asio flammeus bogotensis",
+    "sciname": "BÃúho Campestre de los Andes Ecuatoriales",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/31149636/medium.jpeg"
+  },
+  {
+    "id": "AVE-029",
+    "name": "BÃúho Cara Blanca",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Kr 79 - Cl 10D - 59, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/40563582/medium.jpeg"
+  },
+  {
+    "id": "AVE-030",
+    "name": "Bubo virginianus",
+    "sciname": "BÃúho cornudo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/86248675/medium.jpeg"
+  },
+  {
+    "id": "AVE-031",
+    "name": "Asio flammeus",
+    "sciname": "BÃúho Sabanero",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/84548198/medium.jpeg"
+  },
+  {
+    "id": "AVE-032",
+    "name": "Asio",
+    "sciname": "BÃúhos orejones",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Asio stygius robustus.jpg"
+  },
+  {
+    "id": "AVE-033",
+    "name": "BÃúhos y tecolotes",
+    "sciname": "Strigidae",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/452910772/medium.jpeg"
+  },
+  {
+    "id": "AVE-034",
+    "name": "Strigiformes",
+    "sciname": "BÃúhos, lechuzas y tecolotes",
+    "cat": 1,
+    "role": "Depredador tope / Control biológico de roedores y reptiles",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/87058787/medium.jpeg"
+  },
+  {
+    "id": "AVE-035",
+    "name": "Heliodoxa jacula",
+    "sciname": "Brillante Coroniverde",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Brillante Coroniverde.jpg"
+  },
+  {
+    "id": "AVE-036",
+    "name": "Contopus fumigatus",
+    "sciname": "Burlisto copetÃón",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/251178470/medium.jpeg"
+  },
+  {
+    "id": "AVE-037",
+    "name": "Burrito pico rojo",
+    "sciname": "Mustelirallus erythrops",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Transversal 81, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Burrito pico rojo.jpg"
+  },
+  {
+    "id": "AVE-038",
+    "name": "Buteo platypterus platypterus",
+    "sciname": "Busardo aliancho continental",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Busardo aliancho continental.jpeg"
+  },
+  {
+    "id": "AVE-039",
+    "name": "Buteonine Hawks, Kites, and allies",
+    "sciname": "Buteoninae",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Calle 6D, BogotÃ¡, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/285661203/medium.jpg"
+  },
+  {
+    "id": "AVE-040",
+    "name": "caica de pÃ¡ramo",
+    "sciname": "Gallinago nobilis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/37745697/medium.jpg"
+  },
+  {
+    "id": "AVE-041",
+    "name": "Icterus galbula",
+    "sciname": "Calandria de Baltimore",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Calandria de Baltimore.jpeg"
+  },
+  {
+    "id": "AVE-042",
+    "name": "Icterus chrysater",
+    "sciname": "Calandria Dorso Amarillo",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Calandria Dorso Amarillo.jpeg"
+  },
+  {
+    "id": "AVE-043",
+    "name": "Icteridae",
+    "sciname": "Calandrias, tordos, caciques, oropÃéndolas, zanates, praderos y parientes",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tordos.jpg"
+  },
+  {
+    "id": "AVE-044",
+    "name": "Calzadito Cobrizo",
+    "sciname": "Eriocnemis cupreoventris",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Calzadito Cobrizo.jpeg"
+  },
+  {
+    "id": "AVE-045",
+    "name": "Eriocnemis vestita",
+    "sciname": "Calzadito Reluciente",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Calzadito Reluciente.jpg"
+  },
+  {
+    "id": "AVE-046",
+    "name": "Sicalis flaveola",
+    "sciname": "Canario coronado",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Canario coronado.jpeg"
+  },
+  {
+    "id": "AVE-047",
+    "name": "Canarios o Jilgueros",
+    "sciname": "Sicalis",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "AV. Esperanza - KR 96H, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Canarios o Jilgueros.jpeg"
+  },
+  {
+    "id": "AVE-048",
+    "name": "Tricolored Munia",
+    "sciname": "Lonchura malacca",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Carrera 83 7D-02, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/41187316/medium.jpg"
+  },
+  {
+    "id": "AVE-049",
+    "name": "Caracara plancus",
+    "sciname": "Carancho",
+    "cat": 1,
+    "role": "Depredador tope / Control biológico de roedores y reptiles",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Carancho.jpeg"
+  },
+  {
+    "id": "AVE-050",
+    "name": "Carpintero habado",
+    "sciname": "Melanerpes rubricapillus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "11011, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Carpintero habado.jpg"
+  },
+  {
+    "id": "AVE-051",
+    "name": "Aramus guarauna",
+    "sciname": "Carrao",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Carrao.jpeg"
+  },
+  {
+    "id": "AVE-052",
+    "name": "Mimus gilvus",
+    "sciname": "Centzontle tropical",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Centzontle tropical.jpeg"
+  },
+  {
+    "id": "AVE-053",
+    "name": "Centzontles",
+    "sciname": "Mimus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Carrera 72C, BogotÃ¡, BogotÃ¡, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Centzontles.jpg"
+  },
+  {
+    "id": "AVE-054",
+    "name": "Blue-winged Teal",
+    "sciname": "Spatula discors",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cra. 80f #41b Sur-1 a 41b Sur-37, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/17142991/medium.jpeg"
+  },
+  {
+    "id": "AVE-055",
+    "name": "Falco sparverius",
+    "sciname": "CernÃícalo americano",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/112161199/medium.jpeg"
+  },
+  {
+    "id": "AVE-056",
+    "name": "Synallaxis subpudica",
+    "sciname": "chamicero cundiboyacense",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/chamicero cundiboyacense.jpeg"
+  },
+  {
+    "id": "AVE-057",
+    "name": "Chlidonias niger",
+    "sciname": "CharrÃ¡n negro",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/193324778/medium.jpg"
+  },
+  {
+    "id": "AVE-058",
+    "name": "ChimachimÃ¡",
+    "sciname": "Daptrius chimachima",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cra. 112c #12c-2 a Avenida Carrera 68, 12c, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/334885041/medium.jpeg"
+  },
+  {
+    "id": "AVE-059",
+    "name": "Northern Yellow Warbler",
+    "sciname": "Setophaga aestiva",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cra. 80f #41b Sur-2 a 41b Sur-38, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/17141267/medium.jpeg"
+  },
+  {
+    "id": "AVE-060",
+    "name": "Setophaga striata",
+    "sciname": "Chipe Cabeza Negra",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipe Cabeza Negra.jpg"
+  },
+  {
+    "id": "AVE-061",
+    "name": "Setophaga castanea",
+    "sciname": "Chipe castaÃño",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/104483730/medium.jpg"
+  },
+  {
+    "id": "AVE-062",
+    "name": "Setophaga cerulea",
+    "sciname": "Chipe Celeste",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipe Celeste.jpeg"
+  },
+  {
+    "id": "AVE-063",
+    "name": "Parkesia noveboracensis",
+    "sciname": "Chipe charquero",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipe charquero.jpeg"
+  },
+  {
+    "id": "AVE-064",
+    "name": "Cardellina canadensis",
+    "sciname": "Chipe de collar",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipe de collar.jpeg"
+  },
+  {
+    "id": "AVE-065",
+    "name": "Geothlypis philadelphia",
+    "sciname": "Chipe de Pechera",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipe de Pechera.jpeg"
+  },
+  {
+    "id": "AVE-066",
+    "name": "Setophaga fusca",
+    "sciname": "Chipe garganta naranja",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipe garganta naranja.jpeg"
+  },
+  {
+    "id": "AVE-067",
+    "name": "Leiothlypis peregrina",
+    "sciname": "Chipe peregrino",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipe peregrino.jpeg"
+  },
+  {
+    "id": "AVE-068",
+    "name": "Setophaga pitiayumi",
+    "sciname": "Chipe Tropical",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipe Tropical.jpeg"
+  },
+  {
+    "id": "AVE-069",
+    "name": "Chipes",
+    "sciname": "Setophaga",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Diagonal 2A, BogotÃ¡, BogotÃ¡, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chipes.jpg"
+  },
+  {
+    "id": "AVE-070",
+    "name": "Vireo chivi",
+    "sciname": "ChivÃí ChivÃí",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/260911087/medium.jpeg"
+  },
+  {
+    "id": "AVE-071",
+    "name": "Charadrius vociferus",
+    "sciname": "Chorlo tildÃío",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/422670709/medium.jpeg"
+  },
+  {
+    "id": "AVE-072",
+    "name": "Chordeiles",
+    "sciname": "Chotacabras",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chotacabras.jpg"
+  },
+  {
+    "id": "AVE-073",
+    "name": "Chotacabras zumbÃón",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Saturno, FontibÃ³n, BogotÃ¡, Bogota, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Chotacabras.jpg"
+  },
+  {
+    "id": "AVE-074",
+    "name": "colibrÃí aliazul",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/676373428/medium.jpg"
+  },
+  {
+    "id": "AVE-075",
+    "name": "ColibrÃí Colilargo Mayor",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/481712500/medium.jpg"
+  },
+  {
+    "id": "AVE-076",
+    "name": "ColibrÃí de Mulsant",
+    "sciname": "Chaetocercus mulsant",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Ciudad Kennedy Occidental, Antonio NariÃ±o, BogotÃ¡, Bogota, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/471468500/medium.jpeg"
+  },
+  {
+    "id": "AVE-077",
+    "name": "ColibrÃí picoespada",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/703800163/medium.jpg"
+  },
+  {
+    "id": "AVE-078",
+    "name": "Colibri coruscans",
+    "sciname": "ColibrÃí Rutilante",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/17113330/medium.jpeg"
+  },
+  {
+    "id": "AVE-079",
+    "name": "ColibrÃíes",
+    "sciname": "Trochilidae",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Carrera 69D, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/70401785/medium.jpg"
+  },
+  {
+    "id": "AVE-080",
+    "name": "Colibri",
+    "sciname": "ColibrÃíes oreja violeta",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/36851695/medium.jpeg"
+  },
+  {
+    "id": "AVE-081",
+    "name": "Grallaria ruficapilla",
+    "sciname": "ComprapÃ¡n",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/142836531/medium.jpeg"
+  },
+  {
+    "id": "AVE-082",
+    "name": "Coccyzus americanus",
+    "sciname": "Cuclillo pico amarillo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Cuclillo pico amarillo.jpeg"
+  },
+  {
+    "id": "AVE-083",
+    "name": "Aves",
+    "sciname": "1960",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-084",
+    "name": "Phimosus infuscatus",
+    "sciname": "Cuervillo cara pelada",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Cuervillo cara pelada.jpeg"
+  },
+  {
+    "id": "AVE-085",
+    "name": "Cranioleuca curtata",
+    "sciname": "curutiÃé cejigrÃís",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/361096496/medium.jpg"
+  },
+  {
+    "id": "AVE-086",
+    "name": "North American White-tailed Kite",
+    "sciname": "Elanus leucurus majusculus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Villa Nelly Iii, BogotÃ¡, BogotÃ¡, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/583975065/medium.jpg"
+  },
+  {
+    "id": "AVE-087",
+    "name": "Falco columbarius columbarius",
+    "sciname": "esmerejÃón de la taiga",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/335767168/medium.jpeg"
+  },
+  {
+    "id": "AVE-088",
+    "name": "Aves",
+    "sciname": "9487",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-089",
+    "name": "Aves",
+    "sciname": "16733",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-090",
+    "name": "FiofÃío silbÃón",
+    "sciname": "Elaenia albiceps",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Mandalay, Antonio NariÃ±o, BogotÃ¡, Bogota, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/380590501/medium.jpeg"
+  },
+  {
+    "id": "AVE-091",
+    "name": "Fulica americana columbiana",
+    "sciname": "Focha comÃún",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/302944605/medium.jpeg"
+  },
+  {
+    "id": "AVE-092",
+    "name": "Fulica americana",
+    "sciname": "Gallareta americana",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Gallareta americana.jpeg"
+  },
+  {
+    "id": "AVE-093",
+    "name": "Gallaretas, polluelas y pollas de agua",
+    "sciname": "Rallidae",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedal El Burro",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Gallaretas, polluelas y pollas de agua.jpeg"
+  },
+  {
+    "id": "AVE-094",
+    "name": "Common Gallinule",
+    "sciname": "Gallinula galeata",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Santaf? de Bogot?, CO-CU, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/5186393/medium.jpeg"
+  },
+  {
+    "id": "AVE-095",
+    "name": "Gallineta morada",
+    "sciname": "Porphyrio martinica",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Cra. 80f #41b Sur-2 a 41b Sur-38, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Gallineta morada.jpeg"
+  },
+  {
+    "id": "AVE-096",
+    "name": "Gallinetas",
+    "sciname": "Gallinula",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "humedal la vaca",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Gallinetas.jpeg"
+  },
+  {
+    "id": "AVE-097",
+    "name": "Ganso comÃún",
+    "sciname": "Anser anser",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Carrera 103A, BogotÃ¡, BogotÃ¡, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/569423540/medium.jpg"
+  },
+  {
+    "id": "AVE-098",
+    "name": "Egretta caerulea",
+    "sciname": "Garceta azul",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Garceta azul.jpg"
+  },
+  {
+    "id": "AVE-099",
+    "name": "Ardea ibis",
+    "sciname": "Garcilla bueyera occidental",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Garcilla bueyera occidental.jpeg"
+  },
+  {
+    "id": "AVE-100",
+    "name": "Green Heron",
+    "sciname": "Butorides virescens",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedal La Vaca, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/60568039/medium.jpg"
+  },
+  {
+    "id": "AVE-101",
+    "name": "Striated Heron",
+    "sciname": "Butorides striata",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cra. 80f #41b Sur-2 a 41b Sur-38, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/17119902/medium.jpeg"
+  },
+  {
+    "id": "AVE-102",
+    "name": "Garrapatero mayor",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Sabanagrande, BogotÃ¡, Bogota, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Garrapatero mayor.jpeg"
+  },
+  {
+    "id": "AVE-103",
+    "name": "Garza blanca",
+    "sciname": "Ardea alba",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Carrera 80A 17-75, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Garza blanca.jpg"
+  },
+  {
+    "id": "AVE-104",
+    "name": "Aves",
+    "sciname": "4940",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-105",
+    "name": "Nycticorax nycticorax",
+    "sciname": "Garza Nocturna Corona Negra",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Garza Nocturna Corona Negra.jpeg"
+  },
+  {
+    "id": "AVE-106",
+    "name": "Garzas",
+    "sciname": "Ardeidae",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "San Bernardino",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Garzas.jpeg"
+  },
+  {
+    "id": "AVE-107",
+    "name": "Ardeinae",
+    "sciname": "Garzas, garcetas, garcillas y martinetes",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Garzas, garcetas, garcillas y martinetes.jpeg"
+  },
+  {
+    "id": "AVE-108",
+    "name": "Chondrohierax uncinatus",
+    "sciname": "GavilÃ¡n Pico de Gancho",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/659819383/medium.jpg"
+  },
+  {
+    "id": "AVE-109",
+    "name": "Aves",
+    "sciname": "68826",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-110",
+    "name": "Progne tapera",
+    "sciname": "Golondrina parda",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Golondrina parda.jpeg"
+  },
+  {
+    "id": "AVE-111",
+    "name": "Orochelidon murina",
+    "sciname": "Golondrina plomiza",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Golondrina plomiza.jpg"
+  },
+  {
+    "id": "AVE-112",
+    "name": "Riparia riparia",
+    "sciname": "Golondrina ribereÃña",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/123837685/medium.jpeg"
+  },
+  {
+    "id": "AVE-113",
+    "name": "Petrochelidon pyrrhonota",
+    "sciname": "Golondrina risquera",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Golondrina risquera.jpeg"
+  },
+  {
+    "id": "AVE-114",
+    "name": "Hirundo rustica",
+    "sciname": "Golondrina tijereta",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Golondrina tijereta.jpeg"
+  },
+  {
+    "id": "AVE-115",
+    "name": "Hirundinidae",
+    "sciname": "Golondrinas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Golondrinas.jpeg"
+  },
+  {
+    "id": "AVE-116",
+    "name": "Progne",
+    "sciname": "Golondrinas o martines",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Golondrinas o martines.jpeg"
+  },
+  {
+    "id": "AVE-117",
+    "name": "Aves",
+    "sciname": "9869",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-118",
+    "name": "Zonotrichia capensis",
+    "sciname": "GorriÃón Chingolo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zonotrichia capensis costaricensis.png"
+  },
+  {
+    "id": "AVE-119",
+    "name": "Zonotrichia",
+    "sciname": "Gorriones y Copetones",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zonotrichia capensis costaricensis.png"
+  },
+  {
+    "id": "AVE-120",
+    "name": "Grandes garzas",
+    "sciname": "Ardea",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Carrera 96F, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Grandes garzas.jpg"
+  },
+  {
+    "id": "AVE-121",
+    "name": "Steatornis caripensis",
+    "sciname": "GuÃ¡charo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/143620420/medium.jpeg"
+  },
+  {
+    "id": "AVE-122",
+    "name": "Guacamaya roja",
+    "sciname": "Ara macao",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Guacamaya roja.jpg"
+  },
+  {
+    "id": "AVE-123",
+    "name": "Falco columbarius",
+    "sciname": "HalcÃón esmerejÃón",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/104986527/medium.jpeg"
+  },
+  {
+    "id": "AVE-124",
+    "name": "Falco deiroleucus",
+    "sciname": "HalcÃón Pecho Canela",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/178837882/medium.jpeg"
+  },
+  {
+    "id": "AVE-125",
+    "name": "Falco peregrinus",
+    "sciname": "HalcÃón Peregrino",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/112160847/medium.jpeg"
+  },
+  {
+    "id": "AVE-126",
+    "name": "Halcones",
+    "sciname": "Falco",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Halcones.jpg"
+  },
+  {
+    "id": "AVE-127",
+    "name": "Zenaida Doves",
+    "sciname": "Zenaida",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "BogotÃ¡, D.C. , CO-CU, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/216027476/medium.jpeg"
+  },
+  {
+    "id": "AVE-128",
+    "name": "Threskiornithidae",
+    "sciname": "Ibis y espÃ¡tulas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/193322163/medium.jpg"
+  },
+  {
+    "id": "AVE-129",
+    "name": "Coeligena prunellei",
+    "sciname": "Inca Negro",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Inca Negro.jpeg"
+  },
+  {
+    "id": "AVE-130",
+    "name": "Gallito de ciÃénaga",
+    "sciname": "Jacana jacana",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "San Francisco, Mosquera, Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Jacana.jpg"
+  },
+  {
+    "id": "AVE-131",
+    "name": "Spinus psaltria",
+    "sciname": "Jilguerito Dominico",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Jilguerito Dominico.jpeg"
+  },
+  {
+    "id": "AVE-132",
+    "name": "Spinus psaltria colombianus",
+    "sciname": "Jilguerito Dominico SureÃño",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Jilguerito Dominico.jpeg"
+  },
+  {
+    "id": "AVE-133",
+    "name": "Spinus",
+    "sciname": "Jilgueritos",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Jilgueritos.jpeg"
+  },
+  {
+    "id": "AVE-134",
+    "name": "Spinus spinescens",
+    "sciname": "Jilguero andino",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Jilguero andino.jpeg"
+  },
+  {
+    "id": "AVE-135",
+    "name": "Jilguero pechinegro",
+    "sciname": "Spinus xanthogastrus",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "Calle 40C Sur, BogotÃ¡, BogotÃ¡, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Jilguero pechinegro.jpg"
+  },
+  {
+    "id": "AVE-136",
+    "name": "Tyto furcata",
+    "sciname": "lechuza comÃún americana",
+    "cat": 1,
+    "role": "Depredador tope / Control biológico de roedores y reptiles",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/76900690/medium.jpg"
+  },
+  {
+    "id": "AVE-137",
+    "name": "Oxyura ferruginea andina",
+    "sciname": "MalvasÃía colombiana",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28647341/medium.jpeg"
+  },
+  {
+    "id": "AVE-138",
+    "name": "Arremon assimilis",
+    "sciname": "Matorralero de cabeza listada",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Matorralero de cabeza listada.jpg"
+  },
+  {
+    "id": "AVE-139",
+    "name": "Metallura tyrianthina",
+    "sciname": "Metalura Tiria",
+    "cat": 1,
+    "role": "Polinizador nectarívoro / Forrajeo de flores tubulares",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Metalura Tiria.jpg"
+  },
+  {
+    "id": "AVE-140",
+    "name": "Conirostrum rufum",
+    "sciname": "Mielero Rufo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Mielero Rufo.jpeg"
+  },
+  {
+    "id": "AVE-141",
+    "name": "Aves",
+    "sciname": "5277",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-142",
+    "name": "Ictinia mississippiensis",
+    "sciname": "Milano de Mississippi",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Milano de Mississippi.jpg"
+  },
+  {
+    "id": "AVE-143",
+    "name": "Elanus",
+    "sciname": "Milanos de alas negras",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Milanos de alas negras.jpg"
+  },
+  {
+    "id": "AVE-144",
+    "name": "Accipitridae",
+    "sciname": "Milanos, aguilillas, gavilanes y Ã¡guilas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/89337841/medium.jpeg"
+  },
+  {
+    "id": "AVE-145",
+    "name": "Turdus fuscater",
+    "sciname": "Mirla patinaranja",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Mirla patinaranja.jpeg"
+  },
+  {
+    "id": "AVE-146",
+    "name": "Turdus",
+    "sciname": "Mirlos",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Mirlos.jpeg"
+  },
+  {
+    "id": "AVE-147",
+    "name": "Chrysomus icterocephalus bogotensis",
+    "sciname": "monjita bogotana",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/monjita bogotana.jpg"
+  },
+  {
+    "id": "AVE-148",
+    "name": "Chrysomus icterocephalus",
+    "sciname": "Monjita Cabeciamarilla",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Monjita Cabeciamarilla.jpeg"
+  },
+  {
+    "id": "AVE-149",
+    "name": "Camptostoma obsoletum",
+    "sciname": "Mosquerito silbador",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Mosquerito silbador.jpg"
+  },
+  {
+    "id": "AVE-150",
+    "name": "Mosquero cardenal",
+    "sciname": "Pyrocephalus rubinus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cra. 81c #40c Sur-21 a 40c Sur-35, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Mosquero cardenal.jpeg"
+  },
+  {
+    "id": "AVE-151",
+    "name": "Mosquero Elaenia CopetÃón",
+    "sciname": "Elaenia flavogaster",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "PEDH La Vaca",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/44754102/medium.jpg"
+  },
+  {
+    "id": "AVE-152",
+    "name": "Aves",
+    "sciname": "16721",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-153",
+    "name": "Mosqueros Elaenia",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "AV. A. MejÃ­a - CL 15A, Kennedy, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Mosqueros Elaenia.jpg"
+  },
+  {
+    "id": "AVE-154",
+    "name": "Paloma DomÃéstica",
+    "sciname": "Columba livia domestica",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedal La Vaca, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/16019684/medium.jpg"
+  },
+  {
+    "id": "AVE-155",
+    "name": "Palomas del Viejo Mundo",
+    "sciname": "Columba",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Transversal 87 Bis A, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Palomas del Viejo Mundo.jpg"
+  },
+  {
+    "id": "AVE-156",
+    "name": "Columbidae",
+    "sciname": "Palomas, tortolitas y coquitas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Palomas, tortolitas y coquitas.jpeg"
+  },
+  {
+    "id": "AVE-157",
+    "name": "Columbiformes",
+    "sciname": "Palomas, tortolitas y coquitas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Palomas, tortolitas y coquitas.jpeg"
+  },
+  {
+    "id": "AVE-158",
+    "name": "Zenaida auriculata",
+    "sciname": "Palomita montera",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Palomita montera.jpeg"
+  },
+  {
+    "id": "AVE-159",
+    "name": "Empidonax alnorum",
+    "sciname": "Papamoscas Ailero",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Ailero.jpeg"
+  },
+  {
+    "id": "AVE-160",
+    "name": "Papamoscas Boreal",
+    "sciname": "Contopus cooperi",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Carrera 106, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Boreal.jpg"
+  },
+  {
+    "id": "AVE-161",
+    "name": "Papamoscas",
+    "sciname": "Contopus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cra. 80f #41b Sur-2 a 41b Sur-38, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Ailero.jpeg"
+  },
+  {
+    "id": "AVE-162",
+    "name": "Papamoscas del Este",
+    "sciname": "Contopus virens",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Carrera 86 #6d-2 a 6d-82 Bogot?",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas del Este.jpeg"
+  },
+  {
+    "id": "AVE-163",
+    "name": "Western Wood-Pewee",
+    "sciname": "Contopus sordidulus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Carrera 80D, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/54760519/medium.jpg"
+  },
+  {
+    "id": "AVE-164",
+    "name": "Empidonax",
+    "sciname": "Papamoscas Empidonax",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Empidonax.jpeg"
+  },
+  {
+    "id": "AVE-165",
+    "name": "Myiarchus",
+    "sciname": "Papamoscas Myiarchus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Myiarchus.jpeg"
+  },
+  {
+    "id": "AVE-166",
+    "name": "Papamoscas negro",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Calle 40Bs, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas negro.jpg"
+  },
+  {
+    "id": "AVE-167",
+    "name": "Myiodynastes maculatus",
+    "sciname": "Papamoscas Rayado Cheje",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Rayado Cheje.jpeg"
+  },
+  {
+    "id": "AVE-168",
+    "name": "Myiodynastes luteiventris",
+    "sciname": "Papamoscas Rayado ComÃún",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28647894/medium.jpeg"
+  },
+  {
+    "id": "AVE-169",
+    "name": "Myiodynastes",
+    "sciname": "Papamoscas Rayados",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Rayados.jpg"
+  },
+  {
+    "id": "AVE-170",
+    "name": "Empidonax traillii",
+    "sciname": "Papamoscas Saucero",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Saucero.jpeg"
+  },
+  {
+    "id": "AVE-171",
+    "name": "Contopus bogotensis",
+    "sciname": "Papamoscas Tropical NorteÃño",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/688797191/medium.jpg"
+  },
+  {
+    "id": "AVE-172",
+    "name": "Empidonax virescens",
+    "sciname": "Papamoscas Verdoso",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Papamoscas Verdoso.jpg"
+  },
+  {
+    "id": "AVE-173",
+    "name": "Great Crested Flycatcher",
+    "sciname": "Myiarchus crinitus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Calle 40bisa Sur, BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/101230015/medium.jpg"
+  },
+  {
+    "id": "AVE-174",
+    "name": "Tringa melanoleuca",
+    "sciname": "Patamarilla mayor",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Patamarilla mayor.jpeg"
+  },
+  {
+    "id": "AVE-175",
+    "name": "Tringa flavipes",
+    "sciname": "Patamarilla menor",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Patamarilla menor.jpeg"
+  },
+  {
+    "id": "AVE-176",
+    "name": "Tringa",
+    "sciname": "Patamarillas y parientes",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Patamarillas y parientes.jpeg"
+  },
+  {
+    "id": "AVE-177",
+    "name": "Pato careto",
+    "sciname": "Dendrocygna viduata",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "FontibÃ³n, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pato careto.jpeg"
+  },
+  {
+    "id": "AVE-178",
+    "name": "Nomonyx dominicus",
+    "sciname": "Pato Enmascarado",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pato Enmascarado.jpeg"
+  },
+  {
+    "id": "AVE-179",
+    "name": "Anas bahamensis",
+    "sciname": "Pato gargantilla",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pato gargantilla.jpeg"
+  },
+  {
+    "id": "AVE-180",
+    "name": "Cairina moschata domestica",
+    "sciname": "Pato real domÃéstico",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/228079443/medium.jpeg"
+  },
+  {
+    "id": "AVE-181",
+    "name": "Oxyura ferruginea",
+    "sciname": "pato zambullidor grande",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/pato zambullidor grande.jpeg"
+  },
+  {
+    "id": "AVE-182",
+    "name": "Anatidae",
+    "sciname": "Patos, gansos, cisnes y parientes",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Patos, gansos, cisnes y parientes.jpeg"
+  },
+  {
+    "id": "AVE-183",
+    "name": "Penelope montagnii",
+    "sciname": "Pava Andina",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pava Andina.jpeg"
+  },
+  {
+    "id": "AVE-184",
+    "name": "Aves",
+    "sciname": "10247",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-185",
+    "name": "Diglossa sittoides",
+    "sciname": "Payador canela",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Payador canela.jpeg"
+  },
+  {
+    "id": "AVE-186",
+    "name": "Tyrannus melancholicus melancholicus",
+    "sciname": "Pepite",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pepite.png"
+  },
+  {
+    "id": "AVE-187",
+    "name": "Forpus conspicillatus",
+    "sciname": "Perico de anteojos",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Perico de anteojos.jpeg"
+  },
+  {
+    "id": "AVE-188",
+    "name": "Aves",
+    "sciname": "19339",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-189",
+    "name": "Aves",
+    "sciname": "19076",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-190",
+    "name": "Aves",
+    "sciname": "9839",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-191",
+    "name": "Diglossa humeralis",
+    "sciname": "Picaflor negro",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Picaflor negro.jpeg"
+  },
+  {
+    "id": "AVE-192",
+    "name": "Pheucticus ludovicianus",
+    "sciname": "Picogordo Degollado",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Picogordo Degollado.jpeg"
+  },
+  {
+    "id": "AVE-193",
+    "name": "Dendrocygna autumnalis",
+    "sciname": "Pijije Alas Blancas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pijije Alas Blancas.jpeg"
+  },
+  {
+    "id": "AVE-194",
+    "name": "Dendrocygna bicolor",
+    "sciname": "Pijije canelo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pijije canelo.jpeg"
+  },
+  {
+    "id": "AVE-195",
+    "name": "Mecocerculus leucophrys",
+    "sciname": "Piojito gargantilla",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Piojito gargantilla.jpg"
+  },
+  {
+    "id": "AVE-196",
+    "name": "Catamenia analis",
+    "sciname": "Piquitodeoro chico",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Piquitodeoro chico.jpg"
+  },
+  {
+    "id": "AVE-197",
+    "name": "Piranga olivacea",
+    "sciname": "Piranga escarlata",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Piranga escarlata.jpeg"
+  },
+  {
+    "id": "AVE-198",
+    "name": "Piranga rubra",
+    "sciname": "Piranga roja",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Piranga roja.jpeg"
+  },
+  {
+    "id": "AVE-199",
+    "name": "Piranga",
+    "sciname": "Pirangas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pirangas.jpeg"
+  },
+  {
+    "id": "AVE-200",
+    "name": "Actitis macularius",
+    "sciname": "Playero alzacolita",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Playero alzacolita.jpeg"
+  },
+  {
+    "id": "AVE-201",
+    "name": "Calidris melanotos",
+    "sciname": "Playero Pectoral",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Playero Pectoral.jpeg"
+  },
+  {
+    "id": "AVE-202",
+    "name": "Tringa solitaria",
+    "sciname": "Playero Solitario",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Playero Solitario.jpeg"
+  },
+  {
+    "id": "AVE-203",
+    "name": "Scolopacidae",
+    "sciname": "Playeros, zarapitos, picopandos, vuelvepiedras, costureros y falaropos",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Playeros, zarapitos, picopandos, vuelvepiedras, costureros y falaropos.jpeg"
+  },
+  {
+    "id": "AVE-204",
+    "name": "Polla de agua sabanera",
+    "sciname": "Porphyriops melanops bogotensis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Calle 40c Sur #80j-2 a 80j-98 BogotÃ¡",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Polla de agua sabanera.jpg"
+  },
+  {
+    "id": "AVE-205",
+    "name": "Polluela sora",
+    "sciname": "Porzana carolina",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Polluela Sora.jpg"
+  },
+  {
+    "id": "AVE-206",
+    "name": "Sturnella magna",
+    "sciname": "Pradero Tortillaconchile",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Pradero Tortillaconchile.jpg"
+  },
+  {
+    "id": "AVE-207",
+    "name": "Pardirallus maculatus",
+    "sciname": "RascÃón pinto",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/61213213/medium.jpg"
+  },
+  {
+    "id": "AVE-208",
+    "name": "Troglodytes",
+    "sciname": "Ratonas",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Ratonas.jpeg"
+  },
+  {
+    "id": "AVE-209",
+    "name": "Pheucticus aureoventris",
+    "sciname": "Rey del bosque",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cundinamarca, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Rey del bosque.jpeg"
+  },
+  {
+    "id": "AVE-210",
+    "name": "SaÃíra de antifaz",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/677502272/medium.jpg"
+  },
+  {
+    "id": "AVE-211",
+    "name": "Troglodytes musculus",
+    "sciname": "Saltapared ComÃún SureÃño",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Troglodytes musculus columbae.png"
+  },
+  {
+    "id": "AVE-212",
+    "name": "Aves",
+    "sciname": "17289",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-213",
+    "name": "Palm Tanager",
+    "sciname": "Thraupis palmarum",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Kennedy, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/150064441/medium.jpeg"
+  },
+  {
+    "id": "AVE-214",
+    "name": "Cissopis leverianus",
+    "sciname": "TÃ¡ngara urraca",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/88619399/medium.jpeg"
+  },
+  {
+    "id": "AVE-215",
+    "name": "Tangara azulgris",
+    "sciname": "Thraupis episcopus",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "PEDH LA VACA",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/44754628/medium.jpg"
+  },
+  {
+    "id": "AVE-216",
+    "name": "Thraupidae",
+    "sciname": "Tangaras, mieleros, semilleros y parientes",
+    "cat": 1,
+    "role": "Frugívoro & Granívoro / Dispersión zoócora de semillas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tangaras, mieleros, semilleros y parientes.jpg"
+  },
+  {
+    "id": "AVE-217",
+    "name": "Chuck-will's-widow",
+    "sciname": "Antrostomus carolinensis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "BogotÃ¡, DC, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/62857404/medium.jpg"
+  },
+  {
+    "id": "AVE-218",
+    "name": "TapicurÃú",
+    "sciname": "Mesembrinibis cayennensis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedal Meandro del Say, BogotÃ¡ FontibÃ³n",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/291552888/medium.jpeg"
+  },
+  {
+    "id": "AVE-219",
+    "name": "Rallus semiplumbeus",
+    "sciname": "Tingua bogotana",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tingua bogotana.jpg"
+  },
+  {
+    "id": "AVE-220",
+    "name": "Porphyriops melanops",
+    "sciname": "Tingua moteada",
+    "cat": 1,
+    "role": "Fauna acuática y de juncal / Consumidor de invertebrados y macrófitas",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tingua moteada.jpeg"
+  },
+  {
+    "id": "AVE-221",
+    "name": "Tyrannus tyrannus",
+    "sciname": "Tirano dorso negro",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tirano dorso negro.jpg"
+  },
+  {
+    "id": "AVE-222",
+    "name": "Tyrannus niveigularis",
+    "sciname": "Tirano GolinÃíveo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/579248653/medium.jpg"
+  },
+  {
+    "id": "AVE-223",
+    "name": "Tyrannus dominicensis",
+    "sciname": "Tirano gris",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tirano gris.jpeg"
+  },
+  {
+    "id": "AVE-224",
+    "name": "Tirano PirirÃí",
+    "sciname": "Tyrannus melancholicus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cl. 7a Bis #80b-1 a 80b-55, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://static.inaturalist.org/photos/16452109/medium.jpg"
+  },
+  {
+    "id": "AVE-225",
+    "name": "Tyrannus savana",
+    "sciname": "Tirano Tijereta Gris",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tirano Tijereta Gris.jpeg"
+  },
+  {
+    "id": "AVE-226",
+    "name": "Tiranos",
+    "sciname": "Tyrannus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Calle 15, BogotÃ¡, BogotÃ¡, CO",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tiranos.jpg"
+  },
+  {
+    "id": "AVE-227",
+    "name": "Tyrannidae",
+    "sciname": "tiranos, papamoscas y parientes",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/tiranos, papamoscas y parientes.jpeg"
+  },
+  {
+    "id": "AVE-228",
+    "name": "Serpophaga cinerea",
+    "sciname": "Tiranuelo saltarroyo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tiranuelo saltarroyo.jpg"
+  },
+  {
+    "id": "AVE-229",
+    "name": "Molothrus bonariensis",
+    "sciname": "Tordo Sudamericano",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tordo Sudamericano.jpeg"
+  },
+  {
+    "id": "AVE-230",
+    "name": "Molothrus",
+    "sciname": "Tordos",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tordos.jpg"
+  },
+  {
+    "id": "AVE-231",
+    "name": "Tucancito Esmeralda",
+    "sciname": "Aves",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tucancito Esmeralda.jpg"
+  },
+  {
+    "id": "AVE-232",
+    "name": "Tuquito gris",
+    "sciname": "Empidonomus aurantioatrocristatus",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Pio XII, Bogota, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tuquito gris.jpeg"
+  },
+  {
+    "id": "AVE-233",
+    "name": "Empidonomus varius",
+    "sciname": "Tuquito rayado",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Tuquito rayado.jpeg"
+  },
+  {
+    "id": "AVE-234",
+    "name": "Icterus icterus",
+    "sciname": "Turpial",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Turpial.jpeg"
+  },
+  {
+    "id": "AVE-235",
+    "name": "Gymnomystax mexicanus",
+    "sciname": "Turpial lagunero",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Turpial lagunero.jpeg"
+  },
+  {
+    "id": "AVE-236",
+    "name": "Aves",
+    "sciname": "Streptoprocne zonaris",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Cra. 105b #69a Sur-1 a 69a Sur-55, BogotÃ¡, Colombia",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-237",
+    "name": "Vireo olivaceus",
+    "sciname": "Vireo Ojos Rojos",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Vireo Ojos Rojos.jpg"
+  },
+  {
+    "id": "AVE-238",
+    "name": "Vireo verdeamarillo",
+    "sciname": "Vireo flavoviridis",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Parque Aloha",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Vireo verdeamarillo.jpeg"
+  },
+  {
+    "id": "AVE-239",
+    "name": "Aves",
+    "sciname": "17355",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-240",
+    "name": "Podilymbus podiceps",
+    "sciname": "Zambullidor pico grueso",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zambullidor pico grueso.jpeg"
+  },
+  {
+    "id": "AVE-241",
+    "name": "Quiscalus lugubris",
+    "sciname": "Zanate caribeÃño",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/28647360/medium.jpeg"
+  },
+  {
+    "id": "AVE-242",
+    "name": "Quiscalus",
+    "sciname": "Zanates",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zanates.jpeg"
+  },
+  {
+    "id": "AVE-243",
+    "name": "Coragyps atratus",
+    "sciname": "Zopilote comÃún",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "https://inaturalist-open-data.s3.amazonaws.com/photos/37420938/medium.jpeg"
+  },
+  {
+    "id": "AVE-244",
+    "name": "Aves",
+    "sciname": "4761",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Aves de percha.jpeg"
+  },
+  {
+    "id": "AVE-245",
+    "name": "Cathartes",
+    "sciname": "Zopilotes",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zopilotes.jpeg"
+  },
+  {
+    "id": "AVE-246",
+    "name": "Catharus fuscescens",
+    "sciname": "Zorzal Canelo",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zorzal Canelo.jpeg"
+  },
+  {
+    "id": "AVE-247",
+    "name": "Catharus ustulatus",
+    "sciname": "Zorzal de Anteojos",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zorzal de Anteojos.jpeg"
+  },
+  {
+    "id": "AVE-248",
+    "name": "Catharus",
+    "sciname": "Zorzales",
+    "cat": 1,
+    "role": "Consumidor secundario / Insectívoro de follaje y dosel",
+    "loc": "Humedales El Burro, La Vaca y Techo / Kennedy",
+    "alert": "Monitoreo Biodiversidad Kennedy / Red iNaturalist",
+    "img": "./assets/fotos/fotos_mamiferos/Zorzales.jpeg"
+  }
+]
