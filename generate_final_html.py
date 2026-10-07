@@ -1,0 +1,3215 @@
+import json, os
+
+with open('compiled_taxa.json', 'r', encoding='utf-8') as f:
+    taxa_data = json.load(f)
+
+taxa_json_str = json.dumps(taxa_data, ensure_ascii=False)
+
+html_template = f'''<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Red de Interacciones Bióticas de Kennedy — Sistema Socioecológico</title>
+
+<!-- Global Error Banner for Robustness -->
+<script>
+window.onerror = function(msg, url, line, col, error) {{
+  console.error("Global JS Error:", msg, "at line:", line, error);
+  var box = document.getElementById("errorBanner");
+  if (!box) {{
+    box = document.createElement("div");
+    box.id = "errorBanner";
+    box.style.position = "fixed";
+    box.style.top = "10px";
+    box.style.left = "50%";
+    box.style.transform = "translateX(-50%)";
+    box.style.zIndex = "99999";
+    box.style.background = "#ff3366";
+    box.style.color = "#fff";
+    box.style.padding = "10px 20px";
+    box.style.borderRadius = "8px";
+    box.style.fontFamily = "monospace";
+    box.style.fontSize = "12px";
+    box.style.boxShadow = "0 8px 30px rgba(0,0,0,0.8)";
+    document.body ? document.body.appendChild(box) : document.documentElement.appendChild(box);
+  }}
+  box.innerText = "⚠️ Error: " + msg + " (Línea: " + line + ")";
+  box.style.display = "block";
+}};
+</script>
+
+<!-- Google Fonts & FontAwesome -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+  :root {{
+    --bg-dark: #000000;
+    --accent: #84A48B;
+    --accent-glow: rgba(132, 164, 139, 0.45);
+    --ink: #f1f5f9;
+    --ink-dim: #94a3b8;
+    --glass-bg: rgba(6, 9, 15, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.12);
+  }}
+  * {{ box-sizing: border-box; margin: 0; padding: 0; user-select: none; }}
+  html, body {{
+    width: 100%; height: 100%; overflow: hidden; background-color: #000000;
+    color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+    font-size: 12px; -webkit-font-smoothing: antialiased;
+  }}
+
+  #canvasContainer {{
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
+    cursor: crosshair;
+  }}
+  #sceneCanvas {{ display: block; width: 100%; height: 100%; }}
+
+  .glass-panel {{
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
+  }}
+
+  /* Top Header */
+  .top-header {{
+    position: absolute; top: 8px; left: 8px; right: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    pointer-events: none; z-index: 100;
+    flex-wrap: wrap; gap: 6px;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }}
+  .nav-group {{
+    display: flex; align-items: center; gap: 5px; pointer-events: auto; flex-wrap: wrap;
+  }}
+  .brand-title {{
+    padding: 5px 10px; font-weight: 800; letter-spacing: 0.5px;
+    color: var(--accent); display: flex; align-items: center; gap: 6px;
+    font-size: 10.5px; text-transform: uppercase; white-space: nowrap;
+  }}
+  .btn-flat {{
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1; padding: 5px 9px; border-radius: 6px;
+    font-size: 10px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+    transition: all 0.15s ease; text-decoration: none;
+  }}
+  .btn-flat:hover {{
+    background: rgba(132, 164, 139, 0.15);
+    border-color: rgba(132, 164, 139, 0.4);
+    color: #ffffff;
+  }}
+  .btn-flat.active {{
+    background: rgba(132, 164, 139, 0.2);
+    border-color: #84A48B;
+    color: #84A48B;
+  }}
+  .search-box {{
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #84A48B; padding: 5px 10px; border-radius: 6px;
+    font-family: inherit; font-size: 10px; outline: none; width: 130px;
+    transition: width 0.25s ease;
+  }}
+  .search-box:focus {{ width: 170px; border-color: #84A48B; }}
+
+  /* Side Drawer */
+  .side-drawer {{
+    position: absolute; top: 48px; left: 8px; width: 310px;
+    max-height: calc(100vh - 120px); overflow-y: auto; padding: 12px;
+    pointer-events: auto; z-index: 90;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border: 1px solid rgba(132, 164, 139, 0.25);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+  }}
+  .side-drawer.collapsed {{
+    opacity: 0; pointer-events: none; transform: translateX(-14px);
+  }}
+  .drawer-header {{
+    font-weight: 800; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1px; color: #94a3b8; border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding-bottom: 8px; margin-bottom: 10px; display: flex;
+    justify-content: space-between; align-items: center;
+  }}
+  .cat-card {{
+    background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px; padding: 8px 10px; margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;
+  }}
+  .cat-card::before {{
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--cat-color, #84a48b); box-shadow: 0 0 10px var(--cat-color, #84a48b);
+  }}
+  .cat-card:hover {{
+    border-color: rgba(132, 164, 139, 0.4); background: rgba(15, 23, 42, 0.9);
+    transform: translateX(3px);
+  }}
+  .cat-card.inactive {{
+    opacity: 0.35;
+    filter: grayscale(0.8);
+    transform: none !important;
+  }}
+  .cat-label-wrap {{ display: flex; align-items: center; gap: 8px; }}
+  .cat-thumb {{
+    width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+    border: 1.5px solid var(--cat-color, #84a48b); flex-shrink: 0;
+  }}
+  .badge-count {{
+    font-size: 10px; background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15); padding: 2px 7px;
+    border-radius: 6px; color: #84A48B; font-family: ui-monospace, monospace; font-weight: 700;
+  }}
+  .toggle-box {{
+    width: 16px; height: 16px; border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, 0.5); transition: all 0.15s; cursor: pointer;
+  }}
+  .toggle-box.checked {{ background: var(--toggle-bg, #84A48B); border-color: var(--toggle-bg, #84A48B); }}
+  .toggle-box.checked::after {{ content: ""; width: 5px; height: 5px; background: #000000; border-radius: 1px; }}
+
+  /* Compact 3-Column Interaction Conventions Toggles */
+  .interaction-chips-grid {{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-top: 6px;
+  }}
+  .inter-chip {{
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 5px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: center;
+  }}
+  .inter-chip:hover {{
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--inter-color, #84a48b);
+  }}
+  .inter-chip.inactive {{
+    opacity: 0.32;
+    filter: grayscale(0.7);
+  }}
+  .inter-chip-dot {{
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--inter-color, #84a48b);
+    box-shadow: 0 0 6px var(--inter-color, #84a48b);
+  }}
+  .inter-chip-title {{
+    font-size: 8.5px; font-weight: 700; color: #cbd5e1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  }}
+  .inter-chip-badge {{
+    font-size: 8px; font-family: monospace; font-weight: 800; color: var(--inter-color, #84a48b);
+  }}
+
+  .quick-toggle-btn {{
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #cbd5e1;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }}
+  .quick-toggle-btn:hover {{
+    background: rgba(132, 164, 139, 0.25);
+    border-color: #84a48b;
+    color: #ffffff;
+  }}
+
+  /* Node Inspector */
+  .node-inspector {{
+    position: absolute; top: 62px; right: 12px; width: 370px;
+    max-height: calc(100vh - 140px); overflow-y: auto; padding: 16px;
+    pointer-events: auto; z-index: 150; border-left: 4px solid #84A48B;
+    animation: fadeIn 0.2s ease-out;
+  }}
+  @keyframes fadeIn {{
+    from {{ opacity: 0; transform: translateY(-8px); }}
+    to {{ opacity: 1; transform: translateY(0); }}
+  }}
+  .inspector-header {{
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+  }}
+  .node-title {{ font-size: 14px; font-weight: 700; color: #84A48B; }}
+  .node-subtitle {{ font-size: 11px; font-style: italic; color: #cbd5e1; }}
+  .btn-close {{
+    cursor: pointer; color: #94a3b8; padding: 2px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px;
+  }}
+  .btn-close:hover {{ color: #ffffff; background: rgba(255, 255, 255, 0.1); }}
+  .media-preview {{
+    width: 100%; height: 145px; object-fit: cover; border-radius: 6px;
+    margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.15); background: #000;
+  }}
+  .data-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }}
+  .metric-card {{
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px; padding: 8px;
+  }}
+  .metric-val {{ font-size: 13px; font-weight: 700; color: #84a48b; font-family: monospace; }}
+  .metric-lbl {{ font-size: 10px; color: #64748b; text-transform: uppercase; }}
+  .sec-header {{
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: #84a48b; margin-bottom: 4px; font-weight: 700;
+  }}
+  .text-content {{
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px; padding: 8px 10px; color: #cbd5e1; font-size: 11px;
+    line-height: 1.4; margin-bottom: 10px;
+  }}
+  .text-content.alert {{
+    background: rgba(201, 99, 73, 0.12); border-color: rgba(201, 99, 73, 0.35); color: #ff80a0;
+  }}
+  .neighbor-scroll {{
+    max-height: 120px; overflow-y: auto; background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px;
+  }}
+  .neighbor-row {{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer;
+  }}
+  .neighbor-row:hover {{ background: rgba(132, 164, 139, 0.15); color: #84a48b; }}
+
+  /* Subnetwork Modal */
+  .subnetwork-modal {{
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 680px; height: 480px; background: #050505;
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1.5px solid #84A48B; box-shadow: 0 30px 80px #000000;
+    border-radius: 12px; z-index: 300; display: flex; flex-direction: column;
+    pointer-events: auto; overflow: hidden; animation: fadeIn 0.2s ease-out;
+  }}
+  .subnetwork-header {{
+    padding: 12px 16px; background: #0a0a0c; border-bottom: 1px solid rgba(132, 164, 139, 0.25);
+    display: flex; align-items: center; justify-content: space-between;
+  }}
+  .subnetwork-canvas-wrap {{ flex: 1; position: relative; background: #000000; }}
+  #subCanvas {{ width: 100%; height: 100%; display: block; }}
+
+  /* FAQ Chat Widget */
+  .chat-widget-btn {{
+    position: absolute; bottom: 85px; right: 16px; background: #0a0a0c;
+    border: 1px solid #84A48B; color: #84A48B; padding: 9px 16px;
+    border-radius: 24px; font-size: 11px; font-weight: 700; cursor: pointer;
+    pointer-events: auto; z-index: 180; display: flex; align-items: center;
+    gap: 8px; box-shadow: 0 8px 24px #000000; transition: all 0.2s ease;
+  }}
+  .chat-widget-btn:hover {{
+    transform: translateY(-2px); background: rgba(132, 164, 139, 0.15); color: #ffffff;
+  }}
+  .faq-chat-modal {{
+    position: absolute; bottom: 135px; right: 16px; width: 360px; max-height: 480px;
+    display: flex; flex-direction: column; pointer-events: auto; z-index: 180;
+    border: 1px solid rgba(132, 164, 139, 0.3); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95);
+    border-radius: 12px; overflow: hidden; animation: fadeIn 0.2s ease-out;
+  }}
+  .chat-header {{
+    background: rgba(15, 23, 42, 0.95); padding: 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex; align-items: center; justify-content: space-between;
+  }}
+  .chat-body {{
+    padding: 12px; overflow-y: auto; max-height: 250px;
+    display: flex; flex-direction: column; gap: 10px; background: rgba(6, 9, 15, 0.85);
+  }}
+  .msg-bubble {{ max-width: 85%; padding: 8px 12px; border-radius: 10px; font-size: 11px; line-height: 1.4; }}
+  .msg-bot {{
+    background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(132, 164, 139, 0.25);
+    color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 2px;
+  }}
+  .msg-user {{
+    background: rgba(132, 164, 139, 0.2); border: 1px solid rgba(132, 164, 139, 0.4);
+    color: #ffffff; align-self: flex-end; border-bottom-right-radius: 2px;
+  }}
+  .predefined-chips {{
+    padding: 10px 12px; background: rgba(10, 15, 26, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex; flex-direction: column; gap: 5px;
+  }}
+  .chip-btn {{
+    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(132, 164, 139, 0.2);
+    color: #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 10px;
+    font-weight: 600; cursor: pointer; text-align: left; transition: all 0.15s ease;
+    display: flex; align-items: center; justify-content: space-between;
+  }}
+  .chip-btn:hover {{
+    background: rgba(132, 164, 139, 0.15); border-color: #84a48b; color: #ffffff; transform: translateX(2px);
+  }}
+
+  /* Welcome Modal Overlay */
+  .welcome-overlay {{
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px); display: flex; align-items: center;
+    justify-content: center; z-index: 9999; animation: modalFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }}
+  @keyframes modalFadeIn {{
+    from {{ opacity: 0; transform: scale(0.96); }}
+    to {{ opacity: 1; transform: scale(1); }}
+  }}
+  .welcome-modal {{
+    width: 92%; max-width: 1120px; max-height: 90vh; background: #050505;
+    border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px;
+    box-shadow: 0 30px 90px #000000; padding: 28px; overflow-y: auto;
+    color: #f1f5f9; display: flex; flex-direction: column; gap: 20px;
+  }}
+  .welcome-header {{
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 16px;
+  }}
+  .pie-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }}
+  .pie-card {{
+    background: #0a0a0c; border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px; padding: 18px; display: flex; flex-direction: column;
+    align-items: center; gap: 12px; position: relative; overflow: hidden;
+  }}
+  .pie-card::before {{
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #84A48B, transparent); opacity: 0.8;
+  }}
+  .pie-card-title {{
+    font-size: 13px; font-weight: 800; color: #84A48B; letter-spacing: 0.5px;
+    text-align: center; text-transform: uppercase;
+  }}
+  .pie-card-desc {{ font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.4; }}
+  .pie-legend {{ width: 100%; display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }}
+  .legend-row {{
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 10.5px; padding: 5px 10px; background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;
+  }}
+  .legend-label {{ display: flex; align-items: center; gap: 8px; color: #cbd5e1; font-weight: 500; }}
+  .legend-dot {{ width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }}
+
+  /* Toast Notification */
+  .toast-notify {{
+    position: fixed; top: 78px; left: 50%; transform: translateX(-50%);
+    background: rgba(132, 164, 139, 0.95); color: #000; padding: 8px 18px;
+    border-radius: 20px; font-size: 11px; font-weight: 700; z-index: 500;
+    display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.8); pointer-events: none;
+  }}
+
+  /* Waypoints Bar (Stage 2) */
+  .waypoints-bar {{
+    position: absolute; top: 78px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: flex; gap: 8px; pointer-events: auto; opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+  }}
+  .waypoints-bar.show {{ opacity: 1; pointer-events: auto; }}
+  .waypoint-pill {{
+    padding: 7px 15px; border-radius: 16px; background: rgba(25, 25, 28, 0.88);
+    border: 1px solid var(--glass-border); color: var(--ink);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; backdrop-filter: blur(12px); transition: all 0.25s ease;
+    display: flex; align-items: center; gap: 6px;
+  }}
+  .waypoint-pill:hover, .waypoint-pill.active {{
+    color: #000; border-color: var(--accent); background: var(--accent);
+    box-shadow: 0 0 14px var(--accent-glow); transform: translateY(-1px);
+  }}
+
+  /* Active Tree Floating Chip */
+  #activeTreeChip {{
+    position: absolute; top: 78px; right: 28px; z-index: 20;
+    display: flex; align-items: center; gap: 8px; padding: 5px 14px 5px 6px;
+    border-radius: 24px; background: rgba(18, 18, 22, 0.92);
+    border: 1px solid rgba(132, 164, 139, 0.4); color: var(--ink);
+    font-size: 11px; font-weight: 700; cursor: pointer; backdrop-filter: blur(16px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6); transition: all 0.3s ease;
+    opacity: 0; pointer-events: none; transform: translateY(-6px);
+  }}
+  #activeTreeChip.show {{ opacity: 1; pointer-events: auto; transform: translateY(0); }}
+  #activeTreeChip:hover {{ border-color: var(--accent); color: var(--accent); transform: scale(1.04); }}
+  #activeTreeChip img {{ width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent); }}
+
+  /* Bottom Control Capsule */
+  .bottom-experience-bar {{
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 100;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    pointer-events: auto;
+  }}
+  .scrub-container {{
+    display: flex; align-items: center; gap: 16px; padding: 9px 22px;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 36px; backdrop-filter: blur(24px);
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9); transition: border-color 0.3s;
+  }}
+  .scrub-container:hover {{ border-color: var(--accent); }}
+  .scrub-label {{
+    font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--ink-dim); text-transform: uppercase; cursor: pointer; transition: color 0.2s;
+  }}
+  .scrub-label.active, .scrub-label:hover {{ color: var(--accent); text-shadow: 0 0 12px var(--accent); }}
+  .experience-toggle-btn {{
+    padding: 8px 20px; border-radius: 20px; font-family: 'Inter', sans-serif;
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; cursor: pointer;
+    border: 1px solid var(--accent); background: linear-gradient(135deg, #84A48B, #6B9080);
+    color: #000; text-shadow: none; box-shadow: 0 0 20px var(--accent-glow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }}
+  .experience-toggle-btn:hover {{ transform: scale(1.06); box-shadow: 0 0 32px var(--accent-glow); }}
+  .custom-scrub-slider {{
+    -webkit-appearance: none; width: 160px; height: 3px; background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px; outline: none; cursor: pointer;
+  }}
+  .custom-scrub-slider::-webkit-slider-thumb {{
+    -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent); cursor: pointer;
+  }}
+  .status-badge-text {{
+    font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+    letter-spacing: 0.1em; color: rgba(234, 228, 218, 0.65);
+  }}
+  .status-badge-text b {{ color: var(--accent); }}
+
+  /* Loading Screen */
+  #loadingVeil {{
+    position: fixed; inset: 0; z-index: 1000; background: #000000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none;
+  }}
+  #loadingVeil.hide {{ opacity: 0; }}
+  .veil-title {{
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 900; letter-spacing: 0.28em;
+    color: #EAE4DA; text-transform: uppercase;
+  }}
+  .veil-bar {{ width: 140px; height: 2px; background: rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; }}
+  .veil-bar-fill {{
+    position: absolute; top: 0; left: 0; height: 100%; width: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent);
+    animation: veilPulse 1.4s ease-in-out infinite alternate;
+  }}
+  @keyframes veilPulse {{
+    0% {{ left: 0%; width: 20%; }}
+    100% {{ left: 80%; width: 30%; }}
+  }}
+
+  /* Camera Helper Tool */
+  #camInspectorBox {{
+    position: absolute; bottom: 85px; right: 28px; z-index: 30;
+    width: 290px; padding: 14px 18px; border-radius: 14px;
+    background: rgba(18, 18, 20, 0.94); border: 1px solid var(--accent);
+    backdrop-filter: blur(20px); box-shadow: 0 12px 36px rgba(0,0,0,0.85);
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink);
+    transition: all 0.35s ease;
+  }}
+  #camInspectorBox.hidden {{ display: none !important; }}
+  .cam-save-btn {{
+    width: 100%; margin-top: 10px; padding: 9px 12px; border-radius: 10px;
+    background: linear-gradient(135deg, #84A48B, #6B9080); border: none;
+    color: #000; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 900;
+    letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+  }}
+</style>
+
+<!-- Three.js, OrbitControls, GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+<div id="canvasContainer">
+  <canvas id="sceneCanvas"></canvas>
+</div>
+
+<div id="loadingVeil" style="display:none !important;">
+  <div class="veil-title">SISTEMA SOCIOECOLÓGICO KENNEDY</div>
+  <div class="veil-bar"><div class="veil-bar-fill"></div></div>
+</div>
+
+<div class="toast-notify" id="toastNotify">Nodo ocultado por doble clic</div>
+
+<!-- Welcome Modal Overlay: 3 Statistical Pie Charts -->
+<div class="welcome-overlay" id="welcomeModalOverlay" style="display:none;">
+  <div class="welcome-modal">
+    <div class="welcome-header">
+      <div>
+        <div style="font-size:16px; font-weight:900; color:#84a48b; letter-spacing:0.5px; display:flex; align-items:center; gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#84a48b" stroke-width="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+          SISTEMA SOCIOECOLÓGICO DE KENNEDY — METRÍCAS ECOLÓGICAS Y MATRIZ DE EVIDENCIA
+        </div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">Distribución funcional, composición taxonómica y respaldo técnico del modelo (568 taxones)</div>
+      </div>
+      <button class="btn-flat active" style="padding:8px 18px; font-weight:800; font-size:12px;" onclick="closeWelcomeModal()">
+        Explorar Red 3D →
+      </button>
+    </div>
+
+    <div class="pie-grid">
+      <!-- Torta A: Distribución por Tipos de Interacción Biótica -->
+      <div class="pie-card">
+        <div class="pie-card-title">1. Torta A: Tipos de Interacción Biótica</div>
+        <div class="pie-card-desc">Distribución de las relaciones funcionales registradas en la red socioecológica de Kennedy.</div>
+        
+        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
+          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.584 0.812 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.584 0.812 A 1 1 0 0 1 -0.892 -0.452 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.892 -0.452 A 1 1 0 0 1 -0.669 -0.743 Z" fill="#F79E70" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.669 -0.743 A 1 1 0 0 1 -0.463 -0.886 Z" fill="#E69888" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.463 -0.886 A 1 1 0 0 1 1 0 Z" fill="#C96349" stroke="#000000" stroke-width="0.02"/>
+        </svg>
+
+        <div class="pie-legend">
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>Visita Floral / Polinización</div>
+            <b style="color:#A386A9;">39.18%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Herbivoría Parcial</div>
+            <b style="color:#84A48B;">31.58%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#F79E70;"></div>Nidificación y Refugio</div>
+            <b style="color:#F79E70;">7.44%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#E69888;"></div>Dispersión de Semillas</div>
+            <b style="color:#E69888;">4.88%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#C96349;"></div>Parasitismo / Depredación</div>
+            <b style="color:#C96349;">16.92%</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Torta B: Composición por Grupos Taxonómicos -->
+      <div class="pie-card">
+        <div class="pie-card-title">2. Torta B: Convenciones Taxonómicas</div>
+        <div class="pie-card-desc">Distribución de Flora SIGAU y los 5 grupos de Fauna de Kennedy.</div>
+        
+        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
+          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.019 1.000 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.019 1.000 A 1 1 0 0 1 -0.925 -0.380 Z" fill="#38BDF8" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.925 -0.380 A 1 1 0 0 1 -0.675 -0.738 Z" fill="#F59E0B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.675 -0.738 A 1 1 0 0 1 -0.342 -0.940 Z" fill="#EC4899" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.342 -0.940 A 1 1 0 0 1 -0.118 -0.993 Z" fill="#10B981" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.118 -0.993 A 1 1 0 0 1 1 0 Z" fill="#A855F7" stroke="#000000" stroke-width="0.02"/>
+        </svg>
+
+        <div class="pie-legend">
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Flora & Arbolado SIGAU</div>
+            <b style="color:#84A48B;">50.9% (289)</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#38BDF8;"></div>Aves (Avifauna)</div>
+            <b style="color:#38BDF8;">40.8% (232)</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#F59E0B;"></div>Mamíferos (Mastofauna)</div>
+            <b style="color:#F59E0B;">2.6% (15)</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#EC4899;"></div>Moluscos (Gasterópodos)</div>
+            <b style="color:#EC4899;">2.5% (14)</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#10B981;"></div>Anfibios (Ranas/Sapos)</div>
+            <b style="color:#10B981;">1.6% (9)</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#A855F7;"></div>Reptiles (Serpientes/Lagartos)</div>
+            <b style="color:#A855F7;">1.6% (9)</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Torta C: Origen y Soporte de Fuentes de Evidencia -->
+      <div class="pie-card">
+        <div class="pie-card-title">3. Torta C: Fuentes de Evidencia</div>
+        <div class="pie-card-desc">Respaldo técnico del modelo socioecológico a partir del origen del dato.</div>
+        
+        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
+          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.741 0.672 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.741 0.672 A 1 1 0 0 1 -0.722 -0.692 Z" fill="#E7C878" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L -0.722 -0.692 A 1 1 0 0 1 0.584 -0.812 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 0.584 -0.812 A 1 1 0 0 1 0.951 -0.309 Z" fill="#F79E70" stroke="#000000" stroke-width="0.02"/>
+          <path d="M 0 0 L 0.951 -0.309 A 1 1 0 0 1 1 0 Z" fill="#6B9080" stroke="#000000" stroke-width="0.02"/>
+        </svg>
+
+        <div class="pie-legend">
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Censo SIGAU / Colecciones</div>
+            <b style="color:#84A48B;">50.9%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#E7C878;"></div>Registros iNaturalist</div>
+            <b style="color:#E7C878;">35.8%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>PMA Humedales SDA</div>
+            <b style="color:#A386A9;">8.3%</b>
+          </div>
+          <div class="legend-row">
+            <div class="legend-label"><div class="legend-dot" style="background:#6B9080;"></div>Ciencia Participativa</div>
+            <b style="color:#6B9080;">5.0%</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:14px;">
+      <span style="font-size:10.5px; color:#94a3b8;">💡 Puedes volver a abrir estas métricas en cualquier momento con el botón "Métricas" de la barra superior.</span>
+      <button class="btn-flat active" style="padding:9px 24px; font-size:12px; font-weight:800; background:linear-gradient(135deg, #84a48b, #6B9080); color:#000000; border:none;" onclick="closeWelcomeModal()">
+        Entendido, Ingresar al Visor
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Top Navigation Header -->
+<div class="top-header" id="topHeader">
+  <div class="nav-group">
+    <div class="glass-panel brand-title">
+      <span>RED DE INTERACCIONES BIÓTICAS DE KENNEDY</span>
+    </div>
+
+    <button class="glass-panel btn-flat active" onclick="openWelcomeModal()">
+      <span>Métricas (Tortas A, B, C)</span>
+    </button>
+
+    <button class="glass-panel btn-flat active" id="btnToggleSide" onclick="toggleSideDrawer()">
+      <span>Filtro de Capas Bióticas</span>
+    </button>
+
+    <button class="glass-panel btn-flat" onclick="restoreHiddenNodes()">
+      <span>Restablecer (<span id="lblHiddenCount">0</span>)</span>
+    </button>
+
+    <input type="text" id="searchInput" placeholder="Buscar taxón..." oninput="searchNode(this.value)" class="glass-panel search-box">
+  </div>
+
+  <div class="nav-group">
+    <button class="glass-panel btn-flat active" id="btnLayoutHyp" onclick="setLayout('hyperbolic')">
+      <span>Hiperbólico</span>
+    </button>
+
+    <button class="glass-panel btn-flat" id="btnLayoutClust" onclick="setLayout('clustered')">
+      <span>Por Grupos</span>
+    </button>
+
+    <button class="glass-panel btn-flat" id="btnLayoutConc" onclick="setLayout('concentric')">
+      <span>Anillos</span>
+    </button>
+
+    <button class="glass-panel btn-flat active" id="btnAutoRot" onclick="opts.autoRotate = !opts.autoRotate; this.classList.toggle('active')">
+      <span>Giro 3D</span>
+    </button>
+
+    <button class="glass-panel btn-flat" id="soundToggle" title="Paisaje Sonoro">
+      <i class="fa-solid fa-volume-xmark"></i>
+    </button>
+
+    <button class="glass-panel btn-flat" onclick="resetCamera()">Reset</button>
+  </div>
+</div>
+
+<!-- Side Drawer -->
+<div class="glass-panel side-drawer" id="sideDrawer">
+  <div class="drawer-header">
+    <span style="color:#84A48B; font-weight:800;">Capas Taxonómicas</span>
+    <div style="display:flex; gap:4px;">
+      <button class="quick-toggle-btn" onclick="toggleAllCats(true)" title="Encender todas las capas taxonómicas">Todas</button>
+      <button class="quick-toggle-btn" onclick="toggleAllCats(false)" title="Apagar todas las capas taxonómicas">Ninguna</button>
+    </div>
+  </div>
+
+  <div class="cat-card" id="catCard0" style="--cat-color:#84A48B;" onclick="toggleCat(0)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#84A48B;" src="assets/fotos/fotos_flora/Sauco.jpg" onerror="this.src='./assets/inat_sauco.png'" alt="Flora">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Flora & Arbolado SIGAU</div>
+        <div style="font-size:9.5px; color:#94a3b8;">289 Especies Botánicas / Censo SIGAU</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat0">289</span>
+      <div class="toggle-box checked" id="toggleCat0" style="--toggle-bg:#84A48B;"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" id="catCard1" style="--cat-color:#38BDF8;" onclick="toggleCat(1)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#38BDF8;" src="assets/fotos/fotos_aves/Mirla%20patinaranja.jpeg" onerror="this.src='./assets/inat_mirla.png'" alt="Aves">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Aves (Avifauna)</div>
+        <div style="font-size:9.5px; color:#94a3b8;">232 Especies Acuáticas & de Dosel</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat1" style="color:#38BDF8;">232</span>
+      <div class="toggle-box checked" id="toggleCat1" style="--toggle-bg:#38BDF8;"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" id="catCard2" style="--cat-color:#F59E0B;" onclick="toggleCat(2)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#F59E0B;" src="assets/fotos/fotos_mamiferos/Ardilla%20de%20cola%20roja.jpeg" onerror="this.src='./assets/inat_rata.png'" alt="Mamíferos">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Mamíferos</div>
+        <div style="font-size:9.5px; color:#94a3b8;">15 Especies de Mastofauna</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat2" style="color:#F59E0B;">15</span>
+      <div class="toggle-box checked" id="toggleCat2" style="--toggle-bg:#F59E0B;"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" id="catCard3" style="--cat-color:#EC4899;" onclick="toggleCat(3)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#EC4899;" src="assets/fotos/fotos_moluscos/Caracol%20europeo%20de%20jard%C3%ADn.jpg" onerror="this.src='./assets/inat_lenteja.png'" alt="Moluscos">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Moluscos</div>
+        <div style="font-size:9.5px; color:#94a3b8;">14 Especies de Caracoles y Babosas</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat3" style="color:#EC4899;">14</span>
+      <div class="toggle-box checked" id="toggleCat3" style="--toggle-bg:#EC4899;"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" id="catCard4" style="--cat-color:#10B981;" onclick="toggleCat(4)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#10B981;" src="assets/fotos/fotos_anfibios/Rana%20sabanera.jpg" onerror="this.src='./assets/inat_rana.png'" alt="Anfibios">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Anfibios</div>
+        <div style="font-size:9.5px; color:#94a3b8;">9 Especies de Ranas y Salamandras</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat4" style="color:#10B981;">9</span>
+      <div class="toggle-box checked" id="toggleCat4" style="--toggle-bg:#10B981;"></div>
+    </div>
+  </div>
+
+  <div class="cat-card" id="catCard5" style="--cat-color:#A855F7;" onclick="toggleCat(5)">
+    <div class="cat-label-wrap">
+      <img class="cat-thumb" style="--cat-color:#A855F7;" src="assets/fotos/fotos_reptiles/Serpiente%20sabanera.jpg" onerror="this.src='./assets/inat_espino.png'" alt="Reptiles">
+      <div>
+        <div style="font-weight:700; color:#f8fafc;">Reptiles</div>
+        <div style="font-size:9.5px; color:#94a3b8;">9 Especies de Serpientes y Lagartos</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge-count" id="badgeCat5" style="color:#A855F7;">9</span>
+      <div class="toggle-box checked" id="toggleCat5" style="--toggle-bg:#A855F7;"></div>
+    </div>
+  </div>
+
+  <!-- Interactive Ecological Interaction Conventions in Compact 3-Column Grid -->
+  <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.12);">
+    <div class="drawer-header" style="margin-bottom:6px; padding-bottom:6px;">
+      <span style="color:#84A48B; font-weight:800;">Tipos de Interacción</span>
+      <div style="display:flex; gap:4px;">
+        <button class="quick-toggle-btn" onclick="toggleAllInteractions(true)" title="Encender todas las interacciones">Todas</button>
+        <button class="quick-toggle-btn" onclick="toggleAllInteractions(false)" title="Apagar todas las interacciones">Ninguna</button>
+      </div>
+    </div>
+    
+    <div class="interaction-chips-grid" id="interactionToggleList">
+      <div class="inter-chip active" id="interItem0" style="--inter-color:#C96349;" onclick="toggleInteraction(0)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Depredación</div>
+        <div class="inter-chip-badge" id="badgeInter0">--</div>
+      </div>
+
+      <div class="inter-chip active" id="interItem1" style="--inter-color:#84A48B;" onclick="toggleInteraction(1)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Herbivoría</div>
+        <div class="inter-chip-badge" id="badgeInter1">--</div>
+      </div>
+
+      <div class="inter-chip active" id="interItem2" style="--inter-color:#E69888;" onclick="toggleInteraction(2)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Dispersión</div>
+        <div class="inter-chip-badge" id="badgeInter2">--</div>
+      </div>
+
+      <div class="inter-chip active" id="interItem3" style="--inter-color:#E7C878;" onclick="toggleInteraction(3)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Mutualismo</div>
+        <div class="inter-chip-badge" id="badgeInter3">--</div>
+      </div>
+
+      <div class="inter-chip active" id="interItem4" style="--inter-color:#F79E70;" onclick="toggleInteraction(4)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Nidificación</div>
+        <div class="inter-chip-badge" id="badgeInter4">--</div>
+      </div>
+
+      <div class="inter-chip active" id="interItem5" style="--inter-color:#A386A9;" onclick="toggleInteraction(5)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Visita Floral</div>
+        <div class="inter-chip-badge" id="badgeInter5">--</div>
+      </div>
+
+      <div class="inter-chip active" id="interItem6" style="--inter-color:#D1A996;" onclick="toggleInteraction(6)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Anidamiento</div>
+        <div class="inter-chip-badge" id="badgeInter6">--</div>
+      </div>
+
+      <div class="inter-chip active" id="interItem7" style="--inter-color:#C6B3CA;" onclick="toggleInteraction(7)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Parasitismo</div>
+        <div class="inter-chip-badge" id="badgeInter7">--</div>
+      </div>
+
+      <div class="inter-chip active" id="interItem8" style="--inter-color:#6B9080;" onclick="toggleInteraction(8)">
+        <div class="inter-chip-dot"></div>
+        <div class="inter-chip-title">Competencia</div>
+        <div class="inter-chip-badge" id="badgeInter8">--</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pop-Up Inspector Modal -->
+<div class="glass-panel node-inspector" id="nodeInspector" style="display:none;">
+  <div class="inspector-header">
+    <div>
+      <div class="node-title" id="mNodeTitle">Tingua bogotana</div>
+      <div class="node-subtitle" id="mNodeSciName">Rallus semiplumbeus</div>
+    </div>
+    <div class="btn-close" onclick="closeInspector()">×</div>
+  </div>
+
+  <img id="mNodeImg" src="" alt="Fotografía / Taxón" class="media-preview" onerror="this.style.display='none'">
+
+  <div class="data-grid">
+    <div class="metric-card">
+      <div class="metric-val" id="mDegreeVal">16</div>
+      <div class="metric-lbl">Enlaces Activos</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val" id="mTaxaCode">AVE-01</div>
+      <div class="metric-lbl">Código Registro</div>
+    </div>
+  </div>
+
+  <div class="sec-header">Rol Ecológico & Nicho</div>
+  <div class="text-content" id="mRoleBox">Consumidor secundario...</div>
+
+  <div class="sec-header">Ubicación en Kennedy</div>
+  <div class="text-content" id="mLocBox">Humedal El Burro y La Vaca...</div>
+
+  <div class="sec-header">Vulnerabilidad & Presión de Hábitat (IUCN / SDA)</div>
+  <div class="text-content alert" id="mAlertBox">Sensible a pérdida de juncales y contaminación hídrica...</div>
+
+  <div class="sec-header" id="mNeighborHeader">Interacciones Bióticas Directas</div>
+  <div class="neighbor-scroll" id="mNeighborList">
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:6px; margin-top:12px;">
+    <button class="btn-flat" style="justify-content:center; background:rgba(132,164,139,0.2); border-color:#84a48b; color:#ffffff; font-weight:700;" onclick="openSubNetworkModal()">
+      🕸️ Ver Sub-Red de Interacciones a Detalle
+    </button>
+
+    <div style="display:flex; gap:6px;">
+      <button class="btn-flat" style="flex:1; justify-content:center;" onclick="focusSelectedNode()">Centrar</button>
+      <button class="btn-flat" style="flex:1; justify-content:center; background:rgba(201,99,73,0.25); border-color:#C96349; color:#ffffff;" onclick="hideCurrentNode()">Ocultar</button>
+      <button class="btn-flat" style="flex:1; justify-content:center; background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#cbd5e1;" onclick="closeInspector()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sub-Network 2D Graph Interactive Modal Popup -->
+<div class="subnetwork-modal" id="subnetworkModal" style="display:none;">
+  <div class="subnetwork-header">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="font-weight:800; font-size:13px; color:#84a48b;" id="subModalTitle">Sub-Red de Interacciones Bióticas</span>
+      <span style="font-size:10px; color:#94a3b8; font-family:monospace;" id="subModalCode">[AVE-19]</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; max-width:620px;">
+      <button class="btn-flat active" id="subInterToggle0" onclick="toggleSubInteraction(0)" style="font-size:8.5px; padding:2px 6px; border-color:#C96349; color:#C96349; background:rgba(201,99,73,0.15);">Depredación</button>
+      <button class="btn-flat active" id="subInterToggle1" onclick="toggleSubInteraction(1)" style="font-size:8.5px; padding:2px 6px; border-color:#84A48B; color:#84A48B; background:rgba(132,164,139,0.15);">Herbivoría</button>
+      <button class="btn-flat active" id="subInterToggle2" onclick="toggleSubInteraction(2)" style="font-size:8.5px; padding:2px 6px; border-color:#E69888; color:#E69888; background:rgba(230,152,136,0.15);">Dispersión</button>
+      <button class="btn-flat active" id="subInterToggle3" onclick="toggleSubInteraction(3)" style="font-size:8.5px; padding:2px 6px; border-color:#E7C878; color:#E7C878; background:rgba(231,200,120,0.15);">Mutualismo</button>
+      <button class="btn-flat active" id="subInterToggle4" onclick="toggleSubInteraction(4)" style="font-size:8.5px; padding:2px 6px; border-color:#F79E70; color:#F79E70; background:rgba(247,158,112,0.15);">Nidificación</button>
+      <button class="btn-flat active" id="subInterToggle5" onclick="toggleSubInteraction(5)" style="font-size:8.5px; padding:2px 6px; border-color:#A386A9; color:#A386A9; background:rgba(163,134,169,0.15);">Visita Floral</button>
+      <button class="btn-flat active" id="subInterToggle6" onclick="toggleSubInteraction(6)" style="font-size:8.5px; padding:2px 6px; border-color:#D1A996; color:#D1A996; background:rgba(209,169,150,0.15);">Anidamiento</button>
+      <button class="btn-flat active" id="subInterToggle7" onclick="toggleSubInteraction(7)" style="font-size:8.5px; padding:2px 6px; border-color:#C6B3CA; color:#C6B3CA; background:rgba(198,179,202,0.15);">Parasitismo</button>
+      <button class="btn-flat active" id="subInterToggle8" onclick="toggleSubInteraction(8)" style="font-size:8.5px; padding:2px 6px; border-color:#6B9080; color:#6B9080; background:rgba(107,144,128,0.15);">Competencia</button>
+      <div class="btn-close" style="margin-left:6px;" onclick="closeSubNetworkModal()">×</div>
+    </div>
+  </div>
+  <div class="subnetwork-canvas-wrap">
+    <canvas id="subCanvas"></canvas>
+  </div>
+</div>
+
+<!-- FAQ Chat Assistant -->
+<button class="chat-widget-btn" id="chatWidgetBtn" onclick="toggleFaqChat()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span>Asistente de Preguntas</span>
+</button>
+
+<div class="glass-panel faq-chat-modal" id="faqChatModal" style="display:none;">
+  <div class="chat-header">
+    <div style="display:flex; align-items:center; gap:8px; color:#84a48b; font-weight:700; font-size:12px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#84a48b" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <span>Consultas Frecuentes de la Red</span>
+    </div>
+    <div class="btn-close" onclick="toggleFaqChat()">×</div>
+  </div>
+
+  <div class="chat-body" id="chatBody">
+    <div class="msg-bubble msg-bot">
+      ¡Hola! 👋 Soy el asistente de la Red Biótica de Kennedy. Haz clic en las preguntas preparadas abajo o escribe tu consulta.
+    </div>
+  </div>
+
+  <div class="predefined-chips" style="max-height:200px; overflow-y:auto;">
+    <button class="chip-btn" onclick="askFaq(1)">
+      <span>1. ¿Qué significan las conexiones y evidencia entre especies?</span>
+      <span style="color:#84a48b;">→</span>
+    </button>
+    <button class="chip-btn" onclick="askFaq(2)">
+      <span>2. ¿Por qué existen relaciones entre vegetación y fauna?</span>
+      <span style="color:#84a48b;">→</span>
+    </button>
+    <button class="chip-btn" onclick="askFaq(3)">
+      <span>3. Conjetura: ¿Qué observaciones son datos vs hipótesis?</span>
+      <span style="color:#e7c878;">→</span>
+    </button>
+    <button class="chip-btn" onclick="askFaq(4)">
+      <span>4. Problemática: ¿Qué dependencias amenazan la sostenibilidad?</span>
+      <span style="color:#c96349;">→</span>
+    </button>
+  </div>
+
+  <div style="padding:10px 12px; background:rgba(15,23,42,0.98); border-top:1px solid rgba(132,164,139,0.25); display:flex; gap:8px; align-items:center;">
+    <input type="text" id="chatInput" placeholder="Escribe tu pregunta sobre la red..." onkeydown="if(event.key==='Enter') sendCustomChatMessage()" style="flex:1; background:rgba(0,0,0,0.6); border:1px solid rgba(132,164,139,0.3); color:#ffffff; padding:6px 10px; border-radius:6px; font-size:11px; outline:none;">
+    <button class="btn-flat active" onclick="sendCustomChatMessage()" style="padding:6px 12px; font-weight:700;">Enviar</button>
+  </div>
+</div>
+
+<!-- Waypoints Bar (Stage 2 - Territorio 3D) -->
+<div class="waypoints-bar" id="waypointsBar">
+  <button class="waypoint-pill active" data-waypoint="overview">
+    <i class="fa-solid fa-compass"></i> Axonometría Total
+  </button>
+  <button class="waypoint-pill" data-waypoint="burro">
+    <i class="fa-solid fa-water"></i> Humedal El Burro
+  </button>
+  <button class="waypoint-pill" data-waypoint="vaca">
+    <i class="fa-solid fa-water"></i> Humedal La Vaca
+  </button>
+  <button class="waypoint-pill" data-waypoint="techo">
+    <i class="fa-solid fa-water"></i> Humedal El Techo
+  </button>
+  <button class="waypoint-pill" data-waypoint="perspective" style="border-color: #84A48B; color: #84A48B;">
+    <i class="fa-solid fa-person-walking"></i> Perspectiva Humedal
+  </button>
+  <button class="waypoint-pill" id="btnTourSpecies">
+    <i class="fa-solid fa-tree"></i> Recorrido de Árboles
+  </button>
+</div>
+
+<!-- Active Tree Floating Chip -->
+<button id="activeTreeChip" title="Ver detalles del árbol">
+  <img id="activeTreeImg" src="./assets/inat_sauco.png" alt="Árbol">
+  <span id="activeTreeName">Sauco</span>
+</button>
+
+<!-- Camera Helper Tool -->
+<div id="camInspectorBox">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-weight:800; color:#84A48B; font-size:11px;">
+    <span><i class="fa-solid fa-video"></i> Ajustar Vista 3D</span>
+    <span style="cursor:pointer; opacity:0.7;" id="btnCloseCamInspector" title="Cerrar"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:10.5px; color:#94a3b8;">Posición: <span id="camCoordPos" style="color:#fff;">0, 0, 0</span></div>
+  <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:10.5px; color:#94a3b8;">Objetivo: <span id="camCoordTarget" style="color:#fff;">0, 0, 0</span></div>
+  <button id="btnSaveCameraView" class="cam-save-btn">
+    <i class="fa-solid fa-cloud-arrow-up"></i> SUBIR ESTA VISTA AL EDITOR
+  </button>
+</div>
+
+<div id="camToast" style="position:fixed; top:78px; right:32px; z-index:100; background:rgba(30,58,52,0.95); border:1px solid #84A48B; color:#f1f5f9; padding:10px 20px; border-radius:12px; font-size:11.5px; font-weight:700; opacity:0; pointer-events:none; transition:opacity 0.3s ease;">
+  ¡Vista inicial guardada para el editor!
+</div>
+
+<!-- Tooltip de Especie en Territorio 3D -->
+<div id="territorySpeciesTooltip" class="glass-panel" style="position:fixed; display:none; z-index:250; pointer-events:none; padding:10px 12px; border-radius:10px; max-width:280px; box-shadow:0 12px 32px rgba(0,0,0,0.85); border-left:3px solid var(--cat-color, #84A48B);">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <img id="ttSpeciesImg" src="" alt="Especie" style="width:38px; height:38px; border-radius:50%; object-fit:cover; border:1.5px solid var(--cat-color, #84A48B); flex-shrink:0;">
+    <div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span id="ttSpeciesBadge" style="font-size:9px; font-weight:700; color:var(--cat-color, #84A48B); text-transform:uppercase;"></span>
+      </div>
+      <div id="ttSpeciesName" style="font-size:12px; font-weight:800; color:#ffffff; line-height:1.2;"></div>
+      <div id="ttSpeciesSci" style="font-size:10px; font-style:italic; color:#94a3b8;"></div>
+    </div>
+  </div>
+  <div style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.08); font-size:10px;">
+    <div id="ttSpeciesLoc" style="color:#cbd5e1; font-weight:600;"></div>
+    <div id="ttSpeciesRole" style="color:#84a48b; margin-top:2px;"></div>
+  </div>
+</div>
+
+<!-- Modal Pop-up de Especie en Territorio 3D -->
+<div id="territorySpeciesModal" class="glass-panel" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:380px; max-height:85vh; overflow-y:auto; padding:18px; z-index:350; display:none; flex-direction:column; gap:12px; border:1px solid var(--cat-color, #84A48B); box-shadow:0 24px 70px rgba(0,0,0,0.95); border-radius:14px;">
+  <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <img id="modalSpeciesImg" src="" alt="Especie" style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--cat-color, #84A48B);">
+      <div>
+        <span id="modalSpeciesBadge" style="font-size:9.5px; font-weight:800; color:var(--cat-color, #84A48B); text-transform:uppercase; border:1px solid var(--cat-color, #84A48B); padding:2px 6px; border-radius:4px;"></span>
+        <div id="modalSpeciesName" style="font-size:15px; font-weight:900; color:#ffffff; margin-top:3px;"></div>
+        <div id="modalSpeciesSci" style="font-size:11px; font-style:italic; color:#94a3b8;"></div>
+      </div>
+    </div>
+    <button id="btnCloseTerritoryModal" class="btn-close" style="font-size:14px; padding:2px 8px; border:1px solid rgba(255,255,255,0.15); border-radius:4px; background:none; color:#cbd5e1; cursor:pointer;">×</button>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px;">
+    <div style="font-size:10px; text-transform:uppercase; font-weight:700; color:#84A48B; margin-bottom:2px;">Ubicación en Kennedy</div>
+    <div id="modalSpeciesLoc" style="font-size:11.5px; color:#ffffff; font-weight:600;"></div>
+    <div style="font-size:10px; text-transform:uppercase; font-weight:700; color:#84A48B; margin-top:8px; margin-bottom:2px;">Rol Ecológico & Nicho</div>
+    <div id="modalSpeciesRole" style="font-size:11.5px; color:#cbd5e1;"></div>
+  </div>
+
+  <div style="font-size:11px; color:#94a3b8; line-height:1.4;" id="modalSpeciesDesc"></div>
+
+  <div>
+    <div style="font-size:10px; text-transform:uppercase; font-weight:700; color:#84A48B; margin-bottom:6px;">Interacciones Directas</div>
+    <div id="modalSpeciesLinks" style="display:flex; flex-direction:column; gap:4px; max-height:140px; overflow-y:auto;"></div>
+  </div>
+
+  <div style="display:flex; gap:8px; margin-top:4px;">
+    <button id="btnFlyToSpecies" class="btn-flat" style="flex:1; justify-content:center; color:#000000; font-weight:800; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">
+      <i class="fa-solid fa-crosshairs"></i> Enfocar Cámara
+    </button>
+  </div>
+</div>
+
+<!-- Bottom Experience Bar with Transition Slider -->
+<div class="bottom-experience-bar">
+  <div class="scrub-container">
+    <span class="scrub-label active" id="labelSwarm">Red Biótica</span>
+    <input type="range" id="experienceSlider" class="custom-scrub-slider" min="0" max="100" value="0">
+    <span class="scrub-label" id="labelTerritory">Territorio 3D</span>
+    <button id="btnPlayTransition" class="experience-toggle-btn">
+      <i class="fa-solid fa-atom"></i> <span id="btnActionText">MATERIALIZAR</span>
+    </button>
+  </div>
+  <div class="status-badge-text">
+    Taxones Visibles: <b id="lblActiveNodes">568</b> | Interacciones: <b id="lblActiveEdges">0</b> | Ocultos: <b id="lblStatusHidden">0</b> • Doble Clic: Ocultar Nodo
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// Sistema Socioecológico de Kennedy — Red Biótica & Territorio 3D
+// Living 568-Species Socioecological Network (289 Flora, 232 Aves, 15 Mamíferos, 14 Moluscos, 9 Anfibios, 9 Reptiles)
+// =====================================================================
+
+(() => {{
+  const BUILDINGS_URL = "./assets/kennedy_buildings.json";
+  const TREES_URL = "./assets/kennedy_trees_real.json";
+  const WATER_URL = "./assets/kennedy_water_bodies.json";
+  const SCALE = 1 / 10;
+
+  // Estado Global de Transición
+  let currentMorph = 0.0;
+  let targetMorph = 0.0;
+  let isTerritory = false;
+
+  // Centro de proyección de Kennedy
+  const netCenter = {{ x: 5341.33, y: 3161.9 }};
+  function toScene(x, y) {{
+    return {{ x: (x - netCenter.x) * SCALE, z: -(y - netCenter.y) * SCALE }};
+  }}
+
+  // ---- Setup de Escena, Cámara y Variables Principales ----
+  const canvas = document.getElementById("sceneCanvas");
+  const loadingVeil = document.getElementById("loadingVeil");
+  const topHeader = document.getElementById("topHeader");
+  const sideDrawer = document.getElementById("sideDrawer");
+  const nodeInspector = document.getElementById("nodeInspector");
+  const chatWidgetBtn = document.getElementById("chatWidgetBtn");
+  const faqChatModal = document.getElementById("faqChatModal");
+  const subnetworkModal = document.getElementById("subnetworkModal");
+  const toastNotify = document.getElementById("toastNotify");
+  const waypointsBar = document.getElementById("waypointsBar");
+  const activeTreeChip = document.getElementById("activeTreeChip");
+  const activeTreeImg = document.getElementById("activeTreeImg");
+  const activeTreeName = document.getElementById("activeTreeName");
+
+  const camInspectorBox = document.getElementById("camInspectorBox");
+  const camCoordPos = document.getElementById("camCoordPos");
+  const camCoordTarget = document.getElementById("camCoordTarget");
+  const btnSaveCameraView = document.getElementById("btnSaveCameraView");
+  const btnCloseCamInspector = document.getElementById("btnCloseCamInspector");
+  const camToast = document.getElementById("camToast");
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+  scene.fog = new THREE.FogExp2(0x000000, 0.00065);
+
+  const sceneRoot = new THREE.Group();
+  scene.add(sceneRoot);
+
+  const sceneBaseGroup = new THREE.Group();
+  sceneBaseGroup.visible = false;
+  sceneRoot.add(sceneBaseGroup);
+
+  const territoryBeaconsGroup = new THREE.Group();
+  territoryBeaconsGroup.visible = false;
+  sceneRoot.add(territoryBeaconsGroup);
+
+  const territoryBeacons = [];
+  const raycaster = new THREE.Raycaster();
+  const mouseVec = new THREE.Vector2();
+  let selectedNode = null;
+  let hoveredNode = null;
+  let activeTerritoryTaxon = null;
+  let hoveredTerritoryBeacon = null;
+
+  let currentFov = 44;
+  const aspect = window.innerWidth / window.innerHeight;
+  const camera = new THREE.PerspectiveCamera(currentFov, aspect, 0.8, 9500);
+
+  const swarmCamPos = new THREE.Vector3(0, 0, 85);
+  const swarmTarget = new THREE.Vector3(0, 0, 0);
+
+  let territoryCamPos = new THREE.Vector3(180, 270, 310);
+  let territoryTarget = new THREE.Vector3(35, 0, 10);
+
+  try {{
+    const savedCam = localStorage.getItem("saved_territory_cam");
+    if (savedCam) {{
+      const parsed = JSON.parse(savedCam);
+      if (parsed.pos && parsed.target) {{
+        territoryCamPos.set(parsed.pos.x, parsed.pos.y, parsed.pos.z);
+        territoryTarget.set(parsed.target.x, parsed.target.y, parsed.target.z);
+      }}
+    }}
+    if (localStorage.getItem("hide_cam_helper") === "true" && camInspectorBox) {{
+      camInspectorBox.classList.add("hidden");
+    }}
+  }} catch(e) {{}}
+
+  const waypoints = {{
+    overview:    {{ pos: territoryCamPos, target: territoryTarget, fov: 44 }},
+    burro:       {{ pos: new THREE.Vector3(210, 85, 95),  target: new THREE.Vector3(210, 0, -10), fov: 46 }},
+    vaca:        {{ pos: new THREE.Vector3(65, 80, 215),  target: new THREE.Vector3(65, 0, 125), fov: 46 }},
+    techo:       {{ pos: new THREE.Vector3(292, 80, 10),  target: new THREE.Vector3(292, 0, -80), fov: 46 }},
+    perspective: {{ pos: new THREE.Vector3(206, 3.8, 50), target: new THREE.Vector3(214, 3.2, 135), fov: 68 }}
+  }};
+
+  camera.position.copy(swarmCamPos);
+  camera.lookAt(swarmTarget);
+
+  const renderer = new THREE.WebGLRenderer({{ canvas: canvas, antialias: true, alpha: false, powerPreference: "high-performance" }});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.maxDistance = 1800;
+  controls.minDistance = 3.0;
+  controls.target.copy(swarmTarget);
+
+  // Iluminación
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+  scene.add(ambientLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  dirLight.position.set(120, 240, 160);
+  scene.add(dirLight);
+
+  // Opciones de Visualización
+  const opts = {{
+    autoRotate: true,
+    layout: 'hyperbolic',
+    cats: {{ 0: true, 1: true, 2: true, 3: true, 4: true, 5: true }},
+    interactions: {{ 0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true }}
+  }};
+
+  // Convenciones Taxonómicas
+  const TAXONOMIC_CONVENTIONS = {{
+    0: {{ name: 'Flora & Arbolado SIGAU', color: '#84A48B', hex: 0x84A48B, catIdx: 0, badge: 'FLORA' }},
+    1: {{ name: 'Aves (Avifauna)', color: '#38BDF8', hex: 0x38BDF8, catIdx: 1, badge: 'AVE' }},
+    2: {{ name: 'Mamíferos (Mastofauna)', color: '#F59E0B', hex: 0xF59E0B, catIdx: 2, badge: 'MAMÍFERO' }},
+    3: {{ name: 'Moluscos (Gasterópodos)', color: '#EC4899', hex: 0xEC4899, catIdx: 3, badge: 'MOLUSCO' }},
+    4: {{ name: 'Anfibios (Bioindicadores)', color: '#10B981', hex: 0x10B981, catIdx: 4, badge: 'ANFIBIO' }},
+    5: {{ name: 'Reptiles (Sauros/Ofidios)', color: '#A855F7', hex: 0xA855F7, catIdx: 5, badge: 'REPTIL' }}
+  }};
+
+  const palette = {{
+    catColors: {{
+      0: '#84A48B',
+      1: '#38BDF8',
+      2: '#F59E0B',
+      3: '#EC4899',
+      4: '#10B981',
+      5: '#A855F7'
+    }},
+    catNames: {{
+      0: 'Flora & Arbolado SIGAU',
+      1: 'Aves',
+      2: 'Mamíferos',
+      3: 'Moluscos',
+      4: 'Anfibios',
+      5: 'Reptiles'
+    }},
+    hexColors: {{
+      0: 0x84A48B,
+      1: 0x38BDF8,
+      2: 0xF59E0B,
+      3: 0xEC4899,
+      4: 0x10B981,
+      5: 0xA855F7
+    }}
+  }};
+
+  function generateSpeciesSvgDataUri(taxonId, speciesName, cat) {{
+    const colors = {{
+      0: ['#2A3A2F', '#84A48B'],
+      1: ['#1A2E3D', '#38BDF8'],
+      2: ['#3A2C18', '#F59E0B'],
+      3: ['#381829', '#EC4899'],
+      4: ['#143324', '#10B981'],
+      5: ['#2A183B', '#A855F7']
+    }};
+    const c = colors[cat] || colors[0];
+    const cleanTitle = (speciesName || '').split('(')[0].trim().substring(0, 10);
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="32" fill="${{c[0]}}"/>
+      <circle cx="32" cy="32" r="28" stroke="${{c[1]}}" stroke-width="2.5" fill="none" opacity="0.9"/>
+      <circle cx="32" cy="32" r="22" stroke="${{c[1]}}" stroke-width="1" stroke-dasharray="2,2" fill="none" opacity="0.5"/>
+      <text x="32" y="27" font-family="monospace" font-size="8.5" font-weight="900" fill="${{c[1]}}" text-anchor="middle">${{taxonId}}</text>
+      <text x="32" y="41" font-family="sans-serif" font-size="7.5" font-weight="bold" fill="#ffffff" text-anchor="middle">${{cleanTitle}}</text>
+    </svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }}
+
+  // 1. DATASET COMPILADO DE 568 ESPECIES REALES DE KENNEDY
+  const FULL_DATASET = {taxa_json_str};
+
+  const rawTaxa = FULL_DATASET;
+  const rawNodes = [];
+  const nodeSprites = [];
+  const networkGroup = new THREE.Group();
+  sceneRoot.add(networkGroup);
+
+  const SPHERE_RADIUS = 34.0;
+
+  // Texturas circulares con imagen real iNaturalist / SIGAU y fallback SVG inmediato
+  function createCircularTexture(imgUrl, taxonId, speciesName, cat) {{
+    const cvs = document.createElement("canvas");
+    cvs.width = 128; cvs.height = 128;
+    const ctx = cvs.getContext("2d");
+
+    const catColor = palette.catColors[cat] || '#84a48b';
+    const tex = new THREE.CanvasTexture(cvs);
+
+    const drawFallback = () => {{
+      ctx.clearRect(0, 0, 128, 128);
+      ctx.beginPath();
+      ctx.arc(64, 64, 58, 0, Math.PI * 2);
+      ctx.fillStyle = catColor;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(64, 64, 52, 0, Math.PI * 2);
+      ctx.fillStyle = "#0a0a0c";
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 15px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(taxonId, 64, 54);
+      ctx.font = "bold 11px sans-serif";
+      ctx.fillStyle = catColor;
+      ctx.fillText((speciesName || '').substring(0, 9), 64, 74);
+      tex.needsUpdate = true;
+    }};
+
+    drawFallback();
+
+    if (imgUrl) {{
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = imgUrl;
+      img.onload = () => {{
+        try {{
+          ctx.clearRect(0, 0, 128, 128);
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(64, 64, 56, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(img, 0, 0, 128, 128);
+          ctx.restore();
+
+          ctx.beginPath();
+          ctx.arc(64, 64, 56, 0, Math.PI * 2);
+          ctx.strokeStyle = catColor;
+          ctx.lineWidth = 6;
+          ctx.stroke();
+
+          tex.needsUpdate = true;
+        }} catch(e) {{ drawFallback(); }}
+      }};
+      img.onerror = drawFallback;
+    }}
+
+    return tex;
+  }}
+
+  // Generación de Nodos 3D en esfera
+  rawTaxa.forEach((tData, idx) => {{
+    const phi = Math.acos(1 - 2 * ((idx + 0.5) / rawTaxa.length));
+    const theta = Math.PI * (1 + Math.sqrt(5)) * idx;
+    const rad = SPHERE_RADIUS + ((idx * 7) % 10) - 5;
+
+    const nx = rad * Math.sin(phi) * Math.cos(theta);
+    const ny = rad * Math.sin(phi) * Math.sin(theta);
+    const nz = rad * Math.cos(phi);
+
+    const tex = createCircularTexture(tData.img, tData.id, tData.name, tData.cat);
+    const spriteMat = new THREE.SpriteMaterial({{
+      map: tex,
+      transparent: true,
+      depthWrite: false
+    }});
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.scale.set(3.4, 3.4, 1.0);
+    sprite.position.set(nx, ny, nz);
+    sprite.userData = {{ id: idx, taxaId: tData.id, taxon: tData }};
+    networkGroup.add(sprite);
+    nodeSprites.push(sprite);
+
+    rawNodes.push({{
+      id: idx,
+      taxaId: tData.id,
+      label: tData.name,
+      sciname: tData.sciname,
+      cat: tData.cat,
+      role: tData.role,
+      loc: tData.loc,
+      alert: tData.alert,
+      photoUrl: tData.img || generateSpeciesSvgDataUri(tData.id, tData.name, tData.cat),
+      x: nx, y: ny, z: nz,
+      ox: nx, oy: ny, oz: nz,
+      baseX: nx, baseY: ny, baseZ: nz,
+      active: true,
+      hiddenByUser: false,
+      neighbors: [],
+      degree: 0,
+      sprite: sprite
+    }});
+  }});
+
+  // =====================================================================
+  // 2. GENERADOR DE RELACIONES BIÓTICAS Y ENLACES
+  // =====================================================================
+  const rawEdges = [];
+  const edgeDetailsMap = {{}};
+
+  const INTER_TYPES = {{
+    PREDATION:    {{ id: 0, name: 'Depredación', color: '#C96349' }},
+    HERBIVORY:    {{ id: 1, name: 'Herbivoría', color: '#84A48B' }},
+    DISPERSAL:    {{ id: 2, name: 'Dispersión de Semillas', color: '#E69888' }},
+    MUTUALISM:    {{ id: 3, name: 'Mutualismo', color: '#E7C878' }},
+    NESTING:      {{ id: 4, name: 'Nidificación & Refugio', color: '#F79E70' }},
+    POLLINATION:  {{ id: 5, name: 'Visita Floral / Polinización', color: '#A386A9' }},
+    NEST_SITE:    {{ id: 6, name: 'Anidamiento de Dosel', color: '#D1A996' }},
+    PARASITISM:   {{ id: 7, name: 'Parasitismo de Nido', color: '#C6B3CA' }},
+    ALLELOPATHY:  {{ id: 8, name: 'Competencia / Biofiltro', color: '#6B9080' }}
+  }};
+
+  function addConscientiousEdge(sourceNode, targetNode, interType, rationale) {{
+    if (!sourceNode || !targetNode || sourceNode.id === targetNode.id) return;
+    const key = sourceNode.id < targetNode.id ? `${{sourceNode.id}}_${{targetNode.id}}` : `${{targetNode.id}}_${{sourceNode.id}}`;
+    if (edgeDetailsMap[key]) return;
+
+    rawEdges.push({{ source: sourceNode.id, target: targetNode.id }});
+    edgeDetailsMap[key] = {{ source: sourceNode.id, target: targetNode.id, type: interType, rationale: rationale || '' }};
+    
+    if (!sourceNode.neighbors.includes(targetNode)) {{
+      sourceNode.neighbors.push(targetNode);
+    }}
+    if (!targetNode.neighbors.includes(sourceNode)) {{
+      targetNode.neighbors.push(sourceNode);
+    }}
+  }}
+
+  function getInteractionInfo(nodeA, nodeB) {{
+    if (!nodeA || !nodeB) return INTER_TYPES.MUTUALISM;
+    const key = nodeA.id < nodeB.id ? `${{nodeA.id}}_${{nodeB.id}}` : `${{nodeB.id}}_${{nodeA.id}}`;
+    if (edgeDetailsMap[key]) {{
+      return edgeDetailsMap[key].type;
+    }}
+    if ((nodeA.cat === 1 || nodeA.cat === 2) && nodeB.cat === 3) return INTER_TYPES.PREDATION;
+    if (nodeA.cat === 1 && nodeB.cat === 4) return INTER_TYPES.PREDATION;
+    if (nodeA.cat === 1 && nodeB.cat === 2) return INTER_TYPES.PREDATION;
+    if (nodeA.cat === 5 && (nodeB.cat === 3 || nodeB.cat === 4)) return INTER_TYPES.PREDATION;
+    if (nodeA.cat === 1 && nodeB.cat === 0) return INTER_TYPES.DISPERSAL;
+    if (nodeA.cat === 3 && nodeB.cat === 0) return INTER_TYPES.HERBIVORY;
+    if (nodeA.cat === 2 && nodeB.cat === 0) return INTER_TYPES.HERBIVORY;
+    return INTER_TYPES.MUTUALISM;
+  }}
+
+  function buildConscientiousBioticNetwork() {{
+    const floraNodes = rawNodes.filter(n => n.cat === 0);
+    const aveNodes = rawNodes.filter(n => n.cat === 1);
+    const mamNodes = rawNodes.filter(n => n.cat === 2);
+    const molNodes = rawNodes.filter(n => n.cat === 3);
+    const anfNodes = rawNodes.filter(n => n.cat === 4);
+    const repNodes = rawNodes.filter(n => n.cat === 5);
+
+    const findTaxon = (idOrName) => rawNodes.find(n => n.taxaId === idOrName || n.sciname.toLowerCase().includes(idOrName.toLowerCase()) || n.label.toLowerCase().includes(idOrName.toLowerCase()));
+
+    // Flora estructural
+    const saucoNodes = floraNodes.filter(n => n.label.toLowerCase().includes('sauco') || n.sciname.toLowerCase().includes('sambucus'));
+    const capuliNodes = floraNodes.filter(n => n.label.toLowerCase().includes('capul') || n.sciname.toLowerCase().includes('prunus') || n.label.toLowerCase().includes('cerezo'));
+    const alisoNodes = floraNodes.filter(n => n.label.toLowerCase().includes('aliso') || n.sciname.toLowerCase().includes('alnus'));
+    const chilcoNodes = floraNodes.filter(n => n.label.toLowerCase().includes('chilc') || n.sciname.toLowerCase().includes('baccharis'));
+    const juncoNodes = floraNodes.filter(n => n.label.toLowerCase().includes('junco') || n.sciname.toLowerCase().includes('schoenoplectus'));
+    const eneaNodes = floraNodes.filter(n => n.label.toLowerCase().includes('enea') || n.label.toLowerCase().includes('totora') || n.sciname.toLowerCase().includes('typha'));
+    const sauceNodes = floraNodes.filter(n => n.label.toLowerCase().includes('sauce') || n.sciname.toLowerCase().includes('salix'));
+    const raqueNodes = floraNodes.filter(n => n.label.toLowerCase().includes('raque') || n.sciname.toLowerCase().includes('vallea'));
+    const farolitoNodes = floraNodes.filter(n => n.label.toLowerCase().includes('farolito') || n.label.toLowerCase().includes('abutilon'));
+
+    // Polinización
+    const colibriList = aveNodes.filter(a => a.label.toLowerCase().includes('colibr') || a.sciname.toLowerCase().includes('colibri') || a.label.toLowerCase().includes('calzadito') || a.label.toLowerCase().includes('brillante'));
+    colibriList.forEach(col => {{
+      [...saucoNodes, ...chilcoNodes, ...raqueNodes, ...farolitoNodes, ...floraNodes.slice(0, 10)].slice(0, 5).forEach(fl => {{
+        addConscientiousEdge(col, fl, INTER_TYPES.POLLINATION, 'Polinización cruzada y forrajeo de néctar floral');
+      }});
+    }});
+
+    // Frugivoría y dispersión
+    const frugivores = aveNodes.filter(a => a.label.toLowerCase().includes('mirla') || a.label.toLowerCase().includes('tangara') || a.label.toLowerCase().includes('tángara') || a.label.toLowerCase().includes('calandria') || a.label.toLowerCase().includes('centzontle'));
+    frugivores.forEach(fr => {{
+      [...capuliNodes, ...saucoNodes, ...floraNodes.slice(5, 20)].slice(0, 4).forEach(tr => {{
+        addConscientiousEdge(fr, tr, INTER_TYPES.DISPERSAL, 'Consumo de frutos y dispersión zoócora de semillas');
+      }});
+    }});
+
+    // Mamíferos dispersores
+    mamNodes.forEach(mam => {{
+      floraNodes.slice(0, 8).forEach(tr => {{
+        addConscientiousEdge(mam, tr, INTER_TYPES.DISPERSAL, 'Forrajeo y dispersión en estrato arbóreo y suelo');
+      }});
+    }});
+
+    // Nidificación en juncales
+    const marshNesters = aveNodes.filter(a => a.label.toLowerCase().includes('tingua') || a.label.toLowerCase().includes('monjita') || a.label.toLowerCase().includes('burrito') || a.label.toLowerCase().includes('focha') || a.label.toLowerCase().includes('gallineta') || a.label.toLowerCase().includes('pato') || a.label.toLowerCase().includes('rascón'));
+    marshNesters.forEach(mn => {{
+      [...juncoNodes, ...eneaNodes, ...floraNodes.slice(10, 18)].slice(0, 4).forEach(pl => {{
+        addConscientiousEdge(mn, pl, INTER_TYPES.NESTING, 'Anclaje de nidos flotantes y camuflaje entre juncales');
+      }});
+    }});
+
+    // Percha y anidamiento de rapaces y garzas
+    const treePerchers = aveNodes.filter(a => a.label.toLowerCase().includes('garza') || a.label.toLowerCase().includes('garceta') || a.label.toLowerCase().includes('búho') || a.label.toLowerCase().includes('gavil') || a.label.toLowerCase().includes('águila') || a.label.toLowerCase().includes('halc') || a.label.toLowerCase().includes('lechuza'));
+    treePerchers.forEach(tp => {{
+      [...sauceNodes, ...alisoNodes, ...floraNodes.slice(2, 12)].slice(0, 4).forEach(tr => {{
+        addConscientiousEdge(tp, tr, INTER_TYPES.NEST_SITE, 'Percha de avistamiento y nidificación en ramas altas');
+      }});
+    }});
+
+    // Depredación malacófaga (Aves <--> Moluscos)
+    aveNodes.slice(0, 30).forEach(av => {{
+      molNodes.forEach(mol => {{
+        addConscientiousEdge(av, mol, INTER_TYPES.PREDATION, 'Depredación directa de caracoles y babosas');
+      }});
+    }});
+
+    // Depredación de anfibios (Garzas / Aves acuáticas <--> Anfibios)
+    const garzas = aveNodes.filter(a => a.label.toLowerCase().includes('garza') || a.label.toLowerCase().includes('garceta') || a.label.toLowerCase().includes('guaco'));
+    garzas.forEach(gz => {{
+      anfNodes.forEach(anf => {{
+        addConscientiousEdge(gz, anf, INTER_TYPES.PREDATION, 'Captura de ranas y renacuajos en orillas');
+      }});
+    }});
+
+    // Depredación de roedores por rapaces
+    treePerchers.forEach(rap => {{
+      mamNodes.forEach(rod => {{
+        addConscientiousEdge(rap, rod, INTER_TYPES.PREDATION, 'Control biológico de micromamíferos');
+      }});
+    }});
+
+    // Depredación reptiliana
+    repNodes.forEach(rep => {{
+      molNodes.forEach(mol => addConscientiousEdge(rep, mol, INTER_TYPES.PREDATION, 'Consumo de invertebrados de suelo'));
+      anfNodes.forEach(anf => addConscientiousEdge(rep, anf, INTER_TYPES.PREDATION, 'Forrajeo de anfibios en ecotono'));
+    }});
+
+    // Enlaces de cohesión ecológica general para asegurar que toda especie esté integrada
+    rawNodes.forEach(n => {{
+      if (n.neighbors.length === 0) {{
+        const partner = (n.cat === 0) ? aveNodes[n.id % aveNodes.length] : floraNodes[n.id % floraNodes.length];
+        if (partner) {{
+          addConscientiousEdge(n, partner, INTER_TYPES.MUTUALISM, 'Soporte de hábitat y flujo biótico en Kennedy');
+        }}
+      }}
+    }});
+  }}
+
+  buildConscientiousBioticNetwork();
+
+  // Mesh de Líneas de Interacciones
+  const edgeGeo = new THREE.BufferGeometry();
+  const edgeMat = new THREE.LineBasicMaterial({{
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.65,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  }});
+  const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
+  networkGroup.add(edgeLinesMesh);
+
+  function updateEdgeLinesGeometry() {{
+    const activeEdgesList = [];
+    const interCounts = {{ 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 }};
+
+    rawEdges.forEach(e => {{
+      const na = rawNodes[e.source];
+      const nb = rawNodes[e.target];
+      if (!na || !nb) return;
+
+      const key = na.id < nb.id ? `${{na.id}}_${{nb.id}}` : `${{nb.id}}_${{na.id}}`;
+      const inter = edgeDetailsMap[key]?.type || getInteractionInfo(na, nb);
+      const typeId = inter.id;
+
+      if (interCounts[typeId] !== undefined) interCounts[typeId]++;
+
+      const isInterActive = opts.interactions[typeId] !== false;
+      const isNodesActive = na.active && nb.active;
+
+      if (isInterActive && isNodesActive) {{
+        activeEdgesList.push({{ na, nb, inter }});
+      }}
+    }});
+
+    for (let i = 0; i <= 8; i++) {{
+      const badge = document.getElementById(`badgeInter${{i}}`);
+      if (badge) badge.innerText = interCounts[i];
+    }}
+
+    const count = activeEdgesList.length;
+    const posArr = new Float32Array(count * 6);
+    const colArr = new Float32Array(count * 6);
+
+    for (let i = 0; i < count; i++) {{
+      const {{ na, nb, inter }} = activeEdgesList[i];
+      const ptr = i * 6;
+
+      const posA = na.sprite ? na.sprite.position : na;
+      const posB = nb.sprite ? nb.sprite.position : nb;
+
+      posArr[ptr]     = posA.x; posArr[ptr + 1] = posA.y; posArr[ptr + 2] = posA.z;
+      posArr[ptr + 3] = posB.x; posArr[ptr + 4] = posB.y; posArr[ptr + 5] = posB.z;
+
+      const interColor = new THREE.Color(inter.color || palette.catColors[na.cat] || "#84A48B");
+      const ca = new THREE.Color(palette.hexColors[na.cat] || 0x84A48B).lerp(interColor, 0.45);
+      const cb = new THREE.Color(palette.hexColors[nb.cat] || 0x84A48B).lerp(interColor, 0.45);
+
+      colArr[ptr]     = ca.r * 0.85; colArr[ptr + 1] = ca.g * 0.85; colArr[ptr + 2] = ca.b * 0.85;
+      colArr[ptr + 3] = cb.r * 0.85; colArr[ptr + 4] = cb.g * 0.85; colArr[ptr + 5] = cb.b * 0.85;
+    }}
+
+    edgeGeo.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
+    edgeGeo.setAttribute("color", new THREE.BufferAttribute(colArr, 3));
+    edgeGeo.attributes.position.needsUpdate = true;
+    edgeGeo.attributes.color.needsUpdate = true;
+
+    const lblActiveEdges = document.getElementById("lblActiveEdges");
+    if (lblActiveEdges) lblActiveEdges.innerText = count;
+  }}
+
+  function recalculateDegreesAndSizes() {{
+    let activeNodesCount = 0;
+    let hiddenCount = 0;
+    const catCounts = {{ 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }};
+
+    rawNodes.forEach(n => {{
+      n.active = (opts.cats[n.cat] === true) && !n.hiddenByUser;
+      if (n.hiddenByUser) hiddenCount++;
+
+      n.degree = n.neighbors.filter(nb => {{
+        if (!nb.active) return false;
+        const key = n.id < nb.id ? `${{n.id}}_${{nb.id}}` : `${{nb.id}}_${{n.id}}`;
+        const inter = edgeDetailsMap[key]?.type || getInteractionInfo(n, nb);
+        return opts.interactions[inter.id] !== false;
+      }}).length;
+
+      n.sprite.visible = n.active && (currentMorph < 0.35);
+
+      if (n.active) {{
+        activeNodesCount++;
+        if (catCounts[n.cat] !== undefined) catCounts[n.cat]++;
+        const sc = Math.min(5.2, Math.max(2.8, 2.6 + Math.sqrt(n.degree) * 0.45));
+        n.sprite.scale.set(sc, sc, 1.0);
+      }}
+    }});
+
+    for (let c = 0; c <= 5; c++) {{
+      const el = document.getElementById(`badgeCat${{c}}`);
+      if (el) el.innerText = catCounts[c];
+    }}
+
+    if (territoryBeaconsGroup) {{
+      territoryBeaconsGroup.children.forEach(bg => {{
+        const t = bg.userData.taxonData;
+        if (t) {{
+          const cIdx = (typeof t.cat === 'number') ? t.cat : (TAXONOMIC_CONVENTIONS[t.cat]?.catIdx ?? 0);
+          bg.visible = (opts.cats[cIdx] !== false);
+        }}
+      }});
+    }}
+
+    const lblActive = document.getElementById("lblActiveNodes");
+    if (lblActive) lblActive.innerText = activeNodesCount;
+    const lblHidden = document.getElementById("lblHiddenCount");
+    if (lblHidden) lblHidden.innerText = hiddenCount;
+    const lblStatusHidden = document.getElementById("lblStatusHidden");
+    if (lblStatusHidden) lblStatusHidden.innerText = hiddenCount;
+
+    updateEdgeLinesGeometry();
+  }}
+
+  recalculateDegreesAndSizes();
+
+  // =====================================================================
+  // 3. GLSL SHADER DE TERRITORIO CON VÓRTICE & TRANSFORMACIÓN CUÁNTICA
+  // =====================================================================
+  const vertexShader = `
+    uniform float uMorphProgress;
+    uniform float uPerspectiveMode;
+    uniform float uTime;
+    uniform float uPixelRatio;
+    uniform vec3 uRipplePos;
+    uniform float uRippleTime;
+    
+    attribute vec3 aSwarmPos;
+    attribute vec3 aColor;
+    attribute float aSize;
+    attribute float aPhase;
+    attribute float aCategory;
+    
+    varying vec3 vColor;
+    varying float vCategory;
+    varying float vAlpha;
+    varying float vRippleBoost;
+    varying float vDistToCam;
+    
+    void main() {
+      vColor = aColor;
+      vCategory = aCategory;
+      
+      float ease = smoothstep(0.0, 1.0, uMorphProgress);
+      float explosionIntensity = sin(uMorphProgress * 3.14159265);
+      
+      vec3 swarmOrbit = aSwarmPos;
+      float rotAngle = uTime * 0.12 + aPhase;
+      float ox = swarmOrbit.x * cos(rotAngle) - swarmOrbit.z * sin(rotAngle);
+      float oz = swarmOrbit.x * sin(rotAngle) + swarmOrbit.z * cos(rotAngle);
+      swarmOrbit.x = ox;
+      swarmOrbit.z = oz;
+      
+      float distToOrigin = length(position.xz);
+      float vortexAngle = (1.0 - ease) * (distToOrigin * 0.015 + sin(uTime * 0.8 + aPhase) * 0.5);
+      float vx = position.x * cos(vortexAngle) - position.z * sin(vortexAngle);
+      float vz = position.x * sin(vortexAngle) + position.z * cos(vortexAngle);
+      vec3 curlVortex = vec3(vx - position.x, sin(uTime * 2.0 + aPhase) * 0.8 * (1.0 - ease), vz - position.z);
+      
+      vec3 blastDir = normalize(aSwarmPos + vec3(0.001));
+      float blastOffset = explosionIntensity * (15.0 + sin(aPhase * 3.0) * 8.0);
+      swarmOrbit += blastDir * blastOffset;
+      
+      float ripDist = length(position - uRipplePos);
+      float ripTime = max(0.0, uTime - uRippleTime);
+      float waveFront = ripTime * 85.0;
+      float rippleWave = 0.0;
+      if (ripTime < 2.5 && abs(ripDist - waveFront) < 14.0) {
+        float falloff = max(0.0, 1.0 - ripTime / 2.5);
+        rippleWave = sin((ripDist - waveFront) * 0.45) * 2.8 * falloff;
+        vRippleBoost = falloff;
+      } else {
+        vRippleBoost = 0.0;
+      }
+      
+      vec3 territorialIdle = vec3(
+        sin(uTime * 0.5 + aPhase) * 0.25,
+        rippleWave + (aCategory < 0.5 ? sin(uTime * 1.5 + aPhase) * 0.35 : 0.0),
+        cos(uTime * 0.5 + aPhase) * 0.25
+      );
+      
+      vec3 targetPos = position + territorialIdle;
+      vec3 currentPos = mix(swarmOrbit, targetPos, ease) + curlVortex;
+      
+      vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
+      gl_Position = projectionMatrix * mvPosition;
+      
+      float camDist = -mvPosition.z;
+      vDistToCam = camDist;
+      
+      float sizeAttenuation = clamp(260.0 / max(1.0, camDist), 0.2, 1.6);
+      if (uPerspectiveMode > 0.05) {
+        if (aCategory > 1.8) {
+          sizeAttenuation *= mix(1.0, clamp(70.0 / max(10.0, camDist), 0.35, 1.0), uPerspectiveMode);
+        }
+      }
+      
+      gl_PointSize = (aSize + rippleWave * 1.0 + explosionIntensity * 0.7) * uPixelRatio * sizeAttenuation;
+      
+      float alphaBase = smoothstep(0.04, 0.8, ease) * 0.95 + explosionIntensity * 0.35;
+      if (uPerspectiveMode > 0.05 && aCategory > 1.8) {
+        alphaBase *= mix(1.0, clamp(140.0 / max(20.0, camDist), 0.25, 0.9), uPerspectiveMode);
+      }
+      vAlpha = alphaBase;
+    }
+  `;
+
+  const fragmentShader = `
+    varying vec3 vColor;
+    varying float vCategory;
+    varying float vAlpha;
+    varying float vRippleBoost;
+    varying float vDistToCam;
+    uniform float uPerspectiveMode;
+    
+    void main() {
+      if (vAlpha < 0.01) discard;
+      vec2 coord = gl_PointCoord - vec2(0.5);
+      float dist = length(coord);
+      if (dist > 0.5) discard;
+      
+      float edgeAlpha = smoothstep(0.5, 0.08, dist);
+      vec3 col = vColor;
+      
+      if (vRippleBoost > 0.05) {
+        col = mix(col, vec3(0.0, 0.7, 0.85), vRippleBoost * 0.65);
+      }
+      
+      if (uPerspectiveMode > 0.05) {
+        if (vCategory < 0.5) {
+          col = mix(col, vec3(0.0, 0.75, 0.95), uPerspectiveMode * 0.35);
+        } else if (vCategory < 1.5) {
+          col = mix(col, vec3(0.2, 0.65, 0.38), uPerspectiveMode * 0.25);
+        } else if (vCategory > 1.8) {
+          col = mix(col, vec3(0.25, 0.24, 0.23), uPerspectiveMode * 0.45);
+        }
+      }
+      
+      col = col / (1.0 + col * 0.35);
+      
+      gl_FragColor = vec4(col, edgeAlpha * vAlpha);
+    }
+  `;
+
+  const particleUniforms = {{
+    uMorphProgress: {{ value: 0.0 }},
+    uPerspectiveMode: {{ value: 0.0 }},
+    uTime: {{ value: 0.0 }},
+    uPixelRatio: {{ value: Math.min(window.devicePixelRatio || 1, 2) }},
+    uRipplePos: {{ value: new THREE.Vector3(0, 0, 0) }},
+    uRippleTime: {{ value: 99.0 }}
+  }};
+
+  const particleMat = new THREE.ShaderMaterial({{
+    uniforms: particleUniforms,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  }});
+
+  // =====================================================================
+  // 4. CARGA DE CAPAS GEOGRÁFICAS (PIEDRA ARQUITECTÓNICA & AGUA VIBRANTE)
+  // =====================================================================
+  const pTarget = [];
+  const pSwarm = [];
+  const pColor = [];
+  const pSize = [];
+  const pPhase = [];
+  const pCat = [];
+
+  let particlePoints = null;
+  let currentParticleIndex = 0;
+
+  function randomSwarmCluster(idx) {{
+    if (typeof rawNodes !== "undefined" && rawNodes.length > 0) {{
+      const node = rawNodes[idx % rawNodes.length];
+      return {{
+        x: node.ox + (Math.random() - 0.5) * 2.0,
+        y: node.oy + (Math.random() - 0.5) * 2.0,
+        z: node.oz + (Math.random() - 0.5) * 2.0
+      }};
+    }}
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const radius = 28.0 + (Math.random() - 0.5) * 4.0;
+    return {{
+      x: radius * Math.sin(phi) * Math.cos(theta),
+      y: radius * Math.sin(phi) * Math.sin(theta),
+      z: radius * Math.cos(phi)
+    }};
+  }}
+
+  function rebuildTerritoryParticles() {{
+    if (particlePoints) {{
+      sceneRoot.remove(particlePoints);
+      particlePoints.geometry.dispose();
+    }}
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pTarget, 3));
+    geo.setAttribute("aSwarmPos", new THREE.Float32BufferAttribute(pSwarm, 3));
+    geo.setAttribute("aColor", new THREE.Float32BufferAttribute(pColor, 3));
+    geo.setAttribute("aSize", new THREE.Float32BufferAttribute(pSize, 1));
+    geo.setAttribute("aPhase", new THREE.Float32BufferAttribute(pPhase, 1));
+    geo.setAttribute("aCategory", new THREE.Float32BufferAttribute(pCat, 1));
+
+    particlePoints = new THREE.Points(geo, particleMat);
+    sceneRoot.add(particlePoints);
+  }}
+
+  function loadWater() {{
+    return fetch(WATER_URL)
+      .then(r => r.json())
+      .then(waterBodies => {{
+        const colWaterMain = new THREE.Color(0x00B4D8);
+        const colWaterDeep = new THREE.Color(0x0077B6);
+        const list = Array.isArray(waterBodies) ? waterBodies : (waterBodies.waterBodies || []);
+
+        list.forEach(w => {{
+          const pts = w.pts;
+          if (!pts || pts.length < 3) return;
+
+          const sPts = pts.map(p => toScene(p[0], p[1]));
+          const pts2d = sPts.map(p => new THREE.Vector2(p.x, p.z));
+
+          let tris = [];
+          try {{ tris = THREE.ShapeUtils.triangulateShape(pts2d, []); }} catch(e) {{ tris = []; }}
+
+          tris.forEach(([ia, ib, ic]) => {{
+            const pa = sPts[ia], pb = sPts[ib], pc = sPts[ic];
+
+            for (let s = 0; s < 3; s++) {{
+              const r1 = Math.random(), r2 = Math.random();
+              const sq1 = Math.sqrt(r1);
+              const wx = (1 - sq1) * pa.x + sq1 * (1 - r2) * pb.x + sq1 * r2 * pc.x;
+              const wz = (1 - sq1) * pa.z + sq1 * (1 - r2) * pb.z + sq1 * r2 * pc.z;
+              const wy = 0.28 + Math.random() * 0.2;
+
+              const sw = randomSwarmCluster(currentParticleIndex++);
+              pTarget.push(wx, wy, wz);
+              pSwarm.push(sw.x, sw.y, sw.z);
+              
+              const c = (s % 2 === 0) ? colWaterMain : colWaterDeep;
+              pColor.push(c.r, c.g, c.b);
+              pSize.push(1.65);
+              pPhase.push(Math.random() * 10);
+              pCat.push(0.0);
+            }}
+          }});
+
+          for (let i = 0; i < sPts.length; i++) {{
+            const p = sPts[i];
+            const sw = randomSwarmCluster(currentParticleIndex++);
+            pTarget.push(p.x, 0.32, p.z);
+            pSwarm.push(sw.x, sw.y, sw.z);
+            pColor.push(colWaterMain.r, colWaterMain.g, colWaterMain.b);
+            pSize.push(1.75);
+            pPhase.push(i * 0.3);
+            pCat.push(0.0);
+          }}
+        }});
+
+        rebuildTerritoryParticles();
+      }})
+      .catch(err => console.warn("Error agua:", err));
+  }}
+
+  // Base de datos de árboles georreferenciados agrupados por especie
+  const treeSpeciesClusters = {{
+    chicala: [],
+    jazmin: [],
+    sauco: [],
+    falso_pimiento: [],
+    eugenia: [],
+    palma_yuca: [],
+    urapan: [],
+    caucho: [],
+    cipres: [],
+    acacia: [],
+    capulin: [],
+    aliso: []
+  }};
+
+  function matchSpeciesKey(speciesName) {{
+    if (!speciesName) return "sauco";
+    const s = speciesName.toLowerCase();
+    if (s.includes("chicala") || s.includes("chirlobirlo") || s.includes("amarillo")) return "chicala";
+    if (s.includes("jazmin") || s.includes("huesito")) return "jazmin";
+    if (s.includes("sauco")) return "sauco";
+    if (s.includes("pimiento")) return "falso_pimiento";
+    if (s.includes("eugenia")) return "eugenia";
+    if (s.includes("palma") || s.includes("yuca") || s.includes("palmiche")) return "palma_yuca";
+    if (s.includes("urapan") || s.includes("fresno")) return "urapan";
+    if (s.includes("caucho")) return "caucho";
+    if (s.includes("cipres") || s.includes("pino")) return "cipres";
+    if (s.includes("acacia")) return "acacia";
+    if (s.includes("cerezo") || s.includes("capuli")) return "capulin";
+    if (s.includes("aliso")) return "aliso";
+    return null;
+  }}
+
+  function loadTrees() {{
+    return fetch(TREES_URL)
+      .then(r => r.json())
+      .then(trees => {{
+        const colTreeLush = new THREE.Color(0x2E8B57);
+        const colTreeBright = new THREE.Color(0x48BB78);
+        const colTrunk = new THREE.Color(0x161D26);
+        const list = Array.isArray(trees) ? trees : (trees.trees || []);
+
+        list.forEach((t, i) => {{
+          const [x, y, hMeters, specName] = t;
+          const p = toScene(x, y);
+          const h = Math.max(0.7, (hMeters || 8) * SCALE);
+
+          const sKey = matchSpeciesKey(specName);
+          if (sKey && treeSpeciesClusters[sKey]) {{
+            treeSpeciesClusters[sKey].push({{ x: p.x, y: h * 0.85, z: p.z, height: h }});
+          }}
+
+          const folCol = (i % 2 === 0) ? colTreeLush : colTreeBright;
+          const crownY = h * 0.85;
+          const swCrown = randomSwarmCluster(currentParticleIndex++);
+          pTarget.push(p.x, crownY, p.z);
+          pSwarm.push(swCrown.x, swCrown.y, swCrown.z);
+          pColor.push(folCol.r, folCol.g, folCol.b);
+          pSize.push(1.6);
+          pPhase.push(i * 0.25);
+          pCat.push(1.0);
+
+          if (i % 2 === 0) {{
+            const subNodes = 2;
+            for (let sn = 0; sn < subNodes; sn++) {{
+              const ang = (sn / subNodes) * Math.PI * 2 + (i * 0.5);
+              const sx = p.x + Math.cos(ang) * 0.6;
+              const sz = p.z + Math.sin(ang) * 0.6;
+              const sy = crownY + Math.sin(sn * 2.0) * 0.3;
+              const swSub = randomSwarmCluster(currentParticleIndex++);
+              pTarget.push(sx, sy, sz);
+              pSwarm.push(swSub.x, swSub.y, swSub.z);
+              pColor.push(colTreeBright.r, colTreeBright.g, colTreeBright.b);
+              pSize.push(1.3);
+              pPhase.push(i * 0.1 + sn);
+              pCat.push(1.0);
+            }}
+          }}
+
+          if (i % 3 === 0) {{
+            const swBase = randomSwarmCluster(currentParticleIndex++);
+            pTarget.push(p.x, 0.2, p.z);
+            pSwarm.push(swBase.x, swBase.y, swBase.z);
+            pColor.push(colTrunk.r, colTrunk.g, colTrunk.b);
+            pSize.push(1.1);
+            pPhase.push(i * 0.05);
+            pCat.push(1.0);
+          }}
+        }});
+
+        rebuildTerritoryParticles();
+      }})
+      .catch(err => console.warn("Error árboles:", err));
+  }}
+
+  function loadRoads() {{
+    return fetch(NET_URL)
+      .then(r => r.json())
+      .then(net => {{
+        const colRoad = new THREE.Color(0x334155);
+        const colMajor = new THREE.Color(0x475569);
+        const edgeList = Array.isArray(net) ? net : (net.edges || []);
+
+        edgeList.forEach((e, i) => {{
+          const isMajor = e.hierarchy === "major" || (e.weight && e.weight > 2.0);
+          const c = isMajor ? colMajor : colRoad;
+
+          if (e.pts && e.pts.length >= 2) {{
+            for (let j = 0; j < e.pts.length - 1; j++) {{
+              const a = toScene(e.pts[j][0], e.pts[j][1]);
+              const b = toScene(e.pts[j + 1][0], e.pts[j + 1][1]);
+              const steps = Math.max(1, Math.floor(Math.hypot(b.x - a.x, b.z - a.z) / 4.0));
+
+              for (let s = 0; s <= steps; s++) {{
+                const t = s / steps;
+                const rx = a.x + (b.x - a.x) * t;
+                const rz = a.z + (b.z - a.z) * t;
+                const sw = randomSwarmCluster(currentParticleIndex++);
+                pTarget.push(rx, 0.12, rz);
+                pSwarm.push(sw.x, sw.y, sw.z);
+                pColor.push(c.r, c.g, c.b);
+                pSize.push(isMajor ? 1.4 : 1.1);
+                pPhase.push(i * 0.1 + s * 0.2);
+                pCat.push(2.0);
+              }}
+            }}
+          }}
+        }});
+
+        rebuildTerritoryParticles();
+      }})
+      .catch(err => console.warn("Error vías:", err));
+  }}
+
+  function loadBuildings() {{
+    return fetch(BUILDINGS_URL)
+      .then(r => r.json())
+      .then(bldgs => {{
+        const colBldgPrimary = new THREE.Color(0xCBD5E1);
+        const colBldgSecondary = new THREE.Color(0x94A3B8);
+        const colRoofHighlight = new THREE.Color(0x84A48B);
+        const colBaseGround = new THREE.Color(0x06090F);
+        const bldList = Array.isArray(bldgs) ? bldgs : (bldgs.buildings || []);
+
+        bldList.forEach((b, i) => {{
+          const pts = b.pts || [];
+          if (pts.length < 3) return;
+
+          const hMeters = b.height || b.h || 12.0;
+          const h = Math.max(0.9, hMeters * SCALE);
+          const sPts = pts.map(p => toScene(p[0], p[1]));
+
+          const bldgCol = (i % 7 === 0) ? colRoofHighlight : ((i % 2 === 0) ? colBldgPrimary : colBldgSecondary);
+
+          for (let j = 0; j < sPts.length; j++) {{
+            const p = sPts[j];
+            const steps = Math.max(2, Math.floor(h / 1.6));
+
+            for (let s = 0; s <= steps; s++) {{
+              const y = (s / steps) * h;
+              const sw = randomSwarmCluster(currentParticleIndex++);
+              pTarget.push(p.x, y, p.z);
+              pSwarm.push(sw.x, sw.y, sw.z);
+
+              const isRoof = (s === steps);
+              const c = isRoof ? bldgCol : bldgCol.clone().multiplyScalar(0.7 + (s / steps) * 0.3);
+              pColor.push(c.r, c.g, c.b);
+              pSize.push(isRoof ? 1.5 : 1.15);
+              pPhase.push(i * 0.08 + s * 0.3);
+              pCat.push(3.0);
+            }}
+          }}
+
+          if (sPts.length >= 3 && i % 3 === 0) {{
+            let cx = 0, cz = 0;
+            sPts.forEach(p => {{ cx += p.x; cz += p.z; }});
+            cx /= sPts.length;
+            cz /= sPts.length;
+
+            const swRoof = randomSwarmCluster(currentParticleIndex++);
+            pTarget.push(cx, h, cz);
+            pSwarm.push(swRoof.x, swRoof.y, swRoof.z);
+            pColor.push(bldgCol.r * 1.1, bldgCol.g * 1.1, bldgCol.b * 1.1);
+            pSize.push(1.6);
+            pPhase.push(i * 0.05);
+            pCat.push(3.0);
+          }}
+        }});
+
+        rebuildTerritoryParticles();
+      }})
+      .catch(err => console.warn("Error edificios:", err));
+  }}
+
+  // Cargar las 4 capas del territorio
+  Promise.all([loadWater(), loadTrees(), loadRoads(), loadBuildings()])
+    .then(() => console.log("Capas de territorio cargadas exitosamente."))
+    .catch(e => console.warn("Aviso carga territorio:", e));
+
+  // =====================================================================
+  // 5. CONSTELACIONES BOTÁNICAS Y RECORRIDOS
+  // =====================================================================
+  const speciesConstellationGroup = new THREE.Group();
+  speciesConstellationGroup.visible = false;
+  sceneRoot.add(speciesConstellationGroup);
+
+  let activeConstellationPoints = null;
+  let activeConstellationLines = null;
+
+  const activeTreeIndicatorGroup = new THREE.Group();
+  sceneRoot.add(activeTreeIndicatorGroup);
+
+  const focusDotGeo = new THREE.CircleGeometry(0.8, 16);
+  const focusDotMat = new THREE.MeshBasicMaterial({{ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0, depthWrite: false }});
+  const focusDotMesh = new THREE.Mesh(focusDotGeo, focusDotMat);
+  focusDotMesh.rotation.x = -Math.PI / 2;
+  activeTreeIndicatorGroup.add(focusDotMesh);
+
+  const focusRingGeo = new THREE.RingGeometry(1.4, 2.2, 24);
+  const focusRingMat = new THREE.MeshBasicMaterial({{ color: 0x84A48B, side: THREE.DoubleSide, transparent: true, opacity: 0.0, depthWrite: false }});
+  const focusRingMesh = new THREE.Mesh(focusRingGeo, focusRingMat);
+  focusRingMesh.rotation.x = -Math.PI / 2;
+  activeTreeIndicatorGroup.add(focusRingMesh);
+
+  function renderTreeConstellation(specId, colHex) {{
+    speciesConstellationGroup.clear();
+    const cluster = treeSpeciesClusters[specId] || [];
+    if (cluster.length === 0) return;
+
+    const sampleSize = Math.min(cluster.length, 750);
+    const step = Math.max(1, Math.floor(cluster.length / sampleSize));
+    const sampled = [];
+    for (let i = 0; i < cluster.length && sampled.length < sampleSize; i += step) {{
+      sampled.push(cluster[i]);
+    }}
+
+    const pos = new Float32Array(sampled.length * 3);
+    const cols = new Float32Array(sampled.length * 3);
+    const colObj = new THREE.Color(colHex);
+
+    for (let i = 0; i < sampled.length; i++) {{
+      const t = sampled[i];
+      pos[i * 3]     = t.x;
+      pos[i * 3 + 1] = t.y + 0.2;
+      pos[i * 3 + 2] = t.z;
+      cols[i * 3]     = colObj.r;
+      cols[i * 3 + 1] = colObj.g;
+      cols[i * 3 + 2] = colObj.b;
+    }}
+
+    const cGeo = new THREE.BufferGeometry();
+    cGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    cGeo.setAttribute("color", new THREE.BufferAttribute(cols, 3));
+    const cMat = new THREE.PointsMaterial({{ size: 2.8, vertexColors: true, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending }});
+    activeConstellationPoints = new THREE.Points(cGeo, cMat);
+    speciesConstellationGroup.add(activeConstellationPoints);
+
+    const linePairs = [];
+    for (let i = 0; i < sampled.length; i++) {{
+      const a = sampled[i];
+      for (let j = i + 1; j < sampled.length; j++) {{
+        const b = sampled[j];
+        const distSq = (a.x - b.x)**2 + (a.z - b.z)**2;
+        if (distSq < 180 && linePairs.length < 350) {{
+          linePairs.push(a.x, a.y + 0.2, a.z, b.x, b.y + 0.2, b.z);
+        }}
+      }}
+    }}
+
+    if (linePairs.length > 0) {{
+      const lGeo = new THREE.BufferGeometry();
+      lGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePairs, 3));
+      const lMat = new THREE.LineBasicMaterial({{ color: colObj, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending }});
+      activeConstellationLines = new THREE.LineSegments(lGeo, lMat);
+      speciesConstellationGroup.add(activeConstellationLines);
+    }}
+
+    speciesConstellationGroup.visible = true;
+
+    if (window.gsap) {{
+      gsap.to(cMat, {{ opacity: 0.85, duration: 1.2, ease: "power2.out" }});
+      if (activeConstellationLines) {{
+        gsap.to(activeConstellationLines.material, {{ opacity: 0.35, duration: 1.2, ease: "power2.out" }});
+      }}
+    }}
+  }}
+
+  let tourActive = false;
+  let tourIndex = 0;
+  let tourTimer = null;
+  const btnTourSpecies = document.getElementById("btnTourSpecies");
+
+  const SPECIES_GEO_NODES = [
+    {{ id: "chicala", name: "Chicalá / Flor Amarillo", sci: "Tecoma stans", count: "6,884 árboles", avgHeight: "2.6 m", img: "./assets/fotos/fotos_flora/Chicala%2C%20chirlobirlo%2C%20flor%20amarillo.jpg", pos: {{ x: 210.4, y: 13.0, z: 96.0 }}, camPos: {{ x: 210.4, y: 48, z: 155 }}, camTarget: {{ x: 210.4, y: 0, z: 96.0 }}, color: 0xE7C878 }},
+    {{ id: "jazmin", name: "Jazmín del Cabo", sci: "Pittosporum undulatum", count: "5,650 árboles", avgHeight: "3.2 m", img: "./assets/fotos/fotos_flora/Jazmin%20del%20cabo%2C%20laurel%20huesito.jpg", pos: {{ x: 234.8, y: 13.5, z: 102.9 }}, camPos: {{ x: 234.8, y: 50, z: 162 }}, camTarget: {{ x: 234.8, y: 0, z: 102.9 }}, color: 0x48BB78 }},
+    {{ id: "sauco", name: "Sauco del Humedal", sci: "Sambucus nigra", count: "5,553 árboles", avgHeight: "3.1 m", img: "./assets/fotos/fotos_flora/Sauco.jpg", pos: {{ x: 221.0, y: 13.0, z: 124.7 }}, camPos: {{ x: 221.0, y: 48, z: 182 }}, camTarget: {{ x: 221.0, y: 0, z: 124.7 }}, color: 0x84A48B }},
+    {{ id: "falso_pimiento", name: "Falso Pimiento", sci: "Schinus molle", count: "4,548 árboles", avgHeight: "3.6 m", img: "./assets/fotos/fotos_flora/Falso%20pimiento.jpg", pos: {{ x: 192.2, y: 14.0, z: 88.6 }}, camPos: {{ x: 192.2, y: 52, z: 148 }}, camTarget: {{ x: 192.2, y: 0, z: 88.6 }}, color: 0x2E8B57 }},
+    {{ id: "eugenia", name: "Eugenia", sci: "Eugenia myrtifolia", count: "4,370 árboles", avgHeight: "3.5 m", img: "./assets/fotos/fotos_flora/Eugenia.jpg", pos: {{ x: 209.7, y: 13.5, z: 78.8 }}, camPos: {{ x: 209.7, y: 50, z: 138 }}, camTarget: {{ x: 209.7, y: 0, z: 78.8 }}, color: 0x48BB78 }},
+    {{ id: "palma_yuca", name: "Palma Yuca", sci: "Yucca gigantea", count: "4,356 árboles", avgHeight: "2.9 m", img: "./assets/fotos/fotos_flora/Palma%20yuca%2C%20palmiche.jpg", pos: {{ x: 188.7, y: 12.5, z: 180.1 }}, camPos: {{ x: 188.7, y: 48, z: 240 }}, camTarget: {{ x: 188.7, y: 0, z: 180.1 }}, color: 0x84A48B }},
+    {{ id: "urapan", name: "Urapán", sci: "Fraxinus chinensis", count: "3,113 árboles", avgHeight: "8.5 m", img: "./assets/fotos/fotos_flora/Urapan%2C%20fresno.jpg", pos: {{ x: 251.2, y: 19.0, z: 142.5 }}, camPos: {{ x: 251.2, y: 68, z: 205 }}, camTarget: {{ x: 251.2, y: 0, z: 142.5 }}, color: 0x2E8B57 }},
+    {{ id: "caucho", name: "Caucho Sabanero", sci: "Ficus soatensis", count: "2,860 árboles", avgHeight: "6.3 m", img: "./assets/fotos/fotos_flora/Caucho%20sabanero.jpg", pos: {{ x: 172.3, y: 16.0, z: 138.1 }}, camPos: {{ x: 172.3, y: 58, z: 198 }}, camTarget: {{ x: 172.3, y: 0, z: 138.1 }}, color: 0x84A48B }},
+    {{ id: "cipres", name: "Ciprés / Pino", sci: "Cupressus lusitanica", count: "2,828 árboles", avgHeight: "4.9 m", img: "./assets/fotos/fotos_flora/Cipres%2C%20pino%20cipres%2C%20pino.jpg", pos: {{ x: 277.8, y: 15.0, z: 124.1 }}, camPos: {{ x: 277.8, y: 55, z: 184 }}, camTarget: {{ x: 277.8, y: 0, z: 124.1 }}, color: 0x48BB78 }},
+    {{ id: "acacia", name: "Acacia Sabanera", sci: "Acacia melanoxylon", count: "2,160 árboles", avgHeight: "3.9 m", img: "./assets/fotos/fotos_flora/Acacia%20baracatinga%2C%20acacia%20sabanera%2C%20acacia%20nigra.jpeg", pos: {{ x: 166.1, y: 14.0, z: 93.1 }}, camPos: {{ x: 166.1, y: 52, z: 153 }}, camTarget: {{ x: 166.1, y: 0, z: 93.1 }}, color: 0x2E8B57 }},
+    {{ id: "capulin", name: "Capulí / Cerezo", sci: "Prunus serotina", count: "1,901 árboles", avgHeight: "3.7 m", img: "./assets/fotos/fotos_flora/Cerezo.jpg", pos: {{ x: 208.9, y: 14.5, z: 141.0 }}, camPos: {{ x: 208.9, y: 52, z: 200 }}, camTarget: {{ x: 208.9, y: 0, z: 141.0 }}, color: 0x48BB78 }},
+    {{ id: "aliso", name: "Aliso Sabanero", sci: "Alnus acuminata", count: "1,058 árboles", avgHeight: "2.7 m", img: "./assets/fotos/fotos_flora/Aliso%2C%20fresno%2C%20chaquiro.jpg", pos: {{ x: 203.4, y: 13.5, z: -102.2 }}, camPos: {{ x: 203.4, y: 50, z: -42 }}, camTarget: {{ x: 203.4, y: 0, z: -102.2 }}, color: 0x48BB78 }}
+  ];
+
+  function focusTreeSpecies(idx) {{
+    if (idx < 0 || idx >= SPECIES_GEO_NODES.length) return;
+    tourIndex = idx;
+    const spec = SPECIES_GEO_NODES[idx];
+
+    if (currentMorph < 0.45) {{
+      animateToStage(1.0);
+    }}
+
+    if (activeTreeImg) activeTreeImg.src = spec.img;
+    if (activeTreeName) activeTreeName.textContent = spec.name.split('/')[0].trim();
+    if (activeTreeChip) activeTreeChip.classList.add("show");
+
+    if (window.gsap) {{
+      gsap.to(camera.position, {{ x: spec.camPos.x, y: spec.camPos.y, z: spec.camPos.z, duration: 2.5, ease: "power2.inOut" }});
+      gsap.to(controls.target, {{ x: spec.camTarget.x, y: spec.camTarget.y, z: spec.camTarget.z, duration: 2.5, ease: "power2.inOut" }});
+    }}
+
+    focusDotMesh.position.set(spec.pos.x, 0.22, spec.pos.z);
+    focusRingMesh.position.set(spec.pos.x, 0.24, spec.pos.z);
+    const colObj = new THREE.Color(spec.color);
+    focusDotMat.color = colObj;
+    focusRingMat.color = colObj;
+
+    if (window.gsap) {{
+      gsap.to(focusDotMat, {{ opacity: 0.95, duration: 0.4 }});
+      gsap.to(focusRingMat, {{ opacity: 0.8, duration: 0.4 }});
+    }}
+
+    renderTreeConstellation(spec.id, spec.color);
+  }}
+
+  function startSpeciesTour() {{
+    tourActive = true;
+    if (btnTourSpecies) btnTourSpecies.classList.add("active");
+    focusTreeSpecies(tourIndex);
+    clearInterval(tourTimer);
+    tourTimer = setInterval(() => {{
+      if (!tourActive) return;
+      tourIndex = (tourIndex + 1) % SPECIES_GEO_NODES.length;
+      focusTreeSpecies(tourIndex);
+    }}, 7000);
+  }}
+
+  function stopSpeciesTour() {{
+    tourActive = false;
+    clearInterval(tourTimer);
+    if (btnTourSpecies) btnTourSpecies.classList.remove("active");
+    if (window.gsap) {{
+      gsap.to(focusDotMat, {{ opacity: 0.0, duration: 0.4 }});
+      gsap.to(focusRingMat, {{ opacity: 0.0, duration: 0.4 }});
+      if (activeConstellationPoints) gsap.to(activeConstellationPoints.material, {{ opacity: 0.0, duration: 0.5 }});
+      if (activeConstellationLines) gsap.to(activeConstellationLines.material, {{ opacity: 0.0, duration: 0.5 }});
+    }}
+  }}
+
+  if (btnTourSpecies) {{
+    btnTourSpecies.addEventListener("click", () => {{
+      if (tourActive) stopSpeciesTour();
+      else startSpeciesTour();
+    }});
+  }}
+
+  // =====================================================================
+  // 6. BALIZAS Y MARCADORES DE ESPECIES EN EL TERRITORIO 3D DE KENNEDY
+  // =====================================================================
+  function calculateTerritoryCoordinate(t, idx, total) {{
+    const cat = t.cat;
+
+    if (cat === "Anfibios" || cat === 4) {{
+      const waterHubs = [
+        {{ x: 209.56, z: -10.93, name: "Humedal El Burro — Espejo Central" }},
+        {{ x: 67.66, z: 118.17, name: "Humedal La Vaca — Sector Norte" }},
+        {{ x: 291.67, z: -79.30, name: "Humedal de Techo — Espejo de Agua" }},
+        {{ x: 166.64, z: 348.81, name: "Lago Parque Timiza" }},
+        {{ x: 58.92, z: -417.76, name: "Humedal Meandro del Say" }},
+        {{ x: 220.0, z: 15.0, name: "Humedal El Burro — Ribera Oriental" }}
+      ];
+      const hub = waterHubs[idx % waterHubs.length];
+      const ang = (idx * 2.3) % (Math.PI * 2);
+      const rad = 5.0 + (idx % 4) * 3.5;
+      return {{ x: hub.x + Math.cos(ang) * rad, y: 1.2, z: hub.z + Math.sin(ang) * rad, locName: hub.name }};
+    }} else if (cat === "Moluscos" || cat === 3) {{
+      const hubs = [
+        {{ x: 205.0, z: -15.0, name: "Humedal El Burro — Juncal de Ribera" }},
+        {{ x: 72.0, z: 112.0, name: "Humedal La Vaca — Fango Húmedo" }},
+        {{ x: 285.0, z: -75.0, name: "Humedal de Techo — Borde Vegetado" }}
+      ];
+      const hub = hubs[idx % hubs.length];
+      const ang = (idx * 1.7) % (Math.PI * 2);
+      const rad = 6.0 + (idx % 3) * 4.0;
+      return {{ x: hub.x + Math.cos(ang) * rad, y: 0.9, z: hub.z + Math.sin(ang) * rad, locName: hub.name }};
+    }} else if (cat === "Reptiles" || cat === 5) {{
+      const hubs = [
+        {{ x: 230.0, z: 5.0, name: "Humedal El Burro — Talud Soleado" }},
+        {{ x: 275.0, z: -65.0, name: "Humedal de Techo — Matorral Pedregoso" }},
+        {{ x: 55.0, z: 135.0, name: "Humedal La Vaca — Pastizal de Ronda" }},
+        {{ x: 180.0, z: 330.0, name: "Parque Timiza — Pedregal Ripario" }}
+      ];
+      const hub = hubs[idx % hubs.length];
+      const ang = (idx * 2.1) % (Math.PI * 2);
+      const rad = 10.0 + (idx % 4) * 5.0;
+      return {{ x: hub.x + Math.cos(ang) * rad, y: 1.4, z: hub.z + Math.sin(ang) * rad, locName: hub.name }};
+    }} else if (cat === "Mamíferos" || cat === 2) {{
+      const hubs = [
+        {{ x: 195.0, z: -25.0, name: "Humedal El Burro — Matorral Denso" }},
+        {{ x: 225.0, z: 30.0, name: "Humedal El Burro — Franja Protectora" }},
+        {{ x: 80.0, z: 105.0, name: "Humedal La Vaca — Bosque de Borde" }},
+        {{ x: 155.0, z: 325.0, name: "Ronda Río Fucha — Madriguera" }}
+      ];
+      const hub = hubs[idx % hubs.length];
+      const ang = (idx * 1.9) % (Math.PI * 2);
+      const rad = 12.0 + (idx % 5) * 5.0;
+      return {{ x: hub.x + Math.cos(ang) * rad, y: 1.8, z: hub.z + Math.sin(ang) * rad, locName: hub.name }};
+    }} else if (cat === "Aves" || cat === 1) {{
+      const hubs = [
+        {{ x: 209.56, z: -10.93, h: 4.5, name: "Humedal El Burro — Espejo de Agua" }},
+        {{ x: 67.66, z: 118.17, h: 3.8, name: "Humedal La Vaca — Totoral" }},
+        {{ x: 291.67, z: -79.30, h: 4.0, name: "Humedal de Techo — Espejo" }},
+        {{ x: 166.64, z: 348.81, h: 5.0, name: "Lago Parque Timiza — Dosel" }},
+        {{ x: 234.8, z: 102.9, h: 7.5, name: "Castilla / Ronda Fucha" }},
+        {{ x: 188.7, z: 180.1, h: 6.2, name: "Corredor Tintal — Arbolado" }},
+        {{ x: 251.2, z: 142.5, h: 8.0, name: "Kennedy Central — Dosel Urbano" }},
+        {{ x: 172.3, z: 138.1, h: 7.0, name: "Bosque Urbano Timiza" }}
+      ];
+      const hub = hubs[idx % hubs.length];
+      const ang = (idx * 1.4) % (Math.PI * 2);
+      const rad = 8.0 + (idx % 7) * 6.0;
+      return {{ x: hub.x + Math.cos(ang) * rad, y: hub.h || 4.5, z: hub.z + Math.sin(ang) * rad, locName: hub.name }};
+    }} else {{
+      const sKey = matchSpeciesKey(t.name);
+      if (sKey && treeSpeciesClusters[sKey] && treeSpeciesClusters[sKey].length > 0) {{
+        const cluster = treeSpeciesClusters[sKey];
+        const treeSample = cluster[idx % cluster.length];
+        return {{ x: treeSample.x, y: (treeSample.y || 3.0) + 1.2, z: treeSample.z, locName: `Censo SIGAU Kennedy · ${{sKey.toUpperCase()}}` }};
+      }}
+      const ang = (idx / total) * Math.PI * 2;
+      const rad = 25.0 + ((idx * 19) % 210);
+      return {{ x: Math.cos(ang) * rad + 140.0, y: 3.2, z: Math.sin(ang) * rad + 40.0, locName: "Arbolado Urbano de Kennedy" }};
+    }}
+  }}
+
+  // Generar las Balizas Interactivas de las Especies en el Territorio 3D
+  rawTaxa.forEach((t, idx) => {{
+    const geoPos = calculateTerritoryCoordinate(t, idx, rawTaxa.length);
+    t.territoryPos = geoPos;
+
+    const tex = createCircularTexture(t.img, t.id, t.name, t.cat);
+    const spriteMat = new THREE.SpriteMaterial({{
+      map: tex,
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.95
+    }});
+
+    const sprite = new THREE.Sprite(spriteMat);
+    const baseScale = (t.cat === 4 || t.cat === 'Anfibios') ? 4.6 : ((t.cat === 5 || t.cat === 'Reptiles') ? 4.4 : ((t.cat === 2 || t.cat === 'Mamíferos') ? 4.2 : 3.8));
+    sprite.scale.set(baseScale, baseScale, 1.0);
+    sprite.position.set(geoPos.x, geoPos.y, geoPos.z);
+    sprite.userData = {{ isTerritoryBeacon: true, taxonIndex: idx, taxonData: t, baseScale: baseScale }};
+
+    const catHex = (TAXONOMIC_CONVENTIONS[t.cat]?.color) || "#84A48B";
+    const ringGeo = new THREE.RingGeometry(0.8, 1.8, 16);
+    const ringMat = new THREE.MeshBasicMaterial({{
+      color: new THREE.Color(catHex),
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending
+    }});
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = -Math.PI / 2;
+    ringMesh.position.set(geoPos.x, 0.22, geoPos.z);
+
+    const beaconGroup = new THREE.Group();
+    beaconGroup.add(sprite);
+    beaconGroup.add(ringMesh);
+    beaconGroup.userData = {{ taxonIndex: idx, taxonData: t, sprite: sprite, ring: ringMesh }};
+
+    territoryBeaconsGroup.add(beaconGroup);
+    territoryBeacons.push(sprite);
+  }});
+
+  // Elementos DOM del Tooltip y Pop-up de Territorio
+  const territoryTooltip = document.getElementById("territorySpeciesTooltip");
+  const ttImg = document.getElementById("ttSpeciesImg");
+  const ttBadge = document.getElementById("ttSpeciesBadge");
+  const ttName = document.getElementById("ttSpeciesName");
+  const ttSci = document.getElementById("ttSpeciesSci");
+  const ttLoc = document.getElementById("ttSpeciesLoc");
+  const ttRole = document.getElementById("ttSpeciesRole");
+
+  const territoryModal = document.getElementById("territorySpeciesModal");
+  const modalImg = document.getElementById("modalSpeciesImg");
+  const modalBadge = document.getElementById("modalSpeciesBadge");
+  const modalName = document.getElementById("modalSpeciesName");
+  const modalSci = document.getElementById("modalSpeciesSci");
+  const modalLoc = document.getElementById("modalSpeciesLoc");
+  const modalRole = document.getElementById("modalSpeciesRole");
+  const modalDesc = document.getElementById("modalSpeciesDesc");
+  const modalLinks = document.getElementById("modalSpeciesLinks");
+  const btnCloseModal = document.getElementById("btnCloseTerritoryModal");
+  const btnFlyToSpecies = document.getElementById("btnFlyToSpecies");
+
+  if (btnCloseModal) {{
+    btnCloseModal.addEventListener("click", () => {{
+      if (territoryModal) territoryModal.style.display = "none";
+    }});
+  }}
+
+  function openTerritorySpeciesModal(t) {{
+    if (!t || !territoryModal) return;
+    activeTerritoryTaxon = t;
+
+    const catHex = (TAXONOMIC_CONVENTIONS[t.cat]?.color) || "#84A48B";
+    territoryModal.style.setProperty("--cat-color", catHex);
+
+    if (modalImg) modalImg.src = t.img || generateSpeciesSvgDataUri(t.id, t.name, t.cat);
+    if (modalBadge) {{
+      modalBadge.textContent = TAXONOMIC_CONVENTIONS[t.cat]?.badge || t.cat;
+      modalBadge.style.color = catHex;
+      modalBadge.style.borderColor = catHex;
+    }}
+    if (modalName) modalName.textContent = t.name;
+    if (modalSci) modalSci.textContent = t.sciname;
+    if (modalLoc) modalLoc.textContent = t.territoryPos.locName || t.loc || "Kennedy";
+    if (modalRole) modalRole.textContent = t.role || "Eslabón ecológico del territorio";
+    if (modalDesc) modalDesc.textContent = `${{t.desc || 'Especie registrada en el sistema socioecológico de Kennedy.'}} Taxón ID: ${{t.id}}. Registrado en censo SIGAU e iNaturalist.`;
+
+    if (modalLinks) {{
+      modalLinks.innerHTML = "";
+      const node = rawNodes.find(n => n.taxaId === t.id);
+      if (node && node.neighbors && node.neighbors.length > 0) {{
+        node.neighbors.slice(0, 6).forEach(nb => {{
+          if (!nb) return;
+          const linkDiv = document.createElement("div");
+          linkDiv.style.display = "flex";
+          linkDiv.style.alignItems = "center";
+          linkDiv.style.justifyContent = "space-between";
+          linkDiv.style.padding = "4px 8px";
+          linkDiv.style.background = "rgba(255,255,255,0.04)";
+          linkDiv.style.borderRadius = "4px";
+          linkDiv.style.fontSize = "10.5px";
+          linkDiv.style.cursor = "pointer";
+          linkDiv.innerHTML = `<span><b>${{nb.label}}</b> (<i>${{nb.sciname}}</i>)</span> <span style="color:${{palette.catColors[nb.cat]}}; font-weight:700;">${{palette.catNames[nb.cat]}}</span>`;
+          linkDiv.addEventListener("click", () => {{
+            const nbTaxon = rawTaxa.find(tx => tx.id === nb.taxaId);
+            if (nbTaxon) openTerritorySpeciesModal(nbTaxon);
+          }});
+          modalLinks.appendChild(linkDiv);
+        }});
+      }} else {{
+        modalLinks.innerHTML = '<div style="color:#94a3b8; font-size:10.5px; font-style:italic;">Conectado a la matriz ecológica de humedales y arbolado de Kennedy.</div>';
+      }}
+    }}
+
+    if (btnFlyToSpecies) {{
+      btnFlyToSpecies.style.background = catHex;
+      btnFlyToSpecies.onclick = () => {{
+        if (t.territoryPos && window.gsap) {{
+          gsap.to(camera.position, {{
+            x: t.territoryPos.x + 18,
+            y: t.territoryPos.y + 24,
+            z: t.territoryPos.z + 36,
+            duration: 2.2,
+            ease: "power2.inOut"
+          }});
+          gsap.to(controls.target, {{
+            x: t.territoryPos.x,
+            y: t.territoryPos.y,
+            z: t.territoryPos.z,
+            duration: 2.2,
+            ease: "power2.inOut"
+          }});
+        }}
+      }};
+    }}
+
+    territoryModal.style.display = "flex";
+  }}
+
+  // Pointermove para Tooltip en Territorio
+  window.addEventListener("pointermove", (e) => {{
+    if (currentMorph < 0.35) {{
+      if (territoryTooltip) territoryTooltip.style.display = "none";
+      return;
+    }}
+
+    mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouseVec, camera);
+
+    const intersects = raycaster.intersectObjects(territoryBeacons, false);
+    if (intersects.length > 0) {{
+      const hitSprite = intersects[0].object;
+      const t = hitSprite.userData.taxonData;
+      if (!t) return;
+
+      canvas.style.cursor = "pointer";
+
+      if (hoveredTerritoryBeacon && hoveredTerritoryBeacon !== hitSprite) {{
+        const base = hoveredTerritoryBeacon.userData.baseScale || 3.8;
+        hoveredTerritoryBeacon.scale.set(base, base, 1.0);
+      }}
+      hoveredTerritoryBeacon = hitSprite;
+      const targetScale = (hitSprite.userData.baseScale || 3.8) * 1.35;
+      hitSprite.scale.set(targetScale, targetScale, 1.0);
+
+      if (territoryTooltip) {{
+        const catHex = (TAXONOMIC_CONVENTIONS[t.cat]?.color) || "#84A48B";
+        territoryTooltip.style.setProperty("--cat-color", catHex);
+
+        if (ttImg) ttImg.src = t.img || generateSpeciesSvgDataUri(t.id, t.name, t.cat);
+        if (ttBadge) {{
+          ttBadge.textContent = TAXONOMIC_CONVENTIONS[t.cat]?.badge || t.cat;
+          ttBadge.style.color = catHex;
+        }}
+        if (ttName) ttName.textContent = t.name;
+        if (ttSci) ttSci.textContent = t.sciname;
+        if (ttLoc) ttLoc.textContent = `📍 ${{t.territoryPos.locName || t.loc || 'Kennedy'}}`;
+        if (ttRole) ttRole.textContent = t.role || "Eslabón ecológico";
+
+        let posX = e.clientX + 16;
+        let posY = e.clientY;
+        if (posX + 300 > window.innerWidth) posX = e.clientX - 310;
+        if (posY + 120 > window.innerHeight) posY = window.innerHeight - 130;
+        if (posY < 100) posY = 100;
+
+        territoryTooltip.style.left = `${{posX}}px`;
+        territoryTooltip.style.top = `${{posY}}px`;
+        territoryTooltip.style.display = "block";
+      }}
+    }} else {{
+      if (hoveredTerritoryBeacon) {{
+        const base = hoveredTerritoryBeacon.userData.baseScale || 3.8;
+        hoveredTerritoryBeacon.scale.set(base, base, 1.0);
+        hoveredTerritoryBeacon = null;
+      }}
+      canvas.style.cursor = "crosshair";
+      if (territoryTooltip) territoryTooltip.style.display = "none";
+    }}
+  }});
+
+  // Pointerdown para Clic en Baliza de Territorio
+  window.addEventListener("pointerdown", (e) => {{
+    if (e.target.closest(".glass-panel") || e.target.closest("#territorySpeciesModal") || e.target.closest(".welcome-modal") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#activeTreeChip")) return;
+
+    if (currentMorph > 0.35) {{
+      mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouseVec, camera);
+
+      const intersects = raycaster.intersectObjects(territoryBeacons, false);
+      if (intersects.length > 0) {{
+        const hitSprite = intersects[0].object;
+        const t = hitSprite.userData.taxonData;
+        if (t) {{
+          openTerritorySpeciesModal(t);
+        }}
+      }}
+    }}
+  }});
+
+  // =====================================================================
+  // 7. FUNCIONES DE CONTROL DE INTERFAZ, FILTROS Y EVENTOS
+  // =====================================================================
+  window.openWelcomeModal = () => {{
+    const modal = document.getElementById("welcomeModalOverlay");
+    if (modal) modal.style.display = "flex";
+  }};
+
+  window.closeWelcomeModal = () => {{
+    const modal = document.getElementById("welcomeModalOverlay");
+    if (modal) modal.style.display = "none";
+  }};
+
+  window.toggleSideDrawer = () => {{
+    if (sideDrawer) sideDrawer.classList.toggle("collapsed");
+  }};
+
+  window.toggleCat = (catIdx) => {{
+    opts.cats[catIdx] = !opts.cats[catIdx];
+    const toggleEl = document.getElementById(`toggleCat${{catIdx}}`);
+    const cardEl = document.getElementById(`catCard${{catIdx}}`);
+    if (toggleEl) toggleEl.classList.toggle("checked", opts.cats[catIdx]);
+    if (cardEl) cardEl.classList.toggle("inactive", !opts.cats[catIdx]);
+    recalculateDegreesAndSizes();
+  }};
+
+  window.toggleAllCats = (state) => {{
+    for (let c = 0; c <= 5; c++) {{
+      opts.cats[c] = state;
+      const toggleEl = document.getElementById(`toggleCat${{c}}`);
+      const cardEl = document.getElementById(`catCard${{c}}`);
+      if (toggleEl) toggleEl.classList.toggle("checked", state);
+      if (cardEl) cardEl.classList.toggle("inactive", !state);
+    }}
+    recalculateDegreesAndSizes();
+  }};
+
+  window.toggleInteraction = (interIdx) => {{
+    opts.interactions[interIdx] = !opts.interactions[interIdx];
+    const itemEl = document.getElementById(`interItem${{interIdx}}`);
+    const isActive = opts.interactions[interIdx];
+    if (itemEl) {{
+      itemEl.classList.toggle("active", isActive);
+      itemEl.classList.toggle("inactive", !isActive);
+    }}
+    recalculateDegreesAndSizes();
+  }};
+
+  window.toggleAllInteractions = (state) => {{
+    for (let i = 0; i <= 8; i++) {{
+      opts.interactions[i] = state;
+      const itemEl = document.getElementById(`interItem${{i}}`);
+      if (itemEl) {{
+        itemEl.classList.toggle("active", state);
+        itemEl.classList.toggle("inactive", !state);
+      }}
+    }}
+    recalculateDegreesAndSizes();
+  }};
+
+  window.restoreHiddenNodes = () => {{
+    rawNodes.forEach(n => n.hiddenByUser = false);
+    recalculateDegreesAndSizes();
+  }};
+
+  // Disposiciones Espaciales 3D
+  window.setLayout = (type) => {{
+    opts.layout = type;
+    document.querySelectorAll(".top-header .btn-flat").forEach(b => {{
+      if (b.id && b.id.startsWith("btnLayout")) b.classList.remove("active");
+    }});
+    if (type === 'hyperbolic') document.getElementById("btnLayoutHyp")?.classList.add("active");
+    if (type === 'clustered') document.getElementById("btnLayoutClust")?.classList.add("active");
+    if (type === 'concentric') document.getElementById("btnLayoutConc")?.classList.add("active");
+
+    rawNodes.forEach((n, idx) => {{
+      let tx = n.ox, ty = n.oy, tz = n.oz;
+
+      if (type === 'clustered') {{
+        const centers = {{
+          0: {{ x: -26, y: 0, z: -14 }},
+          1: {{ x: 26, y: 12, z: 14 }},
+          2: {{ x: 18, y: -22, z: -16 }},
+          3: {{ x: -22, y: -20, z: 20 }},
+          4: {{ x: -16, y: 24, z: -20 }},
+          5: {{ x: 22, y: 20, z: -22 }}
+        }};
+        const c = centers[n.cat] || centers[0];
+        const r = 16.0 * Math.cbrt((idx % 45) / 45);
+        const theta = (idx * 2.4);
+        const phi = ((idx % 19) / 19) * Math.PI;
+        tx = c.x + r * Math.sin(phi) * Math.cos(theta);
+        ty = c.y + r * Math.sin(phi) * Math.sin(theta);
+        tz = c.z + r * Math.cos(phi);
+      }} else if (type === 'concentric') {{
+        const ringIdx = n.cat;
+        const r = 14.0 + ringIdx * 8.5;
+        const posInRing = idx % 80;
+        const angle = (posInRing / 80) * Math.PI * 2;
+        tx = r * Math.cos(angle);
+        ty = ((idx % 9) - 4) * 3.2;
+        tz = r * Math.sin(angle);
+      }}
+
+      if (window.gsap) {{
+        gsap.to(n.sprite.position, {{
+          x: tx, y: ty, z: tz,
+          duration: 1.6,
+          ease: "power2.inOut",
+          onUpdate: () => {{
+            n.x = n.sprite.position.x;
+            n.y = n.sprite.position.y;
+            n.z = n.sprite.position.z;
+            updateEdgeLinesGeometry();
+          }}
+        }});
+      }} else {{
+        n.sprite.position.set(tx, ty, tz);
+        n.x = tx; n.y = ty; n.z = tz;
+      }}
+    }});
+  }};
+
+  window.searchNode = (query) => {{
+    if (!query || !query.trim()) return;
+    const q = query.toLowerCase().trim();
+    const found = rawNodes.find(n => n.label.toLowerCase().includes(q) || n.sciname.toLowerCase().includes(q) || n.taxaId.toLowerCase().includes(q));
+    if (found) {{
+      openInspector(found);
+      focusNode(found);
+    }}
+  }};
+
+  function openInspector(n) {{
+    selectedNode = n;
+    if (!nodeInspector) return;
+
+    document.getElementById("mNodeTitle").innerText = n.label;
+    document.getElementById("mNodeSciName").innerText = n.sciname;
+    document.getElementById("mDegreeVal").innerText = n.degree;
+    document.getElementById("mTaxaCode").innerText = n.taxaId;
+    document.getElementById("mRoleBox").innerText = n.role || "Eslabón ecológico";
+    document.getElementById("mLocBox").innerText = n.loc || "Kennedy";
+    document.getElementById("mAlertBox").innerText = n.alert || "Monitoreo permanente";
+
+    const imgEl = document.getElementById("mNodeImg");
+    if (imgEl) {{
+      imgEl.style.display = "block";
+      imgEl.src = n.photoUrl;
+      imgEl.onerror = () => {{ imgEl.style.display = "none"; }};
+    }}
+
+    const listEl = document.getElementById("mNeighborList");
+    if (listEl) {{
+      listEl.innerHTML = "";
+      const activeNeighbors = n.neighbors.filter(nb => nb.active);
+      if (activeNeighbors.length === 0) {{
+        listEl.innerHTML = '<div style="padding:8px 10px; color:#64748b; font-size:10px;">Sin interacciones activas con los filtros actuales.</div>';
+      }} else {{
+        activeNeighbors.forEach(nb => {{
+          const key = n.id < nb.id ? `${{n.id}}_${{nb.id}}` : `${{nb.id}}_${{n.id}}`;
+          const inter = edgeDetailsMap[key]?.type || getInteractionInfo(n, nb);
+          const item = document.createElement("div");
+          item.className = "neighbor-row";
+          item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="width:6px; height:6px; border-radius:50%; background:${{inter.color}};"></span>
+              <span style="font-weight:600; font-size:10.5px;">${{nb.label}}</span>
+            </div>
+            <span style="font-size:9.5px; color:${{inter.color}}; font-weight:700;">${{inter.name}}</span>
+          `;
+          item.onclick = () => {{
+            openInspector(nb);
+            focusNode(nb);
+          }};
+          listEl.appendChild(item);
+        }});
+      }}
+    }}
+
+    nodeInspector.style.display = "block";
+  }}
+
+  window.closeInspector = () => {{
+    selectedNode = null;
+    if (nodeInspector) nodeInspector.style.display = "none";
+  }};
+
+  function focusNode(n) {{
+    if (!n) return;
+    const target = n.sprite.position;
+    if (window.gsap) {{
+      gsap.to(controls.target, {{ x: target.x, y: target.y, z: target.z, duration: 1.4, ease: "power2.out" }});
+      const dir = new THREE.Vector3().subVectors(camera.position, target).normalize().multiplyScalar(24.0);
+      gsap.to(camera.position, {{ x: target.x + dir.x, y: target.y + dir.y, z: target.z + dir.z, duration: 1.4, ease: "power2.out" }});
+    }}
+  }}
+
+  window.focusSelectedNode = () => {{ if (selectedNode) focusNode(selectedNode); }};
+
+  window.hideCurrentNode = () => {{
+    if (selectedNode) {{
+      selectedNode.hiddenByUser = true;
+      closeInspector();
+      recalculateDegreesAndSizes();
+      if (toastNotify) {{
+        toastNotify.style.display = "block";
+        setTimeout(() => {{ toastNotify.style.display = "none"; }}, 2400);
+      }}
+    }}
+  }};
+
+  window.resetCamera = () => {{
+    if (window.gsap) {{
+      gsap.to(camera.position, {{ x: swarmCamPos.x, y: swarmCamPos.y, z: swarmCamPos.z, duration: 1.4, ease: "power2.out" }});
+      gsap.to(controls.target, {{ x: swarmTarget.x, y: swarmTarget.y, z: swarmTarget.z, duration: 1.4, ease: "power2.out" }});
+    }}
+  }};
+
+  // Sub-Red 2D Modal
+  let subCanvasAnim = null;
+  const subOpts = {{ 0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true }};
+
+  window.openSubNetworkModal = () => {{
+    if (!selectedNode || !subnetworkModal) return;
+    document.getElementById("subModalTitle").innerText = `Sub-Red de ${{selectedNode.label}}`;
+    document.getElementById("subModalCode").innerText = `[${{selectedNode.taxaId}}]`;
+    subnetworkModal.style.display = "flex";
+    initSubNetworkCanvas();
+  }};
+
+  window.closeSubNetworkModal = () => {{
+    if (subnetworkModal) subnetworkModal.style.display = "none";
+    if (subCanvasAnim) cancelAnimationFrame(subCanvasAnim);
+  }};
+
+  window.toggleSubInteraction = (interIdx) => {{
+    subOpts[interIdx] = !subOpts[interIdx];
+    const btn = document.getElementById(`subInterToggle${{interIdx}}`);
+    if (btn) btn.classList.toggle("active", subOpts[interIdx]);
+  }};
+
+  function initSubNetworkCanvas() {{
+    const subCanvas = document.getElementById("subCanvas");
+    const wrap = subCanvas.parentElement;
+    subCanvas.width = wrap.clientWidth;
+    subCanvas.height = wrap.clientHeight;
+    const sctx = subCanvas.getContext("2d");
+
+    const centerNode = selectedNode;
+    let angle = 0;
+
+    function renderSub() {{
+      sctx.clearRect(0, 0, subCanvas.width, subCanvas.height);
+      const cx = subCanvas.width / 2;
+      const cy = subCanvas.height / 2;
+
+      const activeNeighbors = centerNode.neighbors.filter(nb => {{
+        if (!nb.active) return false;
+        const key = centerNode.id < nb.id ? `${{centerNode.id}}_${{nb.id}}` : `${{nb.id}}_${{centerNode.id}}`;
+        const inter = edgeDetailsMap[key]?.type || getInteractionInfo(centerNode, nb);
+        return subOpts[inter.id] !== false;
+      }});
+
+      const total = activeNeighbors.length;
+      angle += 0.006;
+
+      activeNeighbors.forEach((nb, i) => {{
+        const th = (i / total) * Math.PI * 2 + angle;
+        const dist = Math.min(cx, cy) * 0.68;
+        const nx = cx + Math.cos(th) * dist;
+        const ny = cy + Math.sin(th) * dist;
+
+        const key = centerNode.id < nb.id ? `${{centerNode.id}}_${{nb.id}}` : `${{nb.id}}_${{centerNode.id}}`;
+        const inter = edgeDetailsMap[key]?.type || getInteractionInfo(centerNode, nb);
+
+        sctx.beginPath();
+        sctx.moveTo(cx, cy);
+        sctx.lineTo(nx, ny);
+        sctx.strokeStyle = inter.color || "#84a48b";
+        sctx.lineWidth = 1.8;
+        sctx.stroke();
+
+        sctx.beginPath();
+        sctx.arc(nx, ny, 16, 0, Math.PI * 2);
+        sctx.fillStyle = palette.catColors[nb.cat] || "#84a48b";
+        sctx.fill();
+        sctx.strokeStyle = "#ffffff";
+        sctx.lineWidth = 2;
+        sctx.stroke();
+
+        sctx.fillStyle = "#ffffff";
+        sctx.font = "bold 9.5px sans-serif";
+        sctx.textAlign = "center";
+        sctx.fillText(nb.label.substring(0, 12), nx, ny + 26);
+      }});
+
+      // Nodo Central
+      sctx.beginPath();
+      sctx.arc(cx, cy, 24, 0, Math.PI * 2);
+      sctx.fillStyle = palette.catColors[centerNode.cat] || "#84a48b";
+      sctx.fill();
+      sctx.strokeStyle = "#ffffff";
+      sctx.lineWidth = 3;
+      sctx.stroke();
+
+      sctx.fillStyle = "#ffffff";
+      sctx.font = "bold 11px sans-serif";
+      sctx.textAlign = "center";
+      sctx.fillText(centerNode.taxaId, cx, cy + 4);
+
+      subCanvasAnim = requestAnimationFrame(renderSub);
+    }}
+
+    renderSub();
+  }}
+
+  // FAQ Chat Assistant
+  window.toggleFaqChat = () => {{
+    if (faqChatModal) faqChatModal.style.display = (faqChatModal.style.display === "none") ? "flex" : "none";
+  }};
+
+  window.askFaq = (idx) => {{
+    const chatBody = document.getElementById("chatBody");
+    let userMsg = "", botMsg = "";
+    if (idx === 1) {{
+      userMsg = "¿Qué significan las conexiones y evidencia entre especies?";
+      botMsg = "Cada enlace modela un intercambio ecológico real: visitas florales, dispersión zoócora de semillas, depredación, o nidificación en juncales respaldados por el censo SIGAU e iNaturalist.";
+    }} else if (idx === 2) {{
+      userMsg = "¿Por qué existen relaciones entre vegetación y fauna?";
+      botMsg = "La flora nativa (Saúco, Capulí, Aliso, Juncos) provee alimento, percha y material de anidación indispensable para la supervivencia de las aves y fauna de los humedales.";
+    }} else if (idx === 3) {{
+      userMsg = "¿Qué observaciones son datos vs hipótesis?";
+      botMsg = "Los registros botánicos y faunísticos georreferenciados corresponden a censos empíricos comprobados. Las relaciones tróficas se fundamentan en literatura ecológica y redes bióticas de la sabana.";
+    }} else if (idx === 4) {{
+      userMsg = "¿Qué dependencias amenazan la sostenibilidad?";
+      botMsg = "La fragmentación de pastos y tala de arbolado nativo interrumpe los corredores biológicos entre los humedales El Burro, La Vaca y Techo.";
+    }}
+
+    chatBody.innerHTML += `<div class="msg-bubble msg-user">${{userMsg}}</div>`;
+    chatBody.innerHTML += `<div class="msg-bubble msg-bot">${{botMsg}}</div>`;
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }};
+
+  window.sendCustomChatMessage = () => {{
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+
+    const chatBody = document.getElementById("chatBody");
+    chatBody.innerHTML += `<div class="msg-bubble msg-user">${{text}}</div>`;
+
+    const query = text.toLowerCase();
+    const found = rawNodes.find(n => n.label.toLowerCase().includes(query) || n.sciname.toLowerCase().includes(query));
+    let botMsg = "";
+
+    if (found) {{
+      botMsg = `<b>${{found.label}}</b> (<i>${{found.sciname}}</i>): ${{found.role}}. Ubicación: ${{found.loc}}. Posee ${{found.neighbors.length}} interacciones activas.`;
+    }} else {{
+      botMsg = `He analizado la base de 568 taxones de Kennedy. Puedes consultar cualquier especie o explorar sus interacciones en la red 3D.`;
+    }}
+
+    chatBody.innerHTML += `<div class="msg-bubble msg-bot">${{botMsg}}</div>`;
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }};
+
+  // Detección de doble clic para ocultar nodo en Red 3D
+  let clickTime = 0;
+  window.addEventListener("pointerdown", (e) => {{
+    if (e.target.closest(".glass-panel") || e.target.closest("#territorySpeciesModal") || e.target.closest(".welcome-modal") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#activeTreeChip")) return;
+
+    if (currentMorph < 0.35) {{
+      mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouseVec, camera);
+
+      const intersects = raycaster.intersectObjects(nodeSprites, false);
+      if (intersects.length > 0) {{
+        const sp = intersects[0].object;
+        const nodeObj = rawNodes[sp.userData.id];
+        const now = Date.now();
+
+        if (now - clickTime < 320) {{
+          // Doble clic: ocultar nodo
+          if (nodeObj) {{
+            nodeObj.hiddenByUser = true;
+            closeInspector();
+            recalculateDegreesAndSizes();
+            if (toastNotify) {{
+              toastNotify.style.display = "block";
+              setTimeout(() => {{ toastNotify.style.display = "none"; }}, 2400);
+            }}
+          }}
+        }} else {{
+          // Un clic: abrir inspector
+          if (nodeObj) openInspector(nodeObj);
+        }}
+        clickTime = now;
+      }}
+    }}
+  }});
+
+  // =====================================================================
+  // 8. CONTROLADOR DE TRANSICIÓN AL TERRITORIO 3D DE KENNEDY
+  // =====================================================================
+  const slider = document.getElementById("experienceSlider");
+  const btnToggle = document.getElementById("btnPlayTransition");
+  const btnActionText = document.getElementById("btnActionText");
+  const labelSwarm = document.getElementById("labelSwarm");
+  const labelTerritory = document.getElementById("labelTerritory");
+
+  function animateToStage(target) {{
+    targetMorph = target;
+    isTerritory = target > 0.5;
+
+    if (window.gsap) {{
+      gsap.to(particleUniforms.uMorphProgress, {{
+        value: target,
+        duration: 2.8,
+        ease: "power2.inOut",
+        onUpdate: () => {{
+          currentMorph = particleUniforms.uMorphProgress.value;
+          if (slider) slider.value = currentMorph * 100;
+          updateStageVisibility();
+        }}
+      }});
+
+      const endPos = isTerritory ? territoryCamPos : swarmCamPos;
+      const endTarget = isTerritory ? territoryTarget : swarmTarget;
+
+      gsap.to(camera.position, {{ x: endPos.x, y: endPos.y, z: endPos.z, duration: 2.8, ease: "power2.inOut" }});
+      gsap.to(controls.target, {{ x: endTarget.x, y: endTarget.y, z: endTarget.z, duration: 2.8, ease: "power2.inOut" }});
+    }}
+  }}
+
+  function updateStageVisibility() {{
+    const showTerritory = currentMorph > 0.35;
+
+    if (labelSwarm) labelSwarm.classList.toggle("active", !showTerritory);
+    if (labelTerritory) labelTerritory.classList.toggle("active", showTerritory);
+    if (btnActionText) btnActionText.textContent = showTerritory ? "VOLVER A RED" : "MATERIALIZAR";
+    if (waypointsBar) waypointsBar.classList.toggle("show", showTerritory);
+
+    if (territoryBeaconsGroup) territoryBeaconsGroup.visible = showTerritory;
+
+    networkGroup.children.forEach(c => {{
+      if (c.isSprite) c.visible = !showTerritory && rawNodes[c.userData.id]?.active;
+    }});
+    if (edgeLinesMesh) edgeLinesMesh.visible = !showTerritory;
+  }}
+
+  if (slider) {{
+    slider.addEventListener("input", (e) => {{
+      const val = parseFloat(e.target.value) / 100.0;
+      currentMorph = val;
+      particleUniforms.uMorphProgress.value = val;
+      updateStageVisibility();
+    }});
+  }}
+
+  if (btnToggle) {{
+    btnToggle.addEventListener("click", () => {{
+      const next = currentMorph > 0.5 ? 0.0 : 1.0;
+      animateToStage(next);
+    }});
+  }}
+
+  if (labelSwarm) labelSwarm.addEventListener("click", () => animateToStage(0.0));
+  if (labelTerritory) labelTerritory.addEventListener("click", () => animateToStage(1.0));
+
+  // Waypoints de Territorio
+  document.querySelectorAll(".waypoint-pill").forEach(btn => {{
+    btn.addEventListener("click", (e) => {{
+      const wpKey = btn.getAttribute("data-waypoint");
+      if (!wpKey || !waypoints[wpKey]) return;
+
+      document.querySelectorAll(".waypoint-pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const wp = waypoints[wpKey];
+      if (currentMorph < 0.45) animateToStage(1.0);
+
+      if (window.gsap) {{
+        gsap.to(camera.position, {{ x: wp.pos.x, y: wp.pos.y, z: wp.pos.z, duration: 2.4, ease: "power2.inOut" }});
+        gsap.to(controls.target, {{ x: wp.target.x, y: wp.target.y, z: wp.target.z, duration: 2.4, ease: "power2.inOut" }});
+      }}
+    }});
+  }});
+
+  // Botón para Guardar Vista de Cámara
+  if (btnSaveCameraView) {{
+    btnSaveCameraView.addEventListener("click", () => {{
+      const saved = {{
+        pos: {{ x: Math.round(camera.position.x), y: Math.round(camera.position.y), z: Math.round(camera.position.z) }},
+        target: {{ x: Math.round(controls.target.x), y: Math.round(controls.target.y), z: Math.round(controls.target.z) }}
+      }};
+      localStorage.setItem("saved_territory_cam", JSON.stringify(saved));
+      if (camToast) {{
+        camToast.style.opacity = "1";
+        setTimeout(() => {{ camToast.style.opacity = "0"; }}, 2500);
+      }}
+    }});
+  }}
+
+  if (btnCloseCamInspector) {{
+    btnCloseCamInspector.addEventListener("click", () => {{
+      if (camInspectorBox) camInspectorBox.classList.add("hidden");
+      localStorage.setItem("hide_cam_helper", "true");
+    }});
+  }}
+
+  // Sonido Sintetizado
+  let audioCtx = null;
+  let soundActive = false;
+  const soundBtn = document.getElementById("soundToggle");
+
+  if (soundBtn) {{
+    soundBtn.addEventListener("click", () => {{
+      soundActive = !soundActive;
+      soundBtn.classList.toggle("active", soundActive);
+      soundBtn.innerHTML = soundActive ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
+      if (soundActive && !audioCtx) {{
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }}
+    }});
+  }}
+
+  // =====================================================================
+  // 9. LOOP PRINCIPAL DE RENDERIZADO
+  // =====================================================================
+  const clock = new THREE.Clock();
+
+  function animate() {{
+    requestAnimationFrame(animate);
+
+    const delta = clock.getDelta();
+    const elapsedTime = clock.getElapsedTime();
+
+    particleUniforms.uTime.value = elapsedTime;
+
+    if (opts.autoRotate && currentMorph < 0.35) {{
+      networkGroup.rotation.y += delta * 0.12;
+    }} else {{
+      networkGroup.rotation.y = 0;
+    }}
+
+    controls.update();
+
+    if (camCoordPos && camCoordTarget) {{
+      camCoordPos.innerText = `${{Math.round(camera.position.x)}}, ${{Math.round(camera.position.y)}}, ${{Math.round(camera.position.z)}}`;
+      camCoordTarget.innerText = `${{Math.round(controls.target.x)}}, ${{Math.round(controls.target.y)}}, ${{Math.round(controls.target.z)}}`;
+    }}
+
+    // Pulsación de balizas en territorio
+    if (territoryBeaconsGroup && territoryBeaconsGroup.visible) {{
+      territoryBeaconsGroup.children.forEach((bg, idx) => {{
+        if (bg.userData.ring) {{
+          const sc = 1.0 + Math.sin(elapsedTime * 2.5 + idx) * 0.15;
+          bg.userData.ring.scale.set(sc, sc, sc);
+        }}
+      }});
+    }}
+
+    renderer.render(scene, camera);
+  }}
+
+  animate();
+
+  // Resize Handler
+  window.addEventListener("resize", () => {{
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    particleUniforms.uPixelRatio.value = Math.min(window.devicePixelRatio || 1, 2);
+  }});
+}})();
+</script>
+</body>
+</html>
+'''
+
+with open('modulo-11-garden.html', 'w', encoding='utf-8') as f:
+    f.write(html_template)
+
+print("Generated modulo-11-garden.html successfully!")
