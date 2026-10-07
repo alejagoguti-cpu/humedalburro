@@ -10,6 +10,11 @@
   const WATER_URL = "./assets/kennedy_water_bodies.json";
   const SCALE = 1 / 10;
 
+  // Estado Global de Transición
+  let currentMorph = 0.0;
+  let targetMorph = 0.0;
+  let isTerritory = false;
+
   // Centro de proyección de Kennedy
   const netCenter = { x: 5341.33, y: 3161.9 };
   function toScene(x, y) {
@@ -712,6 +717,14 @@
     console.error("Error al cargar capas del territorio:", err);
     if (loadingVeil) loadingVeil.style.display = "none";
   });
+
+  // Failsafe para asegurar que el velo siempre desaparezca
+  setTimeout(() => {
+    if (loadingVeil && loadingVeil.style.display !== "none") {
+      loadingVeil.style.opacity = "0";
+      setTimeout(() => { loadingVeil.style.display = "none"; }, 500);
+    }
+  }, 1800);
 
   function buildTerritorialPointMatrix(waterData, treesData, netData, bldData) {
     const coords = [];
@@ -1464,9 +1477,7 @@
   // =====================================================================
   // 8. METAMORFOSIS ANIMADA: RED BIÓTICA <---> TERRITORIO 3D
   // =====================================================================
-  let targetMorph = 0.0;
-  let currentMorph = 0.0;
-  let isTerritory = false;
+  // State moved to top
 
   const slider = document.getElementById("experienceSlider");
   const btnToggle = document.getElementById("btnPlayTransition");
