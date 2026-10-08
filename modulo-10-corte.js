@@ -3021,11 +3021,13 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     });
   }
 
-  function triggerExplodeView() {
+    function triggerExplodeView() {
     if (penActive) return;
+    const legendPanel = document.getElementById("legendPanel");
+    if (legendPanel) legendPanel.style.display = "block";
     const sectionWrapEl = document.getElementById("sectionWrap");
     if (sectionWrapEl) sectionWrapEl.style.display = "block";
-    if (typeof fitEscalaOverlays === "function") fitEscalaOverlays();
+    fitEscalaOverlays();
     if (typeof resizeSectionView === "function") resizeSectionView();
     if (typeof placeSectionCutAtHumedal === "function") placeSectionCutAtHumedal();
     if (typeof updateSectionCutRotation === "function") updateSectionCutRotation();
@@ -4185,15 +4187,19 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     natWaterAnimFrame = requestAnimationFrame(loopWater);
   }
 
-  function closeNaturalExplode() {
+    function closeNaturalExplode() {
     setNatRain(false);
     const p = document.getElementById("escalaZoomPanel");
     if (p) p.style.display = "none";
     const l = document.getElementById("legendActiveLayer");
     if (l) l.style.display = "none";
+    const lp = document.getElementById("legendPanel");
+    if (lp) lp.style.display = "none";
+    const secWrap = document.getElementById("sectionWrap");
+    if (secWrap) secWrap.style.display = "none";
     if (!natOverlay) return;
     const sceneWrapRestore = document.getElementById("sceneWrap");
-    if (sceneWrapRestore) sceneWrapRestore.style.display = "block"; // volver a la vista 3D en vivo (antes solo lo hacia openTechExplode, por eso Natural y Cultural se quedaban en blanco)
+    if (sceneWrapRestore) sceneWrapRestore.style.display = "block";
     if (natWaterAnimFrame) { cancelAnimationFrame(natWaterAnimFrame); natWaterAnimFrame = null; }
     const sublayers = natOverlay.querySelectorAll(".nat-sublayer");
     sublayers.forEach(l => {
@@ -4203,7 +4209,6 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (natLayerContext) natLayerContext.style.opacity = "0";
     if (natYearPlaying) stopNatPlayYear();
 
-    // Restaurar inmediatamente el viewport del 3D general
     const origW = wrap.clientWidth, origH = wrap.clientHeight;
     renderer.setSize(origW, origH, false);
     const restoreAspect = origW / origH;
