@@ -101,7 +101,7 @@
   function placeSectionCutAtHumedal() {
     // Vista exacta de la seccion inferior fijada con las coordenadas precisas de la usuaria:
     // Rotación: 143°, U: 26-38%, V: 32-50%, Y: 0-100%
-    // Cámara: Posición (138.7, 10.8, -2.4), Target (182.8, 4.9, -35.4), Zoom: 0.80
+    // Cámara: Posición (149.9, 8.6, -11.6), Target (182.3, 4.2, -35.9), Zoom: 0.80
     sectionCutX = 177.0;
     sectionCutZ = -25.6;
     if (sectionRenderer) {
@@ -126,7 +126,7 @@
       sectionRenderer.localClippingEnabled = false;
       sectionRenderer.clippingPlanes = botClipPlanesArr;
 
-      sectionCamera.position.set(138.7, 10.8, -2.4);
+      sectionCamera.position.set(149.9, 8.6, -11.6);
       sectionCamera.up.set(0, 1, 0);
       sectionCamera.fov = 12;
       sectionCamera.zoom = 0.80;
@@ -138,14 +138,14 @@
         sectionControls.addEventListener("change", updateBotBox);
       }
       if (sectionControls) {
-        sectionControls.target.set(182.8, 4.9, -35.4);
+        sectionControls.target.set(182.3, 4.2, -35.9);
         sectionControls.update();
       }
 
       try {
         localStorage.setItem("burro_corte_coords", JSON.stringify({
-          camPos: [138.7, 10.8, -2.4],
-          camTarget: [182.8, 4.9, -35.4],
+          camPos: [149.9, 8.6, -11.6],
+          camTarget: [182.3, 4.2, -35.9],
           zoom: 0.80,
           rot: 143,
           xMin: 26, xMax: 38,
