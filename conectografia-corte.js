@@ -1,7 +1,7 @@
 /* Red de interacciones bióticas sobre el CORTE DINÁMICO.
-   Con respiración orgánica amplificada de nodos, encendido/escalado al pasar el cursor,
-   líneas de interacción dinámicas, Modo Oscuro nocturno (botón 🌙),
-   animación de Garzas pescando, Tinguas aleteando y Pato Canadiense aterrizando. */
+   Con respiración orgánica NOTORIA y fluida de la red, encendido/escalado al pasar el cursor,
+   Modo Oscuro NOCTURNO COMPLETO (fondo negro/nocturno real con mix-blend-mode: multiply),
+   y Pato Canadiense chiquitito que desciende al agua y nada junto al otro patito. */
 (function () {
   "use strict";
   const NS = "http://www.w3.org/2000/svg";
@@ -85,10 +85,14 @@
       st.textContent = `
         .cx-alas { transform-box: fill-box; transform-origin: 50% 65%; animation: cxAlas .12s ease-in-out infinite alternate; }
         @keyframes cxAlas { from { transform: scale(1,1); } to { transform: scale(1,.76) skewX(-2deg); } }
-        .cx-txt { paint-order: stroke; stroke: rgba(255,255,255,.94); stroke-width: 3.2px; stroke-linejoin: round; font-family: 'Segoe UI', sans-serif; font-weight: 700; transition: transform .25s ease; }
-        .cx-dark .cx-txt { stroke: rgba(15, 23, 42, 0.95); fill: #f8fafc; }
-        .cx-node-group { transition: transform .25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter .25s ease; cursor: grab; pointer-events: all; }
-        .cx-node-group:hover { filter: drop-shadow(0 0 12px rgba(42, 200, 189, 0.95)); }
+        .cx-txt { paint-order: stroke; stroke: rgba(255,255,255,.95); stroke-width: 3.5px; stroke-linejoin: round; font-family: 'Segoe UI', sans-serif; font-weight: 700; transition: transform .25s ease; }
+        #dynamicSectionOverlay.cx-dark { background: #070b14 !important; }
+        #dynamicSectionOverlay.cx-dark #dynSecBaseImg { mix-blend-mode: multiply; filter: brightness(0.85) contrast(1.15); }
+        #dynamicSectionOverlay.cx-dark .cx-txt { stroke: #070b14; fill: #ffffff; }
+        #dynamicSectionOverlay.cx-dark .cx-ui-panel { background: rgba(15, 23, 42, 0.94) !important; border-color: rgba(255,255,255,0.18) !important; color: #f8fafc !important; }
+        #dynamicSectionOverlay.cx-dark .cx-ui-panel span { color: #cbd5e1 !important; }
+        .cx-node-group { transition: transform .2s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter .25s ease; cursor: grab; pointer-events: all; }
+        .cx-node-group:hover { filter: drop-shadow(0 0 14px rgba(42, 200, 189, 0.95)); }
         .cx-line-active { stroke-dasharray: 6 3; animation: cxDash 0.8s linear infinite; }
         @keyframes cxDash { to { stroke-dashoffset: -18; } }
       `;
@@ -119,6 +123,7 @@
     let drag = null, hover = null;
     const nodeEls = {};
     const lastP = {};
+    const currP = {};
 
     NODOS.forEach((n, idx) => {
       const g = el("g", { class: "cx-node-group" });
@@ -133,7 +138,7 @@
       lines.forEach(l => { const ts = el("tspan", { "text-anchor": "middle" }); ts.textContent = l; txt.appendChild(ts); tsp.push(ts); });
       g.appendChild(txt);
       gNodes.appendChild(g);
-      nodeEls[n.id] = { g, im, ring, txt, tsp, w: 0, h: 0, phase: idx * 0.65 };
+      nodeEls[n.id] = { g, im, ring, txt, tsp, w: 0, h: 0, phase: idx * 0.75 };
 
       g.addEventListener("pointerdown", e => { if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); drag = n.id; g.setPointerCapture(e.pointerId); g.style.cursor = "grabbing"; });
       g.addEventListener("pointermove", e => {
@@ -149,14 +154,14 @@
 
       g.addEventListener("pointerenter", () => {
         hover = n.id;
-        const lp = lastP[n.id];
-        if (lp) g.setAttribute("transform", `translate(${lp.x.toFixed(1)}, ${lp.y.toFixed(1)}) scale(1.32)`);
+        const cp = currP[n.id] || lastP[n.id];
+        if (cp) g.setAttribute("transform", `translate(${cp.x.toFixed(1)}, ${cp.y.toFixed(1)}) scale(1.32)`);
         resalta();
       });
       g.addEventListener("pointerleave", () => {
         hover = null;
-        const lp = lastP[n.id];
-        if (lp) g.setAttribute("transform", `translate(${lp.x.toFixed(1)}, ${lp.y.toFixed(1)}) scale(1)`);
+        const cp = currP[n.id] || lastP[n.id];
+        if (cp) g.setAttribute("transform", `translate(${cp.x.toFixed(1)}, ${cp.y.toFixed(1)}) scale(1)`);
         resalta();
       });
     });
@@ -186,6 +191,7 @@
       NODOS.forEach(n => {
         const [w, h] = size(n, b), e = nodeEls[n.id], x = b.l + pos[n.id][0] * b.w, y = b.t + pos[n.id][1] * b.h;
         lastP[n.id] = { x, y, r: n.kind === "circle" ? w / 2 : Math.hypot(w, h) * 0.30 + 3 };
+        if (!currP[n.id]) currP[n.id] = { x, y, r: lastP[n.id].r };
         if (hover !== n.id && drag !== n.id) {
           e.g.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")");
         }
@@ -196,13 +202,18 @@
           e.tsp.forEach((ts, i) => { ts.setAttribute("x", "0"); ts.setAttribute("dy", i ? (fs * 1.12).toFixed(1) : "0"); });
         }
       });
+      updateLines(sw);
+    }
+
+    function updateLines(sw) {
+      const strokeW = sw || Math.max(1.4, (cfg.getBox() ? cfg.getBox().w : 1000) * 0.0011);
       lineEls.forEach(l => {
-        const A = lastP[l.a], B = lastP[l.b]; if (!A || !B) return;
+        const A = currP[l.a] || lastP[l.a], B = currP[l.b] || lastP[l.b]; if (!A || !B) return;
         let dx = B.x - A.x, dy = B.y - A.y; const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
         const off = l.recip ? (l.a < l.b ? 5 : -5) : 0, nx = -dy * off, ny = dx * off;
         l.ln.setAttribute("x1", (A.x + dx * A.r + nx).toFixed(1)); l.ln.setAttribute("y1", (A.y + dy * A.r + ny).toFixed(1));
         l.ln.setAttribute("x2", (B.x - dx * (B.r + 3) + nx).toFixed(1)); l.ln.setAttribute("y2", (B.y - dy * (B.r + 3) + ny).toFixed(1));
-        l.sw = sw; if (!hover) l.ln.setAttribute("stroke-width", String(sw)); if (!hover) l.ln.style.opacity = "0.85";
+        l.sw = strokeW; if (!hover) l.ln.setAttribute("stroke-width", String(strokeW)); if (!hover) l.ln.style.opacity = "0.85";
       });
     }
 
@@ -215,8 +226,8 @@
     const tinguaImg = el("image", { href: "assets/vuelo_tingua_1.png", width: "45", height: "45", style: "pointer-events:none;" });
     gFaunaAnim.appendChild(tinguaImg);
 
-    // Pato Canadiense volando desde la derecha y posándose en el agua
-    const patoImg = el("image", { href: "assets/vuelo_pato_1.png", width: "52", height: "52", style: "pointer-events:none;" });
+    // Pato Canadiense chiquitito (34x34) que desciende hasta el agua al lado del otro patito
+    const patoImg = el("image", { href: "assets/vuelo_pato_1.png", width: "34", height: "34", style: "pointer-events:none;" });
     gFaunaAnim.appendChild(patoImg);
 
     let animTime = 0;
@@ -228,17 +239,20 @@
           place(b);
         }
 
-        // 1. Respiración orgánica vibrante y fluida en la red (bolitas y especies)
+        // 1. RESPIRACIÓN ORGÁNICA NOTORIA Y CONTINUA EN TODA LA RED
         NODOS.forEach(n => {
-          if (drag === n.id || hover === n.id) return;
-          const e = nodeEls[n.id];
-          const lp = lastP[n.id];
-          if (!e || !lp) return;
-          const phase = e.phase;
-          const ox = Math.sin(animTime * 1.35 + phase) * 4.2 + Math.cos(animTime * 0.8 + phase) * 1.8;
-          const oy = Math.cos(animTime * 1.15 + phase) * 4.2 + Math.sin(animTime * 0.9 + phase) * 1.8;
-          e.g.setAttribute("transform", `translate(${(lp.x + ox).toFixed(1)}, ${(lp.y + oy).toFixed(1)})`);
+          const lp = lastP[n.id]; if (!lp) return;
+          const phase = nodeEls[n.id].phase;
+          // Amplitud de oscilación notoria (12px - 14px) con doble frecuencia
+          const ox = Math.sin(animTime * 1.6 + phase) * 12.0 + Math.cos(animTime * 0.85 + phase) * 4.5;
+          const oy = Math.cos(animTime * 1.35 + phase) * 11.0 + Math.sin(animTime * 0.95 + phase) * 4.5;
+          const cx = lp.x + ox, cy = lp.y + oy;
+          currP[n.id] = { x: cx, y: cy, r: lp.r };
+          if (drag !== n.id && hover !== n.id) {
+            nodeEls[n.id].g.setAttribute("transform", `translate(${cx.toFixed(1)}, ${cy.toFixed(1)})`);
+          }
         });
+        updateLines();
 
         // 2. Garza volando, pescando un pez en el agua y elevándose
         const cycleG = (animTime * 0.22) % 1;
@@ -274,26 +288,29 @@
         const ty = b.t + b.h * (0.66 + Math.cos(cycleT * Math.PI * 2) * 0.015);
         tinguaImg.setAttribute("transform", `translate(${tx.toFixed(1)}, ${ty.toFixed(1)})`);
 
-        // 4. Pato Canadiense volando desde la derecha y posándose en el humedal
-        const cycleP = (animTime * 0.18) % 1; // ciclo completo de vuelo y posado ~35 seg
+        // 4. Pato Canadiense chiquitito que desciende hasta el NIVEL EXACTO DEL AGUA (y = 0.77) al lado del otro patito
+        const cycleP = (animTime * 0.16) % 1; // ciclo de vuelo y posado ~38 seg
         let px = 0, py = 0;
-        if (cycleP < 0.45) { // vuela desde la derecha bajando hacia el espejo de agua
-          const progress = cycleP / 0.45;
+        const waterY = b.t + b.h * 0.77; // Nivel exacto de la lámina de agua en el corte
+        const duckSpotX = b.l + b.w * 0.36; // Al lado del patito sobre el agua
+
+        if (cycleP < 0.42) { // vuela desde la parte superior derecha bajando directo al agua
+          const progress = cycleP / 0.42;
           const pFrame = Math.floor(animTime * 10) % 2 === 0 ? "assets/vuelo_pato_1.png" : "assets/vuelo_pato_2.png";
           patoImg.setAttribute("href", pFrame);
-          px = b.l + b.w * (1.12 - progress * 0.60);
-          py = b.t + b.h * (0.25 + Math.pow(progress, 1.4) * 0.47); // desciende suavemente a y=0.72
-        } else if (cycleP < 0.85) { // se posa sobre el agua y nada tranquilamente
-          const progress = (cycleP - 0.45) / 0.40;
+          px = b.l + b.w * (1.05 - progress * 0.69);
+          py = b.t + b.h * 0.20 + Math.pow(progress, 1.3) * (waterY - (b.t + b.h * 0.20));
+        } else if (cycleP < 0.82) { // se posa sobre el agua junto al otro patito y nada tranquilamente
+          const progress = (cycleP - 0.42) / 0.40;
           patoImg.setAttribute("href", "assets/pato.png");
-          px = b.l + b.w * (0.52 - progress * 0.06);
-          py = b.t + b.h * 0.72 + Math.sin(animTime * 2.5) * 2; // flotación suave en el agua
-        } else { // despega hacia la izquierda y sale de pantalla
-          const progress = (cycleP - 0.85) / 0.15;
+          px = duckSpotX + Math.sin(animTime * 1.5) * (b.w * 0.02);
+          py = waterY + Math.sin(animTime * 3.0) * 2.0; // flotación suave sobre las olas
+        } else { // despega flotando hacia la izquierda y sale
+          const progress = (cycleP - 0.82) / 0.18;
           const pFrame = Math.floor(animTime * 10) % 2 === 0 ? "assets/vuelo_pato_1.png" : "assets/vuelo_pato_2.png";
           patoImg.setAttribute("href", pFrame);
-          px = b.l + b.w * (0.46 - progress * 0.60);
-          py = b.t + b.h * (0.72 - Math.pow(progress, 0.8) * 0.55);
+          px = duckSpotX - progress * (b.w * 0.45);
+          py = waterY - Math.pow(progress, 0.85) * (b.h * 0.55);
         }
         patoImg.setAttribute("transform", `translate(${px.toFixed(1)}, ${py.toFixed(1)})`);
       }
@@ -323,14 +340,12 @@
         isDark = dark;
         if (dark) {
           overlay.classList.add("cx-dark");
-          overlay.style.background = "#0b0f19";
           darkBtn.innerHTML = "<span>☀️</span> Modo claro";
           darkBtn.style.background = "#1e293b";
           darkBtn.style.color = "#f8fafc";
           darkBtn.style.borderColor = "rgba(255,255,255,0.2)";
         } else {
           overlay.classList.remove("cx-dark");
-          overlay.style.background = "#fdfcfa";
           darkBtn.innerHTML = "<span>🌙</span> Modo oscuro";
           darkBtn.style.background = "#ffffff";
           darkBtn.style.color = "#1e293b";
