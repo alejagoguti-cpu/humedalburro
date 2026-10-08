@@ -3060,6 +3060,10 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   }
   let ptrDownX = 0, ptrDownY = 0, ptrDownT = 0;
   window.addEventListener("pointerdown", (e) => {
+    if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel")) {
+      ptrDownT = 0;
+      return;
+    }
     if (e.target === canvas || e.target === wrap || (e.target && (e.target.id === "fixedPolySvgOverlay" || e.target.closest("#sceneWrap")))) {
       ptrDownX = e.clientX;
       ptrDownY = e.clientY;
@@ -3069,6 +3073,10 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
 
   window.addEventListener("pointerup", (e) => {
     if (penActive) return;
+    if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel")) {
+      ptrDownT = 0;
+      return;
+    }
     if (ptrDownT > 0 && (e.target === canvas || e.target === wrap || (e.target && (e.target.id === "fixedPolySvgOverlay" || e.target.closest("#sceneWrap"))))) {
       const dist = Math.hypot(e.clientX - ptrDownX, e.clientY - ptrDownY);
       const dt = performance.now() - ptrDownT;
@@ -3471,74 +3479,19 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   // ============================================================
   function captureBaseWithContext(renderFocusSetup) {
     const lluviaPrevVis = (typeof lluviaGroup !== "undefined" && lluviaGroup) ? lluviaGroup.visible : false;
-    if (typeof lluviaGroup !== "undefined" && lluviaGroup) lluviaGroup.visible = false; // sin gotas congeladas en la base
+    if (typeof lluviaGroup !== "undefined" && lluviaGroup) lluviaGroup.visible = false;
     const burroVisPrev = mainBurroMesh ? mainBurroMesh.visible : false;
-    if (mainBurroMesh) mainBurroMesh.visible = false; // la base usa la forma real del humedal
-    const W = renderer.domElement.width, H = renderer.domElement.height;
-    const off = document.createElement("canvas"); off.width = W; off.height = H;
-    const c = off.getContext("2d");
-    c.fillStyle = "#ffffff"; c.fillRect(0, 0, W, H);
-    const halfW = sceneExtentW / 2 * 1.4, halfH = sceneExtentH / 2 * 1.4;
-    const bx0 = -halfW + (parseFloat(secXMin.value) / 100) * (2 * halfW);
-    const bx1 = -halfW + (parseFloat(secXMax.value) / 100) * (2 * halfW);
-    const bz0 = -halfH + (parseFloat(secZMin.value) / 100) * (2 * halfH);
-    const bz1 = -halfH + (parseFloat(secZMax.value) / 100) * (2 * halfH);
-    const cx = (bx0 + bx1) / 2, cz = (bz0 + bz1) / 2, K = 3.2;
-    const bw = (bx1 - bx0) * K / 2, bh = (bz1 - bz0) * K / 2;
+    if (mainBurroMesh) mainBurroMesh.visible = false;
     const origBg = scene.background;
-    const borderVis = axoBorderMesh ? axoBorderMesh.visible : false;
-    if (axoBorderMesh) axoBorderMesh.visible = false;
-    if (renderFocusSetup) renderFocusSetup();
-    // 1) Contexto: sin recorte, con edificios y vias alrededor
-    const savedConst = Object.values(secPlanes).map(p => p.constant);
-    Object.values(secPlanes).forEach(p => (p.constant = 1e6));
-    const origClip = renderer.clippingPlanes; renderer.clippingPlanes = [];
-    if (rawBuildingsData) buildBuildings(rawBuildingsData, { xMin: cx - bw, xMax: cx + bw, zMin: cz - bh, zMax: cz + bh, yMin: 0, yMax: 1e6 });
-    if (rawEdgesData) buildRoads(rawEdgesData, { xMin: cx - bw, xMax: cx + bw, zMin: cz - bh, zMax: cz + bh, yMin: 0, yMax: 1e6 });
-    if (axoBorderMesh) axoBorderMesh.visible = false;
-    scene.background = new THREE.Color(0xffffff);
+    scene.background = null;
+    renderer.setClearColor(0x000000, 0);
     renderer.render(scene, camera);
-    { // contexto solo "un poquito" alrededor: se desvanece con la distancia al area de estudio
-      const tmp = document.createElement("canvas"); tmp.width = W; tmp.height = H; const t = tmp.getContext("2d");
-      t.drawImage(renderer.domElement, 0, 0);
-      const vv = new THREE.Vector3(); const cs = [[bx0, bz0], [bx1, bz0], [bx1, bz1], [bx0, bz1]].map(([x, z]) => { vv.set(x, 0, z).project(camera); return [(vv.x * .5 + .5) * W, (-vv.y * .5 + .5) * H]; });
-      const ccx = cs.reduce((s, p) => s + p[0], 0) / 4, ccy = cs.reduce((s, p) => s + p[1], 0) / 4;
-      const rad = Math.max(...cs.map(p => Math.hypot(p[0] - ccx, p[1] - ccy)));
-      const radY = Math.max(...cs.map(p => Math.abs(p[1] - ccy)));
-      const sy = Math.min(1, (radY * 1.25) / rad, (H / 2 - 2) / (rad * 1.25)); // elipse que se desvanece ANTES del borde del cuadro
-      t.globalCompositeOperation = "destination-in";
-      t.save(); t.translate(ccx, ccy); t.scale(1, sy);
-      const g = t.createRadialGradient(0, 0, rad * 0.4, 0, 0, rad * 2.8);
-      g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(1, "rgba(0,0,0,0)");
-      t.fillStyle = g; t.fillRect(-W, -H / sy, W * 2, (H / sy) * 2); t.restore();
-      c.globalAlpha = 0.48; c.drawImage(tmp, 0, 0);
-    }
-    // 2) Area de estudio nitida (con su recorte normal), fondo transparente
-    Object.values(secPlanes).forEach((p, i) => (p.constant = savedConst[i]));
-    renderer.clippingPlanes = origClip;
-    rebuildFilteredGeometry();
-    if (axoBorderMesh) axoBorderMesh.visible = false;
-    scene.background = null; renderer.setClearColor(0x000000, 0);
-    renderer.render(scene, camera);
-    c.globalAlpha = 1; c.drawImage(renderer.domElement, 0, 0);
-    renderer.setClearColor(0x000000, 1);
-    // 3) Borde leve del area de estudio
-    const v = new THREE.Vector3();
-    const pts = [[bx0, bz0], [bx1, bz0], [bx1, bz1], [bx0, bz1]].map(([x, z]) => {
-      v.set(x, 0, z); v.project(camera);
-      return [(v.x * 0.5 + 0.5) * W, (-v.y * 0.5 + 0.5) * H];
-    });
-    c.strokeStyle = "rgba(20,24,30,.55)"; c.lineWidth = Math.max(1, W / 900);
-    c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath(); c.stroke();
+    const dataUrl = renderer.domElement.toDataURL("image/png");
     scene.background = origBg;
-    if (axoBorderMesh) axoBorderMesh.visible = borderVis;
+    renderer.setClearColor(0x000000, 1);
     if (mainBurroMesh) mainBurroMesh.visible = burroVisPrev;
-    // Restore full city geometry for the main live view
-    if (rawBuildingsData) buildBuildings(rawBuildingsData, null);
-    if (rawEdgesData) buildRoads(rawEdgesData, null);
-    rebuildFilteredGeometry(); // Re-apply section box if active
     if (typeof lluviaGroup !== "undefined" && lluviaGroup) lluviaGroup.visible = lluviaPrevVis;
-    return off.toDataURL("image/png");
+    return dataUrl;
   }
 
   // ---- OFFSET real de un poligono: el borde se desplaza hacia afuera
