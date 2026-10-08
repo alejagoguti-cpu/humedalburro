@@ -107,9 +107,9 @@
       if (typeof updateBotBox === 'function') updateBotBox();
       sectionRenderer.localClippingEnabled = false;
       sectionRenderer.clippingPlanes = botClipPlanesArr;
-      sectionCamera.position.set(150.0, 8.5, -11.5);
+      sectionCamera.position.set(138.7, 10.8, -2.4);
       sectionCamera.up.set(0, 1, 0);
-      sectionCamera.lookAt(182.4, 4.2, -35.7);
+      sectionCamera.lookAt(182.8, 4.9, -35.4);
       sectionCamera.fov = 12; // solo se agranda el contenido (mas zoom), el tamaño del panel no se toca
       sectionCamera.zoom = 0.80;
       if (!sectionControls) {
@@ -118,7 +118,7 @@
         sectionControls.dampingFactor = 0.15;
         sectionControls.addEventListener("change", updateBotBox);
       }
-      if (sectionControls) sectionControls.target.set(182.4, 4.2, -35.7);
+      if (sectionControls) sectionControls.target.set(182.8, 4.9, -35.4);
       // Restaurar coordenadas fijadas por el usuario si existen
       try {
         const saved = JSON.parse(localStorage.getItem("burro_corte_coords") || "null");
