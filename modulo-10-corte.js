@@ -1755,7 +1755,7 @@
   function loadWaterBodies() {
     return fetch(WATER_URL)
       .then(r => { if (!r.ok) throw new Error("no se pudo cargar " + WATER_URL); return r.json(); })
-      .then(data => { rawWaterData = data; buildWaterBodies(data); placeSectionCutAtHumedal(); resizeSectionView(); })
+      .then(data => { rawWaterData = data; buildWaterBodies(data); placeSectionCutAtHumedal(); resizeSectionView(); if (typeof applyMainBurroMes === "function") applyMainBurroMes(mainBurroMes); })
       .catch(err => console.warn("No se pudieron cargar los cuerpos de agua:", err));
   }
 
@@ -3086,69 +3086,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   function triggerExplodeView() {
     if (penActive) return;
     if (explodeOverlayOpen()) return;
-
-    // Guardar estado y fondo original
-    const origRoadColor = roadMat ? roadMat.color.getHex() : null;
-    const origNoiseVis = noiseMesh ? noiseMesh.visible : false;
-    const origBirdsVis = birdsGroup ? birdsGroup.visible : false;
-    const origVehVis = vehInstanced ? vehInstanced.visible : false;
-    const origBg = scene.background;
-
-    // Fondo TRANSPARENTE fuera del rombo: solo el terreno y los edificios
-    scene.background = null;
-    renderer.setClearColor(0x000000, 0);
-
-    // 1. Escala Natural: base arquitectónica 100% limpia, CERO carros, CERO ruido, CERO mirlas
-    if (noiseMesh) noiseMesh.visible = false;
-    if (birdsGroup) birdsGroup.visible = false;
-    if (vehInstanced) { vehInstanced.visible = false; vehInstanced.count = 0; }
-    if (roadMat) roadMat.color.set(0x9099a3);
-    renderer.render(scene, camera);
-    const fotoNatural = renderer.domElement.toDataURL("image/png");
-
-    // 2. Escala Cultural: con vehículos y dinámicas urbanas
-    if (vehInstanced) {
-      vehInstanced.visible = true;
-      vehInstanced.count = typeof vehiclesAtTime === "function" ? (vehiclesAtTime(currentTime).length || 120) : 120;
-      if (typeof renderVehiclesAt === "function") renderVehiclesAt(currentTime);
-    }
-    if (roadMat) roadMat.color.set(0x7a838d);
-    renderer.render(scene, camera);
-    const fotoCultural = renderer.domElement.toDataURL("image/png");
-
-    // 3. Escala Tecnológica: vista analítica de la red
-    if (vehInstanced) vehInstanced.visible = true;
-    if (roadMat) roadMat.color.set(0x9099a3);
-    renderer.render(scene, camera);
-    const fotoTecno = renderer.domElement.toDataURL("image/png");
-
-    // Restaurar fondo original y estado de la escena base
-    scene.background = origBg;
-    renderer.setClearColor(0x000000, 1);
-    if (roadMat && origRoadColor !== null) roadMat.color.set(origRoadColor);
-    if (noiseMesh) noiseMesh.visible = origNoiseVis;
-    if (birdsGroup) birdsGroup.visible = origBirdsVis;
-    if (vehInstanced) {
-      vehInstanced.visible = origVehVis;
-      vehInstanced.count = origVehVis ? (typeof vehiclesAtTime === "function" ? (vehiclesAtTime(currentTime).length || 0) : 0) : 0;
-    }
-
-    // Asignar fotos a cada imagen según su escala
-    const imgNatural = document.getElementById("explodeImg1");
-    const imgCultural = document.getElementById("explodeImg2");
-    const imgTecno = document.getElementById("explodeImg3");
-    if (imgNatural) imgNatural.src = fotoNatural;
-    if (imgCultural) imgCultural.src = fotoCultural;
-    if (imgTecno) imgTecno.src = fotoTecno;
-
-    explodeOverlay.style.display = "flex";
-    void explodeOverlay.offsetWidth;
-    explodeLayers.forEach(el => { el.style.opacity = "1"; el.style.transform = "scale(1)"; });
-
-    setTimeout(() => {
-      updateExplodePolygons();
-      document.querySelectorAll(".explode-text").forEach(t => initTextDistort(t, t.dataset.layer));
-    }, 60);
+    openNaturalExplode();
   }
 
   document.getElementById("explodeClose").addEventListener("click", () => {
@@ -3742,7 +3680,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     void natOverlay.offsetWidth;
 
     // Iniciar con solo la base axonométrica limpia (Paso 0)
-    natExplodeStep = 0;
+    natExplodeStep = 9;
     updateNaturalLayersStep(false);
     renderAllNaturalSublayers();
 
@@ -3763,7 +3701,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     updateNaturalRain(); // lluvia 2D sobre la capa 1 (agua), solo en epoca de lluvias
   }
 
-  let natExplodeStep = 0;
+  let natExplodeStep = 9;
   // Secuencia de pasos interactivos:
   // 0: Base limpia
   // 1: Capa 1 (Agua) extraída arriba
@@ -3918,7 +3856,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   function advanceNaturalAssemble() {
     natExplodeStep++;
     if (natExplodeStep > 10) {
-      natExplodeStep = 0;
+      natExplodeStep = 9;
       updateNaturalLayersStep(false);
       closeNaturalExplode();
       openCulturalExplode();
@@ -4380,7 +4318,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (l) l.style.display = "none";
     if (!natOverlay) return;
     const sceneWrapRestore = document.getElementById("sceneWrap");
-    // if (sceneWrapRestore) sceneWrapRestore.style.display = "block"; // volver a la vista 3D en vivo (antes solo lo hacia openTechExplode, por eso Natural y Cultural se quedaban en blanco)
+    if (sceneWrapRestore) sceneWrapRestore.style.display = "block"; // volver a la vista 3D en vivo (antes solo lo hacia openTechExplode, por eso Natural y Cultural se quedaban en blanco)
     if (natWaterAnimFrame) { cancelAnimationFrame(natWaterAnimFrame); natWaterAnimFrame = null; }
     const sublayers = natOverlay.querySelectorAll(".nat-sublayer");
     sublayers.forEach(l => {
@@ -4589,7 +4527,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   const techSewerCanvas = document.getElementById("techSewerCanvas");
   const techLayerBase = document.getElementById("techLayerBase");
 
-  let techExplodeStep = 0;
+  let techExplodeStep = 9;
   let techAnimFrame = null;
   let techTime = 0;
   
@@ -4683,7 +4621,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     techOverlay.style.display = "flex";
     void techOverlay.offsetWidth;
 
-    techExplodeStep = 0;
+    techExplodeStep = 9;
     updateTechLayersStep(false);
     startTechAnimation();
   }
@@ -4807,7 +4745,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   function advanceTechAssemble() {
     techExplodeStep++;
     if (techExplodeStep > 10) {
-      techExplodeStep = 0;
+      techExplodeStep = 9;
       updateTechLayersStep(false);
       closeTechExplode();
       // document.getElementById("sceneWrap").style.display = "block"; // Return to live 3D
@@ -4879,7 +4817,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (l) l.style.display = "none";
     if (!techOverlay) return;
     const sceneWrapRestore2 = document.getElementById("sceneWrap");
-    // if (sceneWrapRestore2) sceneWrapRestore2.style.display = "block";
+    if (sceneWrapRestore2) sceneWrapRestore2.style.display = "block";
     if (techAnimFrame) { cancelAnimationFrame(techAnimFrame); techAnimFrame = null; }
     techLiveViewSize = null; // apaga el espejo en vivo de carros/ruido
 
@@ -6468,7 +6406,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   const cultTadBadge = document.getElementById("cultTadBadge");
   const cultSotToggleBtn = document.getElementById("cultSotToggleBtn");
 
-  let cultExplodeStep = 0;
+  let cultExplodeStep = 9;
   let cultAnimFrame = null;
   let cultTime = 0;
   let cultHistPlaying = false;
@@ -6561,7 +6499,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     cultOverlay.style.display = "flex";
     void cultOverlay.offsetWidth;
 
-    cultExplodeStep = 0;
+    cultExplodeStep = 9;
     updateCulturalLayersStep(false);
     renderAllCulturalSublayers();
     startCultAnimation();
@@ -6580,7 +6518,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (l) l.style.display = "none";
     if (!cultOverlay) return;
     const sceneWrapRestore3 = document.getElementById("sceneWrap");
-    // if (sceneWrapRestore3) sceneWrapRestore3.style.display = "block";
+    if (sceneWrapRestore3) sceneWrapRestore3.style.display = "block";
     if (cultAnimFrame) { cancelAnimationFrame(cultAnimFrame); cultAnimFrame = null; }
     if (cultHistPlaying) stopCultHistory();
 
@@ -6733,7 +6671,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   function advanceCulturalAssemble() {
     cultExplodeStep++;
     if (cultExplodeStep > 10) {
-      cultExplodeStep = 0;
+      cultExplodeStep = 9;
       updateCulturalLayersStep(false);
       closeCulturalExplode();
       openTechExplode();
