@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><script>
-window.onerror = function(m, u, l, c, e) {
-    fetch('http://localhost:9999/?err=' + encodeURIComponent(m + ' at line ' + l + ' col ' + c));
-};
-window.addEventListener('unhandledrejection', function(e) {
-    fetch('http://localhost:9999/?err=' + encodeURIComponent('Promise rejection: ' + (e.reason ? e.reason.message || e.reason : 'unknown')));
-});
-</script>
-<script>
-window.onerror = function(msg, url, line) { alert("JS Error: " + msg + " at line " + line); };
-window.addEventListener("unhandledrejection", function(e) { alert("Promise Error: " + (e.reason ? e.reason.message || e.reason : "unknown")); });
-</script>
-
-<meta charset="UTF-8">
+<head><meta charset="UTF-8">
 <script src="rapot-v2.js?v=1"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Corte axonométrico — Kennedy</title>
@@ -196,11 +183,11 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
 })();
 </script>
 <div class="app">
+                      
   <main class="main">
     <div id="sceneWrap">
       <canvas id="sceneCanvas"></canvas>
-      <div id="mainRainWrap" style="position:absolute; top:50%; left:50%; width:min(78vw, 860px); aspect-ratio:16/9; transform:translate(-50%, -50%); z-index:8; pointer-events:none; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); overflow:hidden;"><canvas id="mainRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:0; transition:opacity .6s ease;"></canvas></div>
-      <div id="axoContextFade" style="display:block; position:absolute; inset:0; z-index:7; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 48%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.42) 100%); pointer-events:none;"></div>
+      <div id="axoContextFade" style="display:none; position:absolute; inset:0; z-index:7; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 48%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.42) 100%); pointer-events:none;"></div>
     </div>
 
     <!-- Fondo solido detras de la escala/axonometria activa: al achicarla
@@ -302,6 +289,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
     <div id="sectionWrap" style="display:none; position:absolute; left:0; right:0; bottom:0; height:16%; min-height:150px; z-index:400; border-top:1px solid rgba(0,0,0,.12); background:#eef2f5;">
       <canvas id="sectionCanvas" style="width:100%; height:100%; display:block; cursor:grab;"></canvas>
       <div id="sectionBirdStage" style="position:absolute; inset:0; z-index:8; overflow:hidden; pointer-events:none;"></div>
+      <canvas id="corteRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; z-index:9; pointer-events:none; opacity:0; transition:opacity .6s ease;"></canvas>
       <!-- Controles independientes para el corte inferior -->
       <div id="botControls" style="display:none; position:absolute; right:10px; top:10px; width:220px; background:rgba(255,255,255,0.9); padding:10px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.15); font-family:'Segoe UI',sans-serif; font-size:11px; color:#333; z-index:10;">
         <div style="font-weight:600; margin-bottom:8px; border-bottom:1px solid #ccc; padding-bottom:4px;">Coordenadas de la vista</div>
@@ -500,7 +488,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
 
     <div id="explodeOverlay" style="position:absolute; inset:0; z-index:300; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:auto;">
       <button type="button" id="explodeClose" style="position:absolute; top:20px; right:26px; width:36px; height:36px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#111; font-size:16px; cursor:pointer; z-index:20; pointer-events:auto; box-shadow:0 2px 8px rgba(0,0,0,.1);">✕</button>
-      <div id="explodeStack" style="display:flex; flex-direction:column; align-items:center; width:min(54vw, 560px, calc((100vh - 40px) / 1.4675)); pointer-events:auto; margin:auto;">
+      <div id="explodeStack" style="display:flex; flex-direction:column; align-items:center; width:min(64vw, 680px, calc((100vh - 40px) / 1.25)); pointer-events:auto; margin:auto;">
         <!-- Arriba: Escala Tecnológica -->
         <div class="explode-layer" data-layer="3" style="position:relative; width:100%; aspect-ratio:16/9; margin-bottom:-11%; opacity:0; transform:scale(.05); transition:transform 2.2s cubic-bezier(.16,1,.3,1), opacity 1.8s ease, z-index 0s;">
           <div class="explode-clip" style="width:100%; height:100%; cursor:pointer; position:relative; overflow:visible;">
@@ -530,7 +518,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
 
     <!-- OVERLAY SUB-EXPLOSIÓN: ESCALA NATURAL (4 CAPAS ARQUITECTÓNICAS) -->
     <div id="naturalExplodeOverlay" style="position:absolute; left:0; top:0; right:0; bottom:0; z-index:380; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:hidden;">
-      <div id="natContextFade" style="position:absolute; inset:0; z-index:3; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 42%, rgba(255,255,255,0.3) 65%, rgba(255,255,255,0.5) 85%); pointer-events:none;"></div>
+      <div id="natContextFade" style="position:absolute; inset:0; z-index:3; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 58%, rgba(255,255,255,0.14) 78%, rgba(255,255,255,0.34) 100%); pointer-events:none;"></div>
       
       <!-- Barra superior / volver y controles de animación -->
       <div style="position:absolute; top:16px; left:26px; z-index:322; display:flex; align-items:center; gap:12px;">
@@ -549,6 +537,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
 
       <!-- Contenedor central apilado estilo referente (líneas punteadas y capas suspendidas) -->
       <div id="natExplodeStage" style="position:relative; width:min(96vw, 940px); height:min(86vh, 720px); display:flex; align-items:center; justify-content:center; margin-top:20px;">
+        <div id="natStackRainWrap" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; transform:translate(-50%, -40%); z-index:30; pointer-events:none; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"><canvas id="natStackRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity .6s ease;"></canvas></div>
         <svg id="natGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
 
         <!-- Capa 1: Sistema Inerte y Límite Físico-Hidrológico -->
@@ -556,6 +545,7 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <img id="natWaterImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="natWaterCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
+            <canvas id="natRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:6; opacity:0; transition:opacity .6s ease;"></canvas>
           </div>
           <svg id="natWaterSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
           <!-- Etiqueta temática lateral exterior al rombo -->
@@ -815,7 +805,8 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-10-corte.js?v=1028"></script>
+<script src="conectografia-corte.js?v=2000"></script>
+<script src="modulo-10-corte.js?v=2000"></script>
 <div id="tagCoordsBox" style="position:fixed; top:20px; right:20px; background:#fff; border:2px solid #000; padding:10px; z-index:9999; font-family:monospace; display:none;"></div>
 </body>
 </html>

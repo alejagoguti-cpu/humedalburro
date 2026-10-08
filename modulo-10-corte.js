@@ -11,43 +11,7 @@
   const WATER_URL = "./assets/kennedy_water_bodies.json";
   const MANZANAS_URL = "./assets/kennedy_manzanas.json";
   const PARQUES_URL = "./assets/kennedy_parques.json";
-  const SCALE = 1 / 10; 
-  const HUMEDAL_CICLO = [
-    { mes: 1, expansion_pct: 41.7, profundidad_m: 1.32, temporada: "Temporada seca / intermedia" },
-    { mes: 2, expansion_pct: 42.6, profundidad_m: 1.39, temporada: "Temporada seca / intermedia" },
-    { mes: 3, expansion_pct: 46.7, profundidad_m: 1.73, temporada: "Inicio de temporada de lluvias" },
-    { mes: 4, expansion_pct: 50.0, profundidad_m: 2.00, temporada: "Pico de lluvias (máxima cota)" },
-    { mes: 5, expansion_pct: 47.4, profundidad_m: 1.78, temporada: "Temporada de lluvias" },
-    { mes: 6, expansion_pct: 41.5, profundidad_m: 1.30, temporada: "Temporada de estiaje" },
-    { mes: 7, expansion_pct: 37.7, profundidad_m: 0.99, temporada: "Temporada seca (estiaje)" },
-    { mes: 8, expansion_pct: 34.1, profundidad_m: 0.69, temporada: "Estiaje pronunciado" },
-    { mes: 9, expansion_pct: 33.0, profundidad_m: 0.60, temporada: "Mínimo anual de cota (estiaje)" },
-    { mes: 10, expansion_pct: 38.6, profundidad_m: 1.06, temporada: "Segunda temporada de lluvias" },
-    { mes: 11, expansion_pct: 43.8, profundidad_m: 1.49, temporada: "Pico de segunda temporada de lluvias" },
-    { mes: 12, expansion_pct: 43.3, profundidad_m: 1.45, temporada: "Descenso hacia temporada seca" },
-  ];
-
-  const MESES_NAT = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-
-  function offsetPoly(pts, d) {
-    const n = pts.length; if (n < 3 || !d) return pts.map(p => [p[0], p[1]]);
-    let area = 0; for (let i = 0; i < n; i++) { const a = pts[i], b = pts[(i + 1) % n]; area += a[0] * b[1] - b[0] * a[1]; }
-    const sgn = area > 0 ? 1 : -1;
-    const out = [];
-    for (let i = 0; i < n; i++) {
-      const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n];
-      let e1x = p1[0] - p0[0], e1y = p1[1] - p0[1], e2x = p2[0] - p0[0], e2y = p2[1] - p0[1];
-      const l1 = Math.hypot(e1x, e1y) || 1, l2 = Math.hypot(e2x, e2y) || 1;
-      const n1x = sgn * e1y / l1, n1y = -sgn * e1x / l1, n2x = sgn * e2y / l2, n2y = -sgn * e2x / l2;
-      let mx = n1x + n2x, my = n1y + n2y; const ml = Math.hypot(mx, my);
-      if (ml < 1e-6) { mx = n1x; my = n1y; } else { mx /= ml; my /= ml; }
-      const cosH = Math.max(0.35, mx * n1x + my * n1y);
-      out.push([p1[0] + mx * d / cosH, p1[1] + my * d / cosH]);
-    }
-    return out;
-  }
-
-// las coordenadas del JSON llegan a ~10700 unidades; se escalan para Three.js
+  const SCALE = 1 / 10; // las coordenadas del JSON llegan a ~10700 unidades; se escalan para Three.js
 
   const statusOverlay = document.getElementById("statusOverlay");
   function setStatus(text, show = true) {
@@ -66,7 +30,12 @@
   // del todo a blanco, por eso se veia "cortado" en vez de difuminado.
   // Ahora la niebla termina de cerrar a blanco bien antes del limite real
   // de la camara (1900 de 2000), asegurando un desvanecido completo.
-  scene.fog = new THREE.Fog(0xffffff, 700, 1900);
+  // Niebla ORIGINAL (900-3200): conserva el contexto lejano de la base de las capas.
+  // Antes la acorte a 700-1900 para esconder el corte duro del borde, pero eso
+  // blanqueaba la mitad del contexto. El corte venia de que la camara dejaba de
+  // dibujar en 2000 (far); ahora far=4200, la niebla ya cerro en blanco antes y
+  // no hay borde duro NI se pierde contexto.
+  scene.fog = new THREE.Fog(0xffffff, 900, 3200);
   // Todo el contenido del mapa (vias, edificios, arboles, agua, vehiculos)
   // se agrega a este grupo, no directamente a la escena, para poder
   // rotarlo entero en X/Y/Z con los controles manuales de orientacion.
@@ -80,7 +49,7 @@
   // pura dentro de toScene() (ver abajo), sin tocar la altura de nada.
   scene.add(sceneRoot);
 
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 2000);
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 5, 4200);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, alpha: true }); // alpha:true agregado para poder capturar fondos transparentes en las subcapas de escala tecnologica (sin afectar la vista principal, que sigue fijando su propio color de fondo opaco)
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.shadowMap.enabled = true;
@@ -190,17 +159,9 @@
     // arbol cercano donde el ave llega y se queda; el vuelo entra desde
     // AFUERA del cuadro, pasa cerca del agua, y termina posado ahi.
     const NATW = 8000, NATH = 5654;
-    const birdsDef = [
-      { box: [3382,3767,3515,3850], toLeft: true },   // ave rojiza
-      { box: [5095,4375,5260,4485], toLeft: false },  // pato volando (grupo)
-      { box: [5265,4345,5440,4465], toLeft: false },  // pato volando (grupo)
-      { box: [5175,4445,5385,4605], toLeft: false },  // pato volando (grupo)
-      { box: [4345,4655,4455,4720], toLeft: false, idle: true }, // pato posado junto al agua -- antes se quedaba quieto
-    ];
-    const fishDef = [
-      { box: [3955,4795,4075,4840] },
-      { box: [4665,4800,4730,4838] },
-    ];
+    // Sin animales (a pedido de la usuaria): los de la imagen se borraron del archivo y estas copias animadas ya no existen.
+    const birdsDef = [];
+    const fishDef = [];
 
     function setup() {
       const stageRect = stage.getBoundingClientRect();
@@ -231,7 +192,7 @@
       // y vuelve a subir y salir -- como si fuera a pescar. ----
       const topCutBox = document.getElementById("dynSecTopCut");
       let herons = [];
-      if (topCutBox) {
+      if (topCutBox && false) { // garza y tingua animadas del recuadro: eliminadas
         const topRect = topCutBox.getBoundingClientRect();
         const w = topRect.width * 0.30; // bastante mas chica que antes
         const h = w * (1697 / 1200);
@@ -418,7 +379,7 @@
     // solo la de la capa activa esta visible). Conservan su centrado
     // vertical propio (translateY(-50%)) y se les suma el desplazamiento
     // de las flechitas encima.
-    document.querySelectorAll(".nat-layer-tag").forEach(el => {
+    document.querySelectorAll(".nat-layer-tag, .cult-layer-tag, .tech-layer-tag").forEach(el => {
       el.style.transform = `translate(${labelOffX}px, calc(-50% + ${labelOffY}px))`;
     });
     const out = document.getElementById("escalaCoordsOutput");
@@ -456,69 +417,85 @@
       const el = document.createElement("div");
       el.className = "sectionBirdSprite";
       // mix-blend-mode:multiply quita el fondo blanco de las fotos.
-      el.style.cssText = `position:absolute; width:${wPct}%; height:auto; aspect-ratio:${wOverH}; background-image:url(${src}); background-repeat:no-repeat; background-size:100% 100%; pointer-events:none; display:none; mix-blend-mode:multiply;`;
+      el.style.cssText = `position:absolute; left:0; top:0; width:${wPct}%; height:auto; aspect-ratio:${wOverH}; background-image:url(${src}); background-repeat:no-repeat; background-size:100% 100%; pointer-events:none; display:none; transform-origin:50% 100%; will-change:transform;`;
       stage.appendChild(el);
       return el;
     }
     function smoothS(k) { return k * k * (3 - 2 * k); }
-
-    // Varias tinguas, ya en el centro del humedal desde el principio.
-    const tinguas = Array.from({ length: 3 }, (_, i) => {
-      const el = sprite("assets/tingua.png", 2.2, 166/200);
-      el.style.top = "54%"; el.style.left = (46 + i * 4) + "%";
-      return { el, baseLeft: 46 + i * 4, phase: i * 2, toEdge: false };
-    });
-    // Varias garzas, entran volando desde la izquierda, se posan justo
-    // sobre la linea del agua (no debajo).
-    const garzas = Array.from({ length: 2 }, (_, i) => {
-      const el = sprite("assets/garza.png", 1.8, 79/200);
-      el.style.top = "48%"; el.style.left = "50%";
-      return { el, phase: i * 3, dur: 9 + i * 1.5, offsetX: i * 6 - 3 };
-    });
-    // Pato: entra volando desde ARRIBA del corte, aleteando, hasta el
-    // centro del humedal (migracion desde Norteamerica).
-    const patoEl = sprite("assets/pato.png", 2.6, 1024/767);
-    patoEl.style.top = "50%"; patoEl.style.left = "50%";
-
+    // MAS animales y MAS PEQUENOS que antes (3 tinguas al 2.2%, 2 garzas al
+    // 1.8% y 1 pato al 2.6% del ancho). Todos pisan SIEMPRE la linea del suelo
+    // que la usuaria dibujo en el corte (corteSuelo.sec): sus pies nunca la pasan.
+    // Cada animal tiene DOS apariencias: posado (foto de pie) y en vuelo (fotos reales de aves
+    // con las alas en distintas posiciones, recortadas sin fondo, que se alternan para aletear).
+    // Los cuadros de vuelo miran a la IZQUIERDA; hacia la derecha se espejan.
+    function mkBird(perchSrc, perchW, perchRatio, flySrcs, flyW, flyRatio, extra) {
+      const el = sprite(perchSrc, perchW, perchRatio);
+      flySrcs.forEach(s => { const im = new Image(); im.src = s; }); // precarga
+      return Object.assign({ el, perchSrc, perchW, perchRatio, flySrcs, flyW, flyRatio, mode: "perch", frame: -1 }, extra);
+    }
+    function setBird(b, mode, frame) {
+      if (b.mode !== mode) { b.mode = mode; b.frame = -1; b.el.style.width = (mode === "fly" ? b.flyW : b.perchW) + "%"; b.el.style.aspectRatio = String(mode === "fly" ? b.flyRatio : b.perchRatio); }
+      if (mode === "fly") { if (b.frame !== frame) { b.frame = frame; b.el.style.backgroundImage = `url(${b.flySrcs[frame]})`; } }
+      else if (b.frame !== -2) { b.frame = -2; b.el.style.backgroundImage = `url(${b.perchSrc})`; }
+    }
+    const FLY_T = ["assets/vuelo_tingua_1.png", "assets/vuelo_tingua_2.png", "assets/vuelo_tingua_3.png"], SEQ_T = [0, 1, 2, 1];
+    const FLY_G = ["assets/vuelo_garza_1.png", "assets/vuelo_garza_2.png"], SEQ_G = [0, 1];
+    const FLY_P = ["assets/vuelo_pato_1.png", "assets/vuelo_pato_2.png"], SEQ_P = [0, 1];
+    const tinguas = Array.from({ length: 8 }, (_, i) => mkBird("assets/tingua.png", 1.35, 166 / 200, FLY_T, 2.5, 220 / 121, { baseLeft: 30 + i * 5.2, phase: i * 1.7, _cur: 0, dur: 18 + (i % 4) * 2.5, side: i % 2 ? 1 : -1 }));
+    const garzas = Array.from({ length: 5 }, (_, i) => mkBird("assets/garza.png", 1.1, 79 / 200, FLY_G, 3.4, 240 / 170, { baseLeft: 34 + i * 8.5, phase: i * 2.2, dur: 9 + (i % 3) * 1.4 }));
+    const patos = Array.from({ length: 3 }, (_, i) => mkBird("assets/pato.png", 1.6, 1024 / 767, FLY_P, 1.9, 170 / 101, { baseLeft: 42 + i * 8, phase: i * 4, dur: 12 }));
     const start = performance.now();
     function loop(now) {
       const tSec = (now - start) / 1000;
-      const garzasLlegaron = garzas.some(g => {
-        const t = (tSec + g.phase) % g.dur;
-        return t > g.dur * 0.35; // ya aterrizo
+      const W = stage.clientWidth || 1, H = stage.clientHeight || 1;
+      const linea = (typeof corteSuelo !== "undefined" && corteSuelo.sec && corteSuelo.sec.length >= 2) ? corteSuelo.sec : null;
+      const pies = (xpx, fallback) => { if (!linea) return fallback; const v = corteGroundV(linea, xpx / W); return v === null ? fallback : v * H - 1; }; // 1 px de margen: nunca pasan de la linea
+      const garzasLlegaron = garzas.some(g => { const t = ((tSec + g.phase) % g.dur) / g.dur; return t > 0.35 && t < 0.86; });
+      // pone el animal: posicion x, altura sobre el suelo (lift), si vuela, hacia donde mira y opacidad
+      function place(b, x, lift, volando, flip, op, frame, fallbackY, bob) {
+        setBird(b, volando ? "fly" : "perch", frame);
+        b.el.style.opacity = op;
+        const h = b.el.offsetHeight || 22;
+        b.el.style.transform = `translate(${x}px, ${pies(x, fallbackY + h) - h - lift + (bob || 0)}px) scaleX(${flip})`;
+      }
+      tinguas.forEach(tg => {
+        if (tg.el.style.display === "none") return;
+        const t = ((tSec + tg.phase) % tg.dur) / tg.dur;
+        if (t >= 0.96) { tg.el.style.opacity = 0; return; } // ya se fue: reaparece en el siguiente ciclo
+        const targetOffset = garzasLlegaron ? (tg.baseLeft < 50 ? -14 : 14) : 0; // cuando llegan las garzas, se corren a los bordes
+        tg._cur += (targetOffset - tg._cur) * 0.02;
+        const xBase = tg.baseLeft / 100 * W + tg._cur + Math.sin(tSec * 0.35 + tg.phase) * 10;
+        const fr = SEQ_T[Math.floor(tSec * 9 + tg.phase) % SEQ_T.length];
+        const op = Math.min(1, t / 0.03, (0.96 - t) / 0.04);
+        const flipV = tg.side < 0 ? -1 : 1; // entran por un lado y salen por el otro
+        if (t < 0.14) { const k = smoothS(t / 0.14); place(tg, xBase + tg.side * 240 * (1 - k), (1 - k) * 46, true, flipV, op, fr, H * 0.54); }
+        else if (t > 0.82) { const k = smoothS((t - 0.82) / 0.14); place(tg, xBase - tg.side * 240 * k, k * 60, true, flipV, op, fr, H * 0.54); }
+        else place(tg, xBase, 0, false, 1, 1, 0, H * 0.54, -Math.abs(Math.sin(tSec * 2.4 + tg.phase)) * 1.2); // posada: camina; el vaiven siempre hacia arriba, nunca hunde los pies bajo la linea
       });
       garzas.forEach(g => {
         if (g.el.style.display === "none") return;
         const t = ((tSec + g.phase) % g.dur) / g.dur;
-        const k = smoothS(Math.min(1, t / 0.35));
-        const FROM = -200;
-        const x = FROM * (1 - k) + g.offsetX;
-        const dip = Math.sin(Math.min(1, t / 0.35) * Math.PI) * -6; // llega por arriba y se posa EN la linea
-        const flying = t < 0.35;
-        const flap = flying ? (1 - Math.abs(Math.sin(tSec * 9 + g.phase)) * 0.3) : 1;
-        g.el.style.transform = `translate(${x}px, ${dip}px) scaleY(${flap})`;
+        if (t >= 0.97) { g.el.style.opacity = 0; return; }
+        const xBase = g.baseLeft / 100 * W, fr = SEQ_G[Math.floor(tSec * 7 + g.phase) % SEQ_G.length];
+        const op = Math.min(1, t / 0.04, (0.97 - t) / 0.05);
+        if (t < 0.35) { const k = smoothS(t / 0.35); place(g, xBase - 220 * (1 - k), (1 - k) * 28, true, -1, op, fr, H * 0.48); } // llega desde la izquierda, aleteando, y se posa SOBRE la linea
+        else if (t > 0.86) { const k = smoothS((t - 0.86) / 0.11); place(g, xBase + 260 * k, k * 46, true, -1, op, fr, H * 0.48); } // se va volando hacia la derecha
+        else place(g, xBase, 0, false, 1, 1, 0, H * 0.48);
       });
-      tinguas.forEach(tg => {
-        if (tg.el.style.display === "none") return;
-        // cuando llegan las garzas, las tinguas se corren a los bordes
-        const targetOffset = garzasLlegaron ? (tg.baseLeft < 50 ? -14 : 14) : 0;
-        if (tg._cur === undefined) tg._cur = 0;
-        tg._cur += (targetOffset - tg._cur) * 0.02; // se corren suave, una sola vez
-        const bob = Math.sin(tSec * 2.4 + tg.phase) * 1.2;
-        tg.el.style.transform = `translate(${tg._cur}px, ${bob}px)`;
+      patos.forEach(p => {
+        if (p.el.style.display === "none") return;
+        const t = ((tSec + p.phase) % p.dur) / p.dur;
+        if (t >= 0.97) { p.el.style.opacity = 0; return; }
+        const xBase = p.baseLeft / 100 * W, fr = SEQ_P[Math.floor(tSec * 10 + p.phase) % SEQ_P.length];
+        const op = Math.min(1, t / 0.05, (0.97 - t) / 0.06);
+        if (t < 0.4) { const k = smoothS(t / 0.4); place(p, xBase + (1 - k) * 70, (1 - k) * H * 0.9, true, 1, op, fr, H * 0.5); } // migra desde arriba del corte, aleteando
+        else if (t > 0.85) { const k = smoothS((t - 0.85) / 0.12); place(p, xBase - 160 * k, k * H * 0.9, true, 1, op, fr, H * 0.5); }
+        else place(p, xBase, 0, false, 1, 1, 0, H * 0.5);
       });
-      if (patoEl.style.display !== "none") {
-        const cyc = 12, t = (tSec % cyc) / cyc, k = smoothS(Math.min(1, t / 0.4));
-        const FROMY = -140; // arriba del corte
-        const y = FROMY * (1 - k);
-        const flying = t < 0.4;
-        const flap = flying ? (1 - Math.abs(Math.sin(tSec * 11)) * 0.35) : 1;
-        patoEl.style.transform = `translate(0, ${y}px) scaleY(${flap})`;
-      }
       sectionBirdsRaf = requestAnimationFrame(loop);
     }
     sectionBirdsRaf = requestAnimationFrame(loop);
-    stage.__tinguas = tinguas; stage.__garzas = garzas; stage.__pato = patoEl;
+    stage.__tinguas = tinguas; stage.__garzas = garzas; stage.__patos = patos;
   }
   function syncSectionBirdsToLayer(step) {
     buildSectionBirds();
@@ -530,7 +507,7 @@
     const dispBirds = (capa3 || capa4) ? "block" : "none";
     stage.__tinguas.forEach(tg => tg.el.style.display = dispBirds);
     stage.__garzas.forEach(g => g.el.style.display = dispBirds);
-    stage.__pato.style.display = capa4 ? "block" : "none";
+    stage.__patos.forEach(p => p.el.style.display = capa4 ? "block" : "none");
   }
 
   function syncSceneToLayer() {
@@ -564,9 +541,74 @@
   function legendDotIcon(color, round) {
     return `<i style="width:16px; height:${round ? 16 : 6}px; border-radius:${round ? "50%" : "3px"}; flex:none; background:${color};"></i>`;
   }
+  // Insignia con el AÑO que se esta viendo en la Capa 1 cultural (la evolucion
+  // historica es por años, no por meses): se actualiza sola al mover el slider
+  // o al reproducir, observando el mismo rotulo que ya usa el panel.
+  function updateCultYearBadge(show) {
+    const ov = document.getElementById("culturalExplodeOverlay");
+    if (!ov) return;
+    const lab = document.getElementById("cultYearLabel");
+    let b = document.getElementById("cultYearBadge");
+    if (!b) {
+      b = document.createElement("div");
+      b.id = "cultYearBadge";
+      b.style.cssText = "position:absolute; top:58px; left:50%; transform:translateX(-50%); z-index:30; padding:5px 18px; border-radius:20px; background:rgba(162,28,175,.94); color:#fff; font:800 15px 'Segoe UI',sans-serif; letter-spacing:.04em; box-shadow:0 4px 14px rgba(162,28,175,.35); pointer-events:none;";
+      ov.appendChild(b);
+      if (lab) new MutationObserver(() => { b.textContent = "Año " + lab.textContent; }).observe(lab, { childList: true, characterData: true, subtree: true });
+    }
+    b.textContent = "Año " + (lab ? lab.textContent : "1950");
+    b.style.display = show ? "block" : "none";
+  }
   function updateDynamicLegend() {
     const c = document.getElementById("legendDynamicContent");
     if (!c) return;
+    // Antes esta funcion solo conocia natExplodeStep -- las capas Cultural
+    // y Tecnologica nunca llenaban el panel de Agentes de la izquierda,
+    // aunque sus propios paneles de estadisticas (cultCapa1Panel, etc)
+    // si funcionaban bien por separado. Se agrega el mismo tratamiento
+    // para esas dos capas, con sus 4 subcapas reales cada una.
+    const cultStep = typeof cultExplodeStep !== "undefined" ? cultExplodeStep : 0;
+    const techStep = typeof techExplodeStep !== "undefined" ? techExplodeStep : 0;
+    const cultOverlayEl = document.getElementById("culturalExplodeOverlay");
+    const techOverlayEl = document.getElementById("techExplodeOverlay");
+    const cultVisible = cultOverlayEl && cultOverlayEl.style.display && cultOverlayEl.style.display !== "none";
+    const techVisible = techOverlayEl && techOverlayEl.style.display && techOverlayEl.style.display !== "none";
+
+    if (cultVisible) {
+      let rows = "";
+      const idx = cultStep === 0 ? -1 : Math.floor((cultStep - 1) / 2);
+      if (idx === 0 || cultStep === 0) rows += legendRow(`<i class="fa-solid fa-clock-rotate-left" style="width:20px; text-align:center; color:#a21caf;"></i>`, "Memoria histórica (1950–2024)");
+      if (idx === 0 || cultStep === 0) rows += legendRow(legendDotIcon("#a855f7", false), "Humedal histórico (1950 → hoy)") + legendRow(legendDotIcon("#16a34a", true), "Nodos de cuidado comunitario");
+      if (idx === 1) rows += legendRow(`<i class="fa-solid fa-door-closed" style="width:20px; text-align:center; color:#0284c7;"></i>`, "Cerramiento de borde (EAAB)");
+      if (idx === 2) rows += legendRow(`<i class="fa-solid fa-book-open-reader" style="width:20px; text-align:center; color:#15803d;"></i>`, "Recorrido pedagógico");
+      if (idx === 3) rows += legendRow(`<i class="fa-solid fa-road" style="width:20px; text-align:center; color:#b45309;"></i>`, "Fricción vial (SOT)");
+      if (cultStep >= 9) {
+        rows = legendRow(`<i class="fa-solid fa-clock-rotate-left" style="width:20px; text-align:center; color:#a21caf;"></i>`, "Memoria histórica (1950–2024)")
+          + legendRow(`<i class="fa-solid fa-door-closed" style="width:20px; text-align:center; color:#0284c7;"></i>`, "Cerramiento de borde (EAAB)")
+          + legendRow(`<i class="fa-solid fa-book-open-reader" style="width:20px; text-align:center; color:#15803d;"></i>`, "Recorrido pedagógico")
+          + legendRow(`<i class="fa-solid fa-road" style="width:20px; text-align:center; color:#b45309;"></i>`, "Fricción vial (SOT)");
+      }
+      c.innerHTML = rows;
+      updateCultYearBadge(cultStep <= 2 || cultStep >= 9);
+      return;
+    }
+    if (techVisible) {
+      let rows = "";
+      const idx = techStep === 0 ? -1 : Math.floor((techStep - 1) / 2);
+      if (idx === 0 || techStep === 0) rows += legendRow(`<i class="fa-solid fa-car" style="width:20px; text-align:center; color:#334155;"></i>`, "Red vial y tráfico");
+      if (idx === 1) rows += legendRow(`<i class="fa-solid fa-volume-high" style="width:20px; text-align:center; color:#dc2626;"></i>`, "Simulación de ruido");
+      if (idx === 2) rows += legendRow(`<i class="fa-solid fa-water" style="width:20px; text-align:center; color:#0ea5e9;"></i>`, "Inundación y movilidad");
+      if (idx === 3) rows += legendRow(`<i class="fa-solid fa-toilets-portable" style="width:20px; text-align:center; color:#475569;"></i>`, "Alcantarillado");
+      if (techStep >= 9) {
+        rows = legendRow(`<i class="fa-solid fa-car" style="width:20px; text-align:center; color:#334155;"></i>`, "Red vial y tráfico")
+          + legendRow(`<i class="fa-solid fa-volume-high" style="width:20px; text-align:center; color:#dc2626;"></i>`, "Simulación de ruido")
+          + legendRow(`<i class="fa-solid fa-water" style="width:20px; text-align:center; color:#0ea5e9;"></i>`, "Inundación y movilidad")
+          + legendRow(`<i class="fa-solid fa-toilets-portable" style="width:20px; text-align:center; color:#475569;"></i>`, "Alcantarillado");
+      }
+      c.innerHTML = rows;
+      return;
+    }
+
     const step = typeof natExplodeStep !== "undefined" ? natExplodeStep : 0;
     let rows = "";
     if (step === 1 || step === 2) {
@@ -1705,7 +1747,7 @@
   function loadWaterBodies() {
     return fetch(WATER_URL)
       .then(r => { if (!r.ok) throw new Error("no se pudo cargar " + WATER_URL); return r.json(); })
-      .then(data => { rawWaterData = data; buildWaterBodies(data); placeSectionCutAtHumedal(); resizeSectionView(); if (typeof applyMainBurroMes === "function") applyMainBurroMes(mainBurroMes || 4); })
+      .then(data => { rawWaterData = data; buildWaterBodies(data); placeSectionCutAtHumedal(); resizeSectionView(); })
       .catch(err => console.warn("No se pudieron cargar los cuerpos de agua:", err));
   }
 
@@ -2284,135 +2326,239 @@
     mainBurroPlayBtn.textContent = mainBurroPlaying ? "⏸ Pausar" : "▶ Reproducir";
     if (mainBurroPlaying) mainBurroLast = 0;
   });
-    // ---- Lluvia 2D de Alta Calidad (makeRain2D): gotas finas, elegantes, inclinadas e interiorizadas al modelo ----
-  function makeRain2D(opts) {
-    opts = opts || {};
-    const cvs = document.getElementById(opts.canvasId || "mainRainCanvas");
-    if (!cvs) return null;
-    const ctx = cvs.getContext("2d");
-    const count = opts.count || 280;
-    const drops = [];
-    const ripples = [];
-    let active = false;
-    let animId = null;
-
-    function resize() {
-      const rect = cvs.getBoundingClientRect();
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const w = Math.round(rect.width * dpr);
-      const h = Math.round(rect.height * dpr);
-      if (cvs.width !== w || cvs.height !== h) {
-        cvs.width = w; cvs.height = h;
-      }
+  // ---- Lluvia real: se activa automaticamente en los meses de temporada
+  // de lluvias reales de Bogota (bimodal: marzo-mayo y octubre-noviembre),
+  // la MISMA logica que ya decidia el texto "Temporada de lluvias" --
+  // ahora tambien dispara una animacion de lluvia de verdad. Gotas como
+  // rayas alargadas (no puntos redondos, que se ven raros/artificiales),
+  // cayendo a distintas velocidades para dar sensacion de profundidad,
+  // visible tanto en la axonometria base como en la capa natural (ambas
+  // vistas renderizan el mismo "scene", asi que un solo sistema alcanza
+  // para las dos). ----
+  let lluviaGroup = null, lluviaVel = null, lluviaActiva = false, lluviaVisible = true;
+  const LLUVIA_COUNT = 4400, LLUVIA_ALTO = 90;
+  let lluviaHalfW = 560, lluviaHalfH = 560;
+  function buildLluvia() {
+    if (lluviaGroup) return;
+    // La lluvia anterior era practicamente invisible por tres motivos
+    // reales: (1) azul clarisimo (0xbfe0f2) sobre fondo y niebla BLANCOS,
+    // (2) gotas de menos de 1 pixel de ancho a esta escala, y (3) el
+    // InstancedMesh se recortaba por frustum usando la esfera de la
+    // geometria base (un cilindro diminuto en el origen). Ahora: azul
+    // saturado, gotas mas gruesas/largas, sin niebla, sin recorte, y
+    // cubriendo toda la huella de la escena (no solo el centro).
+    // Mismo ancho/alto que el piso real de la axonometria (halfW = extent/2*1.4):
+    // antes se esparcian en un area mucho mayor y casi ninguna caia dentro de
+    // lo que se ve, por eso se veian pocas y gordas.
+    lluviaHalfW = (sceneExtentW > 120 ? sceneExtentW : 270) / 2 * 1.4;
+    lluviaHalfH = (sceneExtentH > 120 ? sceneExtentH : 270) / 2 * 1.4;
+    const geo = new THREE.CylinderGeometry(0.2, 0.2, 5, 4, 1);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x5a9bd8, transparent: true, opacity: 0.7, depthWrite: false, depthTest: false, fog: false });
+    lluviaGroup = new THREE.InstancedMesh(geo, mat, LLUVIA_COUNT);
+    lluviaGroup.frustumCulled = false;
+    lluviaGroup.renderOrder = 997;
+    lluviaVel = new Float32Array(LLUVIA_COUNT);
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < LLUVIA_COUNT; i++) {
+      dummy.position.set((Math.random() - 0.5) * lluviaHalfW * 2, Math.random() * LLUVIA_ALTO, (Math.random() - 0.5) * lluviaHalfH * 2);
+      dummy.rotation.set(0.12, 0, 0.07); // ligera inclinacion, como viento leve -- recto se ve artificial
+      dummy.updateMatrix();
+      lluviaGroup.setMatrixAt(i, dummy.matrix);
+      lluviaVel[i] = 60 + Math.random() * 40;
     }
-
-    function initDrops() {
-      drops.length = 0;
-      for (let i = 0; i < count; i++) {
-        drops.push({
-          x: Math.random() * (cvs.width || 800),
-          y: Math.random() * (cvs.height || 600),
-          len: 6 + Math.random() * 9,
-          speed: 350 + Math.random() * 320,
-          opacity: 0.35 + Math.random() * 0.45,
-          angle: 0.18
-        });
-      }
-    }
-
-    let lastTime = performance.now();
-    function loop(now) {
-      if (!active && cvs.style.opacity === "0") {
-        animId = null;
-        return;
-      }
-      const dt = Math.min(0.08, (now - lastTime) / 1000);
-      lastTime = now;
-      resize();
-      ctx.clearRect(0, 0, cvs.width, cvs.height);
-
-      const dx = Math.sin(0.18);
-      const dy = Math.cos(0.18);
-
-      ctx.lineWidth = 1.3;
-      ctx.lineCap = "round";
-
-      for (let i = 0; i < drops.length; i++) {
-        const d = drops[i];
-        d.y += d.speed * dt * dy;
-        d.x += d.speed * dt * dx;
-
-        if (d.y > cvs.height || d.x > cvs.width) {
-          if (opts.ripples && Math.random() < 0.25) {
-            ripples.push({ x: d.x - 10, y: cvs.height * 0.5 + Math.random() * (cvs.height * 0.45), r: 1, maxR: 12 + Math.random() * 10, op: 0.5 });
-          }
-          d.y = -d.len - Math.random() * 40;
-          d.x = Math.random() * cvs.width * 1.2 - cvs.width * 0.1;
-        }
-
-        ctx.strokeStyle = `rgba(180, 220, 250, ${d.opacity})`;
-        ctx.beginPath();
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x + d.len * dx, d.y + d.len * dy);
-        ctx.stroke();
-      }
-
-      // Ondas en agua
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const r = ripples[i];
-        r.r += dt * 24;
-        r.op -= dt * 0.8;
-        if (r.op <= 0 || r.r >= r.maxR) {
-          ripples.splice(i, 1);
-          continue;
-        }
-        ctx.strokeStyle = `rgba(195, 230, 255, ${r.op})`;
-        ctx.lineWidth = 0.9;
-        ctx.beginPath();
-        ctx.ellipse(r.x, r.y, r.r * 1.8, r.r * 0.9, -0.35, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      animId = requestAnimationFrame(loop);
-    }
-
-    return {
-      set(isOn) {
-        active = !!isOn;
-        cvs.style.opacity = active ? "1" : "0";
-        if (active) {
-          if (drops.length === 0) initDrops();
-          lastTime = performance.now();
-          if (!animId) animId = requestAnimationFrame(loop);
-        }
-      }
-    };
-  }
-
-  let mainRain = null;
-  let lluviaActiva = false, lluviaVisible = true;
-  function getMainRain() {
-    if (!mainRain) {
-      mainRain = makeRain2D({ canvasId: "mainRainCanvas", count: 260, ripples: true });
-    }
-    return mainRain;
+    lluviaGroup.instanceMatrix.needsUpdate = true;
+    lluviaGroup.visible = false;
+    sceneRoot.add(lluviaGroup);
   }
   function setLluviaActiva(activa) {
     lluviaActiva = activa;
-    const r = getMainRain();
-    if (r) r.set(activa && lluviaVisible && !explodeOverlayOpen());
+    if (activa) buildLluvia();
+    if (lluviaGroup) lluviaGroup.visible = activa && lluviaVisible;
   }
+  const lluviaDummy = new THREE.Object3D();
   function explodeOverlayOpen() {
-    return ["naturalExplodeOverlay", "culturalExplodeOverlay", "techExplodeOverlay"].some(id => {
-      const e = document.getElementById(id);
-      return e && e.style.display && e.style.display !== "none";
-    });
+    return ["naturalExplodeOverlay", "culturalExplodeOverlay", "techExplodeOverlay"].some(id => { const e = document.getElementById(id); return e && e.style.display && e.style.display !== "none"; });
   }
   function updateLluvia(dt) {
-    const r = getMainRain();
-    if (r) r.set(lluviaActiva && lluviaVisible && !explodeOverlayOpen());
+    // La lluvia 3D es SOLO de la axonometria principal; dentro de las escalas
+    // (donde el corte tambien se renderiza desde esta misma escena) se apaga:
+    // alli la lluvia la dibujan los lienzos 2D, y solo en la capa 1 y en la
+    // vista con todas las capas naturales.
+    if (lluviaGroup) { const vis = lluviaActiva && lluviaVisible && !explodeOverlayOpen(); if (lluviaGroup.visible !== vis) lluviaGroup.visible = vis; }
+    if (!lluviaActiva || !lluviaGroup || !lluviaGroup.visible) return;
+    for (let i = 0; i < lluviaVel.length; i++) {
+      lluviaGroup.getMatrixAt(i, lluviaDummy.matrix);
+      lluviaDummy.matrix.decompose(lluviaDummy.position, lluviaDummy.quaternion, lluviaDummy.scale);
+      lluviaDummy.position.y -= lluviaVel[i] * dt;
+      if (lluviaDummy.position.y < 0) {
+        lluviaDummy.position.y = LLUVIA_ALTO - Math.random() * 10;
+        lluviaDummy.position.x = (Math.random() - 0.5) * lluviaHalfW * 2;
+        lluviaDummy.position.z = (Math.random() - 0.5) * lluviaHalfH * 2;
+      }
+      lluviaDummy.rotation.set(0.12, 0, 0.07);
+      lluviaDummy.updateMatrix();
+      lluviaGroup.setMatrixAt(i, lluviaDummy.matrix);
+    }
+    lluviaGroup.instanceMatrix.needsUpdate = true;
+  }
+  let lluviaLastT = 0;
+
+  function updateMainBurro(now) {
+    if (!mainBurroPlaying) return;
+    if (mainBurroLast && now - mainBurroLast < 2600) return;
+    mainBurroLast = now;
+    applyMainBurroMes((mainBurroMes % 12) + 1);
   }
 
+  // ---- Pantalla de las 3 escalas: simulaciones corriendo en vivo y suaves
+  // (carros, ruido, mirlas y el agua del humedal) encima de cada
+  // axonometria, sin repetir edificios ni terreno. ----
+  let liveEscalasLast = 0;
+  function updateLiveEscalas(now) {
+    const ov = document.getElementById("explodeOverlay");
+    if (!ov || ov.style.display === "none" || ov.style.display === "") return;
+    const busy = ["naturalExplodeOverlay", "culturalExplodeOverlay", "techExplodeOverlay"].some(id => { const e = document.getElementById(id); return e && e.style.display && e.style.display !== "none"; });
+    if (busy || now - liveEscalasLast < 110) return;
+    liveEscalasLast = now;
+    const hide = [currentBuildingMesh, currentBuildingEdgeMesh, currentBuildingCornerMesh, manzanasMesh, terrainMesh, axoBorderMesh, treeMeshes && treeMeshes[0] ? treeMeshes[0].mesh : null, ...currentRoadMeshes].filter(o => o && o.visible !== undefined);
+    const prev = hide.map(o => o.visible); hide.forEach(o => { o.visible = false; });
+    const pq = parqueMat ? parqueMat.opacity : null; if (parqueMat) parqueMat.opacity = 0;
+    const bg = scene.background; scene.background = null; renderer.setClearColor(0x000000, 0);
+    if (noiseMesh) noiseMesh.visible = true; if (birdsGroup) birdsGroup.visible = true;
+    renderer.render(scene, camera);
+    const src = renderer.domElement;
+    document.querySelectorAll(".explode-clip").forEach(clip => {
+      let cv = clip.querySelector("canvas.explode-live");
+      if (!cv) { cv = document.createElement("canvas"); cv.className = "explode-live"; cv.style.cssText = "position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:4; opacity:.55;"; clip.appendChild(cv); }
+      const r = clip.getBoundingClientRect(); if (!r.width) return;
+      if (cv.width !== Math.round(r.width) || cv.height !== Math.round(r.height)) { cv.width = Math.round(r.width); cv.height = Math.round(r.height); }
+      const c = cv.getContext("2d"); c.clearRect(0, 0, cv.width, cv.height);
+      const s = Math.min(cv.width / src.width, cv.height / src.height), dw = src.width * s, dh = src.height * s; // igual que object-fit: contain de la foto
+      c.drawImage(src, (cv.width - dw) / 2, (cv.height - dh) / 2, dw, dh);
+    });
+    hide.forEach((o, i) => { o.visible = prev[i]; }); if (parqueMat && pq !== null) parqueMat.opacity = pq;
+    scene.background = bg; renderer.setClearColor(0x000000, 1);
+    if (noiseMesh) noiseMesh.visible = noiseOn; if (birdsGroup) birdsGroup.visible = birdOn;
+  }
+  function animate(now) {
+    requestAnimationFrame(animate);
+    if (playing && timesteps.length) {
+      if (lastFrameAt == null) lastFrameAt = now;
+      const dt = (now - lastFrameAt) / 1000;
+      lastFrameAt = now;
+      currentTime += dt * speed;
+      const maxT = parseFloat(slider.max) || 0;
+      if (currentTime > maxT) currentTime = 0;
+      slider.value = String(Math.round(currentTime));
+      timeLabel.textContent = `${fmtTime(currentTime)} / ${fmtTime(maxT)}`;
+      renderVehiclesAt(currentTime);
+    }
+    if ((noiseOn || birdOn) && timesteps.length) computeLiveNoiseField(vehiclesAtTime(currentTime), now); // fuera del "if playing": el ruido se sigue viendo aunque este en pausa
+    if (birdOn) updateBirds(now);
+    updateMainBurro(now); // crecimiento del humedal, siempre corriendo
+    const lluviaDt = lluviaLastT ? Math.min(0.05, (now - lluviaLastT) / 1000) : 0;
+    lluviaLastT = now;
+    updateLluvia(lluviaDt);
+    // Lineas de borde de edificios: opacidad FIJA, no cambia con el zoom
+    // (se pidio que no aparezcan/desaparezcan ni cambien de grosor al
+    // acercar o alejar la camara).
+    // Agua con movimiento: se desplaza lentamente la textura de color Y
+    // la capa de relieve (bump) a velocidades/escalas DISTINTAS entre si,
+    // simulando dos capas de oleaje superpuestas (asi el brillo/reflejo
+    // cambia con el tiempo de forma organica, no un desfile en linea recta).
+    if (waterTexRef) {
+      waterTexRef.offset.x = (now * 0.000018) % 1;
+      waterTexRef.offset.y = (now * 0.000012) % 1;
+    }
+    if (waterBumpRef) {
+      waterBumpRef.offset.x = (now * -0.000027) % 1;
+      waterBumpRef.offset.y = (now * 0.000021) % 1;
+    }
+    controls.update();
+    if (sectionControls) sectionControls.update();
+    renderer.render(scene, camera);
+    if (sectionRenderer && sectionWrapEl2 && sectionWrapEl2.style.display !== "none") {
+      // Lineas de edificios mas delgadas/livianas solo en el corte de
+      // abajo (antes se habian pedido mas gruesas; ahora al reves),
+      // sin afectar la axonometria de arriba.
+      const prevEdgeOpacity = buildingEdgeMat ? buildingEdgeMat.opacity : null;
+      if (buildingEdgeMat) buildingEdgeMat.opacity = 0.15;
+      sectionRenderer.render(scene, sectionCamera);
+      if (buildingEdgeMat && prevEdgeOpacity !== null) buildingEdgeMat.opacity = prevEdgeOpacity;
+    }
+    updateTechLiveMirror(); // si el panel de escala tecnologica esta abierto, "espeja" los carros y el ruido en vivo dentro de sus 2 subcapas (en vez de una foto fija)
+  }
+  // ---- Caja de seccion: 6 planos de recorte (X min/max, Y min/max, Z
+  // min/max) para cortar el modelo y ver el interior, como una caja de
+  // seccion de Rhino/Revit. Los planos se aplican de forma GLOBAL
+  // (renderer.clippingPlanes), asi que afectan a todos los materiales sin
+  // tener que tocar cada uno por separado. Los planos (secPlanes) ya se
+  // crearon y activaron arriba, junto al renderer. ----
+  const SECTION_Y_MAX = 10; // altura maxima considerada (unidades de escena)
+  let sectionBoxActive = true; // activo desde el inicio: con los limites en 0-100% no corta nada visible, pero asi no hace falta darle clic a un boton aparte antes de mover los deslizadores
+  const secXMin = document.getElementById("secXMin"), secXMax = document.getElementById("secXMax");
+  const secYMin = document.getElementById("secYMin"), secYMax = document.getElementById("secYMax");
+  const secZMin = document.getElementById("secZMin"), secZMax = document.getElementById("secZMax");
+  const secXMinVal = document.getElementById("secXMinVal"), secXMaxVal = document.getElementById("secXMaxVal");
+  const secYMinVal = document.getElementById("secYMinVal"), secYMaxVal = document.getElementById("secYMaxVal");
+  const secZMinVal = document.getElementById("secZMinVal"), secZMaxVal = document.getElementById("secZMaxVal");
+  const sectionBoxOutput = document.getElementById("sectionBoxOutput");
+  
+  const botRot = document.getElementById("botRot"), botRotVal = document.getElementById("botRotVal");
+  const botXMin = document.getElementById("botXMin"), botXMinVal = document.getElementById("botXMinVal");
+  const botXMax = document.getElementById("botXMax"), botXMaxVal = document.getElementById("botXMaxVal");
+  const botYMin = document.getElementById("botYMin"), botYMinVal = document.getElementById("botYMinVal");
+  const botYMax = document.getElementById("botYMax"), botYMaxVal = document.getElementById("botYMaxVal");
+  const botZMin = document.getElementById("botZMin"), botZMinVal = document.getElementById("botZMinVal");
+  const botZMax = document.getElementById("botZMax"), botZMaxVal = document.getElementById("botZMaxVal");
+  const botBoxOutput = document.getElementById("botBoxOutput");
+
+  function updateBotBox() {
+    if(!botXMin) return;
+    const halfW = sceneExtentW / 2 * 1.4, halfH = sceneExtentH / 2 * 1.4;
+    const xMin = -halfW + (parseFloat(botXMin.value) / 100) * (2 * halfW);
+    const xMax = -halfW + (parseFloat(botXMax.value) / 100) * (2 * halfW);
+    const zMin = -halfH + (parseFloat(botZMin.value) / 100) * (2 * halfH);
+    const zMax = -halfH + (parseFloat(botZMax.value) / 100) * (2 * halfH);
+    const yMin = (parseFloat(botYMin.value) / 100) * SECTION_Y_MAX;
+    const yMax = (parseFloat(botYMax.value) / 100) * SECTION_Y_MAX;
+    const rot = botRot ? parseFloat(botRot.value) : 0;
+    const rad = rot * Math.PI / 180;
+    const ux = Math.cos(rad), uz = Math.sin(rad);
+    const vx = -Math.sin(rad), vz = Math.cos(rad);
+    
+    if(botRotVal) botRotVal.textContent = rot + "°";
+    botPlanes.xMin.normal.set(ux, 0, uz); botPlanes.xMin.constant = -xMin;
+    botPlanes.xMax.normal.set(-ux, 0, -uz); botPlanes.xMax.constant = xMax;
+    botPlanes.yMin.constant = -yMin;
+    botPlanes.yMax.constant = yMax;
+    botPlanes.zMin.normal.set(vx, 0, vz); botPlanes.zMin.constant = -zMin;
+    botPlanes.zMax.normal.set(-vx, 0, -vz); botPlanes.zMax.constant = zMax;
+    
+    if(botXMinVal) botXMinVal.textContent = botXMin.value + "%"; 
+    if(botXMaxVal) botXMaxVal.textContent = botXMax.value + "%";
+    if(botYMinVal) botYMinVal.textContent = botYMin.value + "%"; 
+    if(botYMaxVal) botYMaxVal.textContent = botYMax.value + "%";
+    if(botZMinVal) botZMinVal.textContent = botZMin.value + "%"; 
+    if(botZMaxVal) botZMaxVal.textContent = botZMax.value + "%";
+
+    if (botBoxOutput && typeof sceneToReal === "function") {
+      const r0 = sceneToReal(xMin, zMin), r1 = sceneToReal(xMax, zMax);
+      let camStr = "";
+      if (sectionCamera && sectionControls) {
+        camStr = `\n--- Cámara Inferior ---\n` +
+                 `Posición: ${sectionCamera.position.x.toFixed(1)}, ${sectionCamera.position.y.toFixed(1)}, ${sectionCamera.position.z.toFixed(1)}\n` +
+                 `Mira hacia: ${sectionControls.target.x.toFixed(1)}, ${sectionControls.target.y.toFixed(1)}, ${sectionControls.target.z.toFixed(1)}\n` +
+                 `Zoom: ${sectionCamera.zoom.toFixed(2)}`;
+      }
+      botBoxOutput.value =
+        `Rotación: ${rot}°\n` +
+        `U (a lo largo del giro): ${botXMin.value}% a ${botXMax.value}%\n` +
+        `Y (altura, m): ${(yMin / SCALE).toFixed(1)} a ${(yMax / SCALE).toFixed(1)}\n` +
+        `V (perpendicular): ${botZMin.value}% a ${botZMax.value}%\n` +
+        `(referencia sin girar — real ${Math.round(Math.min(r0[0], r1[0]))} a ${Math.round(Math.max(r0[0], r1[0]))} / ${Math.round(Math.min(r0[1], r1[1]))} a ${Math.round(Math.max(r0[1], r1[1]))})` + camStr;
+    }
+  }
 
   [botRot, botXMin, botXMax, botYMin, botYMax, botZMin, botZMax].forEach(el => {
     if(el) el.addEventListener("input", () => { updateBotBox(); });
@@ -2842,57 +2988,22 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     const axoContextFadeEl = document.getElementById("axoContextFade");
     if (axoContextFadeEl) axoContextFadeEl.style.display = "block";
   }
-  function triggerExplodeView() {
-    if (penActive) return;
-    const legendPanel = document.getElementById("legendPanel");
-    if (legendPanel) legendPanel.style.display = "block";
-    const natClimatePanel = document.getElementById("natClimatePanel");
-    if (natClimatePanel) natClimatePanel.style.display = "block";
-    const sectionWrapEl = document.getElementById("sectionWrap");
-    if (sectionWrapEl) sectionWrapEl.style.display = "block";
-    const mr = getMainRain();
-    if (mr) mr.set(false);
-    if (typeof fitEscalaOverlays === "function") fitEscalaOverlays();
-    if (typeof resizeSectionView === "function") resizeSectionView();
-    if (typeof placeSectionCutAtHumedal === "function") placeSectionCutAtHumedal();
-    if (typeof updateSectionCutRotation === "function") updateSectionCutRotation();
-    openNaturalExplode();
-  }
-
   canvas.addEventListener("click", (e) => {
-    if (penActive) return;
-    triggerExplodeView();
-  });
-
-  let ptrDownX = 0, ptrDownY = 0, ptrDownT = 0;
-  window.addEventListener("pointerdown", (e) => {
-    if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel, .controls-bar, .view-buttons")) {
-      ptrDownT = 0;
-      return;
-    }
-    ptrDownX = e.clientX;
-    ptrDownY = e.clientY;
-    ptrDownT = performance.now();
-  }, true);
-
-  window.addEventListener("pointerup", (e) => {
-    if (penActive) return;
-    if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel, .controls-bar, .view-buttons")) {
-      ptrDownT = 0;
-      return;
-    }
-    if (ptrDownT > 0) {
-      const dist = Math.hypot(e.clientX - ptrDownX, e.clientY - ptrDownY);
-      const dt = performance.now() - ptrDownT;
-      ptrDownT = 0;
-      if (dist < 22 && dt < 800) {
-        if (!explodeOverlayOpen()) {
-          triggerExplodeView();
-        }
-      }
-    }
-  }, true);
-
+    // Clic en la axonometria principal: abre la escala natural exactamente
+    // igual que siempre (agua creciendo por años, tinguas, garzas -- nada
+    // de su contenido interno cambia), pero encajada dentro del panel:
+    // convenciones a la izquierda, corte abajo, y la escala ocupando
+    // arriba a la derecha, mas chica, en vez de pantalla completa.
+    if (penActive) return; // mientras se dibuja el poligono, no se dispara la explosion
+    const sectionWrapEl = document.getElementById("sectionWrap");
+    // A pedido de la usuaria: el panel de Agentes/Convenciones ya no se
+    // muestra (ocupaba demasiado espacio en pantalla).
+    if (sectionWrapEl) sectionWrapEl.style.display = "block";
+    fitEscalaOverlays();
+    resizeSectionView();
+    placeSectionCutAtHumedal();
+    updateSectionCutRotation();
+    openNaturalExplode();
     return;
 
     // Guardar estado y fondo original
@@ -3143,10 +3254,15 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     zoomedLayer = null;
     const p = document.getElementById("escalaZoomPanel");
     if (p) p.style.display = "none";
+    // unzoomAll corre 400 ms DESPUES de cambiar de escala (cerrar Natural ->
+    // abrir Cultural, cerrar Cultural -> abrir Tecnologica) y antes ocultaba el
+    // panel de Agentes incondicionalmente, apagando el que la escala nueva
+    // acababa de mostrar. Solo se oculta si ya no queda ninguna escala abierta.
+    const algunaEscalaAbierta = ["naturalExplodeOverlay", "culturalExplodeOverlay", "techExplodeOverlay"].some(id => { const e = document.getElementById(id); return e && e.style.display && e.style.display !== "none"; });
     const l = document.getElementById("legendActiveLayer");
-    if (l) l.style.display = "none";
+    if (l && !algunaEscalaAbierta) l.style.display = "none";
     const lp = document.getElementById("legendPanel");
-    if (lp) lp.style.display = "none";
+    if (lp && !algunaEscalaAbierta) lp.style.display = "none";
   }
   document.querySelectorAll(".explode-layer").forEach((layerEl) => {
     const clip = layerEl.querySelector(".explode-clip");
@@ -3231,7 +3347,20 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   const natPlayYearBtn = document.getElementById("natPlayYearBtn");
 
   const MESES_NAT = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-  
+  const HUMEDAL_CICLO = [
+    { mes: 1, expansion_pct: 41.7, profundidad_m: 1.32, temporada: "Temporada seca / intermedia" },
+    { mes: 2, expansion_pct: 42.6, profundidad_m: 1.39, temporada: "Temporada seca / intermedia" },
+    { mes: 3, expansion_pct: 46.7, profundidad_m: 1.73, temporada: "Inicio de temporada de lluvias" },
+    { mes: 4, expansion_pct: 50.0, profundidad_m: 2.00, temporada: "Pico de lluvias (máxima cota)" },
+    { mes: 5, expansion_pct: 47.4, profundidad_m: 1.78, temporada: "Temporada de lluvias" },
+    { mes: 6, expansion_pct: 41.5, profundidad_m: 1.30, temporada: "Temporada de estiaje" },
+    { mes: 7, expansion_pct: 37.7, profundidad_m: 0.99, temporada: "Temporada seca (estiaje)" },
+    { mes: 8, expansion_pct: 34.1, profundidad_m: 0.69, temporada: "Estiaje pronunciado" },
+    { mes: 9, expansion_pct: 33.0, profundidad_m: 0.60, temporada: "Mínimo anual de cota (estiaje)" },
+    { mes: 10, expansion_pct: 38.6, profundidad_m: 1.06, temporada: "Segunda temporada de lluvias" },
+    { mes: 11, expansion_pct: 43.8, profundidad_m: 1.49, temporada: "Pico de segunda temporada de lluvias" },
+    { mes: 12, expansion_pct: 43.3, profundidad_m: 1.45, temporada: "Descenso hacia temporada seca" },
+  ];
 
   let natYearPlaying = false, natYearTimer = null;
   let natWaterAnimFrame = null;
@@ -3322,18 +3451,76 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   // asi que todo encaja pixel por pixel. Se quita el "cubo negro" (borde
   // extruido de la caja) en esta captura.
   // ============================================================
-    function captureBaseWithContext(renderFocusSetup) {
+  function captureBaseWithContext(renderFocusSetup) {
+    const lluviaPrevVis = (typeof lluviaGroup !== "undefined" && lluviaGroup) ? lluviaGroup.visible : false;
+    if (typeof lluviaGroup !== "undefined" && lluviaGroup) lluviaGroup.visible = false; // sin gotas congeladas en la base
     const burroVisPrev = mainBurroMesh ? mainBurroMesh.visible : false;
-    if (mainBurroMesh) mainBurroMesh.visible = false;
+    if (mainBurroMesh) mainBurroMesh.visible = false; // la base usa la forma real del humedal
+    const W = renderer.domElement.width, H = renderer.domElement.height;
+    const off = document.createElement("canvas"); off.width = W; off.height = H;
+    const c = off.getContext("2d");
+    c.fillStyle = "#ffffff"; c.fillRect(0, 0, W, H);
+    const halfW = sceneExtentW / 2 * 1.4, halfH = sceneExtentH / 2 * 1.4;
+    const bx0 = -halfW + (parseFloat(secXMin.value) / 100) * (2 * halfW);
+    const bx1 = -halfW + (parseFloat(secXMax.value) / 100) * (2 * halfW);
+    const bz0 = -halfH + (parseFloat(secZMin.value) / 100) * (2 * halfH);
+    const bz1 = -halfH + (parseFloat(secZMax.value) / 100) * (2 * halfH);
+    const cx = (bx0 + bx1) / 2, cz = (bz0 + bz1) / 2, K = 3.2;
+    const bw = (bx1 - bx0) * K / 2, bh = (bz1 - bz0) * K / 2;
     const origBg = scene.background;
-    scene.background = null;
-    renderer.setClearColor(0x000000, 0);
+    const borderVis = axoBorderMesh ? axoBorderMesh.visible : false;
+    if (axoBorderMesh) axoBorderMesh.visible = false;
+    if (renderFocusSetup) renderFocusSetup();
+    // 1) Contexto: sin recorte, con edificios y vias alrededor
+    const savedConst = Object.values(secPlanes).map(p => p.constant);
+    Object.values(secPlanes).forEach(p => (p.constant = 1e6));
+    const origClip = renderer.clippingPlanes; renderer.clippingPlanes = [];
+    if (rawBuildingsData) buildBuildings(rawBuildingsData, { xMin: cx - bw, xMax: cx + bw, zMin: cz - bh, zMax: cz + bh, yMin: 0, yMax: 1e6 });
+    if (rawEdgesData) buildRoads(rawEdgesData, { xMin: cx - bw, xMax: cx + bw, zMin: cz - bh, zMax: cz + bh, yMin: 0, yMax: 1e6 });
+    if (axoBorderMesh) axoBorderMesh.visible = false;
+    scene.background = new THREE.Color(0xffffff);
     renderer.render(scene, camera);
-    const dataUrl = renderer.domElement.toDataURL("image/png");
-    scene.background = origBg;
+    { // contexto solo "un poquito" alrededor: se desvanece con la distancia al area de estudio
+      const tmp = document.createElement("canvas"); tmp.width = W; tmp.height = H; const t = tmp.getContext("2d");
+      t.drawImage(renderer.domElement, 0, 0);
+      const vv = new THREE.Vector3(); const cs = [[bx0, bz0], [bx1, bz0], [bx1, bz1], [bx0, bz1]].map(([x, z]) => { vv.set(x, 0, z).project(camera); return [(vv.x * .5 + .5) * W, (-vv.y * .5 + .5) * H]; });
+      const ccx = cs.reduce((s, p) => s + p[0], 0) / 4, ccy = cs.reduce((s, p) => s + p[1], 0) / 4;
+      const rad = Math.max(...cs.map(p => Math.hypot(p[0] - ccx, p[1] - ccy)));
+      const radY = Math.max(...cs.map(p => Math.abs(p[1] - ccy)));
+      const sy = Math.min(1, (radY * 1.25) / rad, (H / 2 - 2) / (rad * 1.25)); // elipse que se desvanece ANTES del borde del cuadro
+      t.globalCompositeOperation = "destination-in";
+      t.save(); t.translate(ccx, ccy); t.scale(1, sy);
+      const g = t.createRadialGradient(0, 0, rad * 0.4, 0, 0, rad * 2.8);
+      g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(1, "rgba(0,0,0,0)");
+      t.fillStyle = g; t.fillRect(-W, -H / sy, W * 2, (H / sy) * 2); t.restore();
+      c.globalAlpha = 0.48; c.drawImage(tmp, 0, 0);
+    }
+    // 2) Area de estudio nitida (con su recorte normal), fondo transparente
+    Object.values(secPlanes).forEach((p, i) => (p.constant = savedConst[i]));
+    renderer.clippingPlanes = origClip;
+    rebuildFilteredGeometry();
+    if (axoBorderMesh) axoBorderMesh.visible = false;
+    scene.background = null; renderer.setClearColor(0x000000, 0);
+    renderer.render(scene, camera);
+    c.globalAlpha = 1; c.drawImage(renderer.domElement, 0, 0);
     renderer.setClearColor(0x000000, 1);
+    // 3) Borde leve del area de estudio
+    const v = new THREE.Vector3();
+    const pts = [[bx0, bz0], [bx1, bz0], [bx1, bz1], [bx0, bz1]].map(([x, z]) => {
+      v.set(x, 0, z); v.project(camera);
+      return [(v.x * 0.5 + 0.5) * W, (-v.y * 0.5 + 0.5) * H];
+    });
+    c.strokeStyle = "rgba(20,24,30,.55)"; c.lineWidth = Math.max(1, W / 900);
+    c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath(); c.stroke();
+    scene.background = origBg;
+    if (axoBorderMesh) axoBorderMesh.visible = borderVis;
     if (mainBurroMesh) mainBurroMesh.visible = burroVisPrev;
-    return dataUrl;
+    // Restore full city geometry for the main live view
+    if (rawBuildingsData) buildBuildings(rawBuildingsData, null);
+    if (rawEdgesData) buildRoads(rawEdgesData, null);
+    rebuildFilteredGeometry(); // Re-apply section box if active
+    if (typeof lluviaGroup !== "undefined" && lluviaGroup) lluviaGroup.visible = lluviaPrevVis;
+    return off.toDataURL("image/png");
   }
 
   // ---- OFFSET real de un poligono: el borde se desplaza hacia afuera
@@ -3360,10 +3547,6 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   function openNaturalExplode() {
     const lp = document.getElementById("legendPanel");
     if (lp) lp.style.display = "block";
-    const cp = document.getElementById("natClimatePanel");
-    if (cp) cp.style.display = "block";
-    const sw = document.getElementById("sectionWrap");
-    if (sw) sw.style.display = "block";
     const cp = document.getElementById("natClimatePanel");
     if (cp) cp.style.display = "block";
     const c1 = document.getElementById("cultCapa1Panel");
@@ -3497,6 +3680,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     renderNaturalBirdLayer(mes);
     renderNaturalMacroLayer(mes);
     drawNaturalGuideLines();
+    updateNaturalRain(); // lluvia 2D sobre la capa 1 (agua), solo en epoca de lluvias
   }
 
   let natExplodeStep = 0;
@@ -3514,6 +3698,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   // 10: Integración total (todas las capas asentadas en la base simulando en conjunto)
 
   function updateNaturalLayersStep(animated = true) {
+    updateNaturalRain();
     if (typeof syncFloatLabelText === "function") syncFloatLabelText();
     const sublayers = [
       document.getElementById("natLayerWater"),
@@ -3672,6 +3857,426 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     });
   }
 
+  // ---- LLUVIA 2D: SOLO en la capa 1 y en la vista con TODAS las capas naturales ----
+  // (pasos 0-2 y 9-10), solo en epoca de lluvias (mar-may y oct-nov), y tanto
+  // en la axonometria como en el corte. Tres lienzos: dentro del rombo de la
+  // capa 1, sobre el rombo de la pila completa, y sobre el corte de abajo.
+  function makeRain2D(cfg) {
+    let active = false, frame = null, drops = [], ripples = [], lastT = 0, offTimer = null;
+    function step(t) {
+      const cv = document.getElementById(cfg.canvasId);
+      if (!active || !cv) { frame = null; return; }
+      const W = cv.clientWidth || 600, H = cv.clientHeight || 300;
+      if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; drops.length = 0; }
+      if (!drops.length) {
+        const n = Math.max(110, Math.round(W * H / cfg.area));
+        for (let i = 0; i < n; i++) drops.push({ x: Math.random() * (W + 80) - 20, y: Math.random() * H, len: cfg.lenMin + Math.random() * (cfg.lenMax - cfg.lenMin), v: cfg.vMin + Math.random() * (cfg.vMax - cfg.vMin), a: 0.35 + Math.random() * 0.35 });
+      }
+      const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
+      lastT = t;
+      // Si la usuaria dibujo la LINEA DEL SUELO, la lluvia solo existe por encima
+      // de ella: se recorta y cada gota se acaba (con su onda) al tocarla.
+      const gl = cfg.ground ? cfg.ground() : null;
+      const hasG = !!(gl && gl.length >= 2);
+      const gyAt = x => corteGroundV(gl, x / W) * H;
+      const ctx = cv.getContext("2d");
+      ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      if (hasG) {
+        const s = gl.slice().sort((p, q) => p[0] - q[0]);
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0); ctx.lineTo(W, gyAt(W));
+        for (let i = s.length - 1; i >= 0; i--) ctx.lineTo(s[i][0] * W, s[i][1] * H);
+        ctx.lineTo(0, gyAt(0)); ctx.closePath(); ctx.clip();
+      }
+      ctx.lineCap = "round"; ctx.lineWidth = cfg.lineWidth;
+      const slant = 0.22;
+      for (const d of drops) {
+        d.y += d.v * dt; d.x -= d.v * dt * slant;
+        const gy = hasG ? gyAt(d.x) : H + d.len;
+        if (d.y >= gy) {
+          if (cfg.ripples && ripples.length < 54 && Math.random() < 0.55) {
+            if (hasG) ripples.push({ x: d.x, y: gy - 0.5, r: 1, a: 0.6 });
+            else { const bd = cfg.rippleBand || [0.15, 0.85]; ripples.push({ x: Math.random() * W, y: H * (bd[0] + Math.random() * (bd[1] - bd[0])), r: 1, a: 0.6 }); }
+          }
+          d.y = -d.len - Math.random() * H * 0.2; d.x = Math.random() * (W + 80) - 10;
+        }
+        ctx.strokeStyle = "rgba(76,136,206," + d.a.toFixed(2) + ")";
+        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + d.len * slant, d.y - d.len); ctx.stroke();
+      }
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        const r = ripples[i];
+        r.r += 22 * dt; r.a -= 0.62 * dt;
+        if (r.a <= 0) { ripples.splice(i, 1); continue; }
+        ctx.lineWidth = 1.1;
+        ctx.strokeStyle = "rgba(255,255,255," + r.a.toFixed(2) + ")"; ctx.beginPath(); ctx.ellipse(r.x, r.y, r.r, r.r * 0.45, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = "rgba(30,90,160," + (r.a * 0.55).toFixed(2) + ")"; ctx.beginPath(); ctx.ellipse(r.x, r.y, r.r + 1.4, (r.r + 1.4) * 0.45, 0, 0, Math.PI * 2); ctx.stroke();
+      }
+      ctx.restore();
+      frame = requestAnimationFrame(step);
+    }
+    return {
+      set(on) {
+        const cv = document.getElementById(cfg.canvasId);
+        if (!cv) return;
+        if (on) {
+          if (offTimer) { clearTimeout(offTimer); offTimer = null; }
+          cv.style.opacity = "1";
+          if (!active) { active = true; lastT = 0; }
+          if (!frame) frame = requestAnimationFrame(step);
+        } else if (active) {
+          active = false; cv.style.opacity = "0";
+          offTimer = setTimeout(() => { if (frame) { cancelAnimationFrame(frame); frame = null; } const c = cv.getContext("2d"); c.clearRect(0, 0, cv.width, cv.height); drops.length = 0; ripples.length = 0; }, 700);
+        }
+      }
+    };
+  }
+  const natRain1 = makeRain2D({ canvasId: "natRainCanvas", area: 850, lenMin: 3.5, lenMax: 8, vMin: 380, vMax: 780, lineWidth: 1.1, ripples: true });
+  const natRainStack = makeRain2D({ canvasId: "natStackRainCanvas", area: 850, lenMin: 3.5, lenMax: 8, vMin: 380, vMax: 780, lineWidth: 1.1, ripples: true });
+  const corteRain = makeRain2D({ canvasId: "corteRainCanvas", area: 650, lenMin: 2.5, lenMax: 6, vMin: 300, vMax: 580, lineWidth: 1, ripples: true, rippleBand: [0.55, 0.95], ground: () => corteSuelo.sec });
+  function setNatRain(on) { if (!on) { natRain1.set(false); natRainStack.set(false); corteRain.set(false); } }
+  function updateNaturalRain() {
+    let rain1 = false, stack = false, corte = false;
+    try {
+      const mes = parseInt(natMesSlider.value, 10);
+      const esLluvia = [3, 4, 5, 10, 11].includes(mes);
+      const abierta = natOverlay && natOverlay.style.display && natOverlay.style.display !== "none";
+      const capa1 = natExplodeStep >= 0 && natExplodeStep <= 2;
+      const todas = natExplodeStep === 9 || natExplodeStep === 10;
+      rain1 = !!(esLluvia && abierta && capa1);
+      stack = !!(esLluvia && abierta && todas);
+      corte = rain1 || stack;
+    } catch (e) { rain1 = stack = corte = false; }
+    natRain1.set(rain1); natRainStack.set(stack); corteRain.set(corte);
+  }
+
+  // ============================================================
+  // POLIGONOS DE AGUA Y DE TIERRA + LINEA DE SUELO EN EL CORTE (los dibuja la usuaria)
+  // - Cada poligono es MASCARA DE RECORTE de su foto (agua o tierra).
+  // - La LINEA DE SUELO (abierta, 2 o mas puntos) marca hasta donde llegan la
+  //   lluvia y los animales del corte: nada pasa por debajo de ella.
+  // - Mayus (Shift) sostenido: el nuevo tramo sale a 90 grados.
+  // Coordenadas normalizadas (0-1) sobre la imagen del corte; "Copiar
+  // coordenadas" entrega el texto listo para pegar en CORTE_POLIGONOS_FIJOS /
+  // CORTE_SUELO_FIJO y dejarlo fijo en el codigo.
+  // ============================================================
+  // Poligonos que dibujo la usuaria en el corte inferior (coordenadas normalizadas 0-1).
+  const CORTE_POLIGONOS_FIJOS = {
+    // Zona de peces del corte dinamico (el agua ya esta en la imagen: el poligono no se dibuja, solo contiene a los peces).
+    dyn: [
+      { tipo: "agua", pts: [[0.3328, 0.8341], [0.3535, 0.8382], [0.3719, 0.8398], [0.4282, 0.8536], [0.4402, 0.8658], [0.6666, 0.8642], [0.6782, 0.8553], [0.6833, 0.8504], [0.6931, 0.8423], [0.6994, 0.8349], [0.7029, 0.8341]] }
+    ],
+    sec: [
+      { tipo: "agua", pts: [[0.2620, 0.7047], [0.7708, 0.7047], [0.7625, 0.7785], [0.2682, 0.7785]] },
+      { tipo: "tierra", pts: [[0.7703, 0.6913], [0.9271, 0.6913], [0.9271, 0.9329], [0.0583, 0.9329], [0.0583, 0.7181], [0.2625, 0.7181], [0.2677, 0.7852], [0.7625, 0.7785]] }
+    ]
+  };
+  const CORTE_SUELO_FIJO = { dyn: [], sec: [] };
+  const corteSuelo = { dyn: CORTE_SUELO_FIJO.dyn.map(q => q.slice()), sec: CORTE_SUELO_FIJO.sec.map(q => q.slice()) };
+  function corteGroundV(pts, u) {
+    if (!pts || pts.length < 2) return null;
+    const s = pts.slice().sort((p, q) => p[0] - q[0]);
+    if (u <= s[0][0]) return s[0][1];
+    for (let i = 1; i < s.length; i++) {
+      if (u <= s[i][0]) { const p = s[i - 1], q = s[i], d = (q[0] - p[0]) || 1e-6; return p[1] + (q[1] - p[1]) * (u - p[0]) / d; }
+    }
+    return s[s.length - 1][1];
+  }
+  const CORTE_TEX_TIERRA_ESCALA = 0.1; // ancho de cada repeticion de la textura de tierra, como fraccion del ancho del corte (mas chico = textura mas fina)
+  const CORTE_TEX_TIERRA_OPACIDAD = 0.8;
+  const corteTexAgua = new Image(); corteTexAgua.src = "assets/corte_agua.jpg";
+  const corteTexTierra = new Image(); corteTexTierra.src = "assets/corte_tierra.jpg";
+  // Peces (sin fondo) que nadan MUY pequenos dentro de los poligonos de agua. La lubina mira a la izquierda, la mojarra a la derecha.
+  const corteFishDefs = [{ src: "assets/pez_lubina.png", faceRight: false, k: 1 }, { src: "assets/pez_guppy.png", faceRight: false, k: 0.85 }].map(d => { const img = new Image(); img.src = d.src; return { img, faceRight: d.faceRight, k: d.k }; });
+  const corteTools = [];
+  corteTexAgua.onload = corteTexTierra.onload = () => corteTools.forEach(t => t && t.draw());
+  window.addEventListener("resize", () => corteTools.forEach(t => t && t.draw()));
+  function createPolyTool(cfg) {
+    const host = cfg.host;
+    if (!host) return null;
+    const cv = document.createElement("canvas");
+    cv.style.cssText = "position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:" + (cfg.z || 0) + ";";
+    if (cfg.before && cfg.before.parentNode === host) host.insertBefore(cv, cfg.before); else host.appendChild(cv);
+    let polys = [], suelo = [], cur = null, mode = null, mouse = null, rawMouse = null;
+    try { const s = sessionStorage.getItem(cfg.key); polys = s ? JSON.parse(s) : JSON.parse(JSON.stringify(cfg.fijos || [])); } catch (e) { polys = JSON.parse(JSON.stringify(cfg.fijos || [])); }
+    try { const s = sessionStorage.getItem(cfg.key + "_suelo"); suelo = s ? JSON.parse(s) : (cfg.fijosSuelo || []).map(q => q.slice()); } catch (e) { suelo = (cfg.fijosSuelo || []).map(q => q.slice()); }
+    // Sin linea dibujada, el "suelo" es el borde SUPERIOR de los poligonos de agua y tierra: la lluvia y los
+    // animales del corte no pasan de ahi (superficie del agua sobre el humedal, orilla sobre la tierra).
+    function derivedSuelo() {
+      const out = [];
+      for (let k = 0; k <= 200; k++) {
+        const u = k / 200; let top = null;
+        polys.forEach(pl => {
+          if (pl.pts.length < 3) return;
+          for (let i = 0; i < pl.pts.length; i++) {
+            const a = pl.pts[i], c = pl.pts[(i + 1) % pl.pts.length];
+            if ((a[0] <= u && c[0] > u) || (c[0] <= u && a[0] > u)) { const v = a[1] + (u - a[0]) * (c[1] - a[1]) / (c[0] - a[0]); if (top === null || v < top) top = v; }
+          }
+        });
+        if (top !== null) out.push([u, top]);
+      }
+      return out;
+    }
+    function pushSuelo() { corteSuelo[cfg.id] = (suelo.length >= 2 ? suelo : derivedSuelo()).map(q => q.slice()); }
+    pushSuelo();
+    function save() { pushSuelo(); try { sessionStorage.setItem(cfg.key, JSON.stringify(polys)); sessionStorage.setItem(cfg.key + "_suelo", JSON.stringify(suelo)); } catch (e) {} }
+    const minPts = t => (t === "suelo" ? 2 : 3);
+    function box() { return cfg.getBox ? cfg.getBox() : { l: 0, t: 0, w: host.clientWidth, h: host.clientHeight }; }
+    function toPx(p, b) { return [b.l + p[0] * b.w, b.t + p[1] * b.h]; }
+    function toUV(x, y, b) { return [(x - b.l) / b.w, (y - b.t) / b.h]; }
+    function pathOf(pts, b, ctx) { ctx.beginPath(); pts.forEach((p, i) => { const q = toPx(p, b); if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }); ctx.closePath(); }
+    // Mayus: el nuevo punto queda alineado en horizontal o vertical con el anterior (90 grados)
+    function snapPx(x, y, shift) {
+      if (!shift || !cur || !cur.pts.length) return [x, y];
+      const p = toPx(cur.pts[cur.pts.length - 1], box());
+      return Math.abs(x - p[0]) >= Math.abs(y - p[1]) ? [x, p[1]] : [p[0], y];
+    }
+    function draw() {
+      const W = host.clientWidth, H = host.clientHeight;
+      if (!W || !H) return;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+      const ctx = cv.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      const b = box();
+      if (!b.w || !b.h) return;
+      polys.forEach(p => {
+        if (p.pts.length < 3 || cfg.sinTextura) return;
+        const agua = p.tipo === "agua", img = agua ? corteTexAgua : corteTexTierra;
+        ctx.save(); pathOf(p.pts, b, ctx); ctx.clip();
+        if (img.complete && img.naturalWidth) {
+          const px = p.pts.map(q => toPx(q, b)), xs = px.map(q => q[0]), ys = px.map(q => q[1]);
+          const bx = Math.min(...xs), by = Math.min(...ys), bw = Math.max(...xs) - bx, bh = Math.max(...ys) - by;
+          if (agua) {
+            const s = Math.max(bw / img.naturalWidth, bh / img.naturalHeight, 0.05);
+            const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+            ctx.drawImage(img, bx + (bw - dw) / 2, by + (bh - dh) / 2, dw, dh);
+          } else {
+            // TIERRA: antes la foto se estiraba a todo el poligono y se veia enorme. Ahora se
+            // repite a escala chica (en espejo, para que no se noten costuras) y va al 80%.
+            const tw = Math.max(40, b.w * CORTE_TEX_TIERRA_ESCALA), th = tw * img.naturalHeight / img.naturalWidth;
+            const i0 = Math.floor((bx - b.l) / tw), i1 = Math.ceil((bx + bw - b.l) / tw), j0 = Math.floor((by - b.t) / th), j1 = Math.ceil((by + bh - b.t) / th);
+            const prevA = ctx.globalAlpha; ctx.globalAlpha = prevA * CORTE_TEX_TIERRA_OPACIDAD;
+            for (let i = i0; i < i1; i++) for (let jj = j0; jj < j1; jj++) {
+              ctx.save();
+              ctx.translate(b.l + (i + (i & 1 ? 1 : 0)) * tw, b.t + (jj + (jj & 1 ? 1 : 0)) * th);
+              ctx.scale(i & 1 ? -1 : 1, jj & 1 ? -1 : 1);
+              ctx.drawImage(img, 0, 0, tw, th);
+              ctx.restore();
+            }
+            ctx.globalAlpha = prevA;
+          }
+        } else { ctx.fillStyle = agua ? "#5fa8a6" : "#b99b78"; ctx.fill(); }
+        ctx.restore();
+        pathOf(p.pts, b, ctx); ctx.lineWidth = 1.4; ctx.strokeStyle = agua ? "rgba(18,86,100,.85)" : "rgba(98,70,42,.85)"; ctx.stroke();
+      });
+      // la linea de suelo es una guia: solo se ve mientras se esta dibujando
+      if (mode && suelo.length >= 2) {
+        const sp = suelo.map(q => toPx(q, b));
+        ctx.beginPath(); sp.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]));
+        ctx.lineJoin = "round"; ctx.lineCap = "round";
+        ctx.lineWidth = 3.6; ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.stroke();
+        ctx.lineWidth = 1.6; ctx.strokeStyle = "#7c4a1e"; ctx.setLineDash([7, 4]); ctx.stroke(); ctx.setLineDash([]);
+      }
+      if (cur && cur.pts.length) {
+        const col = cur.tipo === "agua" ? "#0e7490" : (cur.tipo === "suelo" ? "#7c4a1e" : "#92400e");
+        const pts = cur.pts.map(q => toPx(q, b));
+        ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]));
+        if (mouse) ctx.lineTo(mouse[0], mouse[1]);
+        ctx.setLineDash([6, 4]); ctx.lineWidth = 1.8; ctx.strokeStyle = col; ctx.stroke(); ctx.setLineDash([]);
+        pts.forEach((q, i) => { ctx.beginPath(); ctx.arc(q[0], q[1], i === 0 ? 5.5 : 3.4, 0, Math.PI * 2); ctx.fillStyle = i === 0 ? "#fff" : col; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = col; ctx.stroke(); });
+      }
+    }
+    function codeText() {
+      const f = n => Number(n).toFixed(4);
+      const body = polys.map(p => "    { tipo: \"" + p.tipo + "\", pts: [" + p.pts.map(q => "[" + f(q[0]) + ", " + f(q[1]) + "]").join(", ") + "] }").join(",\n");
+      let t = "// CORTE (" + cfg.label + ") -- coordenadas normalizadas 0-1 sobre la imagen del corte\nCORTE_POLIGONOS_FIJOS." + cfg.id + " = [\n" + body + "\n];";
+      if (!cfg.noSuelo) t += "\nCORTE_SUELO_FIJO." + cfg.id + " = [" + suelo.map(q => "[" + f(q[0]) + ", " + f(q[1]) + "]").join(", ") + "];";
+      return t;
+    }
+    // ---- barra de herramientas ----
+    const bar = document.createElement("div");
+    bar.style.cssText = cfg.barStyle;
+    const BTN = "display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:7px; border:1px solid rgba(255,255,255,.24); background:rgba(255,255,255,.08); color:#fff; font:600 11px 'Segoe UI',sans-serif; cursor:pointer; white-space:nowrap;";
+    bar.innerHTML = '<div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">'
+      + '<button type="button" data-a="agua" title="Dibujar polígono de agua" style="' + BTN + '"><i class="fa-solid fa-droplet"></i> Polígono de agua</button>'
+      + '<button type="button" data-a="tierra" title="Dibujar polígono de tierra" style="' + BTN + '"><i class="fa-solid fa-mountain"></i> Polígono de tierra</button>'
+      + (cfg.noSuelo ? '' : '<button type="button" data-a="suelo" title="Línea del suelo: la lluvia y los animales no pasan de ella" style="' + BTN + '"><i class="fa-solid fa-grip-lines"></i> Línea de suelo</button>')
+      + '<button type="button" data-a="cerrar" title="Terminar (Enter)" style="' + BTN + '"><i class="fa-solid fa-check"></i></button>'
+      + '<button type="button" data-a="undo" title="Deshacer (clic derecho)" style="' + BTN + '"><i class="fa-solid fa-rotate-left"></i></button>'
+      + '<button type="button" data-a="clear" title="Borrar todo" style="' + BTN + '"><i class="fa-solid fa-trash"></i></button>'
+      + '<button type="button" data-a="copy" title="Copiar coordenadas" style="' + BTN + '"><i class="fa-solid fa-copy"></i> <span data-role="copylabel">Copiar coordenadas</span></button>'
+      + '</div>'
+      + (cfg.showText ? '<div style="margin-top:6px; font:500 10px \'Segoe UI\',sans-serif; color:#cbd3dc; line-height:1.4;">Clic: poner puntos · Mayús (Shift): a 90° · doble clic o Enter: terminar · clic derecho: deshacer</div><textarea data-role="out" readonly spellcheck="false" rows="5" style="margin-top:6px; width:300px; max-width:60vw; background:#0b0c0f; color:#8fd4c8; border:1px solid rgba(255,255,255,.16); border-radius:6px; font:10px/1.35 monospace; padding:6px; resize:vertical;"></textarea>' : '');
+    if (!cfg.noBar) (cfg.barParent || host).appendChild(bar);
+    const out = bar.querySelector('[data-role="out"]');
+    const btnAgua = bar.querySelector('[data-a="agua"]'), btnTierra = bar.querySelector('[data-a="tierra"]'), btnSuelo = bar.querySelector('[data-a="suelo"]');
+    function refreshUi() {
+      btnAgua.style.background = mode === "agua" ? "#0e7490" : "rgba(255,255,255,.08)";
+      btnTierra.style.background = mode === "tierra" ? "#92400e" : "rgba(255,255,255,.08)";
+      if (btnSuelo) btnSuelo.style.background = mode === "suelo" ? "#7c4a1e" : "rgba(255,255,255,.08)";
+      if (out) out.value = codeText();
+    }
+    function closeCur() {
+      if (cur) {
+        if (cur.tipo === "suelo") {
+          if (cur.pts.length >= 2) {
+            suelo = cur.pts.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]); pushSuelo(); save();
+            mode = null; cur = null; cv.style.pointerEvents = "none"; cv.style.cursor = "";
+          }
+        } else if (cur.pts.length >= 3) {
+          polys.push({ tipo: cur.tipo, pts: cur.pts.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]) });
+          save();
+          cur = { tipo: mode, pts: [] }; // sigue en el mismo modo para dibujar otro del mismo tipo
+        }
+      }
+      refreshUi(); draw();
+    }
+    function setMode(t) {
+      if (mode === t) { if (cur && cur.pts.length >= minPts(t)) closeCur(); mode = null; cur = null; }
+      else { mode = t; cur = { tipo: t, pts: [] }; }
+      mouse = null;
+      cv.style.pointerEvents = mode ? "auto" : "none";
+      cv.style.cursor = mode ? "crosshair" : "";
+      refreshUi(); draw();
+    }
+    function undo() {
+      if (cur && cur.pts.length) cur.pts.pop();
+      else if (polys.length) { polys.pop(); save(); }
+      refreshUi(); draw();
+    }
+    function copy() {
+      const txt = codeText();
+      const done = () => { const l = bar.querySelector('[data-role="copylabel"]'); if (l) { const old = l.textContent; l.textContent = "¡Copiado!"; setTimeout(() => { l.textContent = old; }, 1400); } };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(() => { if (out) { out.select(); document.execCommand("copy"); } done(); });
+      else { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); done(); }
+    }
+    bar.addEventListener("click", e => {
+      const a = e.target.closest("[data-a]");
+      if (!a) return;
+      e.stopPropagation();
+      const k = a.dataset.a;
+      if (k === "agua" || k === "tierra" || k === "suelo") setMode(k);
+      else if (k === "cerrar") closeCur();
+      else if (k === "undo") undo();
+      else if (k === "clear") { polys = []; suelo = []; pushSuelo(); cur = mode ? { tipo: mode, pts: [] } : null; save(); refreshUi(); draw(); }
+      else if (k === "copy") copy();
+    });
+    bar.addEventListener("pointerdown", e => e.stopPropagation());
+    function local(e) { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+    cv.addEventListener("pointerdown", e => {
+      if (!mode || e.button !== 0 || !cur) return;
+      e.preventDefault(); e.stopPropagation();
+      const raw = local(e), b = box();
+      if (cur.tipo !== "suelo" && cur.pts.length >= 3) { const f = toPx(cur.pts[0], b); if (Math.hypot(f[0] - raw[0], f[1] - raw[1]) < 10) { closeCur(); return; } }
+      const sn = snapPx(raw[0], raw[1], e.shiftKey);
+      cur.pts.push(toUV(sn[0], sn[1], b));
+      refreshUi(); draw();
+    });
+    cv.addEventListener("pointermove", e => { if (!mode) return; rawMouse = local(e); mouse = snapPx(rawMouse[0], rawMouse[1], e.shiftKey); draw(); });
+    cv.addEventListener("dblclick", e => { if (!mode || !cur) return; e.preventDefault(); e.stopPropagation(); if (cur.pts.length >= minPts(cur.tipo) + 1) cur.pts.pop(); closeCur(); });
+    cv.addEventListener("contextmenu", e => { if (!mode) return; e.preventDefault(); undo(); });
+    document.addEventListener("keydown", e => {
+      if (!mode) return;
+      if (e.key === "Enter") closeCur();
+      else if (e.key === "Escape") { cur = { tipo: mode, pts: [] }; refreshUi(); draw(); }
+      else if (e.key === "Shift" && rawMouse) { mouse = snapPx(rawMouse[0], rawMouse[1], true); draw(); }
+    });
+    document.addEventListener("keyup", e => { if (mode && e.key === "Shift" && rawMouse) { mouse = rawMouse; draw(); } });
+    if (window.ResizeObserver) new ResizeObserver(() => draw()).observe(host);
+    if (cfg.imgEl) cfg.imgEl.addEventListener("load", draw);
+    refreshUi(); draw();
+    // ---- PECES: nadan MUY pequenos dentro de cada poligono de AGUA ----
+    const fishCv = document.createElement("canvas");
+    fishCv.style.cssText = "position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:" + (cfg.z || 0) + ";";
+    if (cfg.before && cfg.before.parentNode === host) host.insertBefore(fishCv, cfg.before); else host.appendChild(fishCv);
+    let fishes = [], fishSig = "", fishLastT = 0;
+    function scanIntervals(pts, y) {
+      const xs = [];
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i], c = pts[(i + 1) % pts.length];
+        if ((a[1] <= y && c[1] > y) || (c[1] <= y && a[1] > y)) xs.push(a[0] + (y - a[1]) * (c[0] - a[0]) / (c[1] - a[1]));
+      }
+      xs.sort((u, v) => u - v);
+      const out = [];
+      for (let i = 0; i + 1 < xs.length; i += 2) out.push([xs[i], xs[i + 1]]);
+      return out;
+    }
+    function polyAreaPx(pts) { let s = 0; for (let i = 0; i < pts.length; i++) { const a = pts[i], c = pts[(i + 1) % pts.length]; s += a[0] * c[1] - c[0] * a[1]; } return Math.abs(s) / 2; }
+    function makeFish(waters) {
+      const out = [];
+      waters.forEach((pts, wi) => {
+        const n = Math.max(3, Math.min(16, Math.round(polyAreaPx(pts) / 1300)));
+        for (let i = 0; i < n; i++) out.push({ wi, row: 0.2 + Math.random() * 0.6, t: Math.random(), dir: Math.random() < 0.5 ? -1 : 1, speed: 7 + Math.random() * 14, sizeR: Math.random(), species: Math.random() < 0.4 ? 0 : 1, phase: Math.random() * 6.28 });
+      });
+      return out;
+    }
+    function fishLoop(t) {
+      const W = host.clientWidth, H = host.clientHeight;
+      if (W && H) {
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        if (fishCv.width !== Math.round(W * dpr) || fishCv.height !== Math.round(H * dpr)) { fishCv.width = Math.round(W * dpr); fishCv.height = Math.round(H * dpr); }
+        const ctx = fishCv.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+        const b = box();
+        const waters = (b.w && b.h) ? polys.filter(pl => pl.tipo === "agua" && pl.pts.length >= 3).map(pl => pl.pts.map(q => toPx(q, b))) : [];
+        if (waters.length && corteFishDefs.every(d => d.img.complete && d.img.naturalWidth)) {
+          const sig = waters.map(pp => pp.map(q => q[0].toFixed(0) + "," + q[1].toFixed(0)).join(";")).join("|");
+          if (sig !== fishSig) { fishSig = sig; fishes = makeFish(waters); }
+          const dt = fishLastT ? Math.min(0.05, (t - fishLastT) / 1000) : 0.016; fishLastT = t;
+          const time = t / 1000;
+          waters.forEach((pts, wi) => {
+            const ys = pts.map(q => q[1]), ymin = Math.min(...ys), ph = Math.max(...ys) - ymin;
+            ctx.save(); ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.closePath(); ctx.clip();
+            fishes.forEach(f => {
+              if (f.wi !== wi) return;
+              const def = corteFishDefs[f.species], ratio = def.img.naturalHeight / def.img.naturalWidth;
+              const y = ymin + f.row * ph, iv = scanIntervals(pts, y).sort((u, v) => (v[1] - v[0]) - (u[1] - u[0]))[0];
+              if (!iv) return;
+              let wpx = Math.min(b.w * (0.0064 + 0.0056 * f.sizeR) * (def.k || 1), (ph * 0.8) / ratio); wpx = Math.max(wpx, 5);
+              const hpx = wpx * ratio, x0 = iv[0] + wpx * 0.6, x1 = iv[1] - wpx * 0.6;
+              if (x1 - x0 < wpx) return;
+              f.t += f.dir * f.speed * dt / (x1 - x0);
+              if (f.t > 1) { f.t = 1; f.dir = -1; } else if (f.t < 0) { f.t = 0; f.dir = 1; }
+              const x = x0 + f.t * (x1 - x0), yy = y + Math.sin(time * 1.6 + f.phase) * Math.min(1.2, ph * 0.08);
+              ctx.save(); ctx.translate(x, yy); ctx.rotate(Math.sin(time * 9 + f.phase) * 0.05); ctx.scale((f.dir > 0) === def.faceRight ? 1 : -1, 1);
+              ctx.globalAlpha = 0.95; ctx.drawImage(def.img, -wpx / 2, -hpx / 2, wpx, hpx); ctx.restore();
+            });
+            ctx.restore();
+          });
+        } else { fishSig = ""; fishes = []; }
+      }
+      requestAnimationFrame(fishLoop);
+    }
+    requestAnimationFrame(fishLoop);
+    return { draw, get polys() { return polys; } };
+  }
+  (function initCortePolyTools() {
+    const dynStage = document.getElementById("dynSecStage"), dynImg = document.getElementById("dynSecBaseImg");
+    if (dynStage && dynImg) {
+      corteTools.push(createPolyTool({
+        id: "dyn", label: "corte dinámico", key: "corte_poly_dyn_v3", host: dynStage, before: document.getElementById("dynSecBirdsSvg"), z: 0,
+        fijos: CORTE_POLIGONOS_FIJOS.dyn, noSuelo: true, showText: false, noBar: true, sinTextura: true, imgEl: dynImg, barParent: document.getElementById("dynamicSectionOverlay"),
+        getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; },
+        barStyle: "position:absolute; top:78px; left:18px; z-index:20; padding:9px 10px; border-radius:10px; background:rgba(17,20,24,.92); border:1px solid rgba(255,255,255,.14); box-shadow:0 8px 24px rgba(0,0,0,.25);"
+      }));
+    }
+    if (window.crearConectografiaCorte && dynStage && dynImg) {
+      window.__cxApi = window.crearConectografiaCorte({
+        host: dynStage, imgEl: dynImg, uiParent: document.getElementById("dynamicSectionOverlay"),
+        getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; }
+      });
+    }
+    const secWrap = document.getElementById("sectionWrap");
+    if (secWrap) {
+      corteTools.push(createPolyTool({
+        id: "sec", label: "corte inferior", key: "corte_poly_sec_v2", host: secWrap, before: document.getElementById("sectionBirdStage"), z: 7,
+        fijos: CORTE_POLIGONOS_FIJOS.sec, fijosSuelo: CORTE_SUELO_FIJO.sec, showText: false, barParent: secWrap,
+        barStyle: "position:absolute; top:6px; right:10px; z-index:12; padding:5px 6px; border-radius:9px; background:rgba(17,20,24,.88); border:1px solid rgba(255,255,255,.14);"
+      }));
+    }
+  })();
+
   function startNatWaterAnimation() {
     if (natWaterAnimFrame) cancelAnimationFrame(natWaterAnimFrame);
     function loopWater() {
@@ -3687,17 +4292,15 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     natWaterAnimFrame = requestAnimationFrame(loopWater);
   }
 
-    function closeNaturalExplode() {
-    const lp = document.getElementById("legendPanel"); if (lp) lp.style.display = "none";
-    const cp = document.getElementById("natClimatePanel"); if (cp) cp.style.display = "none";
-    const secWrap = document.getElementById("sectionWrap"); if (secWrap) secWrap.style.display = "none";
+  function closeNaturalExplode() {
+    setNatRain(false);
     const p = document.getElementById("escalaZoomPanel");
     if (p) p.style.display = "none";
     const l = document.getElementById("legendActiveLayer");
     if (l) l.style.display = "none";
     if (!natOverlay) return;
     const sceneWrapRestore = document.getElementById("sceneWrap");
-    if (sceneWrapRestore) sceneWrapRestore.style.display = "block";
+    // if (sceneWrapRestore) sceneWrapRestore.style.display = "block"; // volver a la vista 3D en vivo (antes solo lo hacia openTechExplode, por eso Natural y Cultural se quedaban en blanco)
     if (natWaterAnimFrame) { cancelAnimationFrame(natWaterAnimFrame); natWaterAnimFrame = null; }
     const sublayers = natOverlay.querySelectorAll(".nat-sublayer");
     sublayers.forEach(l => {
@@ -3707,6 +4310,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (natLayerContext) natLayerContext.style.opacity = "0";
     if (natYearPlaying) stopNatPlayYear();
 
+    // Restaurar inmediatamente el viewport del 3D general
     const origW = wrap.clientWidth, origH = wrap.clientHeight;
     renderer.setSize(origW, origH, false);
     const restoreAspect = origW / origH;
@@ -3719,10 +4323,9 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     setTimeout(() => {
       natOverlay.style.display = "none";
       unzoomAll();
-      const lluvia = [3, 4, 5, 10, 11].includes(mainBurroMes);
-      setLluviaActiva(lluvia);
     }, 400);
   }
+
   if (natBackBtn) natBackBtn.addEventListener("click", closeNaturalExplode);
 
   // ============================================================
@@ -3911,6 +4514,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   let techTime = 0;
   
   function openTechExplode() {
+    if (typeof applyLabelPosition === "function") applyLabelPosition(); // titulo de capa en el mismo lugar que las primeras 4
     const lp = document.getElementById("legendPanel");
     if (lp) lp.style.display = "block";
     const cp = document.getElementById("natClimatePanel");
@@ -4005,6 +4609,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   }
 
   function updateTechLayersStep(animated = true) {
+    updateDynamicLegend();
     const sublayers = [techLayer1, techLayer2, techLayer3, techLayer4];
     const tags = techOverlay.querySelectorAll(".tech-layer-tag");
 
@@ -4188,8 +4793,6 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   }
 
   function closeTechExplode() {
-    const lp = document.getElementById("legendPanel"); if (lp) lp.style.display = "none";
-    const secWrap = document.getElementById("sectionWrap"); if (secWrap) secWrap.style.display = "none";
     const p = document.getElementById("escalaZoomPanel");
     if (p) p.style.display = "none";
     const l = document.getElementById("legendActiveLayer");
@@ -4753,57 +5356,171 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   // (Sauco/Capuli/Urapan) que ya se identifican al dibujar la capa. ----
   let natMirlaTreePts = [];
   let natMirlaBirds = null, natMirlaRaf = null;
+  // ---- MIRLAS 2D (capa 2): atraccion REAL a los arboles Saúco/Capulí/Urapán ----
+  // Antes: 5 puntos de ~6px que saltaban entre arboles al azar y reaparecian
+  // en otro lado. Ahora cada mirla es un agente independiente (no andan en
+  // manada) con estados: VUELA hacia un arbol concreto -> se POSA y se queda
+  // (mas tiempo en el Saúco, que es su alimento favorito) -> elige OTRO arbol
+  // (nunca el mismo dos veces seguidas, preferencia por los cercanos y por
+  // los de mas peso) o SALE por el borde de la pantalla y vuelve a entrar
+  // desde otro lado. El arbol donde hay una mirla se ilumina con su color.
+  function natMirlaPickTree(fx, fy, exclude, occupied) {
+    const pts = natMirlaTreePts;
+    if (!pts.length) return null;
+    let cand = pts.filter(t => (!exclude || t.key !== exclude.key) && !occupied.has(t.key));
+    if (!cand.length) cand = pts.filter(t => !exclude || t.key !== exclude.key);
+    if (!cand.length) cand = pts;
+    cand = cand.map(t => ({ t, d: Math.hypot(t.x - fx, t.y - fy) })).sort((a, b) => a.d - b.d).slice(0, 10);
+    let sum = 0;
+    cand.forEach(c => { c.wt = (c.t.w * c.t.w) / (1 + c.d / 90); sum += c.wt; });
+    let r = Math.random() * sum;
+    for (const c of cand) { r -= c.wt; if (r <= 0) return c.t; }
+    return cand[0].t;
+  }
+  function natMirlaPerchTime(t) { return t.esp === "sauco" ? 6 + Math.random() * 5 : (t.esp === "capuli" ? 4 + Math.random() * 3.5 : 2.5 + Math.random() * 2); }
+  function natMirlaEdgePoint(W, H) {
+    const side = Math.floor(Math.random() * 4), m = 24;
+    if (side === 0) return { x: -m, y: Math.random() * H };
+    if (side === 1) return { x: W + m, y: Math.random() * H };
+    if (side === 2) return { x: Math.random() * W, y: -m };
+    return { x: Math.random() * W, y: H + m };
+  }
   function startNatMirlaAnim() {
     const canvas = document.getElementById("natMirlaCanvas");
     if (!canvas) return;
-    if (natMirlaRaf) cancelAnimationFrame(natMirlaRaf);
+    if (natMirlaRaf) return; // ya corriendo: no se reinicia (evitaba que las mirlas "saltaran" en cada paso)
     const dpr = Math.min(2, window.devicePixelRatio || 1);
+    let W = 720, H = 405;
     function resize() {
       const r = canvas.getBoundingClientRect();
-      canvas.width = Math.round((r.width || 720) * dpr);
-      canvas.height = Math.round((r.height || 405) * dpr);
+      W = r.width || 720; H = r.height || 405;
+      const cw = Math.round(W * dpr), ch = Math.round(H * dpr);
+      if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
     }
     resize();
     const ctx = canvas.getContext("2d");
-    if (!natMirlaBirds || natMirlaBirds.length === 0) {
-      natMirlaBirds = Array.from({ length: 5 }, (_, i) => ({ dur: 5 + Math.random() * 2, phase: Math.random() * 6 }));
+    const N = 9;
+    let last = performance.now();
+    function ease(k) { return k * k * (3 - 2 * k); }
+    function occupiedSet() {
+      const s = new Set();
+      natMirlaBirds.forEach(b => { if (b.tree && (b.state === "perch" || b.state === "fly")) s.add(b.tree.key); });
+      return s;
     }
-    const start = performance.now();
-    function smoothK(k) { return k * k * (3 - 2 * k); }
+    function startFlightTo(b, tree, fromX, fromY, now) {
+      const dist = Math.hypot(tree.x - fromX, tree.y - fromY);
+      b.state = "fly"; b.tree = tree;
+      b.fx = fromX; b.fy = fromY; b.t0 = now;
+      b.dur = Math.max(0.9, Math.min(3.8, dist / (80 + Math.random() * 30)));
+      b.arc = Math.min(16, dist * 0.12) * (Math.random() < 0.5 ? -1 : 1);
+    }
+    function initBirds(now) {
+      natMirlaBirds = [];
+      for (let i = 0; i < N; i++) {
+        const b = { id: i, phase: Math.random() * 6.28, x: 0, y: 0, dir: 1, state: "wait", tree: null, until: 0 };
+        natMirlaBirds.push(b);
+        const occ = occupiedSet();
+        const tree = natMirlaPickTree(Math.random() * W, Math.random() * H, null, occ);
+        if (!tree) continue;
+        if (i < 4) { // unas ya estan posadas en sus arboles
+          b.state = "perch"; b.tree = tree; b.x = tree.x; b.y = tree.y; b.until = now + (0.5 + Math.random() * 5) * 1000;
+        } else {     // otras llegan desde afuera de la pantalla
+          const e = natMirlaEdgePoint(W, H);
+          startFlightTo(b, tree, e.x, e.y, now + i * 450);
+          b.x = e.x; b.y = e.y; b.state = "wait"; b.until = now + i * 450;
+        }
+      }
+    }
+    function drawBird(x, y, dir, flapping, tSec, phase, perched) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(dir, 1);
+      const wy = perched ? -1.5 : Math.sin(tSec * 20 + phase) * 6 - 2.5;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(-5, wy * 0.5, -10, wy);
+      ctx.quadraticCurveTo(-5, 1.8, 0, 2.4);
+      ctx.quadraticCurveTo(5, 1.8, 10, wy);
+      ctx.quadraticCurveTo(5, wy * 0.5, 0, 0);
+      ctx.closePath();
+      ctx.fillStyle = "#14161b";
+      ctx.fill();
+      ctx.lineWidth = 1.1; ctx.strokeStyle = "rgba(255,255,255,0.92)"; ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(0, 1.2, 4.2, 2.6, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "#14161b"; ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(4.6, 0.6, 1.6, 0, Math.PI * 2); ctx.fillStyle = "#14161b"; ctx.fill(); // cabeza
+      ctx.restore();
+    }
     function loop(now) {
-      const tSec = (now - start) / 1000;
-      ctx.resetTransform(); ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (natMirlaTreePts.length >= 2) {
-        natMirlaBirds.forEach((b, i) => {
-          const t = ((tSec + b.phase) % b.dur) / b.dur;
-          // Llega al arbol (0-30%), se queda posada (30-70%), sale (70-100%)
-          const cycleIdx = Math.floor((tSec + b.phase) / b.dur);
-          if (b._cycleIdx !== cycleIdx || !b.fromPt) {
-            b._cycleIdx = cycleIdx;
-            b.fromPt = natMirlaTreePts[Math.floor(Math.random() * natMirlaTreePts.length)];
-            b.toPt = natMirlaTreePts[Math.floor(Math.random() * natMirlaTreePts.length)];
+      resize();
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const tSec = now / 1000;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      if (natMirlaTreePts.length >= 1) {
+        if (!natMirlaBirds || natMirlaBirds.length === 0) initBirds(now);
+        const ringed = new Set();
+        natMirlaBirds.forEach(b => {
+          if (b.state === "wait") {
+            if (now >= b.until) { b.state = "fly"; b.t0 = now; } else return;
           }
-          let x, y, flapping;
-          if (t < 0.3) {
-            const k = smoothK(t / 0.3);
-            x = b.fromPt.x + (b.toPt.x - b.fromPt.x) * k;
-            y = b.fromPt.y + (b.toPt.y - b.fromPt.y) * k - Math.sin(k * Math.PI) * 10;
-            flapping = true;
-          } else if (t < 0.7) {
-            x = b.toPt.x; y = b.toPt.y; flapping = false; // posada quieta
-          } else {
-            const k = smoothK((t - 0.7) / 0.3);
-            x = b.toPt.x; y = b.toPt.y - k * 12; // se eleva y desaparece
-            flapping = true;
+          if (b.state === "perch") {
+            const tr = b.tree;
+            ringed.add(tr.key);
+            // hay un arbol "vivo" (puede haberse re-dibujado): se re-ancla por su clave
+            const live = natMirlaTreePts.find(t => t.key === tr.key);
+            if (live) { b.tree = live; b.x = live.x; b.y = live.y; }
+            if (now >= b.until) {
+              if (Math.random() < 0.22) { // sale por un borde y vuelve a entrar desde otro lado
+                const out = natMirlaEdgePoint(W, H);
+                b.state = "exit"; b.fx = b.x; b.fy = b.y; b.tx = out.x; b.ty = out.y; b.t0 = now;
+                b.dur = Math.max(1.2, Math.hypot(out.x - b.x, out.y - b.y) / 95);
+              } else {
+                const next = natMirlaPickTree(b.x, b.y, b.tree, occupiedSet());
+                if (next) startFlightTo(b, next, b.x, b.y, now);
+                else { b.until = now + 2000; drawBird(b.x, b.y - 1.5, b.dir, false, tSec, b.phase, true); return; }
+              }
+            } else {
+              drawBird(b.x, b.y - 1.5 + Math.sin(tSec * 3 + b.phase) * 0.4, b.dir, false, tSec, b.phase, true);
+              return;
+            }
           }
-          const s = flapping ? (1 - Math.abs(Math.sin(tSec * 10 + i)) * 0.3) : 1;
-          ctx.beginPath();
-          ctx.moveTo(x - 3.2, y);
-          ctx.quadraticCurveTo(x, y - 2.6 * s, x + 3.2, y);
-          ctx.quadraticCurveTo(x, y - 0.8 * s, x - 3.2, y);
-          ctx.fillStyle = "#1c1c1c";
-          ctx.fill();
+          if (b.state === "exit") {
+            const k = Math.min(1, ((now - b.t0) / 1000) / b.dur);
+            const e = ease(k);
+            b.x = b.fx + (b.tx - b.fx) * e; b.y = b.fy + (b.ty - b.fy) * e;
+            b.dir = (b.tx - b.fx) >= 0 ? 1 : -1;
+            drawBird(b.x, b.y, b.dir, true, tSec, b.phase, false);
+            if (k >= 1) { // espera fuera de pantalla y vuelve a entrar desde otro borde
+              const tree = natMirlaPickTree(Math.random() * W, Math.random() * H, b.tree, occupiedSet());
+              const en = natMirlaEdgePoint(W, H);
+              if (tree) { startFlightTo(b, tree, en.x, en.y, now + 1200 + Math.random() * 2500); b.state = "wait"; b.until = now + 1200 + Math.random() * 2500; b.x = en.x; b.y = en.y; }
+            }
+            return;
+          }
+          if (b.state === "fly") {
+            const tr = natMirlaTreePts.find(t => t.key === b.tree.key) || b.tree;
+            const k = Math.min(1, ((now - b.t0) / 1000) / b.dur);
+            const e = ease(k);
+            const dx = tr.x - b.fx, dy = tr.y - b.fy;
+            const len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len, ny = dx / len; // perpendicular, para curvar la trayectoria
+            const bow = Math.sin(k * Math.PI) * b.arc;
+            b.x = b.fx + dx * e + nx * bow; b.y = b.fy + dy * e + ny * bow;
+            if (Math.abs(dx) > 2) b.dir = dx >= 0 ? 1 : -1;
+            drawBird(b.x, b.y, b.dir, true, tSec, b.phase, false);
+            if (k >= 1) { b.state = "perch"; b.tree = tr; b.x = tr.x; b.y = tr.y; b.until = now + natMirlaPerchTime(tr) * 1000; }
+          }
+        });
+        // el arbol que tiene una mirla encima se ilumina con el color de su especie
+        ringed.forEach(key => {
+          const tr = natMirlaTreePts.find(t => t.key === key);
+          if (!tr) return;
+          const pulse = 0.5 + 0.5 * Math.sin(tSec * 4);
+          ctx.beginPath(); ctx.arc(tr.x, tr.y, tr.r + 4 + pulse * 4, 0, Math.PI * 2);
+          ctx.fillStyle = tr.color; ctx.globalAlpha = 0.22 + pulse * 0.12; ctx.fill(); ctx.globalAlpha = 1;
+          ctx.beginPath(); ctx.arc(tr.x, tr.y, tr.r + 3, 0, Math.PI * 2);
+          ctx.lineWidth = 1.6; ctx.strokeStyle = tr.color; ctx.stroke();
         });
       }
       natMirlaRaf = requestAnimationFrame(loop);
@@ -4813,6 +5530,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   function stopNatMirlaAnim() {
     if (natMirlaRaf) cancelAnimationFrame(natMirlaRaf);
     natMirlaRaf = null;
+    natMirlaBirds = null;
     const canvas = document.getElementById("natMirlaCanvas");
     if (canvas) { const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, canvas.width, canvas.height); }
   }
@@ -4951,7 +5669,15 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
         // Se guarda la posicion en pantalla para que las mirlas (abajo)
         // sepan a que arboles volar, igual que en el corte 3D.
         if (espLower.includes("sauco") || espLower.includes("saúco") || espLower.includes("cerezo") || espLower.includes("capul") || espLower.includes("urapan") || espLower.includes("urapán") || espLower.includes("fresno")) {
-          natMirlaTreePts.push({ x: pt.x, y: pt.y });
+          const esSauco = espLower.includes("sauco") || espLower.includes("saúco");
+          const esCapuli = espLower.includes("cerezo") || espLower.includes("capul");
+          natMirlaTreePts.push({
+            x: pt.x, y: pt.y, key: Math.round(pt.x) + "," + Math.round(pt.y),
+            esp: esSauco ? "sauco" : (esCapuli ? "capuli" : "urapan"),
+            w: esSauco ? 1.0 : (esCapuli ? 0.76 : 0.52),            // mismos pesos de atraccion que la simulacion 3D
+            color: esSauco ? "#b06bff" : (esCapuli ? "#ff5fa8" : "#a3e635"),
+            r: r,
+          });
         }
       });
     }
@@ -5670,6 +6396,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   let isSotElevated = false;
 
   function openCulturalExplode() {
+    if (typeof applyLabelPosition === "function") applyLabelPosition(); // titulo de capa en el mismo lugar que las primeras 4
     const lp = document.getElementById("legendPanel");
     if (lp) lp.style.display = "block";
     const cp = document.getElementById("natClimatePanel");
@@ -5767,8 +6494,6 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   }
 
   function closeCulturalExplode() {
-    const lp = document.getElementById("legendPanel"); if (lp) lp.style.display = "none";
-    const secWrap = document.getElementById("sectionWrap"); if (secWrap) secWrap.style.display = "none";
     const p = document.getElementById("escalaZoomPanel");
     if (p) p.style.display = "none";
     const l = document.getElementById("legendActiveLayer");
