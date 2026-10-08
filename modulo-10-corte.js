@@ -363,11 +363,23 @@
   if (dynamicSectionBtn) dynamicSectionBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     if (dynamicSectionOverlay) dynamicSectionOverlay.style.display = "block";
-    // Importante: el overlay debe estar visible ANTES de medir el
-    // tamaño real de la imagen (antes se media con el overlay aun
-    // oculto, dando 0x0 y sprites invisibles). Un frame de margen para
-    // que el navegador aplique el layout.
-    requestAnimationFrame(() => requestAnimationFrame(buildDynamicSection));
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        buildDynamicSection();
+        const dynStage = document.getElementById("dynSecStage");
+        const dynImg = document.getElementById("dynSecBaseImg");
+        if (window.crearConectografiaCorte && dynStage && dynImg) {
+          if (!window.__cxApi) {
+            window.__cxApi = window.crearConectografiaCorte({
+              host: dynStage, imgEl: dynImg, uiParent: document.getElementById("dynamicSectionOverlay"),
+              getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; }
+            });
+          } else if (window.__cxApi && window.__cxApi.render) {
+            window.__cxApi.render();
+          }
+        }
+      });
+    });
   });
   if (dynamicSectionClose) dynamicSectionClose.addEventListener("click", (e) => {
     e.stopPropagation();

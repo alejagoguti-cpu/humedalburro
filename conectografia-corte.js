@@ -21,9 +21,9 @@
     { id: "escarabajos", t: "Escarabajos coprófagos", s: "descomponedores", cat: "inv", img: "assets/cx_escarabajo.png", kind: "cut", w: 260, h: 190, pos: [0.6839, 0.6571] },
     { id: "rana", t: "Rana sabanera", s: "Dendropsophus labialis", cat: "anf", img: "assets/cx_rana.png", kind: "cut", w: 240, h: 153, pos: [0.4984, 0.5543] },
     { id: "enea", t: "Enea / Junco", s: "Typha latifolia", cat: "flora", img: "assets/cx_enea.png", kind: "cut", w: 215, h: 240, pos: [0.6045, 0.775] },
-    { id: "capuli", t: "Capulí", s: "Prunus serotina", cat: "flora", img: "assets/cx_capuli.png", kind: "cut", w: 214, h: 240, pos: [0.4105, 0.45] },
+    { id: "capuli", t: "Capulí", s: "Prunus serotina", cat: "flora", img: "assets/cx_capuli.png", kind: "cut", w: 0.4105, h: 0.45, pos: [0.4105, 0.45] },
     { id: "sauco", t: "Saúco", s: "Sambucus nigra", cat: "flora", img: "assets/cx_sauco.png", kind: "cut", w: 240, h: 234, pos: [0.14, 0.647] },
-    { id: "urapan", t: "Urapán", s: "Fraxinus chinensis", cat: "flora", img: "assets/cx_urapan.png", kind: "cut", w: 0.5017, h: 0.33, pos: [0.5017, 0.33] },
+    { id: "urapan", t: "Urapán", s: "Fraxinus chinensis", cat: "flora", img: "assets/cx_urapan.png", kind: "cut", w: 240, h: 240, pos: [0.5017, 0.33] },
     { id: "sauce", t: "Sauce llorón", s: "Salix humboldtiana", cat: "flora", img: "assets/cx_sauce.png", kind: "cut", w: 150, h: 260, pos: [0.14, 0.775] },
     { id: "chilco", t: "Chilco", s: "Baccharis bogotensis", cat: "flora", img: "assets/cx_chilco.png", kind: "cut", w: 240, h: 156, pos: [0.2761, 0.5309] },
     { id: "buchon", t: "Buchón de agua", s: "Eichhornia crassipes", cat: "flora", img: "assets/cx_buchon.png", kind: "circle", w: 240, h: 240, pos: [0.6419, 0.5105] },
@@ -93,6 +93,10 @@
       document.head.appendChild(st);
     }
 
+    // Limpiar previo SVG y panel UI si existen
+    host.querySelectorAll(".cx-red").forEach(e => e.remove());
+    if (cfg.uiParent) cfg.uiParent.querySelectorAll(".cx-ui-panel").forEach(e => e.remove());
+
     const svg = el("svg", { class: "cx-red" });
     svg.style.cssText = "position:absolute; inset:0; width:100%; height:100%; z-index:10; pointer-events:none; overflow:visible;";
     const defs = el("defs");
@@ -112,6 +116,8 @@
     // Nodos
     let drag = null, hover = null;
     const nodeEls = {};
+    const lastP = {};
+
     NODOS.forEach((n, idx) => {
       const g = el("g", { class: "cx-node-group" });
       const t = el("title"); t.textContent = n.t + (n.s ? " (" + n.s + ")" : ""); g.appendChild(t);
@@ -131,20 +137,24 @@
       g.addEventListener("pointermove", e => {
         if (drag !== n.id) return;
         const r = svg.getBoundingClientRect(), b = cfg.getBox();
-        pos[n.id] = [Math.min(1, Math.max(0, (e.clientX - r.left - b.l) / b.w)), Math.min(1, Math.max(0, (e.clientY - r.top - b.t) / b.h))];
-        place(b);
+        if (b && b.w > 0) {
+          pos[n.id] = [Math.min(1, Math.max(0, (e.clientX - r.left - b.l) / b.w)), Math.min(1, Math.max(0, (e.clientY - r.top - b.t) / b.h))];
+          place(b);
+        }
       });
       const end = e => { if (drag !== n.id) return; drag = null; g.style.cursor = "grab"; try { sessionStorage.setItem(KEY, JSON.stringify(pos)); } catch (er) {} };
       g.addEventListener("pointerup", end); g.addEventListener("pointercancel", end);
 
       g.addEventListener("pointerenter", () => {
         hover = n.id;
-        g.style.transform = `translate(${lastP[n.id].x.toFixed(1)}px, ${lastP[n.id].y.toFixed(1)}px) scale(1.32)`;
+        const lp = lastP[n.id];
+        if (lp) g.style.transform = `translate(${lp.x.toFixed(1)}px, ${lp.y.toFixed(1)}px) scale(1.32)`;
         resalta();
       });
       g.addEventListener("pointerleave", () => {
         hover = null;
-        g.style.transform = `translate(${lastP[n.id].x.toFixed(1)}px, ${lastP[n.id].y.toFixed(1)}px) scale(1)`;
+        const lp = lastP[n.id];
+        if (lp) g.style.transform = `translate(${lp.x.toFixed(1)}px, ${lp.y.toFixed(1)}px) scale(1)`;
         resalta();
       });
     });
@@ -168,14 +178,13 @@
       const k = base / Math.max(n.w, n.h); return [n.w * k, n.h * k];
     }
 
-    const lastP = {};
     function place(b) {
-      if (!b || !b.w) return;
+      if (!b || !b.w || b.w <= 0) return;
       const fs = Math.max(9, b.w * 0.0062), sw = Math.max(1.4, b.w * 0.0011);
       NODOS.forEach(n => {
         const [w, h] = size(n, b), e = nodeEls[n.id], x = b.l + pos[n.id][0] * b.w, y = b.t + pos[n.id][1] * b.h;
         lastP[n.id] = { x, y, r: n.kind === "circle" ? w / 2 : Math.hypot(w, h) * 0.30 + 3 };
-        if (hover !== n.id) {
+        if (hover !== n.id && drag !== n.id) {
           e.g.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) scale(1)";
         }
         if (e.w !== w) {
@@ -208,15 +217,22 @@
     function loopFaunaAnim(t) {
       animTime += 0.018;
       const b = cfg.getBox();
-      if (b && b.w) {
+      if (b && b.w > 0) {
+        // Garantizar que la posición base esté calculada una vez la vista es visible
+        if (!lastP[NODOS[0].id]) {
+          place(b);
+        }
+
         // 1. Respiración orgánica suave en la red
         NODOS.forEach(n => {
           if (drag === n.id || hover === n.id) return;
-          const e = nodeEls[n.id]; if (!e || !lastP[n.id]) return;
+          const e = nodeEls[n.id];
+          const lp = lastP[n.id];
+          if (!e || !lp) return;
           const phase = e.phase;
           const ox = Math.sin(animTime * 1.1 + phase) * 2.5;
           const oy = Math.cos(animTime * 0.95 + phase) * 2.5;
-          e.g.style.transform = `translate(${(lastP[n.id].x + ox).toFixed(1)}px, ${(lastP[n.id].y + oy).toFixed(1)}px) scale(1)`;
+          e.g.style.transform = `translate(${(lp.x + ox).toFixed(1)}px, ${(lp.y + oy).toFixed(1)}px) scale(1)`;
         });
 
         // 2. Garza volando, pescando un pez en el agua y elevándose
@@ -224,7 +240,7 @@
         const gWing = Math.floor(animTime * 9) % 2 === 0 ? "assets/vuelo_garza_1.png" : "assets/vuelo_garza_2.png";
         garzaImg.setAttribute("href", gWing);
 
-        let gx = 0, gy = 0, gScale = 1, hasFish = false;
+        let gx = 0, gy = 0, hasFish = false;
         if (cycleG < 0.45) { // entra volando desde la izquierda hacia el agua
           const progress = cycleG / 0.45;
           gx = b.l + b.w * (-0.1 + progress * 0.55);
@@ -245,7 +261,7 @@
           pezPescado.setAttribute("y", "42");
         }
 
-        # 3. Tinguas nadando y aleteando suavemente cerca del juncal
+        // 3. Tinguas nadando y aleteando suavemente cerca del juncal
         const cycleT = (animTime * 0.35) % 1;
         const tFrame = Math.floor(animTime * 6) % 3 + 1;
         tinguaImg.setAttribute("href", `assets/vuelo_tingua_${tFrame}.png`);
@@ -269,6 +285,7 @@ POS_FIJAS = {
 
     if (cfg.uiParent) {
       const ui = document.createElement("div");
+      ui.className = "cx-ui-panel";
       ui.style.cssText = "position:absolute; top:78px; left:18px; z-index:20; width:228px; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,.93); border:1px solid #d5dbe1; box-shadow:0 6px 20px rgba(0,0,0,.10); font:500 11px 'Segoe UI',sans-serif; color:#1e293b;";
       const BTN = "padding:5px 9px; border-radius:6px; border:1px solid #c5ccd3; background:#fff; color:#1e293b; font:600 11px 'Segoe UI',sans-serif; cursor:pointer;";
       const leyenda = [["verde", "Soporte, nidificación, frugivoría, polinización"], ["amarillo", "Depredación por aves"], ["rojo", "Depredación exótica, parasitismo, asfixia"], ["azul", "Alimentación acuática"], ["turquesa", "Procesos microbiológicos, eutrofización"]];
