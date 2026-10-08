@@ -2814,8 +2814,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     { x: 6508.8, y: 4106.2 },
   ];
   const fixedPolySvg = document.createElementNS(SVGNS, "polygon");
-  fixedPolySvg.setAttribute("fill", "#0a0a0a");
-  fixedPolySvg.setAttribute("stroke", "#0a0a0a");
+  fixedPolySvg.setAttribute("fill", "none");
+  fixedPolySvg.setAttribute("stroke", "rgba(36,200,189,0.7)");
   fixedPolySvg.setAttribute("stroke-width", "2.5");
   document.getElementById("fixedPolySvgOverlay").appendChild(fixedPolySvg);
   const fixedProjVec = new THREE.Vector3();
