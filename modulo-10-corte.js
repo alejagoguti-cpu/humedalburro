@@ -119,6 +119,24 @@
         sectionControls.addEventListener("change", updateBotBox);
       }
       if (sectionControls) sectionControls.target.set(182.4, 4.2, -35.7);
+      // Restaurar coordenadas fijadas por el usuario si existen
+      try {
+        const saved = JSON.parse(localStorage.getItem("burro_corte_coords") || "null");
+        if (saved && saved.camPos) {
+          sectionCamera.position.set(saved.camPos[0], saved.camPos[1], saved.camPos[2]);
+          if (saved.camTarget && sectionControls) sectionControls.target.set(saved.camTarget[0], saved.camTarget[1], saved.camTarget[2]);
+          if (saved.zoom) sectionCamera.zoom = saved.zoom;
+          if (saved.rot && botRot) botRot.value = saved.rot;
+          if (saved.xMin && botXMin) botXMin.value = saved.xMin;
+          if (saved.xMax && botXMax) botXMax.value = saved.xMax;
+          if (saved.yMin && botYMin) botYMin.value = saved.yMin;
+          if (saved.yMax && botYMax) botYMax.value = saved.yMax;
+          if (saved.zMin && botZMin) botZMin.value = saved.zMin;
+          if (saved.zMax && botZMax) botZMax.value = saved.zMax;
+          const ind = document.getElementById("savedIndicator");
+          if (ind) ind.style.display = "inline";
+        }
+      } catch (e) {}
       resizeSectionView();
       sectionCamera.updateProjectionMatrix();
     }
@@ -4267,14 +4285,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
         getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; }
       });
     }
-    const secWrap = document.getElementById("sectionWrap");
-    if (secWrap) {
-      corteTools.push(createPolyTool({
-        id: "sec", label: "corte inferior", key: "corte_poly_sec_v2", host: secWrap, before: document.getElementById("sectionBirdStage"), z: 7,
-        fijos: CORTE_POLIGONOS_FIJOS.sec, fijosSuelo: CORTE_SUELO_FIJO.sec, showText: false, barParent: secWrap,
-        barStyle: "position:absolute; top:6px; right:10px; z-index:12; padding:5px 6px; border-radius:9px; background:rgba(17,20,24,.88); border:1px solid rgba(255,255,255,.14);"
-      }));
-    }
+    // Herramientas de poligonos eliminadas del corte inferior segun solicitado
   })();
 
   function startNatWaterAnimation() {
