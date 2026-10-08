@@ -2544,7 +2544,8 @@
       if (buildingEdgeMat && prevEdgeOpacity !== null) buildingEdgeMat.opacity = prevEdgeOpacity;
     }
     updateTechLiveMirror();
-    updateTechCorteOverlay(); // si el panel de escala tecnologica esta abierto, "espeja" los carros y el ruido en vivo dentro de sus 2 subcapas (en vez de una foto fija)
+    updateTechCorteOverlay();
+    updateCultCorteOverlay(); // cerramiento de la capa 2 cultural en el corte de abajo // si el panel de escala tecnologica esta abierto, "espeja" los carros y el ruido en vivo dentro de sus 2 subcapas (en vez de una foto fija)
   }
   // ---- Caja de seccion: 6 planos de recorte (X min/max, Y min/max, Z
   // min/max) para cortar el modelo y ver el interior, como una caja de
@@ -4396,6 +4397,39 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   let techLiveViewSize = null; // se fija cuando se abre el panel, para poder "espejar" con el mismo encuadre 16:9 exacto
   let techTrafficGrid = null, techFloodCars = null, techSewerNet = null;
   
+
+  // ---- Cultural capa 2 (cerramiento): se dibuja tambien en el corte de
+  // abajo: puntos negros (postes de la reja) alrededor del humedal y el
+  // borde del humedal trazandose animado. ----
+  function updateCultCorteOverlay() {
+    const corteCanvas = document.getElementById("corteRainCanvas");
+    const cultOv = document.getElementById("culturalExplodeOverlay");
+    if (!corteCanvas || !cultOv || cultOv.style.display === "none" || !cultOv.style.display) return;
+    const l2 = document.getElementById("cultLayer2");
+    if (!l2 || parseFloat(l2.style.opacity || "0") < 0.1) return;
+    const bp = burroPts(); if (!bp || typeof sectionCamera === "undefined") return;
+    const rect = corteCanvas.getBoundingClientRect(); const w = rect.width, h = rect.height; if (w <= 0 || h <= 0) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (corteCanvas.width !== Math.round(w * dpr) || corteCanvas.height !== Math.round(h * dpr)) { corteCanvas.width = Math.round(w * dpr); corteCanvas.height = Math.round(h * dpr); }
+    const ctx = corteCanvas.getContext("2d"); ctx.resetTransform(); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, w, h);
+    corteCanvas.style.opacity = "1";
+    sectionCamera.updateMatrixWorld();
+    const v = new THREE.Vector3();
+    const proj = (x, y, el) => { const s = toScene(x, y); v.set(s.x, el, s.z).project(sectionCamera); return { x: (v.x * 0.5 + 0.5) * w, y: (-v.y * 0.5 + 0.5) * h, ok: v.z < 1 && v.x > -1.2 && v.x < 1.2 && v.y > -1.2 && v.y < 1.2 }; };
+    // borde del humedal trazandose (se dibuja poco a poco y vuelve a empezar)
+    const borde = bp.concat([bp[0]]).map(p => proj(p[0], p[1], 0.3));
+    const frac = (performance.now() % 6000) / 6000;
+    const hasta = Math.max(2, Math.floor(borde.length * frac));
+    ctx.strokeStyle = "rgba(15,23,42,0.85)"; ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.lineDashOffset = -performance.now() / 60;
+    ctx.beginPath(); borde.slice(0, hasta).forEach((s, i) => i ? ctx.lineTo(s.x, s.y) : ctx.moveTo(s.x, s.y)); ctx.stroke(); ctx.setLineDash([]);
+    // reja: puntos negros cada ~14 m alrededor del humedal
+    const reja = typeof offsetPoly === "function" ? offsetPoly(bp, 12) : bp;
+    ctx.fillStyle = "#0a0a0a";
+    for (let i = 0; i < reja.length; i++) {
+      const a = reja[i], b = reja[(i + 1) % reja.length], d = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.round(d / 14));
+      for (let k = 0; k < n; k++) { const s = proj(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n, 0.4); if (s.ok) { ctx.beginPath(); ctx.arc(s.x, s.y, 2, 0, Math.PI * 2); ctx.fill(); } }
+    }
+  }
   function updateTechCorteOverlay() {
     const corteCanvas = document.getElementById("corteRainCanvas");
     const techOverlay = document.getElementById("techExplodeOverlay");
@@ -4565,6 +4599,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (techNoiseCanvas) {
       scene.background = null; // transparente
       renderer.setClearColor(0x000000, 0);
+      const soloRuido = []; sceneRoot.traverse(o => { if ((o.isMesh || o.isLine || o.isPoints || o.isSprite) && o !== noiseMesh && o !== vehInstanced && o.visible) { soloRuido.push(o); o.visible = false; } }); // sin techos, fachadas ni terreno: solo el ruido y los carros
       const roadVisPrev = currentRoadMeshes.map(m => m ? m.visible : null);
       currentRoadMeshes.forEach(m => { if (m) m.visible = false; });
       if (vehInstanced) { vehInstanced.visible = true; renderVehiclesAt(currentTime); }
@@ -4578,43 +4613,59 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       const ctx2 = techNoiseCanvas.getContext("2d");
       ctx2.clearRect(0, 0, techNoiseCanvas.width, techNoiseCanvas.height);
       ctx2.drawImage(renderer.domElement, 0, 0, techNoiseCanvas.width, techNoiseCanvas.height);
+      soloRuido.forEach(o => { o.visible = true; });
       currentRoadMeshes.forEach((m, i) => { if (m) m.visible = roadVisPrev[i]; });
       renderer.setClearColor(0x000000, 1);
     }
 
-    // Capa 3: INUNDACION Y COLAPSO DE MOVILIDAD (ciclo de ~18 s)
+    // Capa 3: CANALES E INUNDACIONES. El suelo natural se reemplazo por
+    // canales de concreto (Castilla, Los Angeles) y un cajon bajo la Av.
+    // Ciudad de Cali. El cajon es fijo: con las lluvias se satura, el agua
+    // sale a la via y el trafico colapsa (+2 h). Ciclo de ~20 s.
     if (techFloodCanvas && rawWaterData) {
       const { ctx, w, h, P } = prepCultCanvas(techFloodCanvas);
       const bp = burroPts();
       if (bp) {
-        const AV_CALI = [[7640, 4090], [7337, 3821], [7040, 3552], [6859, 3412], [6560, 3180]]; // Av. Ciudad de Cali (via mayor al noroccidente del humedal)
-        const T = (performance.now() % 18000) / 18000;
-        const nivel = T < 0.6 ? T / 0.6 : T < 0.85 ? 1 : 1 - (T - 0.85) / 0.15; // sube, se mantiene, baja
-        const avance = 30 + nivel * 520; // metros de offset del borde (la ronda hidraulica es 30 m)
-        // buffer real: el humedal relleno + un trazo redondeado de 2*avance de ancho
-        // (nunca se enreda, a diferencia del offset por vertices con avances grandes)
-        const c0 = P(bp[0][0], bp[0][1]), c1 = P(bp[0][0] + 100, bp[0][1]), c2 = P(bp[0][0], bp[0][1] + 100);
-        const pxPorM = (Math.hypot(c1.x - c0.x, c1.y - c0.y) + Math.hypot(c2.x - c0.x, c2.y - c0.y)) / 200;
-        const distAlHumedal = (x, y) => { if (ptInPoly(x, y, bp)) return 0; let m = 1e9; for (let i = 0; i < bp.length; i++) { const a = bp[i], b = bp[(i + 1) % bp.length], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L2)); m = Math.min(m, Math.hypot(x - a[0] - t * dx, y - a[1] - t * dy)); } return m; };
-        const inund = { has: (x, y) => distAlHumedal(x, y) <= avance };
-        const cubreVia = AV_CALI.some(p => inund.has(p[0], p[1]));
-        ctx.save(); polyPath(ctx, bp, P); ctx.lineJoin = "round"; ctx.lineWidth = 2 * avance * pxPorM; ctx.strokeStyle = "rgba(59,130,246,.30)"; ctx.stroke(); ctx.fillStyle = "rgba(59,130,246,.30)"; ctx.fill(); ctx.restore();
-        polyPath(ctx, offsetPoly(bp, 30), P); ctx.setLineDash([4, 3]); ctx.strokeStyle = "#0f172a"; ctx.stroke(); ctx.setLineDash([]);
-        polyPath(ctx, bp, P); ctx.fillStyle = "rgba(30,64,120,.55)"; ctx.fill();
-        // la avenida y sus carros: rapidos si esta seca, casi quietos y en rojo si esta inundada
-        ctx.strokeStyle = "#111418"; ctx.lineWidth = 3; ctx.beginPath(); AV_CALI.forEach((p, i) => { const s = P(p[0], p[1]); i ? ctx.lineTo(s.x, s.y) : ctx.moveTo(s.x, s.y); }); ctx.stroke();
+        const AV_CALI = [[7640, 4090], [7337, 3821], [7040, 3552], [6859, 3412], [6560, 3180]];
+        const T = (performance.now() % 20000) / 20000;
+        const lluvia = T > 0.2 && T < 0.8;
+        const llenado = T < 0.2 ? 0.25 : T < 0.55 ? 0.25 + (T - 0.2) / 0.35 * 0.75 : T < 0.8 ? 1 : 1 - (T - 0.8) / 0.2 * 0.75; // 0..1 capacidad del cajon
+        const saturado = llenado >= 0.99;
+        // humedal (suelo natural que quedo)
+        polyPath(ctx, bp, P); ctx.fillStyle = "rgba(30,64,120,.45)"; ctx.fill();
+        // canales de concreto: estructura rigida (borde gris grueso)
+        const canales = rawWaterData.filter(b => /Castilla|Angeles|Ángeles/i.test(b.nombre || ""));
+        canales.forEach(cn => {
+          polyPath(ctx, cn.pts, P); ctx.fillStyle = "rgba(59,130,246,.45)"; ctx.fill(); ctx.strokeStyle = "#6b7280"; ctx.lineWidth = 2.2; ctx.stroke();
+          const t = performance.now() / 1000, n = cn.pts.length; // agua corriendo por el canal hacia el cajon
+          for (let k = 0; k < 12; k++) { const f = (t * (lluvia ? 0.16 : 0.07) + k / 12) % 1, p = cn.pts[Math.floor(f * (n - 1))], q = P(p[0], p[1], 0.1); ctx.fillStyle = "#1d4ed8"; ctx.beginPath(); ctx.arc(q.x, q.y, 1.6, 0, 7); ctx.fill(); }
+          const c0 = P(cn.pts[0][0], cn.pts[0][1]); smallLabel(ctx, cn.nombre + " (concreto)", c0.x + 6, c0.y);
+        });
+        // avenida
+        ctx.strokeStyle = "#111418"; ctx.lineWidth = 3; ctx.beginPath(); AV_CALI.forEach((p, i) => { const q = P(p[0], p[1]); i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y); }); ctx.stroke();
+        // cajon de concreto: punto de la avenida mas cercano al humedal
+        const bcx = bp.reduce((a, p) => a + p[0], 0) / bp.length, bcy = bp.reduce((a, p) => a + p[1], 0) / bp.length;
+        let caj = AV_CALI[0], bd = 1e18; for (let i = 0; i < AV_CALI.length - 1; i++) for (let k = 0; k <= 20; k++) { const x = AV_CALI[i][0] + (AV_CALI[i + 1][0] - AV_CALI[i][0]) * k / 20, y = AV_CALI[i][1] + (AV_CALI[i + 1][1] - AV_CALI[i][1]) * k / 20, d = (x - bcx) ** 2 + (y - bcy) ** 2; if (d < bd) { bd = d; caj = [x, y]; } }
+        const cs = P(caj[0], caj[1]);
+        ctx.fillStyle = "#9ca3af"; ctx.strokeStyle = "#111418"; ctx.lineWidth = 1; ctx.fillRect(cs.x - 14, cs.y - 6, 28, 12); ctx.strokeRect(cs.x - 14, cs.y - 6, 28, 12);
+        ctx.fillStyle = saturado ? "#dc2626" : "#2563eb"; ctx.fillRect(cs.x - 13, cs.y + 5 - 10 * llenado, 26, 10 * llenado); // nivel dentro del cajon
+        smallLabel(ctx, `Cajón bajo la Av. Ciudad de Cali · ${Math.round(llenado * 100)}% ${saturado ? "· SATURADO" : ""}`, cs.x + 18, cs.y - 8);
+        // lluvia
+        if (lluvia) { ctx.strokeStyle = "rgba(59,130,246,.45)"; ctx.lineWidth = 1; for (let k = 0; k < 70; k++) { const x = (k * 97 + performance.now() * 0.05) % w, y = (k * 53 + performance.now() * 0.25) % h; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 2, y + 7); ctx.stroke(); } }
+        // desborde sobre la via cuando el cajon se satura
+        const desborde = saturado ? Math.min(1, (T - 0.55) / 0.15) : T >= 0.8 ? Math.max(0, 1 - (T - 0.8) / 0.12) : 0;
+        if (desborde > 0) { ctx.fillStyle = "rgba(59,130,246,.35)"; ctx.beginPath(); ctx.ellipse(cs.x, cs.y, 60 * desborde, 26 * desborde, -0.5, 0, 7); ctx.fill(); }
+        // carros en la avenida: se detienen cuando la via esta inundada
         techFloodCars = techFloodCars || Array.from({ length: 26 }, (_, i) => ({ u: i / 26 }));
         let L = 0; const seg = []; for (let i = 0; i < AV_CALI.length - 1; i++) { const d = Math.hypot(AV_CALI[i + 1][0] - AV_CALI[i][0], AV_CALI[i + 1][1] - AV_CALI[i][1]); seg.push(d); L += d; }
         techFloodCars.forEach(c => {
-          let x, y, dd = c.u * L, i = 0; while (i < seg.length - 1 && dd > seg[i]) { dd -= seg[i]; i++; }
-          const r = Math.min(1, dd / seg[i]); x = AV_CALI[i][0] + (AV_CALI[i + 1][0] - AV_CALI[i][0]) * r; y = AV_CALI[i][1] + (AV_CALI[i + 1][1] - AV_CALI[i][1]) * r;
-          const mojado = inund.has(x, y);
-          c.u = (c.u + (mojado ? 0.00008 : 0.0016)) % 1; // < 10 km/h dentro del agua
-          const s = P(x, y, 0.2); ctx.fillStyle = mojado ? "#dc2626" : "#ffffff"; ctx.strokeStyle = "#111418"; ctx.lineWidth = 0.7;
-          ctx.beginPath(); ctx.arc(s.x, s.y, 2.2, 0, 7); ctx.fill(); ctx.stroke();
+          let dd = c.u * L, i = 0; while (i < seg.length - 1 && dd > seg[i]) { dd -= seg[i]; i++; }
+          const r = Math.min(1, dd / seg[i]), x = AV_CALI[i][0] + (AV_CALI[i + 1][0] - AV_CALI[i][0]) * r, y = AV_CALI[i][1] + (AV_CALI[i + 1][1] - AV_CALI[i][1]) * r;
+          const atascado = desborde > 0.3 && Math.hypot(x - caj[0], y - caj[1]) < 700;
+          c.u = (c.u + (atascado ? 0.00005 : 0.0016)) % 1;
+          const q = P(x, y, 0.2); ctx.fillStyle = atascado ? "#dc2626" : "#ffffff"; ctx.strokeStyle = "#111418"; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.arc(q.x, q.y, 2.2, 0, 7); ctx.fill(); ctx.stroke();
         });
-        smallLabel(ctx, cubreVia ? "Lámina de agua sobre la Av. Ciudad de Cali · velocidad < 10 km/h · TAD +2 h" : "Lluvias: la lámina de agua crece sobre la Ronda Hidráulica (30 m)", 10, 16);
-        smallLabel(ctx, "UPZ Castilla y Calandaima afectadas", 10, 30);
+        smallLabel(ctx, saturado ? "El cajón de concreto no se adapta a la crecida: la vía se inunda · retrasos de más de 2 h" : lluvia ? "Lluvias: el agua de los canales llena el cajón de concreto" : "Suelo natural reemplazado por asfalto y canales de concreto", 10, 16);
       }
     }
 
@@ -4824,7 +4875,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (techExplodeStep % 2 === 0 && techExplodeStep <= 8) {
       techOverlay.querySelectorAll(".sublayer-diamond").forEach(dd => { dd.style.background = "transparent"; dd.style.boxShadow = "none"; dd.style.borderColor = "transparent"; });
       const settledIdx = (techExplodeStep / 2) - 1;
-      const nextNames = ["Capa 2: Simulación de Ruido", "Capa 3: Inundación y Movilidad", "Capa 4: Alcantarillado", "Ver Apilamiento Explotado Completo"];
+      const nextNames = ["Capa 2: Simulación de Ruido", "Capa 3: Canales e Inundaciones", "Capa 4: Alcantarillado", "Ver Apilamiento Explotado Completo"];
 
       if (techLayerBase) { techLayerBase.style.top = "50%"; techLayerBase.style.opacity = "1"; techLayerBase.style.transform = "translate(-50%, -40%)"; }
       sublayers.forEach((l, index) => {
@@ -4901,6 +4952,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   function drawTechGuideLines() {
     if (!techGuideSvg || !techOverlay) return;
     techGuideSvg.innerHTML = "";
+    return; // sin flechas guia en Tecnologica (pedido de la usuaria); el titulo de la capa queda en la etiqueta lateral como en las demas
     const SVGNS = "http://www.w3.org/2000/svg";
     const layerBase = techLayerBase;
     if (!layerBase) return;
@@ -7125,6 +7177,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   // ------------------------------------------------------------
 
   // Capa 1: Memoria Histórica (1950–2024)
+  let cultCareSince = 0;
   function renderCulturalCapaOld1(year) {
     if (!cultLayer1Canvas) return;
     const rect = cultLayer1Canvas.getBoundingClientRect();
@@ -7161,56 +7214,44 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
 
         const histPts = burro.pts.map(p => [cx + (p[0] - cx) * scaleFactor, cy + (p[1] - cy) * scaleFactor]);
         const scrHist = histPts.map(p => projectPoint(p[0], p[1]));
-
-        ctx.beginPath();
-        ctx.moveTo(scrHist[0].x, scrHist[0].y);
-        for (let i = 1; i < scrHist.length; i++) ctx.lineTo(scrHist[i].x, scrHist[i].y);
-        ctx.closePath();
-
-        if (year < 1990) {
-          ctx.fillStyle = "rgba(217, 119, 6, 0.35)";
-          ctx.fill();
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = "#b45309";
-          ctx.stroke();
-        } else {
-          ctx.fillStyle = "rgba(147, 51, 234, 0.30)";
-          ctx.fill();
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = "#7e22ce";
-          ctx.stroke();
-        }
-
-        const isCareNode = year >= 2000;
-        const numAgents = 14;
-        for (let a = 0; a < numAgents; a++) {
-          const ang = (a / numAgents) * Math.PI * 2 + cultTime * (isCareNode ? 0.2 : 0.8);
-          const radDist = isCareNode ? 45 : (30 + Math.sin(cultTime * 3 + a) * 15);
-          const agPt = projectPoint(cx + Math.cos(ang) * radDist * 10, cy + Math.sin(ang) * radDist * 10);
-
-          if (agPt.inFront) {
-            ctx.beginPath();
-            ctx.arc(agPt.x, agPt.y, isCareNode ? 5 : 4, 0, Math.PI * 2);
-            if (isCareNode) ctx.fillStyle = "#16a34a"; else return;
-            ctx.fill();
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = "#ffffff";
-            ctx.stroke();
-
-            if (isCareNode) {
-              ctx.beginPath();
-              ctx.arc(agPt.x, agPt.y, 8 + Math.sin(cultTime * 4 + a) * 3, 0, Math.PI * 2);
-              ctx.strokeStyle = "rgba(22, 163, 74, 0.4)";
-              ctx.lineWidth = 1;
-              ctx.stroke();
+        // Se dibuja en el SVG (no en el lienzo) para que el humedal historico
+        // NUNCA salga recortado por los bordes de la capa.
+        if (cultLayer1Svg) {
+          const SVGNS0 = "http://www.w3.org/2000/svg";
+          cultLayer1Svg.innerHTML = "";
+          const path = document.createElementNS(SVGNS0, "path");
+          path.setAttribute("d", "M " + scrHist.map(s => `${s.x.toFixed(1)} ${s.y.toFixed(1)}`).join(" L ") + " Z");
+          path.setAttribute("fill", year < 1990 ? "rgba(217,119,6,0.35)" : "rgba(147,51,234,0.30)");
+          path.setAttribute("stroke", year < 1990 ? "#b45309" : "#7e22ce");
+          path.setAttribute("stroke-width", "1.5");
+          cultLayer1Svg.appendChild(path);
+          // Nodos de cuidado comunitario: repartidos por el BORDE del humedal
+          // (perimetrales) y apareciendo uno a uno
+          if (year >= 2000) {
+            if (!cultCareSince) cultCareSince = performance.now();
+            const N = 18, per = [];
+            let L = 0; const segL = histPts.map((p, i) => { const q = histPts[(i + 1) % histPts.length]; const d = Math.hypot(q[0] - p[0], q[1] - p[1]); L += d; return d; });
+            for (let k = 0; k < N; k++) {
+              let dd = (k / N) * L, i = 0; while (i < segL.length - 1 && dd > segL[i]) { dd -= segL[i]; i++; }
+              const p = histPts[i], q = histPts[(i + 1) % histPts.length], r = segL[i] ? dd / segL[i] : 0;
+              per.push(projectPoint(p[0] + (q[0] - p[0]) * r, p[1] + (q[1] - p[1]) * r));
             }
-          }
+            const visibles = Math.min(N, Math.floor((performance.now() - cultCareSince) / 280) + 1);
+            per.slice(0, visibles).forEach((s, a) => {
+              const halo = document.createElementNS(SVGNS0, "circle");
+              halo.setAttribute("cx", s.x); halo.setAttribute("cy", s.y); halo.setAttribute("r", (8 + Math.sin(cultTime * 4 + a) * 2.5).toFixed(1));
+              halo.setAttribute("fill", "none"); halo.setAttribute("stroke", "rgba(22,163,74,0.4)"); halo.setAttribute("stroke-width", "1");
+              const dot = document.createElementNS(SVGNS0, "circle");
+              dot.setAttribute("cx", s.x); dot.setAttribute("cy", s.y); dot.setAttribute("r", "5");
+              dot.setAttribute("fill", "#16a34a"); dot.setAttribute("stroke", "#ffffff"); dot.setAttribute("stroke-width", "1");
+              cultLayer1Svg.appendChild(halo); cultLayer1Svg.appendChild(dot);
+            });
+          } else cultCareSince = 0;
         }
       }
     }
 
     if (cultLayer1Svg) {
-      cultLayer1Svg.innerHTML = "";
       const SVGNS = "http://www.w3.org/2000/svg";
       const centerPt = projectPoint(7518.49, 3137.57);
       if (centerPt.inFront) {

@@ -565,11 +565,11 @@
 
       <!-- Contenedor central apilado estilo referente (líneas punteadas y capas suspendidas) -->
       <div id="natExplodeStage" style="position:relative; width:min(96vw, 940px); height:min(86vh, 720px); display:flex; align-items:center; justify-content:center; margin-top:20px;">
-        <div id="natStackRainWrap" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; transform:translate(-50%, -40%); z-index:30; pointer-events:none; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"><canvas id="natStackRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity .6s ease;"></canvas></div>
+        <div id="natStackRainWrap" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; transform:translate(-50%, -40%); z-index:30; pointer-events:none; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"><canvas id="natStackRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity .6s ease;"></canvas></div>
         <svg id="natGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
 
         <!-- Capa 1: Sistema Inerte y Límite Físico-Hidrológico -->
-        <div id="natLayerWater" class="nat-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="natLayerWater" class="nat-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; overflow:visible; position:relative; background:transparent; box-shadow:none; border:none; position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <img id="natWaterImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="natWaterCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
@@ -585,7 +585,7 @@
         </div>
 
         <!-- Capa 2: Cobertura Vegetal y Zonificación Florística -->
-        <div id="natLayer2" class="nat-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="natLayer2" class="nat-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <img id="natVegImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="natVegCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
@@ -601,7 +601,7 @@
         </div>
 
         <!-- Capa 3: Agentes Faunísticos y Dinámicas Estacionales de Aves -->
-        <div id="natLayer3" class="nat-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="natLayer3" class="nat-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <img id="natBirdImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="natBirdCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
@@ -616,7 +616,7 @@
         </div>
 
         <!-- Capa 4: Límite Corológico e Intercambio Genético Macro-regional -->
-        <div id="natLayer4" class="nat-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="natLayer4" class="nat-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <img id="natMacroImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="natMacroCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
@@ -631,7 +631,7 @@
         </div>
 
         <!-- Capa Base inferior: Contexto existente / Corte base -->
-        <div id="natLayerBase" class="nat-sublayer" data-exploded-top="70%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="natLayerBase" class="nat-sublayer" data-exploded-top="70%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); cursor:pointer; position:relative; box-shadow:none; background:transparent;"><img id="natBaseImg" style="width:100%; height:100%; object-fit:fill;"></div>
           <!-- Etiqueta temática lateral exterior al rombo -->
           <div class="nat-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; z-index:10; opacity:1; transition:opacity .8s ease;">
@@ -676,7 +676,7 @@
         <svg id="cultGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
 
         <!-- Capa 1: Memoria Histórica -->
-        <div id="cultLayer1" class="cult-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="cultLayer1" class="cult-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
             <img id="cultLayer1Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="cultLayer1Canvas" style="width:100%; height:100%; display:block; position:relative; z-index:2;"></canvas>
@@ -690,7 +690,7 @@
         </div>
 
         <!-- Capa 2: Cerramiento EAAB & Borde Urbano -->
-        <div id="cultLayer2" class="cult-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="cultLayer2" class="cult-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
             <img id="cultLayer2Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="cultLayer2Canvas" style="width:100%; height:100%; display:block; position:relative; z-index:2;"></canvas>
@@ -704,7 +704,7 @@
         </div>
 
         <!-- Capa 3: Recorrido Pedagógico & Experiencia Sensorial -->
-        <div id="cultLayer3" class="cult-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="cultLayer3" class="cult-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
             <img id="cultLayer3Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="cultLayer3Canvas" style="width:100%; height:100%; display:block; position:relative; z-index:2;"></canvas>
@@ -718,7 +718,7 @@
         </div>
 
         <!-- Capa 4: Fricción Vial & Solución Adaptativa SOT -->
-        <div id="cultLayer4" class="cult-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="cultLayer4" class="cult-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
             <img id="cultLayer4Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="cultLayer4Canvas" style="width:100%; height:100%; display:block; position:relative; z-index:2;"></canvas>
@@ -732,7 +732,7 @@
         </div>
 
         <!-- Capa Base inferior -->
-        <div id="cultLayerBase" class="cult-sublayer" data-exploded-top="70%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="cultLayerBase" class="cult-sublayer" data-exploded-top="70%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); cursor:pointer; position:relative; box-shadow:none; background:transparent;"><img id="cultBaseImg" style="width:100%; height:100%; object-fit:fill;"></div>
           <div class="cult-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; z-index:10; opacity:1; transition:opacity .8s ease;">
             <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#64748b; background:#f1f5f9; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(100,116,139,.2);">Base</span>
@@ -764,7 +764,7 @@
         <svg id="techGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
 
         <!-- Capa 2: Simulación de Ruido Acústico -->
-        <div id="techLayer4" class="tech-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="techLayer4" class="tech-sublayer" data-exploded-top="26%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:6; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
             <img id="techL4Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="techSewerCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
@@ -777,7 +777,7 @@
           </div>
         </div>
 
-        <div id="techLayer3" class="tech-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="techLayer3" class="tech-sublayer" data-exploded-top="18%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:5; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
             <img id="techL3Img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="techFloodCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
@@ -785,12 +785,12 @@
           <svg id="techL3Svg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
           <div class="tech-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; pointer-events:none; z-index:10; opacity:0; transition:opacity .8s ease;">
             <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#0369a1; background:#f0f9ff; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(234,88,12,.25);">Capa 03</span>
-            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">INUNDACIÓN Y COLAPSO DE MOVILIDAD</div>
-            <div style="font-size:10px; color:#64748b; font-weight:600;">La lámina de agua supera la Ronda Hidráulica e invade la Av. Ciudad de Cali</div>
+            <div style="font-size:13.5px; font-weight:800; color:#1e293b; line-height:1.2; letter-spacing:-.01em;">CANALES E INUNDACIONES</div>
+            <div style="font-size:10px; color:#64748b; font-weight:600;">El cajón de concreto bajo la Av. Ciudad de Cali se satura y la vía colapsa</div>
           </div>
         </div>
 
-        <div id="techLayer2" class="tech-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="techLayer2" class="tech-sublayer" data-exploded-top="10%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:4; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
             <img id="techNoiseImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="techNoiseCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
@@ -804,7 +804,7 @@
         </div>
 
         <!-- Capa 1: Vías y Carros (Tráfico Vehicular) -->
-        <div id="techLayer1" class="tech-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="techLayer1" class="tech-sublayer" data-exploded-top="6%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:3; opacity:0; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:transparent; box-shadow:none;">
             <img id="techRoadsVehImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="techRoadsVehCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
@@ -818,7 +818,7 @@
         </div>
 
         <!-- Capa Base inferior -->
-        <div id="techLayerBase" class="tech-sublayer" data-exploded-top="72%" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
+        <div id="techLayerBase" class="tech-sublayer" data-exploded-top="72%" style="position:absolute; top:50%; left:50%; width:min(88vw, 980px); aspect-ratio:16/9; z-index:2; opacity:1; transform:translate(-50%, -40%); transition:top 1.8s cubic-bezier(.2,.85,.25,1), transform 1.8s cubic-bezier(.2,.85,.25,1), opacity 1.2s ease;">
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); cursor:pointer; position:relative; box-shadow:none; background:transparent;"><img id="techBaseImg" style="width:100%; height:100%; object-fit:fill;"></div>
           <div class="tech-layer-tag" style="position:absolute; top:50%; right:calc(100% + 10px); transform:translateY(-50%); font-family:'Segoe UI',sans-serif; text-align:right; white-space:nowrap; z-index:10; opacity:1; transition:opacity .8s ease;">
             <span style="display:inline-block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#64748b; background:#f1f5f9; padding:2px 7px; border-radius:4px; margin-bottom:3px; border:1px solid rgba(100,116,139,.2);">Base</span>
