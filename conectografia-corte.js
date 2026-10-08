@@ -1,6 +1,7 @@
 /* Red de interacciones bióticas sobre el CORTE DINÁMICO.
-   Con respiración orgánica de nodos, encendido/escalado al pasar el cursor,
-   líneas de interacción dinámicas y animación de Garzas pescando y Tinguas flotando. */
+   Con respiración orgánica amplificada de nodos, encendido/escalado al pasar el cursor,
+   líneas de interacción dinámicas, Modo Oscuro nocturno (botón 🌙),
+   animación de Garzas pescando, Tinguas aleteando y Pato Canadiense aterrizando. */
 (function () {
   "use strict";
   const NS = "http://www.w3.org/2000/svg";
@@ -85,8 +86,9 @@
         .cx-alas { transform-box: fill-box; transform-origin: 50% 65%; animation: cxAlas .12s ease-in-out infinite alternate; }
         @keyframes cxAlas { from { transform: scale(1,1); } to { transform: scale(1,.76) skewX(-2deg); } }
         .cx-txt { paint-order: stroke; stroke: rgba(255,255,255,.94); stroke-width: 3.2px; stroke-linejoin: round; font-family: 'Segoe UI', sans-serif; font-weight: 700; transition: transform .25s ease; }
+        .cx-dark .cx-txt { stroke: rgba(15, 23, 42, 0.95); fill: #f8fafc; }
         .cx-node-group { transition: transform .25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter .25s ease; cursor: grab; pointer-events: all; }
-        .cx-node-group:hover { filter: drop-shadow(0 0 10px rgba(42, 200, 189, 0.85)); }
+        .cx-node-group:hover { filter: drop-shadow(0 0 12px rgba(42, 200, 189, 0.95)); }
         .cx-line-active { stroke-dasharray: 6 3; animation: cxDash 0.8s linear infinite; }
         @keyframes cxDash { to { stroke-dashoffset: -18; } }
       `;
@@ -204,7 +206,7 @@
       });
     }
 
-    // ---- Animación de Fauna Viva en el Corte (Garza Pescadora y Tinguas Aleteando) ----
+    // ---- Animación de Fauna Viva en el Corte (Garza, Tinguas y Pato Canadiense) ----
     const garzaGroup = el("g", { style: "pointer-events:none;" });
     const garzaImg = el("image", { href: "assets/vuelo_garza_1.png", width: "70", height: "70" });
     const pezPescado = el("image", { href: "assets/pez_guppy.png", width: "24", height: "16", style: "display:none;" });
@@ -212,6 +214,10 @@
 
     const tinguaImg = el("image", { href: "assets/vuelo_tingua_1.png", width: "45", height: "45", style: "pointer-events:none;" });
     gFaunaAnim.appendChild(tinguaImg);
+
+    // Pato Canadiense volando desde la derecha y posándose en el agua
+    const patoImg = el("image", { href: "assets/vuelo_pato_1.png", width: "52", height: "52", style: "pointer-events:none;" });
+    gFaunaAnim.appendChild(patoImg);
 
     let animTime = 0;
     function loopFaunaAnim(t) {
@@ -222,15 +228,15 @@
           place(b);
         }
 
-        // 1. Respiración orgánica suave en la red
+        // 1. Respiración orgánica vibrante y fluida en la red (bolitas y especies)
         NODOS.forEach(n => {
           if (drag === n.id || hover === n.id) return;
           const e = nodeEls[n.id];
           const lp = lastP[n.id];
           if (!e || !lp) return;
           const phase = e.phase;
-          const ox = Math.sin(animTime * 1.1 + phase) * 2.5;
-          const oy = Math.cos(animTime * 0.95 + phase) * 2.5;
+          const ox = Math.sin(animTime * 1.35 + phase) * 4.2 + Math.cos(animTime * 0.8 + phase) * 1.8;
+          const oy = Math.cos(animTime * 1.15 + phase) * 4.2 + Math.sin(animTime * 0.9 + phase) * 1.8;
           e.g.setAttribute("transform", `translate(${(lp.x + ox).toFixed(1)}, ${(lp.y + oy).toFixed(1)})`);
         });
 
@@ -267,6 +273,29 @@
         const tx = b.l + b.w * (0.28 + Math.sin(cycleT * Math.PI * 2) * 0.08);
         const ty = b.t + b.h * (0.66 + Math.cos(cycleT * Math.PI * 2) * 0.015);
         tinguaImg.setAttribute("transform", `translate(${tx.toFixed(1)}, ${ty.toFixed(1)})`);
+
+        // 4. Pato Canadiense volando desde la derecha y posándose en el humedal
+        const cycleP = (animTime * 0.18) % 1; // ciclo completo de vuelo y posado ~35 seg
+        let px = 0, py = 0;
+        if (cycleP < 0.45) { // vuela desde la derecha bajando hacia el espejo de agua
+          const progress = cycleP / 0.45;
+          const pFrame = Math.floor(animTime * 10) % 2 === 0 ? "assets/vuelo_pato_1.png" : "assets/vuelo_pato_2.png";
+          patoImg.setAttribute("href", pFrame);
+          px = b.l + b.w * (1.12 - progress * 0.60);
+          py = b.t + b.h * (0.25 + Math.pow(progress, 1.4) * 0.47); // desciende suavemente a y=0.72
+        } else if (cycleP < 0.85) { // se posa sobre el agua y nada tranquilamente
+          const progress = (cycleP - 0.45) / 0.40;
+          patoImg.setAttribute("href", "assets/pato.png");
+          px = b.l + b.w * (0.52 - progress * 0.06);
+          py = b.t + b.h * 0.72 + Math.sin(animTime * 2.5) * 2; // flotación suave en el agua
+        } else { // despega hacia la izquierda y sale de pantalla
+          const progress = (cycleP - 0.85) / 0.15;
+          const pFrame = Math.floor(animTime * 10) % 2 === 0 ? "assets/vuelo_pato_1.png" : "assets/vuelo_pato_2.png";
+          patoImg.setAttribute("href", pFrame);
+          px = b.l + b.w * (0.46 - progress * 0.60);
+          py = b.t + b.h * (0.72 - Math.pow(progress, 0.8) * 0.55);
+        }
+        patoImg.setAttribute("transform", `translate(${px.toFixed(1)}, ${py.toFixed(1)})`);
       }
       requestAnimationFrame(loopFaunaAnim);
     }
@@ -278,7 +307,39 @@
       return "// CONECTOGRAFIA_POS (corte dinámico)\nPOS_FIJAS = {\n" + NODOS.map(n => "  " + n.id + ": [" + f(pos[n.id][0]) + ", " + f(pos[n.id][1]) + "]").join(",\n") + "\n};";
     }
 
+    // ---- Panel UI y Botón Chiquitito con Luna para Modo Oscuro ----
     if (cfg.uiParent) {
+      const overlay = cfg.uiParent;
+      let isDark = overlay.classList.contains("cx-dark");
+
+      // Botón chiquitito con Luna / Sol en la esquina superior derecha
+      overlay.querySelectorAll(".cx-dark-btn").forEach(e => e.remove());
+      const darkBtn = document.createElement("button");
+      darkBtn.type = "button";
+      darkBtn.className = "cx-dark-btn";
+      darkBtn.style.cssText = "position:absolute; top:18px; right:18px; z-index:550; padding:6px 12px; border-radius:18px; border:1px solid #d5dbe1; background:#ffffff; color:#1e293b; font:600 12px 'Segoe UI',sans-serif; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 3px 12px rgba(0,0,0,.12); transition:all .25s ease;";
+      
+      function applyTheme(dark) {
+        isDark = dark;
+        if (dark) {
+          overlay.classList.add("cx-dark");
+          overlay.style.background = "#0b0f19";
+          darkBtn.innerHTML = "<span>☀️</span> Modo claro";
+          darkBtn.style.background = "#1e293b";
+          darkBtn.style.color = "#f8fafc";
+          darkBtn.style.borderColor = "rgba(255,255,255,0.2)";
+        } else {
+          overlay.classList.remove("cx-dark");
+          overlay.style.background = "#fdfcfa";
+          darkBtn.innerHTML = "<span>🌙</span> Modo oscuro";
+          darkBtn.style.background = "#ffffff";
+          darkBtn.style.color = "#1e293b";
+          darkBtn.style.borderColor = "#d5dbe1";
+        }
+      }
+      darkBtn.addEventListener("click", e => { e.stopPropagation(); applyTheme(!isDark); });
+      overlay.appendChild(darkBtn);
+
       const ui = document.createElement("div");
       ui.className = "cx-ui-panel";
       ui.style.cssText = "position:absolute; top:78px; left:18px; z-index:20; width:228px; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,.93); border:1px solid #d5dbe1; box-shadow:0 6px 20px rgba(0,0,0,.10); font:500 11px 'Segoe UI',sans-serif; color:#1e293b;";
