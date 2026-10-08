@@ -1,4 +1,4 @@
-/* RAPOT v2: activa el diseño renovado en los módulos existentes.
+﻿/* RAPOT v2: activa el diseño renovado en los módulos existentes.
    - Se activa con ?v2=1 en la URL o si la sesión viene de v2.html.
    - En index.html (versión anterior) se desactiva.
    - Sin la marca, este script no cambia nada: la versión actual sigue igual. */

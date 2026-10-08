@@ -1,4 +1,4 @@
-// =====================================================================
+﻿// =====================================================================
 // Sistema Socioecológico de Kennedy — Red Biótica & Territorio 3D
 // Living 568-Species Socioecological Network (289 Flora, 232 Aves, 15 Mamíferos, 14 Moluscos, 9 Anfibios, 9 Reptiles)
 // =====================================================================

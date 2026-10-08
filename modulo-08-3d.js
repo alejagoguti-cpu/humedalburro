@@ -1,4 +1,4 @@
-// =====================================================================
+﻿// =====================================================================
 // Simulacion 3D de transito — Kennedy (fase 1: red vial + vehiculos)
 // Reutiliza los mismos datos reales de SUMO que la version 2D
 // (assets/kennedy_net.json y assets/kennedy_vehiculos.json).

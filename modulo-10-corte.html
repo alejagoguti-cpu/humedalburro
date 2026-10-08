@@ -299,75 +299,39 @@ window.addEventListener("unhandledrejection", function(e) { alert("Promise Error
     <div id="layoutEditor" style="display:none;"></div>
 
     <!-- Corte: vista en seccion del mismo territorio, cortando por el humedal -->
-    <div id="sectionWrap" style="display:none; position:absolute; left:0; right:0; bottom:0; height:16%; min-height:150px; z-index:400; border-top:1px solid rgba(0,0,0,.12); background:#eef2f5;">
+    <div id="sectionWrap" style="display:block; position:absolute; left:0; right:0; bottom:0; height:18%; min-height:160px; z-index:400; border-top:2px solid rgba(36,200,189,.35); background:#eef2f5; box-shadow:0 -4px 20px rgba(0,0,0,.08);">
       <canvas id="sectionCanvas" style="width:100%; height:100%; display:block; cursor:grab;"></canvas>
       <div id="sectionBirdStage" style="position:absolute; inset:0; z-index:8; overflow:hidden; pointer-events:none;"></div>
       <canvas id="corteRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; z-index:9; pointer-events:none; opacity:0; transition:opacity .6s ease;"></canvas>
+      
       <!-- Controles independientes para el corte inferior -->
-      <div id="botControls" style="display:none; position:absolute; right:10px; top:10px; width:220px; background:rgba(255,255,255,0.9); padding:10px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.15); font-family:'Segoe UI',sans-serif; font-size:11px; color:#333; z-index:10;">
-        <div style="font-weight:600; margin-bottom:8px; border-bottom:1px solid #ccc; padding-bottom:4px;">Coordenadas de la vista</div>
-<div style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-  <span>Zoom: <span id="sectionZoomVal">1.00</span></span>
-  <div>
-    <button type="button" id="btnZoomOutSec" style="padding:2px 8px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:4px;">-</button>
-    <button type="button" id="btnZoomInSec" style="padding:2px 8px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:4px;">+</button>
-  </div>
-</div>
-        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <label>Rotaci&oacute;n <span id="botRotVal">58&deg;</span></label>
-          <input type="range" id="botRot" min="0" max="179" value="143" step="1" style="width:100px;">
+      <div id="botControls" style="display:block; position:absolute; right:12px; top:8px; width:230px; background:rgba(255,255,255,0.95); backdrop-filter:blur(10px); padding:10px 12px; border-radius:10px; border:1px solid rgba(0,0,0,.1); box-shadow:0 6px 18px rgba(0,0,0,0.12); font-family:'Segoe UI',sans-serif; font-size:11px; color:#1e293b; z-index:10;">
+        <div style="font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#0f172a; margin-bottom:6px; border-bottom:1px solid #e2e8f0; padding-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+          <span>Corte Inferior 3D</span>
+          <span id="botSavedBadge" style="display:none; font-size:9.5px; background:#16a34a; color:#fff; padding:1px 6px; border-radius:4px;">Guardado</span>
         </div>
-        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <label>X m&iacute;n <span id="botXMinVal">0%</span></label>
-          <input type="range" id="botXMin" min="0" max="100" value="26" step="1" style="width:100px;">
+        <div style="margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#64748b; font-size:10.5px;">Zoom de la vista: <strong id="sectionZoomVal" style="color:#0f172a;">0.80</strong></span>
+          <div style="display:flex; gap:4px;">
+            <button type="button" id="btnZoomOutSec" style="width:24px; height:24px; cursor:pointer; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; font-weight:700;">-</button>
+            <button type="button" id="btnZoomInSec" style="width:24px; height:24px; cursor:pointer; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; font-weight:700;">+</button>
+          </div>
         </div>
-        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <label>X m&aacute;x <span id="botXMaxVal">90%</span></label>
-          <input type="range" id="botXMax" min="0" max="100" value="38" step="1" style="width:100px;">
+        <div style="font-size:10px; color:#64748b; margin-bottom:6px; line-height:1.35;">
+          Arrastra con el ratón sobre el corte para rotar y encuadrar.
         </div>
-        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <label>Y m&iacute;n (piso) <span id="botYMinVal">0%</span></label>
-          <input type="range" id="botYMin" min="0" max="100" value="0" step="1" style="width:100px;">
-        </div>
-        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <label>Y m&aacute;x (alt) <span id="botYMaxVal">100%</span></label>
-          <input type="range" id="botYMax" min="0" max="100" value="100" step="1" style="width:100px;">
-        </div>
-        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <label>Z m&iacute;n <span id="botZMinVal">0%</span></label>
-          <input type="range" id="botZMin" min="0" max="100" value="32" step="1" style="width:100px;">
-        </div>
-        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <label>Z m&aacute;x <span id="botZMaxVal">29%</span></label>
-          <input type="range" id="botZMax" min="0" max="100" value="50" step="1" style="width:100px;">
-        </div>
-        <button type="button" id="botBoxCopy" style="width:100%; margin-top:4px; padding:4px; font-size:10px; cursor:pointer;">&#128203; Copiar coordenadas</button>
-        <textarea id="botBoxOutput" rows="9" spellcheck="false" readonly style="width:100%; margin-top:4px; font-size:10px; box-sizing:border-box; background:#f8f9fa; border:1px solid #ccc;"></textarea>
+        <button type="button" id="btnSaveSectionPermanent" style="width:100%; padding:6px 10px; background:#24c8bd; color:#0b0c0f; font-weight:800; border:none; border-radius:7px; cursor:pointer; font-size:11px; box-shadow:0 2px 8px rgba(36,200,189,.3); display:flex; align-items:center; justify-content:center; gap:6px;">
+          <i class="fa-solid fa-floppy-disk"></i> Dejar así para siempre
+        </button>
+        <textarea id="botBoxOutput" rows="4" spellcheck="false" readonly style="width:100%; margin-top:6px; font-size:9.5px; box-sizing:border-box; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:4px; color:#0f172a; font-family:monospace; resize:none;"></textarea>
       </div>
       <span style="position:absolute; top:8px; left:14px; font:700 10.5px 'Segoe UI',sans-serif; color:#475569; letter-spacing:.04em; text-transform:uppercase; pointer-events:none;">Corte — Humedal El Burro</span>
-      
-      
-      <!-- Controls: rotar y enderezar -->
-      <div style="display:none;">
-        <label style="font:600 10px 'Segoe UI',sans-serif; color:#475569;">Rotación</label>
-        <input type="range" id="sectionRot" min="0" max="360" value="54" step="1" style="width:80px; accent-color:#24c8bd;">
-        <span id="sectionRotVal" style="font:600 10px 'Segoe UI',sans-serif; color:#111418; min-width:28px;">54°</span>
-        <button id="sectionStraightenBtn" style="padding:4px 8px; border-radius:6px; border:1px solid rgba(0,0,0,.15); background:#fff; font:600 10px 'Segoe UI',sans-serif; color:#111418; cursor:pointer;">Enderezar</button>
-      </div>
-      <!-- Coordenadas del corte -->
-      <textarea id="sectionCoordsOutput" style="display:none;" readonly style="position:absolute; top:28px; right:10px; width:200px; height:72px; font:9.5px monospace; background:rgba(255,255,255,.92); color:#111418; border:1px solid rgba(0,0,0,.12); border-radius:6px; padding:5px; resize:none; pointer-events:none;"></textarea>
     </div>
 
     <div class="hud-title">
       <h1>Humedal El Burro</h1>
       <p>Kennedy · reloj climático anual</p>
     </div>
-
-    <button type="button" id="penToolBtn" style="position:absolute; top:50%; left:18px; transform:translateY(-50%); z-index:16; background:rgba(10,12,14,.85); color:#fff; font-size:11px; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.2); cursor:pointer;">✏️ Dibujar polígono</button>
-    <textarea id="penCoordsOutput" style="display:none; position:absolute; top:calc(50% + 40px); left:18px; z-index:16; width:320px; height:180px; font-size:10px; background:rgba(10,12,14,.92); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:8px;"></textarea>
-    <canvas id="noiseCanvasOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:13; pointer-events:none; display:none;"></canvas>
-    <svg id="fixedPolySvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:14; pointer-events:none;"></svg>
-    <svg id="penSvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:15; pointer-events:none; display:none;"></svg>
 
     <div class="view-buttons">
       <a href="index.html" style="text-decoration:none;">
