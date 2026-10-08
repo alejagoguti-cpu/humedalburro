@@ -3563,6 +3563,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     return out;
   }
   function openNaturalExplode() {
+    const secWrapEl = document.getElementById("sectionWrap"); if (secWrapEl) secWrapEl.style.display = "block"; if (typeof resizeSectionView === "function") resizeSectionView();
     const lp = document.getElementById("legendPanel");
     if (lp) lp.style.display = "block";
     const cp = document.getElementById("natClimatePanel");
@@ -4285,7 +4286,13 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
         getBox: () => { const hr = dynStage.getBoundingClientRect(), ir = dynImg.getBoundingClientRect(); return { l: ir.left - hr.left, t: ir.top - hr.top, w: ir.width, h: ir.height }; }
       });
     }
-    // Herramientas de poligonos eliminadas del corte inferior segun solicitado
+        const secWrap = document.getElementById("sectionWrap");
+    if (secWrap) {
+      corteTools.push(createPolyTool({
+        id: "sec", label: "corte inferior", key: "corte_poly_sec_v2", host: secWrap, before: document.getElementById("sectionBirdStage"), z: 7,
+        fijos: CORTE_POLIGONOS_FIJOS.sec, fijosSuelo: CORTE_SUELO_FIJO.sec, showText: false, noBar: true, barParent: secWrap
+      }));
+    }
   })();
 
   function startNatWaterAnimation() {
@@ -4525,6 +4532,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   let techTime = 0;
   
   function openTechExplode() {
+    const secWrapEl = document.getElementById("sectionWrap"); if (secWrapEl) secWrapEl.style.display = "block"; if (typeof resizeSectionView === "function") resizeSectionView();
     if (typeof applyLabelPosition === "function") applyLabelPosition(); // titulo de capa en el mismo lugar que las primeras 4
     const lp = document.getElementById("legendPanel");
     if (lp) lp.style.display = "block";
@@ -6407,6 +6415,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   let isSotElevated = false;
 
   function openCulturalExplode() {
+    const secWrapEl = document.getElementById("sectionWrap"); if (secWrapEl) secWrapEl.style.display = "block"; if (typeof resizeSectionView === "function") resizeSectionView();
     if (typeof applyLabelPosition === "function") applyLabelPosition(); // titulo de capa en el mismo lugar que las primeras 4
     const lp = document.getElementById("legendPanel");
     if (lp) lp.style.display = "block";
