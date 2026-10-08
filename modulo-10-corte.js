@@ -7091,20 +7091,13 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
           if (agPt.inFront) {
             ctx.beginPath();
             ctx.arc(agPt.x, agPt.y, isCareNode ? 5 : 4, 0, Math.PI * 2);
-            ctx.fillStyle = isCareNode ? "#16a34a" : "#dc2626";
+            if (isCareNode) ctx.fillStyle = "#16a34a"; else return;
             ctx.fill();
             ctx.lineWidth = 1;
             ctx.strokeStyle = "#ffffff";
             ctx.stroke();
 
-            if (!isCareNode) {
-              ctx.beginPath();
-              ctx.moveTo(agPt.x, agPt.y);
-              ctx.lineTo(agPt.x - Math.cos(ang) * 12, agPt.y - Math.sin(ang) * 12);
-              ctx.strokeStyle = "#dc2626";
-              ctx.lineWidth = 1.5;
-              ctx.stroke();
-            } else {
+            if (isCareNode) {
               ctx.beginPath();
               ctx.arc(agPt.x, agPt.y, 8 + Math.sin(cultTime * 4 + a) * 3, 0, Math.PI * 2);
               ctx.strokeStyle = "rgba(22, 163, 74, 0.4)";
@@ -7184,6 +7177,28 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     ctx.stroke();
 
     const gatePt = projectPoint(7400, 3000);
+
+    // Puntitos animados bordeando el humedal (Cerramiento Perimetral)
+    if (rawWaterData) {
+      const burro = rawWaterData.find(b => (b.nombre || "").includes("Burro"));
+      if (burro && burro.pts && burro.pts.length > 3) {
+        const step = Math.max(1, Math.floor(burro.pts.length / 36));
+        for (let i = 0; i < burro.pts.length; i += step) {
+          const p = burro.pts[i];
+          const pulse = Math.sin(cultTime * 3.0 + i * 0.4) * 2.8;
+          const pt = projectPoint(p[0], p[1]);
+          if (pt.inFront) {
+            ctx.beginPath();
+            ctx.arc(pt.x + Math.sin(cultTime * 1.8 + i) * 1.5, pt.y + pulse * 0.4, 4 + Math.sin(cultTime * 2.2 + i) * 1.2, 0, Math.PI * 2);
+            ctx.fillStyle = "#0284c7";
+            ctx.fill();
+            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = "#ffffff";
+            ctx.stroke();
+          }
+        }
+      }
+    }
 
     for (let p = 0; p < 8; p++) {
       const prog = (cultTime * 0.4 + p * 0.125) % 1.0;
