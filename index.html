@@ -1763,9 +1763,9 @@ window.onerror = function(msg, url, line, col, error) {
   const edgeMat = new THREE.LineBasicMaterial({
     vertexColors: true,
     transparent: true,
-    opacity: 0.65,
+    opacity: 0.58,
     depthWrite: false,
-    blending: THREE.AdditiveBlending
+    blending: THREE.NormalBlending
   });
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
@@ -2406,7 +2406,7 @@ window.onerror = function(msg, url, line, col, error) {
     if (linePairs.length > 0) {
       const lGeo = new THREE.BufferGeometry();
       lGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePairs, 3));
-      const lMat = new THREE.LineBasicMaterial({ color: colObj, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending });
+      const lMat = new THREE.LineBasicMaterial({ color: colObj, transparent: true, opacity: 0.0, blending: THREE.NormalBlending });
       activeConstellationLines = new THREE.LineSegments(lGeo, lMat);
       speciesConstellationGroup.add(activeConstellationLines);
     }
