@@ -99,44 +99,61 @@
   const sectionCutPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 1e6); // se reubica cuando se conoce la posicion real del humedal
   let sectionCutX = 0;
   function placeSectionCutAtHumedal() {
-    // Vista exacta que la usuaria dio: camara en perspectiva con estas
-    // coordenadas precisas (rotacion 143°, U 26-38%, V 32-50%).
+    // Vista exacta de la seccion inferior fijada con las coordenadas precisas de la usuaria:
+    // Rotación: 143°, U: 26-38%, V: 32-50%, Y: 0-100%
+    // Cámara: Posición (138.7, 10.8, -2.4), Target (182.8, 4.9, -35.4), Zoom: 0.80
     sectionCutX = 177.0;
     sectionCutZ = -25.6;
     if (sectionRenderer) {
+      const botRotEl = document.getElementById("botRot");
+      const botXMinEl = document.getElementById("botXMin");
+      const botXMaxEl = document.getElementById("botXMax");
+      const botZMinEl = document.getElementById("botZMin");
+      const botZMaxEl = document.getElementById("botZMax");
+      const botYMinEl = document.getElementById("botYMin");
+      const botYMaxEl = document.getElementById("botYMax");
+
+      if (botRotEl) botRotEl.value = 143;
+      if (botXMinEl) botXMinEl.value = 26;
+      if (botXMaxEl) botXMaxEl.value = 38;
+      if (botZMinEl) botZMinEl.value = 32;
+      if (botZMaxEl) botZMaxEl.value = 50;
+      if (botYMinEl) botYMinEl.value = 0;
+      if (botYMaxEl) botYMaxEl.value = 100;
+
       if (typeof updateBotBox === 'function') updateBotBox();
+
       sectionRenderer.localClippingEnabled = false;
       sectionRenderer.clippingPlanes = botClipPlanesArr;
+
       sectionCamera.position.set(138.7, 10.8, -2.4);
       sectionCamera.up.set(0, 1, 0);
-      sectionCamera.lookAt(182.8, 4.9, -35.4);
-      sectionCamera.fov = 12; // solo se agranda el contenido (mas zoom), el tamaño del panel no se toca
+      sectionCamera.fov = 12;
       sectionCamera.zoom = 0.80;
+
       if (!sectionControls) {
         sectionControls = new THREE.OrbitControls(sectionCamera, sectionCanvas2);
         sectionControls.enableDamping = true;
         sectionControls.dampingFactor = 0.15;
         sectionControls.addEventListener("change", updateBotBox);
       }
-      if (sectionControls) sectionControls.target.set(182.8, 4.9, -35.4);
-      // Restaurar coordenadas fijadas por el usuario si existen
+      if (sectionControls) {
+        sectionControls.target.set(182.8, 4.9, -35.4);
+        sectionControls.update();
+      }
+
       try {
-        const saved = JSON.parse(localStorage.getItem("burro_corte_coords") || "null");
-        if (saved && saved.camPos) {
-          sectionCamera.position.set(saved.camPos[0], saved.camPos[1], saved.camPos[2]);
-          if (saved.camTarget && sectionControls) sectionControls.target.set(saved.camTarget[0], saved.camTarget[1], saved.camTarget[2]);
-          if (saved.zoom) sectionCamera.zoom = saved.zoom;
-          if (saved.rot && botRot) botRot.value = saved.rot;
-          if (saved.xMin && botXMin) botXMin.value = saved.xMin;
-          if (saved.xMax && botXMax) botXMax.value = saved.xMax;
-          if (saved.yMin && botYMin) botYMin.value = saved.yMin;
-          if (saved.yMax && botYMax) botYMax.value = saved.yMax;
-          if (saved.zMin && botZMin) botZMin.value = saved.zMin;
-          if (saved.zMax && botZMax) botZMax.value = saved.zMax;
-          const ind = document.getElementById("savedIndicator");
-          if (ind) ind.style.display = "inline";
-        }
+        localStorage.setItem("burro_corte_coords", JSON.stringify({
+          camPos: [138.7, 10.8, -2.4],
+          camTarget: [182.8, 4.9, -35.4],
+          zoom: 0.80,
+          rot: 143,
+          xMin: 26, xMax: 38,
+          zMin: 32, zMax: 50,
+          yMin: 0, yMax: 100
+        }));
       } catch (e) {}
+
       resizeSectionView();
       sectionCamera.updateProjectionMatrix();
     }
