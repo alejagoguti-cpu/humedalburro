@@ -11,7 +11,41 @@
   const WATER_URL = "./assets/kennedy_water_bodies.json";
   const MANZANAS_URL = "./assets/kennedy_manzanas.json";
   const PARQUES_URL = "./assets/kennedy_parques.json";
-  const SCALE = 1 / 10; // las coordenadas del JSON llegan a ~10700 unidades; se escalan para Three.js
+  const SCALE = 1 / 10; 
+  const HUMEDAL_CICLO = [
+    { mes: 1, expansion_pct: 41.7, profundidad_m: 1.32, temporada: "Temporada seca / intermedia" },
+    { mes: 2, expansion_pct: 42.6, profundidad_m: 1.39, temporada: "Temporada seca / intermedia" },
+    { mes: 3, expansion_pct: 46.7, profundidad_m: 1.73, temporada: "Inicio de temporada de lluvias" },
+    { mes: 4, expansion_pct: 50.0, profundidad_m: 2.00, temporada: "Pico de lluvias (máxima cota)" },
+    { mes: 5, expansion_pct: 47.4, profundidad_m: 1.78, temporada: "Temporada de lluvias" },
+    { mes: 6, expansion_pct: 41.5, profundidad_m: 1.30, temporada: "Temporada de estiaje" },
+    { mes: 7, expansion_pct: 37.7, profundidad_m: 0.99, temporada: "Temporada seca (estiaje)" },
+    { mes: 8, expansion_pct: 34.1, profundidad_m: 0.69, temporada: "Estiaje pronunciado" },
+    { mes: 9, expansion_pct: 33.0, profundidad_m: 0.60, temporada: "Mínimo anual de cota (estiaje)" },
+    { mes: 10, expansion_pct: 38.6, profundidad_m: 1.06, temporada: "Segunda temporada de lluvias" },
+    { mes: 11, expansion_pct: 43.8, profundidad_m: 1.49, temporada: "Pico de segunda temporada de lluvias" },
+    { mes: 12, expansion_pct: 43.3, profundidad_m: 1.45, temporada: "Descenso hacia temporada seca" },
+  ];
+
+  function offsetPoly(pts, d) {
+    const n = pts.length; if (n < 3 || !d) return pts.map(p => [p[0], p[1]]);
+    let area = 0; for (let i = 0; i < n; i++) { const a = pts[i], b = pts[(i + 1) % n]; area += a[0] * b[1] - b[0] * a[1]; }
+    const sgn = area > 0 ? 1 : -1;
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n];
+      let e1x = p1[0] - p0[0], e1y = p1[1] - p0[1], e2x = p2[0] - p0[0], e2y = p2[1] - p0[1];
+      const l1 = Math.hypot(e1x, e1y) || 1, l2 = Math.hypot(e2x, e2y) || 1;
+      const n1x = sgn * e1y / l1, n1y = -sgn * e1x / l1, n2x = sgn * e2y / l2, n2y = -sgn * e2x / l2;
+      let mx = n1x + n2x, my = n1y + n2y; const ml = Math.hypot(mx, my);
+      if (ml < 1e-6) { mx = n1x; my = n1y; } else { mx /= ml; my /= ml; }
+      const cosH = Math.max(0.35, mx * n1x + my * n1y);
+      out.push([p1[0] + mx * d / cosH, p1[1] + my * d / cosH]);
+    }
+    return out;
+  }
+
+// las coordenadas del JSON llegan a ~10700 unidades; se escalan para Three.js
 
   const statusOverlay = document.getElementById("statusOverlay");
   function setStatus(text, show = true) {
@@ -3373,20 +3407,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   const natPlayYearBtn = document.getElementById("natPlayYearBtn");
 
   const MESES_NAT = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-  const HUMEDAL_CICLO = [
-    { mes: 1, expansion_pct: 41.7, profundidad_m: 1.32, temporada: "Temporada seca / intermedia" },
-    { mes: 2, expansion_pct: 42.6, profundidad_m: 1.39, temporada: "Temporada seca / intermedia" },
-    { mes: 3, expansion_pct: 46.7, profundidad_m: 1.73, temporada: "Inicio de temporada de lluvias" },
-    { mes: 4, expansion_pct: 50.0, profundidad_m: 2.00, temporada: "Pico de lluvias (máxima cota)" },
-    { mes: 5, expansion_pct: 47.4, profundidad_m: 1.78, temporada: "Temporada de lluvias" },
-    { mes: 6, expansion_pct: 41.5, profundidad_m: 1.30, temporada: "Temporada de estiaje" },
-    { mes: 7, expansion_pct: 37.7, profundidad_m: 0.99, temporada: "Temporada seca (estiaje)" },
-    { mes: 8, expansion_pct: 34.1, profundidad_m: 0.69, temporada: "Estiaje pronunciado" },
-    { mes: 9, expansion_pct: 33.0, profundidad_m: 0.60, temporada: "Mínimo anual de cota (estiaje)" },
-    { mes: 10, expansion_pct: 38.6, profundidad_m: 1.06, temporada: "Segunda temporada de lluvias" },
-    { mes: 11, expansion_pct: 43.8, profundidad_m: 1.49, temporada: "Pico de segunda temporada de lluvias" },
-    { mes: 12, expansion_pct: 43.3, profundidad_m: 1.45, temporada: "Descenso hacia temporada seca" },
-  ];
+  
 
   let natYearPlaying = false, natYearTimer = null;
   let natWaterAnimFrame = null;
