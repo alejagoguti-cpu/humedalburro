@@ -4310,7 +4310,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     natWaterAnimFrame = requestAnimationFrame(loopWater);
   }
 
-  function closeNaturalExplode() {
+    function closeNaturalExplode() {
+    const sw = document.getElementById("sectionWrap"); if (sw) sw.style.display = "none";
     setNatRain(false);
     const p = document.getElementById("escalaZoomPanel");
     if (p) p.style.display = "none";
@@ -4811,7 +4812,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (techAnimFrame) cancelAnimationFrame(techAnimFrame);
   }
 
-  function closeTechExplode() {
+    function closeTechExplode() {
+    const sw = document.getElementById("sectionWrap"); if (sw) sw.style.display = "none";
     const p = document.getElementById("escalaZoomPanel");
     if (p) p.style.display = "none";
     const l = document.getElementById("legendActiveLayer");
@@ -6513,7 +6515,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     }, 900);
   }
 
-  function closeCulturalExplode() {
+    function closeCulturalExplode() {
+    const sw = document.getElementById("sectionWrap"); if (sw) sw.style.display = "none";
     const p = document.getElementById("escalaZoomPanel");
     if (p) p.style.display = "none";
     const l = document.getElementById("legendActiveLayer");
