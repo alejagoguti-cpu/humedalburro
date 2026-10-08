@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head><script>
+window.onerror = function(m, u, l, c, e) {
+    fetch('http://localhost:9999/?err=' + encodeURIComponent(m + ' at line ' + l + ' col ' + c));
+};
+window.addEventListener('unhandledrejection', function(e) {
+    fetch('http://localhost:9999/?err=' + encodeURIComponent('Promise rejection: ' + (e.reason ? e.reason.message || e.reason : 'unknown')));
+});
+</script>
+<script>
+window.onerror = function(msg, url, line) { alert("JS Error: " + msg + " at line " + line); };
+window.addEventListener("unhandledrejection", function(e) { alert("Promise Error: " + (e.reason ? e.reason.message || e.reason : "unknown")); });
+</script>
 
 <meta charset="UTF-8">
 <script src="rapot-v2.js?v=1"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Corte axonométrico — Kennedy</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+<link rel="stylesheet" href="navigation-unified.css?v=20260920">
 <style>
   :root{
     --bg:#ffffff; --panel:rgba(240,243,246,.9); --panel-border:rgba(0,0,0,.15);
@@ -185,12 +196,11 @@
 })();
 </script>
 <div class="app">
-                      
   <main class="main">
     <div id="sceneWrap">
       <canvas id="sceneCanvas"></canvas>
       <div id="mainRainWrap" style="position:absolute; top:50%; left:50%; width:min(78vw, 860px); aspect-ratio:16/9; transform:translate(-50%, -50%); z-index:8; pointer-events:none; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); overflow:hidden;"><canvas id="mainRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:0; transition:opacity .6s ease;"></canvas></div>
-      <div id="axoContextFade" style="display:none; position:absolute; inset:0; z-index:7; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 48%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.42) 100%); pointer-events:none;"></div>
+      <div id="axoContextFade" style="display:block; position:absolute; inset:0; z-index:7; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 48%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.42) 100%); pointer-events:none;"></div>
     </div>
 
     <!-- Fondo solido detras de la escala/axonometria activa: al achicarla
@@ -289,33 +299,62 @@
     <div id="layoutEditor" style="display:none;"></div>
 
     <!-- Corte: vista en seccion del mismo territorio, cortando por el humedal -->
-    <div id="sectionWrap" style="display:none; position:absolute; left:0; right:0; bottom:0; height:18%; min-height:160px; z-index:400; border-top:2px solid rgba(36,200,189,.35); background:#eef2f5; box-shadow:0 -4px 20px rgba(0,0,0,.08);">
+    <div id="sectionWrap" style="display:none; position:absolute; left:0; right:0; bottom:0; height:16%; min-height:150px; z-index:400; border-top:1px solid rgba(0,0,0,.12); background:#eef2f5;">
       <canvas id="sectionCanvas" style="width:100%; height:100%; display:block; cursor:grab;"></canvas>
       <div id="sectionBirdStage" style="position:absolute; inset:0; z-index:8; overflow:hidden; pointer-events:none;"></div>
-      <canvas id="corteRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; z-index:9; pointer-events:none; opacity:0; transition:opacity .6s ease;"></canvas>
-      
       <!-- Controles independientes para el corte inferior -->
-      <div id="botControls" style="display:block; position:absolute; right:12px; top:8px; width:230px; background:rgba(255,255,255,0.95); backdrop-filter:blur(10px); padding:10px 12px; border-radius:10px; border:1px solid rgba(0,0,0,.1); box-shadow:0 6px 18px rgba(0,0,0,0.12); font-family:'Segoe UI',sans-serif; font-size:11px; color:#1e293b; z-index:10;">
-        <div style="font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#0f172a; margin-bottom:6px; border-bottom:1px solid #e2e8f0; padding-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
-          <span>Corte Inferior 3D</span>
-          <span id="botSavedBadge" style="display:none; font-size:9.5px; background:#16a34a; color:#fff; padding:1px 6px; border-radius:4px;">Guardado</span>
+      <div id="botControls" style="display:none; position:absolute; right:10px; top:10px; width:220px; background:rgba(255,255,255,0.9); padding:10px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.15); font-family:'Segoe UI',sans-serif; font-size:11px; color:#333; z-index:10;">
+        <div style="font-weight:600; margin-bottom:8px; border-bottom:1px solid #ccc; padding-bottom:4px;">Coordenadas de la vista</div>
+<div style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+  <span>Zoom: <span id="sectionZoomVal">1.00</span></span>
+  <div>
+    <button type="button" id="btnZoomOutSec" style="padding:2px 8px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:4px;">-</button>
+    <button type="button" id="btnZoomInSec" style="padding:2px 8px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:4px;">+</button>
+  </div>
+</div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Rotaci&oacute;n <span id="botRotVal">58&deg;</span></label>
+          <input type="range" id="botRot" min="0" max="179" value="143" step="1" style="width:100px;">
         </div>
-        <div style="margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#64748b; font-size:10.5px;">Zoom de la vista: <strong id="sectionZoomVal" style="color:#0f172a;">0.80</strong></span>
-          <div style="display:flex; gap:4px;">
-            <button type="button" id="btnZoomOutSec" style="width:24px; height:24px; cursor:pointer; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; font-weight:700;">-</button>
-            <button type="button" id="btnZoomInSec" style="width:24px; height:24px; cursor:pointer; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; font-weight:700;">+</button>
-          </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>X m&iacute;n <span id="botXMinVal">0%</span></label>
+          <input type="range" id="botXMin" min="0" max="100" value="26" step="1" style="width:100px;">
         </div>
-        <div style="font-size:10px; color:#64748b; margin-bottom:6px; line-height:1.35;">
-          Arrastra con el ratón sobre el corte para rotar y encuadrar.
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>X m&aacute;x <span id="botXMaxVal">90%</span></label>
+          <input type="range" id="botXMax" min="0" max="100" value="38" step="1" style="width:100px;">
         </div>
-        <button type="button" id="btnSaveSectionPermanent" style="width:100%; padding:6px 10px; background:#24c8bd; color:#0b0c0f; font-weight:800; border:none; border-radius:7px; cursor:pointer; font-size:11px; box-shadow:0 2px 8px rgba(36,200,189,.3); display:flex; align-items:center; justify-content:center; gap:6px;">
-          <i class="fa-solid fa-floppy-disk"></i> Dejar así para siempre
-        </button>
-        <textarea id="botBoxOutput" rows="4" spellcheck="false" readonly style="width:100%; margin-top:6px; font-size:9.5px; box-sizing:border-box; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:4px; color:#0f172a; font-family:monospace; resize:none;"></textarea>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Y m&iacute;n (piso) <span id="botYMinVal">0%</span></label>
+          <input type="range" id="botYMin" min="0" max="100" value="0" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Y m&aacute;x (alt) <span id="botYMaxVal">100%</span></label>
+          <input type="range" id="botYMax" min="0" max="100" value="100" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Z m&iacute;n <span id="botZMinVal">0%</span></label>
+          <input type="range" id="botZMin" min="0" max="100" value="32" step="1" style="width:100px;">
+        </div>
+        <div class="rotate-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label>Z m&aacute;x <span id="botZMaxVal">29%</span></label>
+          <input type="range" id="botZMax" min="0" max="100" value="50" step="1" style="width:100px;">
+        </div>
+        <button type="button" id="botBoxCopy" style="width:100%; margin-top:4px; padding:4px; font-size:10px; cursor:pointer;">&#128203; Copiar coordenadas</button>
+        <textarea id="botBoxOutput" rows="9" spellcheck="false" readonly style="width:100%; margin-top:4px; font-size:10px; box-sizing:border-box; background:#f8f9fa; border:1px solid #ccc;"></textarea>
       </div>
       <span style="position:absolute; top:8px; left:14px; font:700 10.5px 'Segoe UI',sans-serif; color:#475569; letter-spacing:.04em; text-transform:uppercase; pointer-events:none;">Corte — Humedal El Burro</span>
+      
+      
+      <!-- Controls: rotar y enderezar -->
+      <div style="display:none;">
+        <label style="font:600 10px 'Segoe UI',sans-serif; color:#475569;">Rotación</label>
+        <input type="range" id="sectionRot" min="0" max="360" value="54" step="1" style="width:80px; accent-color:#24c8bd;">
+        <span id="sectionRotVal" style="font:600 10px 'Segoe UI',sans-serif; color:#111418; min-width:28px;">54°</span>
+        <button id="sectionStraightenBtn" style="padding:4px 8px; border-radius:6px; border:1px solid rgba(0,0,0,.15); background:#fff; font:600 10px 'Segoe UI',sans-serif; color:#111418; cursor:pointer;">Enderezar</button>
+      </div>
+      <!-- Coordenadas del corte -->
+      <textarea id="sectionCoordsOutput" style="display:none;" readonly style="position:absolute; top:28px; right:10px; width:200px; height:72px; font:9.5px monospace; background:rgba(255,255,255,.92); color:#111418; border:1px solid rgba(0,0,0,.12); border-radius:6px; padding:5px; resize:none; pointer-events:none;"></textarea>
     </div>
 
     <div class="hud-title">
@@ -323,22 +362,16 @@
       <p>Kennedy · reloj climático anual</p>
     </div>
 
-        <svg id="fixedPolySvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:14; pointer-events:none;"></svg>
+    <button type="button" id="penToolBtn" style="position:absolute; top:50%; left:18px; transform:translateY(-50%); z-index:16; background:rgba(10,12,14,.85); color:#fff; font-size:11px; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.2); cursor:pointer;">✏️ Dibujar polígono</button>
+    <textarea id="penCoordsOutput" style="display:none; position:absolute; top:calc(50% + 40px); left:18px; z-index:16; width:320px; height:180px; font-size:10px; background:rgba(10,12,14,.92); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:8px;"></textarea>
+    <canvas id="noiseCanvasOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:13; pointer-events:none; display:none;"></canvas>
+    <svg id="fixedPolySvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:14; pointer-events:none;"></svg>
     <svg id="penSvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:15; pointer-events:none; display:none;"></svg>
+
     <div class="view-buttons">
-      <a href="index.html" style="text-decoration:none;">
-        <button type="button" style="background:rgba(132,164,139,0.18); color:#15803d; font-weight:800; border:1.5px solid #15803d; display:flex; align-items:center; gap:7px; box-shadow:0 3px 10px rgba(0,0,0,.15); cursor:pointer;">
-          <i class="fa-solid fa-diagram-project"></i> Red Biótica (Inicio)
-        </button>
-      </a>
-      <a href="problematicas.html" style="text-decoration:none;">
-        <button type="button" style="background:#111418; color:#ffffff; font-weight:700; border:1px solid rgba(0,0,0,.3); display:flex; align-items:center; gap:7px; box-shadow:0 3px 10px rgba(0,0,0,.15); cursor:pointer;">
-          <i class="fa-solid fa-clock-rotate-left" style="color:#24c8bd;"></i> Evolución Histórica (1950)
-        </button>
-      </a>
-      <button type="button" id="dynamicSectionBtn">✂️ Corte dinámico</button>
       <button type="button" id="noiseToggleBtn">🔊 Mostrar ruido</button>
       <button type="button" id="birdToggleBtn">🐦 Mostrar mirlas</button>
+      <button type="button" id="dynamicSectionBtn">✂️ Corte dinámico</button>
       <button type="button" id="usosSueloBtn" style="display:none;">🎨 Usos del suelo</button>
     </div>
 
@@ -467,7 +500,7 @@
 
     <div id="explodeOverlay" style="position:absolute; inset:0; z-index:300; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:auto;">
       <button type="button" id="explodeClose" style="position:absolute; top:20px; right:26px; width:36px; height:36px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff; color:#111; font-size:16px; cursor:pointer; z-index:20; pointer-events:auto; box-shadow:0 2px 8px rgba(0,0,0,.1);">✕</button>
-      <div id="explodeStack" style="display:flex; flex-direction:column; align-items:center; width:min(64vw, 680px, calc((100vh - 40px) / 1.25)); pointer-events:auto; margin:auto;">
+      <div id="explodeStack" style="display:flex; flex-direction:column; align-items:center; width:min(54vw, 560px, calc((100vh - 40px) / 1.4675)); pointer-events:auto; margin:auto;">
         <!-- Arriba: Escala Tecnológica -->
         <div class="explode-layer" data-layer="3" style="position:relative; width:100%; aspect-ratio:16/9; margin-bottom:-11%; opacity:0; transform:scale(.05); transition:transform 2.2s cubic-bezier(.16,1,.3,1), opacity 1.8s ease, z-index 0s;">
           <div class="explode-clip" style="width:100%; height:100%; cursor:pointer; position:relative; overflow:visible;">
@@ -497,7 +530,7 @@
 
     <!-- OVERLAY SUB-EXPLOSIÓN: ESCALA NATURAL (4 CAPAS ARQUITECTÓNICAS) -->
     <div id="naturalExplodeOverlay" style="position:absolute; left:0; top:0; right:0; bottom:0; z-index:380; background:#ffffff; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:hidden;">
-      <div id="natContextFade" style="position:absolute; inset:0; z-index:3; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 58%, rgba(255,255,255,0.14) 78%, rgba(255,255,255,0.34) 100%); pointer-events:none;"></div>
+      <div id="natContextFade" style="position:absolute; inset:0; z-index:3; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 42%, rgba(255,255,255,0.3) 65%, rgba(255,255,255,0.5) 85%); pointer-events:none;"></div>
       
       <!-- Barra superior / volver y controles de animación -->
       <div style="position:absolute; top:16px; left:26px; z-index:322; display:flex; align-items:center; gap:12px;">
@@ -516,7 +549,6 @@
 
       <!-- Contenedor central apilado estilo referente (líneas punteadas y capas suspendidas) -->
       <div id="natExplodeStage" style="position:relative; width:min(96vw, 940px); height:min(86vh, 720px); display:flex; align-items:center; justify-content:center; margin-top:20px;">
-        <div id="natStackRainWrap" style="position:absolute; top:50%; left:50%; width:min(82vw, 900px); aspect-ratio:16/9; transform:translate(-50%, -40%); z-index:30; pointer-events:none; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"><canvas id="natStackRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity .6s ease;"></canvas></div>
         <svg id="natGuideSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; transition:opacity .8s ease;"></svg>
 
         <!-- Capa 1: Sistema Inerte y Límite Físico-Hidrológico -->
@@ -524,7 +556,6 @@
           <div class="sublayer-diamond" style="width:100%; height:100%; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); position:relative; background:rgba(255, 255, 255, 0.92); border:1.5px solid rgba(15, 23, 42, 0.35); box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <img id="natWaterImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
             <canvas id="natWaterCanvas" style="width:100%; height:100%; display:block; position:relative;"></canvas>
-            <canvas id="natRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:6; opacity:0; transition:opacity .6s ease;"></canvas>
           </div>
           <svg id="natWaterSvg" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:10;"></svg>
           <!-- Etiqueta temática lateral exterior al rombo -->
@@ -784,8 +815,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="conectografia-corte.js?v=1009"></script>
-<script src="modulo-10-corte.js?v=1020"></script>
+<script src="modulo-10-corte.js?v=1028"></script>
 <div id="tagCoordsBox" style="position:fixed; top:20px; right:20px; background:#fff; border:2px solid #000; padding:10px; z-index:9999; font-family:monospace; display:none;"></div>
 </body>
 </html>
