@@ -21,7 +21,7 @@
     { id: "escarabajos", t: "Escarabajos coprófagos", s: "descomponedores", cat: "inv", img: "assets/cx_escarabajo.png", kind: "cut", w: 260, h: 190, pos: [0.6839, 0.6571] },
     { id: "rana", t: "Rana sabanera", s: "Dendropsophus labialis", cat: "anf", img: "assets/cx_rana.png", kind: "cut", w: 240, h: 153, pos: [0.4984, 0.5543] },
     { id: "enea", t: "Enea / Junco", s: "Typha latifolia", cat: "flora", img: "assets/cx_enea.png", kind: "cut", w: 215, h: 240, pos: [0.6045, 0.775] },
-    { id: "capuli", t: "Capulí", s: "Prunus serotina", cat: "flora", img: "assets/cx_capuli.png", kind: "cut", w: 0.4105, h: 0.45, pos: [0.4105, 0.45] },
+    { id: "capuli", t: "Capulí", s: "Prunus serotina", cat: "flora", img: "assets/cx_capuli.png", kind: "cut", w: 214, h: 240, pos: [0.4105, 0.45] },
     { id: "sauco", t: "Saúco", s: "Sambucus nigra", cat: "flora", img: "assets/cx_sauco.png", kind: "cut", w: 240, h: 234, pos: [0.14, 0.647] },
     { id: "urapan", t: "Urapán", s: "Fraxinus chinensis", cat: "flora", img: "assets/cx_urapan.png", kind: "cut", w: 240, h: 240, pos: [0.5017, 0.33] },
     { id: "sauce", t: "Sauce llorón", s: "Salix humboldtiana", cat: "flora", img: "assets/cx_sauce.png", kind: "cut", w: 150, h: 260, pos: [0.14, 0.775] },
@@ -148,13 +148,13 @@
       g.addEventListener("pointerenter", () => {
         hover = n.id;
         const lp = lastP[n.id];
-        if (lp) g.style.transform = `translate(${lp.x.toFixed(1)}px, ${lp.y.toFixed(1)}px) scale(1.32)`;
+        if (lp) g.setAttribute("transform", `translate(${lp.x.toFixed(1)}, ${lp.y.toFixed(1)}) scale(1.32)`);
         resalta();
       });
       g.addEventListener("pointerleave", () => {
         hover = null;
         const lp = lastP[n.id];
-        if (lp) g.style.transform = `translate(${lp.x.toFixed(1)}px, ${lp.y.toFixed(1)}px) scale(1)`;
+        if (lp) g.setAttribute("transform", `translate(${lp.x.toFixed(1)}, ${lp.y.toFixed(1)}) scale(1)`);
         resalta();
       });
     });
@@ -185,7 +185,7 @@
         const [w, h] = size(n, b), e = nodeEls[n.id], x = b.l + pos[n.id][0] * b.w, y = b.t + pos[n.id][1] * b.h;
         lastP[n.id] = { x, y, r: n.kind === "circle" ? w / 2 : Math.hypot(w, h) * 0.30 + 3 };
         if (hover !== n.id && drag !== n.id) {
-          e.g.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) scale(1)";
+          e.g.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")");
         }
         if (e.w !== w) {
           e.w = w; e.h = h; e.im.setAttribute("x", (-w / 2).toFixed(1)); e.im.setAttribute("y", (-h / 2).toFixed(1)); e.im.setAttribute("width", w.toFixed(1)); e.im.setAttribute("height", h.toFixed(1));
@@ -218,7 +218,6 @@
       animTime += 0.018;
       const b = cfg.getBox();
       if (b && b.w > 0) {
-        // Garantizar que la posición base esté calculada una vez la vista es visible
         if (!lastP[NODOS[0].id]) {
           place(b);
         }
@@ -232,26 +231,26 @@
           const phase = e.phase;
           const ox = Math.sin(animTime * 1.1 + phase) * 2.5;
           const oy = Math.cos(animTime * 0.95 + phase) * 2.5;
-          e.g.style.transform = `translate(${(lp.x + ox).toFixed(1)}px, ${(lp.y + oy).toFixed(1)}px) scale(1)`;
+          e.g.setAttribute("transform", `translate(${(lp.x + ox).toFixed(1)}, ${(lp.y + oy).toFixed(1)})`);
         });
 
         // 2. Garza volando, pescando un pez en el agua y elevándose
-        const cycleG = (animTime * 0.22) % 1; // ciclo completo de pesca ~28 seg
+        const cycleG = (animTime * 0.22) % 1;
         const gWing = Math.floor(animTime * 9) % 2 === 0 ? "assets/vuelo_garza_1.png" : "assets/vuelo_garza_2.png";
         garzaImg.setAttribute("href", gWing);
 
         let gx = 0, gy = 0, hasFish = false;
-        if (cycleG < 0.45) { // entra volando desde la izquierda hacia el agua
+        if (cycleG < 0.45) {
           const progress = cycleG / 0.45;
           gx = b.l + b.w * (-0.1 + progress * 0.55);
           gy = b.t + b.h * (0.2 + Math.pow(progress, 1.8) * 0.58);
           hasFish = progress > 0.92;
-        } else if (cycleG < 0.85) { // se eleva volando hacia la derecha con el pez
+        } else if (cycleG < 0.85) {
           const progress = (cycleG - 0.45) / 0.40;
           gx = b.l + b.w * (0.45 + progress * 0.65);
           gy = b.t + b.h * (0.78 - Math.pow(progress, 0.7) * 0.58);
           hasFish = true;
-        } else { // fuera de cuadro
+        } else {
           gx = -200; gy = -200;
         }
         garzaGroup.setAttribute("transform", `translate(${gx.toFixed(1)}, ${gy.toFixed(1)})`);
@@ -276,11 +275,7 @@
     function render() { place(cfg.getBox()); }
     function texto() {
       const f = x => Number(x).toFixed(4);
-      return "// CONECTOGRAFIA_POS (corte dinámico)
-POS_FIJAS = {
-" + NODOS.map(n => "  " + n.id + ": [" + f(pos[n.id][0]) + ", " + f(pos[n.id][1]) + "]").join(",
-") + "
-};";
+      return "// CONECTOGRAFIA_POS (corte dinámico)\nPOS_FIJAS = {\n" + NODOS.map(n => "  " + n.id + ": [" + f(pos[n.id][0]) + ", " + f(pos[n.id][1]) + "]").join(",\n") + "\n};";
     }
 
     if (cfg.uiParent) {
@@ -289,7 +284,7 @@ POS_FIJAS = {
       ui.style.cssText = "position:absolute; top:78px; left:18px; z-index:20; width:228px; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,.93); border:1px solid #d5dbe1; box-shadow:0 6px 20px rgba(0,0,0,.10); font:500 11px 'Segoe UI',sans-serif; color:#1e293b;";
       const BTN = "padding:5px 9px; border-radius:6px; border:1px solid #c5ccd3; background:#fff; color:#1e293b; font:600 11px 'Segoe UI',sans-serif; cursor:pointer;";
       const leyenda = [["verde", "Soporte, nidificación, frugivoría, polinización"], ["amarillo", "Depredación por aves"], ["rojo", "Depredación exótica, parasitismo, asfixia"], ["azul", "Alimentación acuática"], ["turquesa", "Procesos microbiológicos, eutrofización"]];
-      ui.innerHTML = '<div style="font:800 11px 'Segoe UI',sans-serif; letter-spacing:.05em; text-transform:uppercase; color:#475569; margin-bottom:6px;">Red de interacciones</div>'
+      ui.innerHTML = '<div style="font:800 11px \'Segoe UI\',sans-serif; letter-spacing:.05em; text-transform:uppercase; color:#475569; margin-bottom:6px;">Red de interacciones</div>'
         + '<div style="color:#64748b; line-height:1.4; margin-bottom:8px;">Pasa el cursor sobre los nodos para ampliarlos. Arrastra las bolitas si deseas reubicarlas.</div>'
         + '<div style="display:flex; gap:6px; margin-bottom:9px;"><button type="button" data-a="copiar" style="' + BTN + '">Copiar posiciones</button><button type="button" data-a="reset" style="' + BTN + '">Restablecer</button></div>'
         + leyenda.map(l => '<div style="display:flex; align-items:center; gap:7px; margin-top:4px;"><span style="flex:none; width:20px; height:3px; border-radius:2px; background:' + COL[l[0]] + ';"></span><span style="color:#475569;">' + l[1] + '</span></div>').join("");
