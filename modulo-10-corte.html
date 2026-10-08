@@ -141,7 +141,7 @@
 
   /* Vista principal limpia: sin convenciones, sin boton de poligono,
      sin botones de ruido/mirlas ni barra de play (todo corre solo). */
-  .legend, #penToolBtn, #penCoordsOutput, .controls-bar, #textHandlesLayer, .view-buttons{ display:none !important; }
+  .legend, #penToolBtn, #penCoordsOutput, .controls-bar, #textHandlesLayer{ display:none !important; }
 
   /* Corte dinamico: foto del humedal en el recuadro superior derecho, tal cual fue enviada. */
   #dynSecTopCut{ position:absolute; top:50px; right:24px; z-index:5; width:min(400px,30vw); pointer-events:none; }
@@ -291,7 +291,7 @@
       <div id="sectionBirdStage" style="position:absolute; inset:0; z-index:8; overflow:hidden; pointer-events:none;"></div>
       <canvas id="corteRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; z-index:9; pointer-events:none; opacity:0; transition:opacity .6s ease;"></canvas>
             <!-- Controles y Coordenadas del corte inferior -->
-      <div id="botControls" style="display:flex; flex-direction:column; position:absolute; right:12px; top:10px; width:260px; max-height:calc(100% - 20px); overflow-y:auto; background:rgba(255,255,255,0.96); backdrop-filter:blur(10px); border:1px solid rgba(0,0,0,0.14); padding:10px 12px; border-radius:10px; box-shadow:0 4px 18px rgba(0,0,0,0.15); font-family:'Segoe UI',sans-serif; font-size:11px; color:#1e293b; z-index:100;">
+      <div id="botControls" style="display:none !important; flex-direction:column; position:absolute; right:12px; top:10px; width:260px; max-height:calc(100% - 20px); overflow-y:auto; background:rgba(255,255,255,0.96); backdrop-filter:blur(10px); border:1px solid rgba(0,0,0,0.14); padding:10px 12px; border-radius:10px; box-shadow:0 4px 18px rgba(0,0,0,0.15); font-family:'Segoe UI',sans-serif; font-size:11px; color:#1e293b; z-index:100;">
         <div style="display:flex; justify-content:space-between; align-items:center; font-weight:800; text-transform:uppercase; letter-spacing:.05em; font-size:10px; color:#475569; margin-bottom:6px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">
           <span><i class="fa-solid fa-location-crosshairs" style="color:#0284c7;"></i> Coordenadas de la vista</span>
           <span id="savedIndicator" style="display:none; color:#16a34a; font-size:9px; font-weight:800;">✓ FIJADO</span>
@@ -374,7 +374,22 @@
     <svg id="fixedPolySvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:14; pointer-events:none;"></svg>
     <svg id="penSvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:15; pointer-events:none; display:none;"></svg>
 
-    <div class="view-buttons" style="display:none !important;"><button type="button" id="dynamicSectionBtn">Corte dinamico</button><button type="button" id="noiseToggleBtn">Mostrar ruido</button><button type="button" id="birdToggleBtn">Mostrar mirlas</button><button type="button" id="usosSueloBtn" style="display:none;">Usos del suelo</button></div>
+        <div class="view-buttons" style="display:flex; flex-direction:column; gap:6px; position:absolute; top:18px; right:18px; z-index:6;">
+      <a href="index.html" style="text-decoration:none;">
+        <button type="button" style="background:rgba(132,164,139,0.18); color:#15803d; font-weight:800; border:1.5px solid #15803d; display:flex; align-items:center; gap:7px; box-shadow:0 3px 10px rgba(0,0,0,.15); cursor:pointer;">
+          <i class="fa-solid fa-diagram-project"></i> Red Biótica (Inicio)
+        </button>
+      </a>
+      <a href="problematicas.html" style="text-decoration:none;">
+        <button type="button" style="background:#111418; color:#ffffff; font-weight:700; border:1px solid rgba(0,0,0,.3); display:flex; align-items:center; gap:7px; box-shadow:0 3px 10px rgba(0,0,0,.15); cursor:pointer;">
+          <i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;"></i> Problemáticas (1950)
+        </button>
+      </a>
+      <button type="button" id="dynamicSectionBtn">✂️ Corte dinámico</button>
+      <button type="button" id="noiseToggleBtn">🔊 Mostrar ruido</button>
+      <button type="button" id="birdToggleBtn">🐦 Mostrar mirlas</button>
+      <button type="button" id="usosSueloBtn" style="display:none;">🎨 Usos del suelo</button>
+    </div>
 
     <!-- Corte dinamico: ilustracion animada del perfil del humedal (agua,
          peces, aves, patos, arboles, andén) en el mismo estilo del corte
@@ -818,8 +833,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="conectografia-corte.js?v=7002"></script>
-<script src="modulo-10-corte.js?v=7002"></script>
+<script src="conectografia-corte.js?v=8001"></script>
+<script src="modulo-10-corte.js?v=8001"></script>
 <div id="tagCoordsBox" style="position:fixed; top:20px; right:20px; background:#fff; border:2px solid #000; padding:10px; z-index:9999; font-family:monospace; display:none;"></div>
 </body>
 </html>
