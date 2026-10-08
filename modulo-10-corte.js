@@ -2817,6 +2817,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   fixedPolySvg.setAttribute("fill", "#0a0a0a");
   fixedPolySvg.setAttribute("stroke", "#0a0a0a");
   fixedPolySvg.setAttribute("stroke-width", "2.5");
+  fixedPolySvg.style.pointerEvents = "none";
+  document.getElementById("fixedPolySvgOverlay").style.pointerEvents = "none";
   document.getElementById("fixedPolySvgOverlay").appendChild(fixedPolySvg);
   const fixedProjVec = new THREE.Vector3();
   function updateFixedPolygon() {
@@ -3056,24 +3058,30 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     const axoContextFadeEl = document.getElementById("axoContextFade");
     if (axoContextFadeEl) axoContextFadeEl.style.display = "block";
   }
-  let ptrStartX = 0, ptrStartY = 0, ptrStartTime = 0;
-  canvas.addEventListener("pointerdown", (e) => {
-    ptrStartX = e.clientX;
-    ptrStartY = e.clientY;
-    ptrStartTime = performance.now();
-  });
-  canvas.addEventListener("pointerup", (e) => {
-    if (penActive) return;
-    const dist = Math.hypot(e.clientX - ptrStartX, e.clientY - ptrStartY);
-    const dt = performance.now() - ptrStartTime;
-    if (dist < 10 && dt < 450) {
-      triggerExplodeView();
+  let ptrDownX = 0, ptrDownY = 0, ptrDownT = 0;
+  window.addEventListener("pointerdown", (e) => {
+    if (e.target === canvas || e.target === wrap || (e.target && (e.target.id === "fixedPolySvgOverlay" || e.target.closest("#sceneWrap")))) {
+      ptrDownX = e.clientX;
+      ptrDownY = e.clientY;
+      ptrDownT = performance.now();
     }
-  });
-  canvas.addEventListener("click", (e) => {
+  }, true);
+
+  window.addEventListener("pointerup", (e) => {
     if (penActive) return;
-    triggerExplodeView();
-  });
+    if (ptrDownT > 0 && (e.target === canvas || e.target === wrap || (e.target && (e.target.id === "fixedPolySvgOverlay" || e.target.closest("#sceneWrap"))))) {
+      const dist = Math.hypot(e.clientX - ptrDownX, e.clientY - ptrDownY);
+      const dt = performance.now() - ptrDownT;
+      ptrDownT = 0;
+      if (dist < 14 && dt < 650) {
+        triggerExplodeView();
+      }
+    }
+  }, true);
+
+  // Fallback click on canvas and wrap
+  if (canvas) canvas.addEventListener("click", () => { if (!penActive) triggerExplodeView(); });
+  if (wrap) wrap.addEventListener("click", (e) => { if (!penActive && e.target === wrap) triggerExplodeView(); });
 
   function triggerExplodeView() {
     if (penActive) return;
@@ -3101,8 +3109,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     // 2. Escala Cultural: con vehículos y dinámicas urbanas
     if (vehInstanced) {
       vehInstanced.visible = true;
-      vehInstanced.count = vehiclesAtTime(currentTime).length || 120;
-      renderVehiclesAt(currentTime);
+      vehInstanced.count = typeof vehiclesAtTime === "function" ? (vehiclesAtTime(currentTime).length || 120) : 120;
+      if (typeof renderVehiclesAt === "function") renderVehiclesAt(currentTime);
     }
     if (roadMat) roadMat.color.set(0x7a838d);
     renderer.render(scene, camera);
@@ -3122,7 +3130,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (birdsGroup) birdsGroup.visible = origBirdsVis;
     if (vehInstanced) {
       vehInstanced.visible = origVehVis;
-      vehInstanced.count = origVehVis ? (vehiclesAtTime(currentTime).length || 0) : 0;
+      vehInstanced.count = origVehVis ? (typeof vehiclesAtTime === "function" ? (vehiclesAtTime(currentTime).length || 0) : 0) : 0;
     }
 
     // Asignar fotos a cada imagen según su escala
