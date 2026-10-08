@@ -2024,7 +2024,7 @@
   // ---- Vehiculos: un pool de cajas 3D reutilizables ----
   const VEH_POOL_SIZE = 2800;
   const vehMeshes = [];
-  const vehMat = new THREE.MeshStandardMaterial({ clippingPlanes: sectionClipPlanesArr, color: 0xe2635a, roughness: 0.5, metalness: 0.15 });
+  const vehMat = new THREE.MeshStandardMaterial({ clippingPlanes: botClipPlanesArr, color: 0xffffff, roughness: 0.5, metalness: 0.15 });
   const vehGeo = new THREE.BoxGeometry(0.18, 0.15, 0.45);
   const vehInstanced = new THREE.InstancedMesh(vehGeo, vehMat, VEH_POOL_SIZE);
   vehInstanced.count = 0;
@@ -2543,7 +2543,8 @@
       sectionRenderer.render(scene, sectionCamera);
       if (buildingEdgeMat && prevEdgeOpacity !== null) buildingEdgeMat.opacity = prevEdgeOpacity;
     }
-    updateTechLiveMirror(); // si el panel de escala tecnologica esta abierto, "espeja" los carros y el ruido en vivo dentro de sus 2 subcapas (en vez de una foto fija)
+    updateTechLiveMirror();
+    updateTechCorteOverlay(); // si el panel de escala tecnologica esta abierto, "espeja" los carros y el ruido en vivo dentro de sus 2 subcapas (en vez de una foto fija)
   }
   // ---- Caja de seccion: 6 planos de recorte (X min/max, Y min/max, Z
   // min/max) para cortar el modelo y ver el interior, como una caja de
@@ -4394,6 +4395,105 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   const techNoiseCanvas = document.getElementById("techNoiseCanvas");
   let techLiveViewSize = null; // se fija cuando se abre el panel, para poder "espejar" con el mismo encuadre 16:9 exacto
   let techTrafficGrid = null, techFloodCars = null, techSewerNet = null;
+  
+  function updateTechCorteOverlay() {
+    const corteCanvas = document.getElementById("corteRainCanvas");
+    const techOverlay = document.getElementById("techExplodeOverlay");
+    if (!corteCanvas || !techOverlay || techOverlay.style.display === "none") return;
+    
+    const techLayer1 = document.getElementById("techLayer1");
+    const techLayer2 = document.getElementById("techLayer2");
+    const l1Vis = techLayer1 && parseFloat(techLayer1.style.opacity || "0") > 0.1;
+    const l2Vis = techLayer2 && parseFloat(techLayer2.style.opacity || "0") > 0.1;
+
+    const rect = corteCanvas.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = rect.width, h = rect.height;
+    if (w <= 0 || h <= 0) return;
+
+    if (corteCanvas.width !== Math.round(w * dpr) || corteCanvas.height !== Math.round(h * dpr)) {
+      corteCanvas.width = Math.round(w * dpr);
+      corteCanvas.height = Math.round(h * dpr);
+    }
+    const ctx = corteCanvas.getContext("2d");
+    ctx.resetTransform();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+    corteCanvas.style.opacity = "1";
+
+    if (l1Vis) {
+      // Capa 01: Vías & Vehículos - Franja de vía con color de tráfico y carros en blanco
+      const vehicles = typeof vehiclesAtTime === "function" ? vehiclesAtTime(currentTime) : [];
+      const activeCount = vehicles.length;
+      const trafficLevel = Math.min(1.0, activeCount / 1200);
+
+      const colorFor = t => {
+        const stops = [[250, 204, 21], [234, 88, 12], [220, 38, 38], [120, 20, 20]];
+        const f = t * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(f)), r = f - i;
+        return `rgb(${stops[i].map((c, k) => Math.round(c + (stops[i + 1][k] - c) * r)).join(",")})`;
+      };
+      const flowColor = colorFor(trafficLevel);
+
+      if (roadMat && roadMat.color) roadMat.color.setStyle(flowColor);
+      if (vehMat) vehMat.color.setHex(0xffffff);
+
+      const roadY = h * 0.72;
+      const roadX0 = w * 0.08, roadX1 = w * 0.28;
+      
+      // Franja de la vía pintada del color del tráfico
+      ctx.beginPath();
+      ctx.moveTo(roadX0, roadY);
+      ctx.lineTo(roadX1, roadY);
+      ctx.lineWidth = 7;
+      ctx.strokeStyle = flowColor;
+      ctx.lineCap = "round";
+      ctx.stroke();
+
+      // Carros en blanco pasando por el perfil del corte
+      const now = performance.now();
+      for (let c = 0; c < 5; c++) {
+        const prog = (now * 0.0006 + c * 0.2) % 1.0;
+        const cx = roadX0 + prog * (roadX1 - roadX0);
+        const cy = roadY - 4;
+
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(cx - 7, cy - 4, 14, 7, 2);
+        else ctx.rect(cx - 7, cy - 4, 14, 7);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#0f172a";
+        ctx.stroke();
+
+        ctx.fillStyle = "#000000";
+        ctx.beginPath(); ctx.arc(cx - 4, cy + 3, 1.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + 4, cy + 3, 1.5, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (l2Vis) {
+      // Capa 02: Simulación de Ruido Acústico
+      if (noiseMesh) noiseMesh.visible = true;
+      const roadY = h * 0.72;
+      const roadCenter = w * 0.18;
+      const now = performance.now();
+
+      for (let ring = 0; ring < 5; ring++) {
+        const rad = ((now * 0.045 + ring * 22) % 110) + 8;
+        const alpha = Math.max(0, 1 - rad / 110);
+
+        ctx.beginPath();
+        ctx.arc(roadCenter, roadY, rad, Math.PI, 0);
+        ctx.lineWidth = 3.5;
+        const colGrad = ctx.createRadialGradient(roadCenter, roadY, 5, roadCenter, roadY, rad);
+        colGrad.addColorStop(0, `rgba(250, 204, 21, ${alpha * 0.85})`);
+        colGrad.addColorStop(0.4, `rgba(234, 88, 12, ${alpha * 0.65})`);
+        colGrad.addColorStop(0.75, `rgba(220, 38, 38, ${alpha * 0.45})`);
+        colGrad.addColorStop(1.0, `rgba(147, 51, 234, 0)`);
+        ctx.strokeStyle = colGrad;
+        ctx.stroke();
+      }
+    }
+  }
+
   function updateTechLiveMirror() {
     if (!techOverlay || techOverlay.style.display === "none" || techLiveViewSize == null) return;
     const targetW = 960, targetH = 540, layerAspect = targetW / targetH;
