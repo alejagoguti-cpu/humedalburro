@@ -3056,14 +3056,28 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     const axoContextFadeEl = document.getElementById("axoContextFade");
     if (axoContextFadeEl) axoContextFadeEl.style.display = "block";
   }
+  let ptrStartX = 0, ptrStartY = 0, ptrStartTime = 0;
+  canvas.addEventListener("pointerdown", (e) => {
+    ptrStartX = e.clientX;
+    ptrStartY = e.clientY;
+    ptrStartTime = performance.now();
+  });
+  canvas.addEventListener("pointerup", (e) => {
+    if (penActive) return;
+    const dist = Math.hypot(e.clientX - ptrStartX, e.clientY - ptrStartY);
+    const dt = performance.now() - ptrStartTime;
+    if (dist < 10 && dt < 450) {
+      triggerExplodeView();
+    }
+  });
   canvas.addEventListener("click", (e) => {
-    if (penActive) return; // mientras se dibuja el poligono, no se dispara la explosion
-    const sectionWrapEl = document.getElementById("sectionWrap");
-    if (sectionWrapEl) sectionWrapEl.style.display = "block";
-    fitEscalaOverlays();
-    resizeSectionView();
-    placeSectionCutAtHumedal();
-    updateSectionCutRotation();
+    if (penActive) return;
+    triggerExplodeView();
+  });
+
+  function triggerExplodeView() {
+    if (penActive) return;
+    if (explodeOverlayOpen()) return;
 
     // Guardar estado y fondo original
     const origRoadColor = roadMat ? roadMat.color.getHex() : null;
@@ -3073,7 +3087,6 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     const origBg = scene.background;
 
     // Fondo TRANSPARENTE fuera del rombo: solo el terreno y los edificios
-    // se ven blancos; lo que queda afuera ya no tapa el texto/fondo.
     scene.background = null;
     renderer.setClearColor(0x000000, 0);
 
@@ -3120,8 +3133,7 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (imgCultural) imgCultural.src = fotoCultural;
     if (imgTecno) imgTecno.src = fotoTecno;
 
-    document.getElementById("sceneWrap").style.display = "none";
-    openNaturalExplode(); // Skips the 3 scales overview screen
+    explodeOverlay.style.display = "flex";
     void explodeOverlay.offsetWidth;
     explodeLayers.forEach(el => { el.style.opacity = "1"; el.style.transform = "scale(1)"; });
 
@@ -3129,7 +3141,8 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
       updateExplodePolygons();
       document.querySelectorAll(".explode-text").forEach(t => initTextDistort(t, t.dataset.layer));
     }, 60);
-  });
+  }
+
   document.getElementById("explodeClose").addEventListener("click", () => {
     explodeOverlay.style.display = "none";
     // document.getElementById("sceneWrap").style.display = "block";
