@@ -141,7 +141,7 @@
 
   /* Vista principal limpia: sin convenciones, sin boton de poligono,
      sin botones de ruido/mirlas ni barra de play (todo corre solo). */
-  .legend, #penToolBtn, #penCoordsOutput, #noiseToggleBtn, #birdToggleBtn, .controls-bar, #textHandlesLayer{ display:none !important; }
+  .legend, #penToolBtn, #penCoordsOutput, .controls-bar, #textHandlesLayer{ display:none !important; }
 
   /* Corte dinamico: foto del humedal en el recuadro superior derecho, tal cual fue enviada. */
   #dynSecTopCut{ position:absolute; top:50px; right:24px; z-index:5; width:min(400px,30vw); pointer-events:none; }
@@ -357,9 +357,19 @@
     <svg id="penSvgOverlay" style="position:absolute; inset:0; width:100%; height:100%; z-index:15; pointer-events:none; display:none;"></svg>
 
     <div class="view-buttons">
+      <a href="index.html" style="text-decoration:none;">
+        <button type="button" style="background:rgba(132,164,139,0.18); color:#15803d; font-weight:800; border:1.5px solid #15803d; display:flex; align-items:center; gap:7px; box-shadow:0 3px 10px rgba(0,0,0,.15); cursor:pointer;">
+          <i class="fa-solid fa-diagram-project"></i> Red Biótica (Inicio)
+        </button>
+      </a>
+      <a href="problematicas.html" style="text-decoration:none;">
+        <button type="button" style="background:#111418; color:#ffffff; font-weight:700; border:1px solid rgba(0,0,0,.3); display:flex; align-items:center; gap:7px; box-shadow:0 3px 10px rgba(0,0,0,.15); cursor:pointer;">
+          <i class="fa-solid fa-clock-rotate-left" style="color:#24c8bd;"></i> Problemáticas (1950)
+        </button>
+      </a>
+      <button type="button" id="dynamicSectionBtn">✂️ Corte dinámico</button>
       <button type="button" id="noiseToggleBtn">🔊 Mostrar ruido</button>
       <button type="button" id="birdToggleBtn">🐦 Mostrar mirlas</button>
-      <button type="button" id="dynamicSectionBtn">✂️ Corte dinámico</button>
       <button type="button" id="usosSueloBtn" style="display:none;">🎨 Usos del suelo</button>
     </div>
 
