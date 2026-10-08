@@ -2368,140 +2368,26 @@
     mainBurroPlayBtn.textContent = mainBurroPlaying ? "⏸ Pausar" : "▶ Reproducir";
     if (mainBurroPlaying) mainBurroLast = 0;
   });
-  // ---- Lluvia real: se activa automaticamente en los meses de temporada
-  // de lluvias reales de Bogota (bimodal: marzo-mayo y octubre-noviembre),
-  // la MISMA logica que ya decidia el texto "Temporada de lluvias" --
-  // ahora tambien dispara una animacion de lluvia de verdad. Gotas como
-  // rayas alargadas (no puntos redondos, que se ven raros/artificiales),
-  // cayendo a distintas velocidades para dar sensacion de profundidad,
-  // visible tanto en la axonometria base como en la capa natural (ambas
-  // vistas renderizan el mismo "scene", asi que un solo sistema alcanza
-  // para las dos). ----
-  let lluviaGroup = null, lluviaVel = null, lluviaActiva = true, lluviaVisible = true;
-  const LLUVIA_COUNT = 4800, LLUVIA_ALTO = 90;
-  let lluviaHalfW = 560, lluviaHalfH = 560;
-  let waterRipplesGroup = null, ripplesData = [];
-  const RIPPLES_COUNT = 180;
-
-  function buildWaterRipples() {
-    if (waterRipplesGroup) return;
-    const ringGeo = new THREE.RingGeometry(0.25, 0.55, 32);
-    ringGeo.rotateX(-Math.PI / 2);
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.75,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-      depthTest: true
-    });
-    waterRipplesGroup = new THREE.InstancedMesh(ringGeo, ringMat, RIPPLES_COUNT);
-    waterRipplesGroup.renderOrder = 998;
-    waterRipplesGroup.frustumCulled = false;
-
-    ripplesData = [];
-    const dummy = new THREE.Object3D();
-    for (let i = 0; i < RIPPLES_COUNT; i++) {
-      // Coordenadas en el Humedal El Burro y cuerpos de agua
-      const rx = 145 + Math.random() * 105;
-      const rz = -45 + Math.random() * 85;
-      const r = Math.random() * 3.5;
-      const maxR = 2.0 + Math.random() * 2.8;
-      const speed = 1.4 + Math.random() * 1.6;
-      ripplesData.push({ x: rx, z: rz, y: 0.14, r, maxR, speed, alpha: 0.8 });
-      dummy.position.set(rx, 0.14, rz);
-      dummy.scale.set(r, r, r);
-      dummy.updateMatrix();
-      waterRipplesGroup.setMatrixAt(i, dummy.matrix);
+    // ---- Lluvia 2D idéntica a la capa natural (makeRain2D): gotas finas, elegantes, inclinadas y con ondas de agua ----
+  let lluviaActiva = false, lluviaVisible = true;
+  let mainRain = null;
+  function getMainRain() {
+    if (!mainRain && typeof makeRain2D === "function") {
+      mainRain = makeRain2D({ canvasId: "mainRainCanvas", area: 750, lenMin: 3.5, lenMax: 8, vMin: 380, vMax: 780, lineWidth: 1.1, ripples: true });
     }
-    waterRipplesGroup.instanceMatrix.needsUpdate = true;
-    sceneRoot.add(waterRipplesGroup);
-  }
-
-  function buildLluvia() {
-    if (lluviaGroup) return;
-    buildWaterRipples();
-    // La lluvia anterior era practicamente invisible por tres motivos
-    // reales: (1) azul clarisimo (0xbfe0f2) sobre fondo y niebla BLANCOS,
-    // (2) gotas de menos de 1 pixel de ancho a esta escala, y (3) el
-    // InstancedMesh se recortaba por frustum usando la esfera de la
-    // geometria base (un cilindro diminuto en el origen). Ahora: azul
-    // saturado, gotas mas gruesas/largas, sin niebla, sin recorte, y
-    // cubriendo toda la huella de la escena (no solo el centro).
-    // Mismo ancho/alto que el piso real de la axonometria (halfW = extent/2*1.4):
-    // antes se esparcian en un area mucho mayor y casi ninguna caia dentro de
-    // lo que se ve, por eso se veian pocas y gordas.
-    lluviaHalfW = (sceneExtentW > 120 ? sceneExtentW : 270) / 2 * 1.4;
-    lluviaHalfH = (sceneExtentH > 120 ? sceneExtentH : 270) / 2 * 1.4;
-    const geo = new THREE.CylinderGeometry(0.2, 0.2, 5, 4, 1);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x5a9bd8, transparent: true, opacity: 0.7, depthWrite: false, depthTest: false, fog: false });
-    lluviaGroup = new THREE.InstancedMesh(geo, mat, LLUVIA_COUNT);
-    lluviaGroup.frustumCulled = false;
-    lluviaGroup.renderOrder = 997;
-    lluviaVel = new Float32Array(LLUVIA_COUNT);
-    const dummy = new THREE.Object3D();
-    for (let i = 0; i < LLUVIA_COUNT; i++) {
-      dummy.position.set((Math.random() - 0.5) * lluviaHalfW * 2, Math.random() * LLUVIA_ALTO, (Math.random() - 0.5) * lluviaHalfH * 2);
-      dummy.rotation.set(0.12, 0, 0.07); // ligera inclinacion, como viento leve -- recto se ve artificial
-      dummy.updateMatrix();
-      lluviaGroup.setMatrixAt(i, dummy.matrix);
-      lluviaVel[i] = 60 + Math.random() * 40;
-    }
-    lluviaGroup.instanceMatrix.needsUpdate = true;
-    lluviaGroup.visible = false;
-    sceneRoot.add(lluviaGroup);
+    return mainRain;
   }
   function setLluviaActiva(activa) {
     lluviaActiva = activa;
-    if (activa) buildLluvia();
-    if (lluviaGroup) lluviaGroup.visible = activa && lluviaVisible;
+    const r = getMainRain();
+    if (r) r.set(activa && lluviaVisible && !explodeOverlayOpen());
   }
-  const lluviaDummy = new THREE.Object3D();
   function explodeOverlayOpen() {
     return ["naturalExplodeOverlay", "culturalExplodeOverlay", "techExplodeOverlay"].some(id => { const e = document.getElementById(id); return e && e.style.display && e.style.display !== "none"; });
   }
   function updateLluvia(dt) {
-    if (lluviaGroup) { const vis = lluviaActiva && lluviaVisible && !explodeOverlayOpen(); if (lluviaGroup.visible !== vis) lluviaGroup.visible = vis; }
-    if (waterRipplesGroup) { const vis = lluviaActiva && lluviaVisible && !explodeOverlayOpen(); if (waterRipplesGroup.visible !== vis) waterRipplesGroup.visible = vis; }
-    if (!lluviaActiva || !lluviaGroup || !lluviaGroup.visible) return;
-    
-    // Gotas de lluvia
-    for (let i = 0; i < lluviaVel.length; i++) {
-      lluviaGroup.getMatrixAt(i, lluviaDummy.matrix);
-      lluviaDummy.matrix.decompose(lluviaDummy.position, lluviaDummy.quaternion, lluviaDummy.scale);
-      lluviaDummy.position.y -= lluviaVel[i] * dt;
-      if (lluviaDummy.position.y < 0) {
-        lluviaDummy.position.y = LLUVIA_ALTO - Math.random() * 8;
-        lluviaDummy.position.x = (Math.random() - 0.5) * lluviaHalfW * 2;
-        lluviaDummy.position.z = (Math.random() - 0.5) * lluviaHalfH * 2;
-      }
-      lluviaDummy.rotation.set(0.12, 0, 0.07);
-      lluviaDummy.updateMatrix();
-      lluviaGroup.setMatrixAt(i, lluviaDummy.matrix);
-    }
-    lluviaGroup.instanceMatrix.needsUpdate = true;
-
-    // Animación de ondas expansivas de agua (Water Ripples)
-    if (waterRipplesGroup && ripplesData.length) {
-      const ripDummy = new THREE.Object3D();
-      for (let i = 0; i < ripplesData.length; i++) {
-        const rp = ripplesData[i];
-        rp.r += rp.speed * dt;
-        if (rp.r >= rp.maxR) {
-          rp.r = 0.2;
-          rp.x = 145 + Math.random() * 105;
-          rp.z = -45 + Math.random() * 85;
-          rp.maxR = 2.0 + Math.random() * 2.8;
-          rp.speed = 1.4 + Math.random() * 1.6;
-        }
-        const s = rp.r;
-        ripDummy.position.set(rp.x, rp.y, rp.z);
-        ripDummy.scale.set(s, s, s);
-        ripDummy.updateMatrix();
-        waterRipplesGroup.setMatrixAt(i, ripDummy.matrix);
-      }
-      waterRipplesGroup.instanceMatrix.needsUpdate = true;
-    }
+    const r = getMainRain();
+    if (r) r.set(lluviaActiva && lluviaVisible && !explodeOverlayOpen());
   }
   let lluviaLastT = 0;
 
@@ -3094,36 +2980,46 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
   }
   let ptrDownX = 0, ptrDownY = 0, ptrDownT = 0;
   window.addEventListener("pointerdown", (e) => {
-    if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel")) {
+    if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel, .controls-bar, .view-buttons")) {
       ptrDownT = 0;
       return;
     }
-    if (e.target === canvas || e.target === wrap || (e.target && (e.target.id === "fixedPolySvgOverlay" || e.target.closest("#sceneWrap")))) {
-      ptrDownX = e.clientX;
-      ptrDownY = e.clientY;
-      ptrDownT = performance.now();
-    }
+    ptrDownX = e.clientX;
+    ptrDownY = e.clientY;
+    ptrDownT = performance.now();
   }, true);
 
   window.addEventListener("pointerup", (e) => {
     if (penActive) return;
-    if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel")) {
+    if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel, .controls-bar, .view-buttons")) {
       ptrDownT = 0;
       return;
     }
-    if (ptrDownT > 0 && (e.target === canvas || e.target === wrap || (e.target && (e.target.id === "fixedPolySvgOverlay" || e.target.closest("#sceneWrap"))))) {
+    if (ptrDownT > 0) {
       const dist = Math.hypot(e.clientX - ptrDownX, e.clientY - ptrDownY);
       const dt = performance.now() - ptrDownT;
       ptrDownT = 0;
-      if (dist < 14 && dt < 650) {
-        triggerExplodeView();
+      if (dist < 22 && dt < 800) {
+        if (!explodeOverlayOpen()) {
+          triggerExplodeView();
+        }
       }
     }
   }, true);
 
-  // Fallback click on canvas and wrap
-  if (canvas) canvas.addEventListener("click", () => { if (!penActive) triggerExplodeView(); });
-  if (wrap) wrap.addEventListener("click", (e) => { if (!penActive && e.target === wrap) triggerExplodeView(); });
+  // Fallback direct click listeners
+  if (canvas) {
+    canvas.style.cursor = "pointer";
+    canvas.addEventListener("click", (e) => {
+      if (!penActive && !explodeOverlayOpen()) triggerExplodeView();
+    });
+  }
+  if (wrap) {
+    wrap.addEventListener("click", (e) => {
+      if (e.target.closest && e.target.closest("button, input, select, textarea, a, .hud, #mainBurroPanel, #dynamicSectionBtn, #sectionBoxPanel, .controls-bar, .view-buttons")) return;
+      if (!penActive && !explodeOverlayOpen()) triggerExplodeView();
+    });
+  }
 
   function triggerExplodeView() {
     if (penActive) return;

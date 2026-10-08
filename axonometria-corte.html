@@ -189,6 +189,7 @@
   <main class="main">
     <div id="sceneWrap">
       <canvas id="sceneCanvas"></canvas>
+      <canvas id="mainRainCanvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:8; opacity:0; transition:opacity .6s ease;"></canvas>
       <div id="axoContextFade" style="display:none; position:absolute; inset:0; z-index:7; background:radial-gradient(ellipse at center, rgba(255,255,255,0) 48%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.42) 100%); pointer-events:none;"></div>
     </div>
 
@@ -784,7 +785,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="conectografia-corte.js?v=1009"></script>
-<script src="modulo-10-corte.js?v=1017"></script>
+<script src="modulo-10-corte.js?v=1018"></script>
 <div id="tagCoordsBox" style="position:fixed; top:20px; right:20px; background:#fff; border:2px solid #000; padding:10px; z-index:9999; font-family:monospace; display:none;"></div>
 </body>
 </html>
