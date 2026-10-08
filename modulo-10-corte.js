@@ -3023,7 +3023,12 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
 
   function triggerExplodeView() {
     if (penActive) return;
-    if (explodeOverlayOpen()) return;
+    const sectionWrapEl = document.getElementById("sectionWrap");
+    if (sectionWrapEl) sectionWrapEl.style.display = "block";
+    if (typeof fitEscalaOverlays === "function") fitEscalaOverlays();
+    if (typeof resizeSectionView === "function") resizeSectionView();
+    if (typeof placeSectionCutAtHumedal === "function") placeSectionCutAtHumedal();
+    if (typeof updateSectionCutRotation === "function") updateSectionCutRotation();
     openNaturalExplode();
   }
 
