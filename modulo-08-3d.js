@@ -256,7 +256,7 @@
     
     const mat = new THREE.MeshStandardMaterial({
       map: histGrassTex,
-      color: 0x98b488, // Verde pasto natural de sabana del principio (#98b488)
+      color: 0xa9ab86, // sabana: verde paja apagado y natural (antes #98b488, se veia chillon)
       roughness: 0.92,
       metalness: 0.0,
       transparent: true,
@@ -528,9 +528,10 @@
         const t = Math.min(1.0, Math.max(0.0, dist / maxDist));
         // Difuminado orgánico: Centro = Azul acuático vivo (#0284c7), Bordes = Verde oscuro musgoso y profundo (#143522)
         const tPow = Math.pow(t, 1.4);
-        const r = 0.01 + (0.07 - 0.01) * tPow;
-        const g = 0.52 + (0.21 - 0.52) * tPow;
-        const b = 0.82 + (0.13 - 0.82) * tPow;
+        // colores naturales: centro azul petroleo apagado, orilla de pantano oliva (antes azul electrico)
+        const r = 0.30 + (0.33 - 0.30) * tPow;
+        const g = 0.47 + (0.37 - 0.47) * tPow;
+        const b = 0.53 + (0.24 - 0.53) * tPow;
         return [r, g, b];
       }
 
@@ -582,7 +583,7 @@
   // ---- Modelos Históricos Documentados ----
   function buildCorabastosModel() {
     corabastosGroup.clear();
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7, metalness: 0.1 });
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0xc9c1b0, roughness: 0.85, metalness: 0.05 }); // concreto (antes azul gris, se veia de plastico)
     const edgeMat = new THREE.LineBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.4 });
     const bodegas = [
       { x: 260, z: 45, w: 28, h: 4.5, d: 14 },
@@ -878,7 +879,7 @@
       btn.style.color = isActive ? "var(--accent)" : "var(--ink)";
     });
     const slider = document.getElementById("histYearSlider");
-    if (slider) slider.value = year;
+    if (slider) slider.value = String(Math.max(0, [1950, 1956, 1972, 1988, 2024].indexOf(year >= 2024 ? 2024 : year))); // el deslizador va por posicion (0-4), no por año
 
     const badge = document.getElementById("eraBadge");
     const desc = document.getElementById("eraDesc");
@@ -1960,7 +1961,12 @@
     geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.computeVertexNormals();
-    const mat = sharedWaterMat;
+    // El agua actual no tiene colores por vertice (esos son del degradado historico):
+    // con vertexColors activado se veia NEGRA. Material propio, color natural.
+    const mat = sharedWaterMat.clone();
+    mat.vertexColors = false;
+    mat.color = new THREE.Color(0x6f98a6);
+    mat.opacity = 0.9;
     waterMat = mat;
     const waterMesh = new THREE.Mesh(geo, mat);
     waterMesh.receiveShadow = false; // sin sombras encima (se veian como parches/bloques feos sobre el agua)
