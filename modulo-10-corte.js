@@ -3057,22 +3057,13 @@ const secRot = document.getElementById("secRot"), secRotVal = document.getElemen
     if (axoContextFadeEl) axoContextFadeEl.style.display = "block";
   }
   canvas.addEventListener("click", (e) => {
-    // Clic en la axonometria principal: abre la escala natural exactamente
-    // igual que siempre (agua creciendo por años, tinguas, garzas -- nada
-    // de su contenido interno cambia), pero encajada dentro del panel:
-    // convenciones a la izquierda, corte abajo, y la escala ocupando
-    // arriba a la derecha, mas chica, en vez de pantalla completa.
     if (penActive) return; // mientras se dibuja el poligono, no se dispara la explosion
     const sectionWrapEl = document.getElementById("sectionWrap");
-    // A pedido de la usuaria: el panel de Agentes/Convenciones ya no se
-    // muestra (ocupaba demasiado espacio en pantalla).
     if (sectionWrapEl) sectionWrapEl.style.display = "block";
     fitEscalaOverlays();
     resizeSectionView();
     placeSectionCutAtHumedal();
     updateSectionCutRotation();
-    openNaturalExplode();
-    return;
 
     // Guardar estado y fondo original
     const origRoadColor = roadMat ? roadMat.color.getHex() : null;
