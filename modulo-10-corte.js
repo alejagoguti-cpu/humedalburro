@@ -2089,8 +2089,20 @@
       });
   }
 
-  fetch(NET_URL)
-    .then(r => { if (!r.ok) throw new Error("no se pudo cargar " + NET_URL); return r.json(); })
+  function fetchWithRetry(url, retries = 2) {
+    return fetch(url).then(r => {
+      if (!r.ok) {
+        if (retries > 0) return new Promise(res => setTimeout(res, 800)).then(() => fetchWithRetry(url, retries - 1));
+        throw new Error("No se pudo cargar " + url);
+      }
+      return r.json();
+    }).catch(err => {
+      if (retries > 0) return new Promise(res => setTimeout(res, 800)).then(() => fetchWithRetry(url, retries - 1));
+      throw err;
+    });
+  }
+
+  fetchWithRetry(NET_URL)
     .then(data => {
       netCenter = { x: (data.bbox[0] + data.bbox[2]) / 2, y: (data.bbox[1] + data.bbox[3]) / 2 };
       buildGround(data.bbox);
@@ -2102,24 +2114,22 @@
       sceneExtentW = w; sceneExtentH = h;
       if (typeof updateSectionBox === "function") updateSectionBox();
       rebuildFilteredGeometry();
-      viewSize = Math.max(w, h) * 0.135; // restaurado al valor original
+      viewSize = Math.max(w, h) * 0.135;
       resize();
       setAxonometricView(w);
-      setStatus("Red cargada. Cargando edificios y trayectorias de vehículos…");
+      setStatus("", false); // Ocultar overlay inmediatamente
       loadBuildings();
       loadTrees();
       loadWaterBodies();
       loadManzanas();
       loadParques();
-      // loadIntersections(); // quitado: semaforos/cruces peatonales, a pedido del usuario
-      loadTriMesh("./assets/kennedy_roofs_flat.json", 0xffffff);    // techos planos con parapeto ya modelado
-      loadTriMesh("./assets/kennedy_facades.json", 0xa05a41);       // fachadas verificadas con StreetView
-      // loadTerrain(); // quitado a pedido del usuario, vuelve al plano liso
+      loadTriMesh("./assets/kennedy_roofs_flat.json", 0xffffff);
+      loadTriMesh("./assets/kennedy_facades.json", 0xa05a41);
       return loadVehicles();
     })
     .catch(err => {
-      console.error(err);
-      setStatus("No se pudo cargar la red vial (assets/kennedy_net.json). Revisa que el archivo esté disponible.");
+      console.warn("Aviso en carga de red:", err);
+      setStatus("", false); // No bloquear la interfaz
     });
 
   // ---- Controles de reproduccion ----
