@@ -285,6 +285,45 @@ window.onerror = function(msg, url, line, col, error) {
   .neighbor-row:hover { background: rgba(132, 164, 139, 0.15); color: #84a48b; }
 
   
+  /* Conclusiones */
+  .concl-list { display: flex; flex-direction: column; gap: 16px; }
+  .concl-card { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 26px; align-items: center;
+    background: #0a0a0c; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 22px 24px; position: relative;
+    opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease, border-color 0.4s ease; }
+  .concl-card.show { opacity: 1; transform: none; }
+  .concl-card.is-current { border-color: rgba(231,200,120,0.45); }
+  .concl-card::before { content: ''; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 3px; background: var(--acc); }
+  .concl-num { font-size: 11px; font-weight: 800; letter-spacing: 1.4px; color: var(--acc); text-transform: uppercase; }
+  .concl-title { font-size: 19px; font-weight: 800; color: #f1f5f9; margin: 6px 0 10px; line-height: 1.2; }
+  .concl-kpi { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .concl-kpi b { font-size: 38px; font-weight: 900; color: var(--acc); line-height: 1; font-variant-numeric: tabular-nums; }
+  .concl-kpi span { font-size: 11px; color: #94a3b8; line-height: 1.35; max-width: 260px; }
+  .concl-text { font-size: 12px; color: #cbd5e1; line-height: 1.6; }
+  .concl-text strong { color: #f1f5f9; }
+  .concl-why { margin-top: 10px; font-size: 11px; color: #94a3b8; line-height: 1.55; border-left: 2px solid rgba(255,255,255,0.12); padding-left: 10px; }
+  .concl-vis { min-width: 0; }
+  .concl-vis svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .cv-line { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: stroke-dashoffset 2.2s cubic-bezier(.4,.1,.2,1); }
+  .cv-dot { transition: opacity 0.4s ease; }
+  .cv-bars { display: flex; flex-direction: column; gap: 11px; }
+  .cv-bar-row { display: grid; grid-template-columns: 150px 1fr 64px; gap: 10px; align-items: center; font-size: 10.5px; color: #cbd5e1; }
+  .cv-bar-row .lbl { line-height: 1.25; }
+  .cv-bar-row .lbl small { display: block; color: #64748b; font-size: 9px; }
+  .cv-track { height: 10px; background: rgba(255,255,255,0.06); border-radius: 5px; overflow: hidden; display: flex; }
+  .cv-fill { height: 100%; width: 0; transition: width 1.4s cubic-bezier(.22,.9,.3,1); }
+  .cv-val { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .cv-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 10px; color: #94a3b8; margin-top: 8px; }
+  .cv-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .cv-tag { font-size: 8.5px; font-weight: 800; padding: 1px 5px; border-radius: 4px; margin-left: 4px; letter-spacing: 0.4px; vertical-align: 1px; }
+  .cv-tag.ex { color: #D9A066; border: 1px solid rgba(217,160,102,0.5); }
+  .cv-tag.na { color: #84A48B; border: 1px solid rgba(132,164,139,0.5); }
+  .concl-synth { background: linear-gradient(135deg, rgba(231,200,120,0.08), rgba(132,164,139,0.06)); border: 1px solid rgba(231,200,120,0.3);
+    border-radius: 14px; padding: 20px 24px; font-size: 13px; line-height: 1.65; color: #e2e8f0;
+    opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .concl-synth.show { opacity: 1; transform: none; }
+  .concl-synth b { color: #E7C878; }
+  @media (max-width: 820px) { .concl-card { grid-template-columns: 1fr; } .cv-bar-row { grid-template-columns: 110px 1fr 56px; } }
+
   /* Hubs (Especies Clave) Modal */
   .hubs-modal {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -448,8 +487,16 @@ window.onerror = function(msg, url, line, col, error) {
   .legend-label { display: flex; align-items: center; gap: 8px; color: #cbd5e1; font-weight: 500; }
   .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
+  /* --- Barra de desplazamiento discreta en paneles --- */
+  .welcome-modal, .concl-modal { scrollbar-width: thin; scrollbar-color: rgba(132,164,139,0.45) transparent; }
+  .welcome-modal::-webkit-scrollbar, .concl-modal::-webkit-scrollbar { width: 6px; }
+  .welcome-modal::-webkit-scrollbar-track, .concl-modal::-webkit-scrollbar-track { background: transparent; margin: 14px 0; }
+  .welcome-modal::-webkit-scrollbar-thumb, .concl-modal::-webkit-scrollbar-thumb { background: rgba(132,164,139,0.35); border-radius: 6px; }
+  .welcome-modal::-webkit-scrollbar-thumb:hover, .concl-modal::-webkit-scrollbar-thumb:hover { background: rgba(132,164,139,0.7); }
+  .metric-replay { display: inline-flex; align-items: center; gap: 6px; }
+
   /* --- Tortas dinamicas (A y B) --- */
-  .donut-wrap { position: relative; width: 250px; height: 250px; margin: 6px 0 4px; }
+  .donut-wrap { position: relative; width: 230px; height: 230px; margin: 2px 0 0; }
   .donut-wrap svg { width: 100%; height: 100%; overflow: visible; }
   .donut-seg { fill: none; stroke-width: 26; cursor: pointer;
     transition: stroke-dasharray 0.9s cubic-bezier(.22,.9,.3,1), stroke-width 0.25s ease, opacity 0.25s ease; }
@@ -469,7 +516,7 @@ window.onerror = function(msg, url, line, col, error) {
   .donut-center-val { font-size: 26px; font-weight: 900; line-height: 1; color: #f1f5f9; font-variant-numeric: tabular-nums; }
   .donut-center-lbl { font-size: 9.5px; color: #94a3b8; margin-top: 5px; line-height: 1.25; text-transform: uppercase; letter-spacing: 0.6px; }
   .legend-row.lg-anim { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: center;
-    padding: 6px 10px; cursor: pointer; opacity: 0; transform: translateX(-14px);
+    padding: 4px 10px; cursor: pointer; opacity: 0; transform: translateX(-14px);
     transition: opacity 0.45s ease, transform 0.45s ease, background 0.2s ease, border-color 0.2s ease; }
   .legend-row.lg-anim.show { opacity: 1; transform: none; }
   .legend-row.lg-anim:hover, .legend-row.lg-anim.is-focus { background: rgba(255,255,255,0.08); border-color: var(--c); }
@@ -636,20 +683,25 @@ window.onerror = function(msg, url, line, col, error) {
         </div>
         <div style="font-size:11px; color:#94a3b8; margin-top:2px;">Distribución funcional y composición taxonómica del modelo (<span id="lblMetricTaxa">568</span> taxones)</div>
       </div>
-      <button class="btn-flat active" style="padding:8px 18px; font-weight:800; font-size:12px;" onclick="closeWelcomeModal()">
-        Explorar Red 3D →
-      </button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-flat metric-replay" style="padding:8px 14px; font-weight:700; font-size:12px;" onclick="replayMetrics()">
+          <i class="fa-solid fa-rotate-right"></i> Reproducir
+        </button>
+        <button class="btn-flat active" style="padding:8px 18px; font-weight:800; font-size:12px;" onclick="closeWelcomeModal()">
+          Explorar Red 3D →
+        </button>
+      </div>
     </div>
 
     <div class="pie-grid">
       <div class="pie-card">
-        <div class="pie-card-title">1. Torta A: Tipos de Interacción Biótica</div>
+        <div class="pie-card-title">1. Tipos de interacciones bióticas</div>
         <div class="pie-card-desc">Distribución de las relaciones funcionales registradas en la red socioecológica de Kennedy.</div>
         <div class="donut-wrap" id="donutA"></div>
         <div class="pie-legend" id="legendA"></div>
       </div>
       <div class="pie-card">
-        <div class="pie-card-title">2. Torta B: Convenciones Taxonómicas</div>
+        <div class="pie-card-title">2. Convenciones taxonómicas</div>
         <div class="pie-card-desc">Distribución de Flora SIGAU y los 5 grupos de Fauna de Kennedy.</div>
         <div class="donut-wrap" id="donutB"></div>
         <div class="pie-legend" id="legendB"></div>
@@ -680,9 +732,9 @@ window.onerror = function(msg, url, line, col, error) {
       <span>RED DE INTERACCIONES BIÓTICAS DE KENNEDY</span>
     </div>
 
-    <button class="glass-panel btn-flat" id="btnHubsModal" onclick="openHubsModal()" style="color:#E7C878; border-color:rgba(231,200,120,0.35); background:rgba(231,200,120,0.12);">
-      <i class="fa-solid fa-star" style="color:#E7C878;"></i>
-      <span>Especies Clave (Hubs)</span>
+    <button class="glass-panel btn-flat" id="btnConclusiones" onclick="openConclusiones()" style="color:#E7C878; border-color:rgba(231,200,120,0.35); background:rgba(231,200,120,0.12);">
+      <i class="fa-solid fa-lightbulb" style="color:#E7C878;"></i>
+      <span>Conclusiones</span>
     </button>
     <button class="glass-panel btn-flat active" onclick="openWelcomeModal()">
       <span>Métricas</span>
@@ -935,25 +987,25 @@ window.onerror = function(msg, url, line, col, error) {
   </div>
 </div>
 
-<!-- Hubs (Especies Clave) Modal -->
-<div class="hubs-modal" id="hubsModal" style="display:none;">
-  <div class="hubs-header">
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span style="font-weight:800; font-size:13px; color:#E7C878;">⭐ Especies Clave & Hubs de Conectividad Biótica</span>
-      <span style="font-size:10px; color:#94a3b8; font-family:monospace;">[Sabana de Bogotá · JBB · SIGAU · iNaturalist]</span>
+<!-- Conclusiones: lectura analitica de la red -->
+<div class="welcome-overlay" id="conclModalOverlay" style="display:none;">
+  <div class="welcome-modal concl-modal" id="conclScroll">
+    <div class="welcome-header">
+      <div>
+        <div style="font-size:16px; font-weight:900; color:#E7C878; letter-spacing:0.5px; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-lightbulb"></i> LECTURA DE LA RED — CONCLUSIONES
+        </div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">Lo que revela la estructura de la red de Kennedy y que no se ve a simple vista</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-flat metric-replay" style="padding:8px 14px; font-weight:700; font-size:12px;" onclick="playConclusiones()">
+          <i class="fa-solid fa-rotate-right"></i> Reproducir
+        </button>
+        <button class="btn-flat active" style="padding:8px 18px; font-weight:800; font-size:12px;" onclick="closeConclusiones()">Volver a la red →</button>
+      </div>
     </div>
-    <div class="btn-close" onclick="closeHubsModal()">×</div>
+    <div class="concl-list" id="conclList"></div>
   </div>
-  <div style="padding:8px 16px; background:rgba(15,23,42,0.8); display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.08);">
-    <button class="btn-flat active" id="hubFilterAll" onclick="filterHubs('all')">Todas (583)</button>
-    <button class="btn-flat" id="hubFilterFlora" onclick="filterHubs(0)">Flora SIGAU</button>
-    <button class="btn-flat" id="hubFilterAves" onclick="filterHubs(1)">Aves</button>
-    <button class="btn-flat" id="hubFilterMam" onclick="filterHubs(2)">Mamíferos</button>
-    <button class="btn-flat" id="hubFilterMol" onclick="filterHubs(3)">Moluscos</button>
-    <button class="btn-flat" id="hubFilterAnf" onclick="filterHubs(4)">Anfibios</button>
-    <button class="btn-flat" id="hubFilterRep" onclick="filterHubs(5)">Reptiles</button>
-  </div>
-  <div class="hubs-body" id="hubsList"></div>
 </div>
 
 <!-- Sub-Network 2D Graph Interactive Modal Popup -->
@@ -1706,6 +1758,7 @@ window.onerror = function(msg, url, line, col, error) {
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
 
+    var lastEdgePairs = null; // aristas activas actuales (para moverlas con la respiracion)
     function updateEdgeLinesGeometry() {
     const activeEdgesList = [];
     const interCounts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
@@ -1734,6 +1787,7 @@ window.onerror = function(msg, url, line, col, error) {
       if (badge) badge.innerText = interCounts[i];
     }
 
+    lastEdgePairs = activeEdgesList;
     const count = activeEdgesList.length;
     const posArr = new Float32Array(count * 6);
     const colArr = new Float32Array(count * 6);
@@ -2750,11 +2804,11 @@ window.onerror = function(msg, url, line, col, error) {
     5: 'fa-spa', 6: 'fa-egg', 7: 'fa-bug', 8: 'fa-scale-balanced' };
   const CAT_META = [
     { name: 'Flora & Arbolado SIGAU', color: '#84A48B', icon: 'fa-tree' },
-    { name: 'Aves (Avifauna)', color: '#38BDF8', icon: 'fa-dove' },
-    { name: 'Mamíferos (Mastofauna)', color: '#F59E0B', icon: 'fa-paw' },
-    { name: 'Moluscos (Gasterópodos)', color: '#EC4899', icon: 'fa-worm' },
-    { name: 'Anfibios (Ranas/Sapos)', color: '#10B981', icon: 'fa-frog' },
-    { name: 'Reptiles (Serpientes/Lagartos)', color: '#A855F7', icon: 'fa-dragon' }
+    { name: 'Aves (Avifauna)', color: '#7DA0B8', icon: 'fa-dove' },
+    { name: 'Mamíferos (Mastofauna)', color: '#D9A066', icon: 'fa-paw' },
+    { name: 'Moluscos (Gasterópodos)', color: '#C98A94', icon: 'fa-worm' },
+    { name: 'Anfibios (Ranas/Sapos)', color: '#6B9080', icon: 'fa-frog' },
+    { name: 'Reptiles (Serpientes/Lagartos)', color: '#A386A9', icon: 'fa-dragon' }
   ];
 
   function metricPieData() {
@@ -2861,12 +2915,13 @@ window.onerror = function(msg, url, line, col, error) {
       if (idx === null) { cVal.textContent = total.toLocaleString('es-CO'); cVal.style.color = ''; cLbl.textContent = centerLbl; }
       else { const p = parts[idx]; cVal.textContent = fmtPct(p.pct, 1) + '%'; cVal.style.color = p.d.color; cLbl.textContent = p.d.name; }
     };
-    segs.forEach((s, k) => { s.addEventListener('mouseenter', () => focus(k)); s.addEventListener('mouseleave', () => focus(null)); });
-    rows.forEach((r, k) => { r.addEventListener('mouseenter', () => focus(k)); r.addEventListener('mouseleave', () => focus(null)); });
+    const userFocus = (k) => { stopMetricAutoplay(); focus(k); };
+    segs.forEach((s, k) => { s.addEventListener('mouseenter', () => userFocus(k)); s.addEventListener('mouseleave', () => focus(null)); });
+    rows.forEach((r, k) => { r.addEventListener('mouseenter', () => userFocus(k)); r.addEventListener('mouseleave', () => focus(null)); });
 
     // Animacion de entrada: porciones en secuencia, iconos que aparecen, filas que entran y porcentajes que cuentan
     const STEP = 130;
-    requestAnimationFrame(() => requestAnimationFrame(() => {
+    setTimeout(() => {
       parts.forEach((p, k) => {
         setTimeout(() => {
           const len = Math.max(p.pct - (p.pct > 1.2 ? 0.5 : 0.15), 0.1);
@@ -2885,16 +2940,35 @@ window.onerror = function(msg, url, line, col, error) {
         if (u < 1) requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
-    }));
+      // Respaldo: deja los valores finales aunque el navegador reduzca los frames (pestaña en segundo plano)
+      setTimeout(() => {
+        if (!wrap.classList.contains('has-focus')) cVal.textContent = total.toLocaleString('es-CO');
+        parts.forEach((p, k) => { vals[k].textContent = fmtPct(p.pct, 2) + '%'; });
+      }, dur + 250);
+    }, 40);
+    return { focus, n: parts.length, introMs: 120 + parts.length * STEP + 900 };
   }
 
+  // Reproduccion automatica: recorre cada porcion como si pasara el cursor (torta 1 y luego torta 2)
+  let metricTimers = [];
+  function stopMetricAutoplay() { metricTimers.forEach(clearTimeout); metricTimers = []; }
   function renderMetricPies() {
+    stopMetricAutoplay();
     const data = metricPieData();
     const lbl = document.getElementById('lblMetricTaxa');
     if (lbl) lbl.textContent = data.totalTaxa;
-    renderDonut('donutA', 'legendA', data.A, 'relaciones registradas', 'relaciones');
-    renderDonut('donutB', 'legendB', data.B, 'taxones', 'taxones');
+    const ctlA = renderDonut('donutA', 'legendA', data.A, 'relaciones registradas', 'relaciones');
+    const ctlB = renderDonut('donutB', 'legendB', data.B, 'taxones', 'taxones');
+    if (!ctlA || !ctlB) return;
+    const HOLD = 1700;
+    let t = Math.max(ctlA.introMs, ctlB.introMs) + 400;
+    const at = (ms, fn) => metricTimers.push(setTimeout(fn, ms));
+    for (let k = 0; k < ctlA.n; k++) { const kk = k; at(t, () => ctlA.focus(kk)); t += HOLD; }
+    at(t, () => ctlA.focus(null)); t += 500;
+    for (let k = 0; k < ctlB.n; k++) { const kk = k; at(t, () => ctlB.focus(kk)); t += HOLD; }
+    at(t, () => ctlB.focus(null));
   }
+  window.replayMetrics = () => renderMetricPies();
   window.__metricPieData = metricPieData;
 
   window.openWelcomeModal = () => {
@@ -2904,6 +2978,7 @@ window.onerror = function(msg, url, line, col, error) {
   };
 
   window.closeWelcomeModal = () => {
+    stopMetricAutoplay();
     const modal = document.getElementById("welcomeModalOverlay");
     if (modal) modal.style.display = "none";
   };
@@ -3348,6 +3423,300 @@ window.onerror = function(msg, url, line, col, error) {
   }
 
   // =====================================================================
+  // CONCLUSIONES: ANALISIS ESTRUCTURAL DE LA RED (calculado en vivo)
+  // =====================================================================
+  const CONCL_TERRITORY = {
+    // Calculado con las coordenadas iNaturalist georreferenciadas (294 registros de fauna)
+    // contra los poligonos de humedales del modelo (assets/kennedy_water_bodies.json)
+    inside: 44.9, near150: 63.3, wetlandHa: 88, modelHa: 6755
+  };
+  const EXOTIC = { 'SIGAU-013': 'ex', 'SIGAU-009': 'ex', 'SIGAU-007': 'ex', 'SIGAU-011': 'na', 'SIGAU-034': 'na', 'SIGAU-029': 'na', 'SIGAU-001': 'na' };
+
+  function networkAnalysis() {
+    const n = rawNodes.length;
+    const adj = rawNodes.map(() => []);
+    const types = [];
+    rawEdges.forEach(e => {
+      const a = e.source, b = e.target;
+      adj[a].push(b); adj[b].push(a);
+      const key = a < b ? `${a}_${b}` : `${b}_${a}`;
+      const inter = edgeDetailsMap[key]?.type || getInteractionInfo(rawNodes[a], rawNodes[b]);
+      types.push({ a, b, t: inter.id });
+    });
+    const deg = adj.map(l => l.length);
+    const totalEnds = deg.reduce((s, d) => s + d, 0);
+    const order = deg.map((d, i) => i).sort((x, y) => deg[y] - deg[x]);
+    const lcc = (removed) => {
+      const seen = new Uint8Array(n); let best = 0, alive = 0;
+      for (let i = 0; i < n; i++) if (!removed[i]) alive++;
+      for (let s = 0; s < n; s++) {
+        if (removed[s] || seen[s]) continue;
+        let size = 0; const st = [s]; seen[s] = 1;
+        while (st.length) { const v = st.pop(); size++; for (const w of adj[v]) if (!removed[w] && !seen[w]) { seen[w] = 1; st.push(w); } }
+        if (size > best) best = size;
+      }
+      return { pct: alive ? best / alive * 100 : 0, alive };
+    };
+    const comps = (removed) => {
+      const seen = new Uint8Array(n); let c = 0;
+      for (let s = 0; s < n; s++) {
+        if (removed[s] || seen[s]) continue; c++;
+        const st = [s]; seen[s] = 1;
+        while (st.length) { const v = st.pop(); for (const w of adj[v]) if (!removed[w] && !seen[w]) { seen[w] = 1; st.push(w); } }
+      }
+      return c;
+    };
+    // Curvas de robustez: retirar primero las mas conectadas vs. al azar
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const steps = []; for (let p = 0; p <= 50; p += 5) steps.push(p);
+    const curveTop = [], curveRand = [];
+    steps.forEach(p => {
+      const k = Math.round(n * p / 100);
+      const rm = new Uint8Array(n); for (let i = 0; i < k; i++) rm[order[i]] = 1;
+      curveTop.push(lcc(rm).pct);
+      let acc = 0; const REP = 12;
+      for (let r = 0; r < REP; r++) {
+        const idx = rawNodes.map((_, i) => i);
+        for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+        const rr = new Uint8Array(n); for (let i = 0; i < k; i++) rr[idx[i]] = 1;
+        acc += lcc(rr).pct;
+      }
+      curveRand.push(acc / REP);
+    });
+    const collapseIdx = curveTop.findIndex(v => v < 50);
+    const topNode = rawNodes[order[0]];
+    const rmTop = new Uint8Array(n); rmTop[order[0]] = 1;
+    const withoutTop = lcc(rmTop).pct;
+    const rmBirds = new Uint8Array(n); rawNodes.forEach(x => { if (x.cat === 1) rmBirds[x.id] = 1; });
+    const withoutBirds = lcc(rmBirds).pct, birdFragments = comps(rmBirds);
+    const birdEdges = types.filter(e => rawNodes[e.a].cat === 1 || rawNodes[e.b].cat === 1).length;
+    const maxBird = Math.max(...rawNodes.filter(x => x.cat === 1).map(x => deg[x.id]));
+    const nBirds = rawNodes.filter(x => x.cat === 1).length;
+    // Redundancia: cuantos socios tiene cada arbol para dispersion (2) y visita floral (5)
+    const partners = (typeId) => {
+      const m = {};
+      types.forEach(e => {
+        if (e.t !== typeId) return;
+        const f = rawNodes[e.a].cat === 0 ? e.a : (rawNodes[e.b].cat === 0 ? e.b : -1);
+        if (f < 0) return; const o = f === e.a ? e.b : e.a;
+        (m[f] || (m[f] = new Set())).add(o);
+      });
+      const v = Object.values(m).map(s => s.size);
+      return { total: v.length, one: v.filter(x => x === 1).length, mid: v.filter(x => x >= 2 && x <= 4).length, many: v.filter(x => x >= 5).length };
+    };
+    const disp = partners(2), pol = partners(5);
+    // Arboles: abundancia en el censo vs conexiones
+    const flora = rawNodes.filter(x => x.cat === 0).map(x => {
+      const m = /(\d+)\s*individuos/.exec(x.role || ''); return { node: x, ab: m ? +m[1] : null, d: deg[x.id] };
+    }).filter(x => x.ab);
+    const rank = (arr) => { const s = arr.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]); const r = new Array(arr.length);
+      let i = 0; while (i < s.length) { let j = i; while (j + 1 < s.length && s[j + 1][0] === s[i][0]) j++; for (let k = i; k <= j; k++) r[s[k][1]] = (i + j) / 2; i = j + 1; } return r; };
+    const ra = rank(flora.map(x => x.ab)), rd = rank(flora.map(x => x.d));
+    const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+    const ma = mean(ra), md = mean(rd);
+    let num = 0, da = 0, dd = 0; ra.forEach((v, i) => { num += (v - ma) * (rd[i] - md); da += (v - ma) ** 2; dd += (rd[i] - md) ** 2; });
+    const rho = num / Math.sqrt(da * dd);
+    const topTrees = flora.slice().sort((a, b) => b.d - a.d).slice(0, 8);
+    const mostPlanted = flora.slice().sort((a, b) => b.ab - a.ab)[0];
+    const mostPlantedRank = flora.slice().sort((a, b) => b.d - a.d).indexOf(mostPlanted) + 1;
+    // Grupos: relaciones promedio por especie
+    const groups = CAT_META.map((m, c) => {
+      const ids = rawNodes.filter(x => x.cat === c).map(x => x.id);
+      return { ...m, c, n: ids.length, mean: ids.length ? mean(ids.map(i => deg[i])) : 0 };
+    }).sort((a, b) => b.mean - a.mean);
+    const predSmall = types.filter(e => e.t === 0 && [rawNodes[e.a].cat, rawNodes[e.b].cat].includes(1) &&
+      [2, 3, 4, 5].some(c => [rawNodes[e.a].cat, rawNodes[e.b].cat].includes(c))).length;
+    const smallTotal = types.filter(e => [2, 3, 4, 5].some(c => [rawNodes[e.a].cat, rawNodes[e.b].cat].includes(c))).length;
+    return { n, totalEdges: rawEdges.length, deg, totalEnds, order, steps, curveTop, curveRand, collapseIdx, topNode, topDeg: deg[order[0]],
+      topShare: deg[order[0]] / totalEnds * 100, withoutTop, withoutBirds, birdFragments, birdEdges, maxBird, nBirds,
+      disp, pol, rho, topTrees, mostPlanted, mostPlantedRank, groups, predSmall, smallTotal,
+      medianDeg: deg.slice().sort((a, b) => a - b)[Math.floor(n / 2)] };
+  }
+
+  const nf = (v, d = 0) => v.toLocaleString('es-CO', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const cleanName = (s) => (s || '').replace(/ \(SIGAU-\d+\)$/, '').split(',')[0];
+
+  function robustnessSVG(A) {
+    const W = 460, H = 230, L = 40, R = 14, T = 14, B = 34;
+    const x = i => L + (A.steps[i] / 50) * (W - L - R), y = v => T + (1 - v / 100) * (H - T - B);
+    const path = arr => arr.map((v, i) => `${i ? 'L' : 'M'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+    let g = '';
+    [0, 25, 50, 75, 100].forEach(v => { g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(255,255,255,0.06)"/><text x="${L - 8}" y="${y(v) + 3}" fill="#64748b" font-size="9" text-anchor="end">${v}%</text>`; });
+    A.steps.forEach((p, i) => { if (p % 10 === 0) g += `<text x="${x(i)}" y="${H - B + 16}" fill="#64748b" font-size="9" text-anchor="middle">${p}%</text>`; });
+    g += `<text x="${(L + W - R) / 2}" y="${H - 4}" fill="#94a3b8" font-size="9.5" text-anchor="middle">Especies retiradas de la red</text>`;
+    if (A.collapseIdx > 0) {
+      const cx = x(A.collapseIdx);
+      g += `<line x1="${cx}" x2="${cx}" y1="${T}" y2="${H - B}" stroke="#C96349" stroke-dasharray="3 4" opacity="0.7" class="cv-dot" style="opacity:0" data-late="1"/>`;
+      g += `<text x="${cx + 6}" y="${T + 10}" fill="#C96349" font-size="9.5" class="cv-dot" style="opacity:0" data-late="1">Umbral de colapso</text>`;
+    }
+    g += `<path class="cv-line" d="${path(A.curveRand)}" stroke="#84A48B"/>`;
+    g += `<path class="cv-line" d="${path(A.curveTop)}" stroke="#E7C878"/>`;
+    return `<svg viewBox="0 0 ${W} ${H}">${g}</svg>
+      <div class="cv-legend"><span><i style="background:#E7C878"></i>Retirando primero las más conectadas</span><span><i style="background:#84A48B"></i>Retirando al azar (promedio de 12 ensayos)</span></div>`;
+  }
+
+  function barsHTML(rows) {
+    return `<div class="cv-bars">${rows.map(r => `
+      <div class="cv-bar-row"><div class="lbl">${r.label}${r.sub ? `<small>${r.sub}</small>` : ''}</div>
+        <div class="cv-track">${r.parts.map(p => `<div class="cv-fill" data-w="${p.w}" style="background:${p.c};"></div>`).join('')}</div>
+        <div class="cv-val" style="color:${r.vc || '#f1f5f9'};">${r.val}</div></div>`).join('')}</div>`;
+  }
+
+  function buildConclusiones() {
+    const A = networkAnalysis();
+    const T = CONCL_TERRITORY;
+    const birdShare = A.birdEdges / A.totalEdges * 100;
+    const collapsePct = A.collapseIdx > 0 ? A.steps[A.collapseIdx] : null;
+    const prevPct = A.collapseIdx > 0 ? A.steps[A.collapseIdx - 1] : null;
+    const smallGroups = A.groups.filter(g => [2, 3, 4, 5].includes(g.c));
+    const birdsG = A.groups.find(g => g.c === 1), floraG = A.groups.find(g => g.c === 0);
+    const maxMean = Math.max(...A.groups.map(g => g.mean));
+    const smallMean = smallGroups.reduce((s, g) => s + g.mean * g.n, 0) / smallGroups.reduce((s, g) => s + g.n, 0);
+    const maxTreeD = A.topTrees[0].d, maxTreeAb = Math.max(...A.topTrees.map(t => t.ab));
+    const pct = (a, b) => b ? a / b * 100 : 0;
+    const cards = [
+      { acc: '#E7C878', kpi: nf(A.withoutTop, 0) + '%', kpiTxt: `de la red sigue conectada al retirar la especie más conectada (${cleanName(A.topNode.label)})`,
+        title: 'Ninguna especie sostiene la red por sí sola',
+        text: `La especie con más relaciones, <strong>${cleanName(A.topNode.label)}</strong> (${A.topDeg}), concentra apenas el <strong>${nf(A.topShare, 1)}%</strong> de todos los extremos de enlace. Si se retira, las ${A.n - 1} especies restantes siguen formando un solo tejido. La red solo se rompe cuando se retiran a la vez entre el <strong>${prevPct}% y el ${collapsePct}%</strong> de las especies más conectadas (unas ${Math.round(A.n * prevPct / 100)} a ${Math.round(A.n * collapsePct / 100)}). Al azar, aun quitando la mitad de las especies, el <strong>${nf(A.curveRand[A.curveRand.length - 1], 0)}%</strong> sigue conectado.`,
+        why: 'Una red centralizada se derrumba al perder su centro. Esta no tiene centro: tiene muchos nodos medianos que se respaldan entre sí. Por eso no tiene sentido hablar de una única "especie clave".',
+        vis: robustnessSVG(A) },
+      { acc: '#7DA0B8', kpi: nf(birdShare, 1) + '%', kpiTxt: 'de todas las relaciones de la red involucran al menos un ave',
+        title: 'La red depende de un grupo, no de un individuo: las aves',
+        text: `Ninguna ave supera las <strong>${A.maxBird}</strong> relaciones, pero entre las ${A.nBirds} especies de aves sostienen casi todo el sistema. Si desaparece el grupo completo, la red se fragmenta en <strong>${A.birdFragments} pedazos</strong> y su mayor fragmento conserva solo el <strong>${nf(A.withoutBirds, 1)}%</strong> de las especies.`,
+        why: 'La resiliencia no está en una especie estrella sino en un gremio funcional diverso: polinizan, dispersan semillas, anidan en los árboles y depredan a la fauna pequeña. Proteger la red es proteger la diversidad de aves y los hábitats que las sostienen.',
+        vis: barsHTML([
+          { label: `Sin ${cleanName(A.topNode.label)}`, sub: 'retirando 1 especie', parts: [{ w: A.withoutTop, c: '#E7C878' }], val: nf(A.withoutTop, 0) + '%', vc: '#E7C878' },
+          { label: 'Sin las 10 más conectadas', sub: 'retirando 10 especies', parts: [{ w: A.curveTop[1] ?? 100, c: '#E7C878' }], val: nf(A.curveTop[1], 0) + '%', vc: '#E7C878' },
+          { label: `Sin las ${A.nBirds} aves`, sub: `${A.birdFragments} fragmentos`, parts: [{ w: A.withoutBirds, c: '#C96349' }], val: nf(A.withoutBirds, 0) + '%', vc: '#C96349' }
+        ]) + '<div class="cv-legend"><span>Porcentaje de especies que siguen conectadas en el fragmento principal</span></div>' },
+      { acc: '#C98A94', kpi: nf(pct(A.disp.one, A.disp.total), 0) + '%', kpiTxt: `de los árboles con dispersores registrados dependen de una sola especie para dispersar sus semillas`,
+        title: 'Robusta en conjunto, frágil en los bordes',
+        text: `La red completa resiste, pero mirando especie por especie aparece la fragilidad: <strong>${A.disp.one} de ${A.disp.total}</strong> árboles con dispersión registrada tienen un único dispersor, y <strong>${A.pol.one} de ${A.pol.total}</strong> árboles visitados tienen un único visitante floral. Solo ${A.disp.many} especies de árbol cuentan con cinco o más dispersores.`,
+        why: 'La pérdida local de una sola ave no rompe la red, pero sí puede dejar a un árbol concreto sin quien mueva sus semillas. La conservación debe medirse en redundancia (cuántos socios tiene cada especie), no solo en número de especies.',
+        vis: barsHTML([
+          { label: 'Dispersión de semillas', sub: `${A.disp.total} árboles`, parts: [{ w: pct(A.disp.one, A.disp.total), c: '#C96349' }, { w: pct(A.disp.mid, A.disp.total), c: '#E7C878' }, { w: pct(A.disp.many, A.disp.total), c: '#84A48B' }], val: nf(pct(A.disp.one, A.disp.total), 0) + '%', vc: '#C96349' },
+          { label: 'Visita floral', sub: `${A.pol.total} árboles`, parts: [{ w: pct(A.pol.one, A.pol.total), c: '#C96349' }, { w: pct(A.pol.mid, A.pol.total), c: '#E7C878' }, { w: pct(A.pol.many, A.pol.total), c: '#84A48B' }], val: nf(pct(A.pol.one, A.pol.total), 0) + '%', vc: '#C96349' }
+        ]) + '<div class="cv-legend"><span><i style="background:#C96349"></i>1 socio</span><span><i style="background:#E7C878"></i>2 a 4 socios</span><span><i style="background:#84A48B"></i>5 o más socios</span></div>' },
+      { acc: '#84A48B', kpi: nf(A.rho, 2), kpiTxt: 'correlación entre cuántos árboles hay de una especie (censo SIGAU) y cuántas relaciones tiene',
+        title: `Por qué el ${cleanName(A.topNode.label).toLowerCase()} es el más conectado`,
+        text: `La abundancia ayuda, pero no explica: la correlación es moderada. El <strong>${cleanName(A.mostPlanted.node.label).toLowerCase()}</strong> es el árbol más plantado (${nf(A.mostPlanted.ab)} individuos) y aun así ocupa el puesto ${A.mostPlantedRank} en conexiones. En cambio, especies menos abundantes como el chilco o el aliso superan a muchas más comunes. En el modelo pesa más <strong>lo que el árbol ofrece</strong> (frutos, flores, ramas para anidar) que cuántos hay.`,
+        why: 'Dos de los cuatro árboles más conectados son exóticos (caucho benjamín y urapán): la fauna urbana de Kennedy se alimenta y anida en árboles que alguien decidió plantar. La arborización urbana es, en la práctica, una decisión sobre la red ecológica.',
+        vis: barsHTML(A.topTrees.map(t => ({
+          label: cleanName(t.node.label) + (EXOTIC[t.node.taxaId] === 'ex' ? '<span class="cv-tag ex">EXÓTICA</span>' : (EXOTIC[t.node.taxaId] === 'na' ? '<span class="cv-tag na">NATIVA</span>' : '')),
+          sub: `${nf(t.ab)} individuos en el censo`,
+          parts: [{ w: t.d / maxTreeD * 100, c: '#84A48B' }], val: `${t.d}`, vc: '#84A48B' }))) +
+          '<div class="cv-legend"><span><i style="background:#84A48B"></i>Relaciones de cada árbol (los 8 más conectados)</span></div>' },
+      { acc: '#D9A066', kpi: nf(smallMean / floraG.mean, 1) + '×', kpiTxt: 'más relaciones por especie tiene la fauna pequeña (mamíferos, reptiles, anfibios y moluscos) que la flora',
+        title: 'Pocas especies, muchas relaciones',
+        text: `Mamíferos, reptiles, anfibios y moluscos suman apenas ${smallGroups.reduce((s, g) => s + g.n, 0)} especies, pero cada una tiene en promedio entre <strong>${nf(Math.min(...smallGroups.map(g => g.mean)), 0)} y ${nf(Math.max(...smallGroups.map(g => g.mean)), 0)}</strong> relaciones, frente a ${nf(birdsG.mean, 0)} de las aves y ${nf(floraG.mean, 0)} de la flora. El <strong>${nf(pct(A.predSmall, A.smallTotal), 0)}%</strong> de sus relaciones son de depredación por aves.`,
+        why: 'Son el eslabón que alimenta a garzas y rapaces. Con tan pocas especies, la pérdida de una sola se nota mucho más que la de un árbol o un ave común: son pocos nodos cargando muchas cadenas tróficas.',
+        vis: barsHTML(A.groups.map(g => ({ label: g.name.split(' (')[0], sub: `${g.n} especies`, parts: [{ w: g.mean / maxMean * 100, c: g.color }], val: nf(g.mean, 1), vc: g.color }))) +
+          '<div class="cv-legend"><span>Relaciones promedio por especie</span></div>' },
+      { acc: '#6B9080', kpi: nf(T.inside, 0) + '%', kpiTxt: 'de los registros de fauna de iNaturalist caen dentro de un humedal',
+        title: 'En el territorio, la vida se concentra en los humedales',
+        text: `Los humedales del modelo suman cerca de <strong>${T.wetlandHa} ha</strong>, apenas el ${nf(T.wetlandHa / T.modelHa * 100, 1)}% del área modelada, y sin embargo reúnen el <strong>${nf(T.inside, 0)}%</strong> de los registros de fauna. A menos de 150 m de un humedal está el <strong>${nf(T.near150, 0)}%</strong>.`,
+        why: 'Lo que las aves son para la red, los humedales lo son para el territorio: puntos de alta concentración que no reemplazan a la red de árboles urbanos, sino que dependen de ella para conectarse entre sí.',
+        vis: barsHTML([
+          { label: 'Área del modelo', sub: 'ocupada por humedales', parts: [{ w: T.wetlandHa / T.modelHa * 100, c: '#6B9080' }], val: nf(T.wetlandHa / T.modelHa * 100, 1) + '%', vc: '#6B9080' },
+          { label: 'Registros de fauna', sub: 'dentro de un humedal', parts: [{ w: T.inside, c: '#7DA0B8' }], val: nf(T.inside, 0) + '%', vc: '#7DA0B8' },
+          { label: 'Registros de fauna', sub: 'a menos de 150 m', parts: [{ w: T.near150, c: '#7DA0B8' }], val: nf(T.near150, 0) + '%', vc: '#7DA0B8' }
+        ]) }
+    ];
+    const list = document.getElementById('conclList');
+    list.innerHTML = cards.map((c, i) => `
+      <div class="concl-card" style="--acc:${c.acc};" data-kpi="${c.kpi}">
+        <div>
+          <div class="concl-num">Conclusión ${String(i + 1).padStart(2, '0')}</div>
+          <div class="concl-title">${c.title}</div>
+          <div class="concl-kpi"><b>${c.kpi}</b><span>${c.kpiTxt}</span></div>
+          <div class="concl-text">${c.text}</div>
+          <div class="concl-why">${c.why}</div>
+        </div>
+        <div class="concl-vis">${c.vis}</div>
+      </div>`).join('') + `
+      <div class="concl-synth"><b>Síntesis.</b> La red biótica de Kennedy es <b>descentralizada</b>: ninguna especie es indispensable y la estructura resiste la pérdida de sus nodos más conectados hasta un umbral alto. Su verdadera dependencia es colectiva (el gremio de aves y los humedales) y su fragilidad está en los bordes, en los muchos árboles que tienen un solo aliado para polinizarse o dispersarse. Conservar esta red significa sostener diversidad y redundancia, no proteger una especie trofeo.</div>`;
+  }
+
+  function animateConclCard(card) {
+    if (!card || card.dataset.done) return;
+    card.dataset.done = '1';
+    card.classList.add('show');
+    // lineas del grafico
+    card.querySelectorAll('.cv-line').forEach((p, k) => {
+      const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
+      setTimeout(() => { p.style.strokeDashoffset = 0; }, 250 + k * 500);
+    });
+    setTimeout(() => card.querySelectorAll('[data-late]').forEach(e => e.style.opacity = 1), 2600);
+    // barras
+    card.querySelectorAll('.cv-fill').forEach((f, k) => setTimeout(() => { f.style.width = f.dataset.w + '%'; }, 250 + k * 160));
+    // cifra principal que cuenta
+    const b = card.querySelector('.concl-kpi b'); const target = b.textContent;
+    const m = /^([\d.,]+)(.*)$/.exec(target);
+    if (m) {
+      const isComma = m[1].includes(',');
+      const val = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
+      const dec = isComma ? m[1].split(',')[1].length : 0;
+      const t0 = performance.now(), D = 1400;
+      const tick = (now) => {
+        const u = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - u, 3);
+        b.textContent = (val * e).toLocaleString('es-CO', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + m[2];
+        if (u < 1) requestAnimationFrame(tick); else b.textContent = target;
+      };
+      requestAnimationFrame(tick);
+      setTimeout(() => { b.textContent = target; }, D + 300);
+    }
+  }
+
+  let conclTimers = [], conclObserver = null, conclAuto = false;
+  function stopConclAuto() { conclAuto = false; conclTimers.forEach(clearTimeout); conclTimers = []; }
+  window.playConclusiones = () => {
+    stopConclAuto();
+    buildConclusiones();
+    const scroller = document.getElementById('conclScroll');
+    scroller.scrollTop = 0;
+    const cards = [...scroller.querySelectorAll('.concl-card')];
+    const synth = scroller.querySelector('.concl-synth');
+    if (conclObserver) conclObserver.disconnect();
+    conclObserver = new IntersectionObserver(entries => entries.forEach(en => {
+      if (en.isIntersecting) { if (en.target.classList.contains('concl-synth')) en.target.classList.add('show'); else animateConclCard(en.target); }
+    }), { root: scroller, threshold: 0.35 });
+    cards.forEach(c => conclObserver.observe(c)); conclObserver.observe(synth);
+    // Recorrido automatico: cada conclusion se centra en pantalla, como un video
+    conclAuto = true;
+    let t = 600;
+    cards.forEach((c, i) => {
+      conclTimers.push(setTimeout(() => {
+        if (!conclAuto) return;
+        cards.forEach(x => x.classList.toggle('is-current', x === c));
+        if (i > 0) scroller.scrollTo({ top: c.offsetTop - 90, behavior: 'smooth' });
+        animateConclCard(c);
+      }, t));
+      t += 6500;
+    });
+    conclTimers.push(setTimeout(() => {
+      if (!conclAuto) return;
+      cards.forEach(x => x.classList.remove('is-current'));
+      scroller.scrollTo({ top: synth.offsetTop - 90, behavior: 'smooth' });
+      synth.classList.add('show');
+    }, t));
+  };
+  window.openConclusiones = () => {
+    const ov = document.getElementById('conclModalOverlay');
+    if (!ov) return;
+    ov.style.display = 'flex';
+    playConclusiones();
+  };
+  window.closeConclusiones = () => {
+    stopConclAuto();
+    const ov = document.getElementById('conclModalOverlay');
+    if (ov) ov.style.display = 'none';
+  };
+  // Si la persona desplaza a mano, se detiene el recorrido automatico
+  ['wheel', 'touchstart', 'keydown'].forEach(ev => {
+    document.addEventListener(ev, (e) => { if (conclAuto && e.target.closest && e.target.closest('#conclScroll')) stopConclAuto(); }, { passive: true });
+  });
+
+  // =====================================================================
   // HUBS (ESPECIES CLAVE) MODAL Y ENFOQUE 3D
   // =====================================================================
   let activeHubFilter = 'all';
@@ -3690,6 +4059,9 @@ window.onerror = function(msg, url, line, col, error) {
   // =====================================================================
   const clock = new THREE.Clock();
 
+  const metricOverlayEl = document.getElementById('welcomeModalOverlay');
+  const conclOverlayEl = document.getElementById('conclModalOverlay');
+  let lastOverlayRender = 0;
   function animate() {
     requestAnimationFrame(animate);
 
@@ -3719,6 +4091,43 @@ window.onerror = function(msg, url, line, col, error) {
           bg.userData.ring.scale.set(sc, sc, sc);
         }
       });
+    }
+
+    // Con un panel de pantalla completa abierto (métricas o conclusiones) el render 3D baja a ~4 cuadros
+    // por segundo para que las animaciones del panel corran fluidas.
+    if ((metricOverlayEl && metricOverlayEl.style.display === 'flex') || (conclOverlayEl && conclOverlayEl.style.display === 'flex')) {
+      if (elapsedTime - lastOverlayRender < 0.25) return;
+      lastOverlayRender = elapsedTime;
+      renderer.render(scene, camera);
+      return;
+    }
+
+    // Respiracion de la red: cada nodo oscila suavemente alrededor de su posicion y el conjunto se expande y contrae
+    if (currentMorph < 0.35) {
+      const t = elapsedTime;
+      for (let i = 0; i < rawNodes.length; i++) {
+        const n = rawNodes[i];
+        if (!n.sprite || !n.sprite.visible) continue;
+        const ph = i * 1.618;
+        n.sprite.position.set(
+          n.x + Math.sin(t * 0.85 + ph) * 0.55,
+          n.y + Math.cos(t * 0.7 + ph * 1.31) * 0.55,
+          n.z + Math.sin(t * 0.6 + ph * 0.77) * 0.55
+        );
+      }
+      const s = 1 + Math.sin(t * 0.9) * 0.014;
+      networkGroup.scale.set(s, s, s);
+      const attr = edgeGeo.attributes.position;
+      if (attr && lastEdgePairs && attr.array.length >= lastEdgePairs.length * 6) {
+        const arr = attr.array;
+        for (let i = 0; i < lastEdgePairs.length; i++) {
+          const pa = lastEdgePairs[i].na.sprite.position, pb = lastEdgePairs[i].nb.sprite.position, p = i * 6;
+          arr[p] = pa.x; arr[p + 1] = pa.y; arr[p + 2] = pa.z; arr[p + 3] = pb.x; arr[p + 4] = pb.y; arr[p + 5] = pb.z;
+        }
+        attr.needsUpdate = true;
+      }
+    } else if (networkGroup.scale.x !== 1) {
+      networkGroup.scale.set(1, 1, 1);
     }
 
     renderer.render(scene, camera);
