@@ -71,7 +71,7 @@
     const mat = new THREE.MeshStandardMaterial({ map: tex(A + 'arbol_real4.png', false), transparent: true, alphaTest: 0.3, side: THREE.DoubleSide, roughness: 0.95 });
     const mesh = new THREE.InstancedMesh(pg, mat, list.length); mesh.frustumCulled = false;
     state.treeData = list.map(t => { const p = toScene(t[0], t[1]), h = Math.max(0.3, t[2] * SCALE), w = h * (1.1 + (hash2(t[4]) % 20) / 100 - 0.1); return { x: p.x, z: p.z, w, h }; });
-    state.treeMesh = mesh; g.add(mesh);
+    state.treeMesh = mesh; state.treeList = list; g.add(mesh);
   }
 
   function water(g, list) {
