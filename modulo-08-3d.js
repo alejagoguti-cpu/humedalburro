@@ -284,22 +284,25 @@
 
   // Texturas de agua con relieve y movimiento (mismo color y textura que la axonometría)
   const waterTexLoader = new THREE.TextureLoader();
-  const waterTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  const waterTex = waterTexLoader.load("./assets/textura_agua_humedal.jpg");
   waterTex.wrapS = THREE.RepeatWrapping;
   waterTex.wrapT = THREE.RepeatWrapping;
+  waterTex.repeat.set(0.5, 0.5); // una repeticion cada ~25 unidades: las ondas se ven grandes y no se nota el mosaico
+  waterTex.anisotropy = 4;
   waterTexRef = waterTex;
 
-  const bumpTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  const bumpTex = waterTexLoader.load("./assets/textura_agua_relieve.jpg");
   bumpTex.wrapS = THREE.RepeatWrapping;
   bumpTex.wrapT = THREE.RepeatWrapping;
-  bumpTex.repeat.set(2.3, 2.3);
+  bumpTex.repeat.set(0.9, 0.9);
   waterBumpRef = bumpTex;
 
   const sharedWaterMat = new THREE.MeshStandardMaterial({
-    vertexColors: true,
+    vertexColors: false, // sin degradado: el agua se ve por su textura
+    color: 0xf2f6f7,
     map: waterTex,
     bumpMap: bumpTex,
-    bumpScale: 0.12,
+    bumpScale: 0.2,
     roughness: 0.15,
     metalness: 0.15,
     transparent: true,
@@ -524,15 +527,8 @@
       }
 
       function getWetlandGradientColor(px, pz) {
-        const dist = Math.hypot(px - polyCentroidX, pz - polyCentroidZ);
-        const t = Math.min(1.0, Math.max(0.0, dist / maxDist));
-        // Difuminado orgánico: Centro = Azul acuático vivo (#0284c7), Bordes = Verde oscuro musgoso y profundo (#143522)
-        const tPow = Math.pow(t, 1.4);
-        // colores naturales: centro azul petroleo apagado, orilla de pantano oliva (antes azul electrico)
-        const r = 0.30 + (0.33 - 0.30) * tPow;
-        const g = 0.47 + (0.37 - 0.47) * tPow;
-        const b = 0.53 + (0.24 - 0.53) * tPow;
-        return [r, g, b];
+        // Sin degradado: el lecho del humedal es de un solo color; el agua se ve por su textura.
+        return [0.21, 0.31, 0.30];
       }
 
       // Línea de orilla oscura verdosa
@@ -1514,9 +1510,9 @@
     treeMesh = mesh;
 
     treeInstanceData = new Array(trees.length);
-    const colorAlimento1 = new THREE.Color(0xff5fa8); // Cerezo
-    const colorAlimento2 = new THREE.Color(0xb06bff); // Sauco
-    const colorDescanso = new THREE.Color(0x25d0a0);  // Urapan
+    const colorAlimento1 = new THREE.Color(0xd08a9e); // Cerezo
+    const colorAlimento2 = new THREE.Color(0x9c86b8); // Sauco
+    const colorDescanso = new THREE.Color(0x7fb59f);  // Urapan
     const colorNormal = new THREE.Color(0xffffff);
     
     trees.forEach((t, i) => {
@@ -1723,9 +1719,9 @@
   // ============================================================
   const HUMEDAL_X = 6017.9, HUMEDAL_Y = 1980.2; // centro real del Humedal La Vaca
   const BIRD_TREE_SPECIES = {
-    "Sauco": { key: "sauco", color: 0xb06bff, weight: 1.0, base: 260 },
-    "Cerezo, capuli": { key: "capuli", color: 0xff5fa8, weight: 0.76, base: 200 },
-    "Urapán, Fresno": { key: "urapan", color: 0x25d0a0, weight: 0.52, base: 220 },
+    "Sauco": { key: "sauco", color: 0x9c86b8, weight: 1.0, base: 260 },
+    "Cerezo, capuli": { key: "capuli", color: 0xd08a9e, weight: 0.76, base: 200 },
+    "Urapán, Fresno": { key: "urapan", color: 0x7fb59f, weight: 0.52, base: 220 },
   };
   const BIRD_VISION = 14, BIRD_ARRIVE = 1.4, BIRD_WIND = 1.5, BIRD_MAX_SPEED = 4.2;
   const BIRD_REST_SPEED = 1.0, BIRD_NOISE_DB = 60, BIRD_K_REP = 4.2, BIRD_COUNT = 50;
@@ -1902,7 +1898,7 @@
       const p = toScene(b.x, b.y);
       const bat = Math.sin(b.phase) * (b.rest > 0 ? 0.15 : 0.3);
       b.sprite.position.set(p.x, 3.2 + bat, p.z);
-      b.sprite.material.color.set(b.estresada ? 0xff6b4d : 0xffffff);
+      b.sprite.material.color.set(b.estresada ? 0xd0745f : 0xffffff);
       const nuevaTex = Math.sin(b.phase) > 0 ? birdTexUp : birdTexDown;
       if (b.sprite.material.map !== nuevaTex) { b.sprite.material.map = nuevaTex; b.sprite.material.needsUpdate = true; }
     });
@@ -1965,7 +1961,7 @@
     // con vertexColors activado se veia NEGRA. Material propio, color natural.
     const mat = sharedWaterMat.clone();
     mat.vertexColors = false;
-    mat.color = new THREE.Color(0x6f98a6);
+    mat.color = new THREE.Color(0xf2f6f7);
     mat.opacity = 0.9;
     waterMat = mat;
     const waterMesh = new THREE.Mesh(geo, mat);
