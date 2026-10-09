@@ -132,12 +132,13 @@ function layout3d(n, edges) {
   };
   const toScene = (lat, lon) => { const [E, N] = utm(lat, lon); return { x: +(((E - 586865) - 5341.33) / 10).toFixed(2), z: +(-(((N - 509725) - 3161.9) / 10)).toFixed(2) }; };
   const inside = p => p.x >= -182.5 && p.x <= 534.1 && Math.abs(p.z) <= 316.2;
-  const nodes = rows(sh('NODOS'), 1, 16).map(r => {
+  const nodes = rows(sh('NODOS'), 1, 18).map(r => {
     if (!capaIdx.has(r[2])) errs.push(`Nodo ${r[0]}: capa no valida "${r[2]}"`);
     const lat = parseFloat(r[12]), lon = parseFloat(r[13]);
     if (isNaN(lat) || isNaN(lon)) errs.push(`Nodo ${r[0]}: falta latitud/longitud`);
-    return { id: r[0], name: r[1], cat: capaIdx.get(r[2]), sciname: r[3], scale: r[4], loc: r[5], role: r[6], alert: r[7], actors: r[8], hypothesis: r[9], source: r[10], img: r[11], img1: r[14], img2: r[15], geo: { lat, lon, ...toScene(lat, lon) } };
+    return { id: r[0], name: r[1], cat: capaIdx.get(r[2]), sciname: r[3], scale: r[4], loc: r[5], role: r[6], alert: r[7], actors: r[8], hypothesis: r[9], source: r[10], img: r[11], img1: r[14], img2: r[15], icon: r[17], geo: { lat, lon, ...toScene(lat, lon) } };
   });
+  nodes.forEach(nd => { if (!nd.icon && capas[nd.cat]) nd.icon = capas[nd.cat].icon; });
   nodes.filter(nd => nd.geo && !inside(nd.geo)).forEach(nd => console.warn('AVISO: fuera del mapa 3D de Kennedy (no se vera en Territorio): ' + nd.id + ' - ' + nd.name));
   const idIdx = new Map(nodes.map((n, i) => [n.id, i]));
   if (idIdx.size !== nodes.length) errs.push('IDs de nodo duplicados');
