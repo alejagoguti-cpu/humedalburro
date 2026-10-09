@@ -50,14 +50,18 @@
       fuentes: [{ t: "Visit Bogotá, «Central Corabastos» (fecha de inauguración)", u: "https://files.visitbogota.co/drpl/en/node/4590" }, { t: "Bogotá.gov.co, corredor turístico Corabastos (área)", u: "https://bogota.gov.co/internacional/turismo-en-bogota-visita-corabastos-y-disfruta-de-sabores-y-tradicion" }, ALCALDIA] },
     { id: "burro-1985", anio: 1985, fecha: "1985", tema: "humedal", etapa: 1988,
       titulo: "El Burro se reduce a 27,14 hectáreas",
-      texto: "Según una investigación de la Universidad Nacional, el humedal tenía 171 hectáreas en los años 50 y 27,14 en 1985. Entre las causas, la prensa cita la urbanización, las avenidas Ciudad de Cali (que lo dividió en dos), Boyacá y Las Américas, y una planta de transferencia de desechos que lo convirtió casi en basurero.",
+      texto: "Según una investigación de la Universidad Nacional, el humedal tenía 171 hectáreas en los años 50 y 27,14 en 1985. Entre las causas, la prensa cita la urbanización, la construcción de vías (la avenida de las Américas fue la primera gran obra que lo partió) y una planta de transferencia de desechos que lo convirtió casi en basurero.",
       nota: "Las cifras no coinciden entre notas: El Espectador reporta 71,54 hectáreas para 1950 y El Tiempo, 171. Con 171 hectáreas, lo que queda hoy (18,8) equivale a una pérdida del 89 %, el porcentaje que ambas citan.",
       fuentes: [ET, EE] },
-    { id: "cabildo-1993", anio: 1993, fecha: "1993 a 1994", tema: "ciudad", etapa: 1988,
+    { id: "cali-1990s", anio: 1990, rotulo: "1990s", fecha: "d\u00e9cada de 1990", tema: "humedal", etapa: 1995,
+      titulo: "La avenida Ciudad de Cali parte el humedal",
+      texto: "Seg\u00fan El Tiempo, sobre la investigaci\u00f3n de la Universidad Nacional, la primera gran obra que parti\u00f3 El Burro fue la avenida de las Am\u00e9ricas y, a\u00f1os m\u00e1s tarde, en la d\u00e9cada de los 90, tambi\u00e9n lo hizo la avenida Ciudad de Cali. Las fuentes consultadas no dan el a\u00f1o exacto.",
+      fuentes: [ET, EE] },
+    { id: "cabildo-1993", anio: 1993, fecha: "1993 a 1994", tema: "ciudad", etapa: 1995,
       titulo: "El único cabildo juvenil de Bogotá",
       texto: "Se organizó en Kennedy entre 1993 y 1994 y forma parte de la historia organizativa de la localidad.",
       fuentes: [ALCALDIA] },
-    { id: "paro-1995", anio: 1995, fecha: "finales de 1995", tema: "central", etapa: 1988,
+    { id: "paro-1995", anio: 1995, fecha: "finales de 1995", tema: "central", etapa: 1995,
       titulo: "Paro de Patio Bonito y Tintal Central",
       texto: "Los habitantes bloquearon el acceso a Corabastos para reclamar servicios públicos domiciliarios, ser tenidos en cuenta en el plan de desarrollo local y mejores vías de acceso.",
       fuentes: [ALCALDIA] },
@@ -74,7 +78,7 @@
       texto: "En el Día Mundial de los Humedales, la Secretaría de Ambiente hizo una jornada de limpieza en El Burro y liberó 16 tinguas que habían sido rescatadas.",
       fuentes: [{ t: "Bogotá.gov.co, Misión para la Gestión Integral de los Humedales", u: "https://bogota.gov.co/en/node/37503" }] }
   ];
-  const ETAPA_NOMBRE = { 1950: "1950", 1956: "1956", 1972: "1972", 1988: "1988", 2024: "Actualidad" };
+  const ETAPA_NOMBRE = { 1950: "1950", 1956: "1956", 1972: "1972", 1988: "1988", 1995: "A\u00f1os 90", 2024: "Actualidad" };
 
   function h(tag, attrs) {
     const e = document.createElement(tag);
@@ -125,7 +129,7 @@
         eje.appendChild(h("span", { class: "kt-marca", style: "left:" + x + "%" }));
         eje.appendChild(h("span", { class: "kt-decada", style: "left:" + x + "%", text: String(y) }));
       }
-      const W = eje.clientWidth || 600, ancho = 30;
+      const W = eje.clientWidth || 600, ancho = 36;
       // cuatro posiciones de etiqueta (dos arriba y dos abajo) para que los años cercanos no se pisen
       const niveles = [{ lado: "arriba", n: 1, ult: -1e9 }, { lado: "abajo", n: 1, ult: -1e9 }, { lado: "arriba", n: 2, ult: -1e9 }, { lado: "abajo", n: 2, ult: -1e9 }];
       ordenados.filter(e => filtros.has(e.tema)).forEach(e => {
@@ -136,7 +140,7 @@
           style: "left:" + (x / W * 100) + "%; --c:" + TEMAS[e.tema].color,
           "aria-label": e.anio + ": " + e.titulo, "aria-current": e.id === sel && raiz.classList.contains("abierta") ? "true" : "false", title: e.anio + ": " + e.titulo },
           h("span", { class: "kt-punto" }),
-          h("span", { class: "kt-anio kt-" + niv.lado + niv.n, text: String(e.anio) }));
+          h("span", { class: "kt-anio kt-" + niv.lado + niv.n, text: String(e.rotulo || e.anio) }));
         b.addEventListener("click", () => seleccionar(e.id, true));
         b.addEventListener("keydown", ev => { if (ev.key === "ArrowRight") { ev.preventDefault(); mover(1, true, e.id); } if (ev.key === "ArrowLeft") { ev.preventDefault(); mover(-1, true, e.id); } });
         eje.appendChild(b);
@@ -155,7 +159,7 @@
       const e = porId[sel], t = TEMAS[e.tema];
       ficha.innerHTML = "";
       ficha.style.setProperty("--c", t.color);
-      const izq = h("div", { class: "kt-fecha" }, h("div", { class: "kt-gran", text: String(e.anio) }), h("div", { class: "kt-fecha-txt", text: e.fecha }));
+      const izq = h("div", { class: "kt-fecha" }, h("div", { class: "kt-gran", text: String(e.rotulo || e.anio) }), h("div", { class: "kt-fecha-txt", text: e.fecha }));
       const fuentes = h("ul", { class: "kt-fuentes" });
       e.fuentes.forEach(f => fuentes.appendChild(h("li", null, f.u ? h("a", { href: f.u, target: "_blank", rel: "noopener", text: f.t }) : f.t)));
       const nav = h("div", { class: "kt-nav" },
