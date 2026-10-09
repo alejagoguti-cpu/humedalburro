@@ -285,6 +285,25 @@ window.onerror = function(msg, url, line, col, error) {
   .neighbor-row:hover { background: rgba(132, 164, 139, 0.15); color: #84a48b; }
 
   
+  /* Panel izquierdo compacto (foto + conteo) */
+  .side-drawer { width: 206px; padding: 10px 8px; }
+  .side-drawer .drawer-header { font-size: 8.5px; letter-spacing: 0.6px; padding-bottom: 6px; margin-bottom: 8px; }
+  .side-drawer .quick-toggle-btn { font-size: 8px; padding: 1px 5px; }
+  .side-drawer .cat-card { display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    width: calc(33.333% - 8px); margin: 0 2px 5px; padding: 7px 2px 6px; gap: 5px; vertical-align: top; }
+  .side-drawer .cat-card::before { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 3px; }
+  .side-drawer .cat-card:hover { transform: translateY(-2px); }
+  .side-drawer .cat-label-wrap > div { display: none; }
+  .side-drawer .cat-thumb { width: 36px; height: 36px; border-width: 2px; }
+  .side-drawer .cat-card > div:last-child { gap: 5px !important; }
+  .side-drawer .badge-count { font-size: 9px; padding: 1px 5px; }
+  .side-drawer .toggle-box { width: 12px; height: 12px; }
+  .side-drawer .interaction-chips-grid { gap: 3px; }
+  .side-drawer .inter-chip { padding: 4px 2px; gap: 2px; border-radius: 5px; }
+  .side-drawer .inter-chip-dot { width: 6px; height: 6px; }
+  .side-drawer .inter-chip-title { font-size: 7.5px; }
+  .side-drawer .inter-chip-badge { font-size: 7.5px; }
+
   /* Panel de vistas estilo Gephi */
   .gephi-panel { position: absolute; top: 58px; right: 12px; width: 248px; padding: 12px; z-index: 120; pointer-events: auto;
     display: flex; flex-direction: column; gap: 7px; }
@@ -1942,7 +1961,7 @@ window.onerror = function(msg, url, line, col, error) {
         const t = bg.userData.taxonData;
         if (t) {
           const cIdx = (typeof t.cat === 'number') ? t.cat : (TAXONOMIC_CONVENTIONS[t.cat]?.catIdx ?? 0);
-          bg.visible = (opts.cats[cIdx] !== false);
+          bg.visible = (opts.cats[cIdx] !== false) && insideTerritory(t.territoryPos);
         }
       });
     }
@@ -2221,7 +2240,10 @@ window.onerror = function(msg, url, line, col, error) {
       
       col = col / (1.0 + col * 0.35);
       
-      gl_FragColor = vec4(col, edgeAlpha * vAlpha);
+      // Edificios (categoria 3): menos brillo para que no tapen especies ni relaciones
+      float aOut = edgeAlpha * vAlpha;
+      if (vCategory > 2.5 && vCategory < 3.5) aOut *= 0.45;
+      gl_FragColor = vec4(col, aOut);
     }
   `;
 
@@ -2490,9 +2512,10 @@ window.onerror = function(msg, url, line, col, error) {
     return fetch(BUILDINGS_URL)
       .then(r => r.json())
       .then(bldgs => {
-        const colBldgPrimary = new THREE.Color(0xCBD5E1);
-        const colBldgSecondary = new THREE.Color(0x94A3B8);
-        const colRoofHighlight = new THREE.Color(0x84A48B);
+        // Tonos bajados para que los edificios no compitan con las especies y sus relaciones
+        const colBldgPrimary = new THREE.Color(0xCBD5E1).multiplyScalar(0.42);
+        const colBldgSecondary = new THREE.Color(0x94A3B8).multiplyScalar(0.42);
+        const colRoofHighlight = new THREE.Color(0x84A48B).multiplyScalar(0.5);
         const colBaseGround = new THREE.Color(0x06090F);
         const bldList = Array.isArray(bldgs) ? bldgs : (bldgs.buildings || []);
 
@@ -2752,6 +2775,9 @@ window.onerror = function(msg, url, line, col, error) {
     return p;
   }
 
+  // Límite del territorio modelado (recuadro del terreno, en unidades de escena)
+  function insideTerritory(p) { return !!p && Math.abs(p.x) <= 532 && Math.abs(p.z) <= 314; }
+
   function rebuildTerritoryArcs(force) {
     if (!arcState || !arcState.geo) return;
     const focus = arcState.focusId;
@@ -2778,7 +2804,7 @@ window.onerror = function(msg, url, line, col, error) {
     let k = 0;
     list.forEach(({ na, nb, inter }) => {
       const A = arcEndpoint(na, nb), B = arcEndpoint(nb, na);
-      if (!A || !B) return;
+      if (!A || !B || !insideTerritory(A) || !insideTerritory(B)) return;
       const dx = B.x - A.x, dz = B.z - A.z;
       const dist = Math.sqrt(dx * dx + dz * dz);
       // Altura del arco proporcional a la distancia real entre ambos registros
@@ -2786,7 +2812,7 @@ window.onerror = function(msg, url, line, col, error) {
       const cx = (A.x + B.x) * 0.5, cz = (A.z + B.z) * 0.5;
       const cy = Math.max(A.y, B.y) + lift * 2.0; // control de Bézier: el ápice queda a ~lift sobre el más alto
       const involved = focus === null || na.id === focus || nb.id === focus;
-      const intensity = focus === null ? 0.32 : (involved ? 1.0 : 0.04);
+      const intensity = focus === null ? 1.0 : (involved ? 1.0 : 0.1);
       c.set(inter.color || '#84A48B');
       let px = A.x, py = A.y, pz = A.z;
       for (let s = 1; s <= SEG; s++) {
@@ -2796,8 +2822,8 @@ window.onerror = function(msg, url, line, col, error) {
         const qz = w0 * A.z + w1 * cz + w2 * B.z;
         // Más brillante en el ápice, se desvanece hacia los extremos
         const uPrev = (s - 1) / SEG;
-        const f0 = intensity * (0.35 + 0.65 * Math.sin(Math.PI * uPrev));
-        const f1 = intensity * (0.35 + 0.65 * Math.sin(Math.PI * u));
+        const f0 = intensity * (0.8 + 0.2 * Math.sin(Math.PI * uPrev));
+        const f1 = intensity * (0.8 + 0.2 * Math.sin(Math.PI * u));
         const ptr = k * 6;
         pos[ptr] = px; pos[ptr + 1] = py; pos[ptr + 2] = pz;
         pos[ptr + 3] = qx; pos[ptr + 4] = qy; pos[ptr + 5] = qz;
@@ -2977,8 +3003,8 @@ window.onerror = function(msg, url, line, col, error) {
   sceneRoot.add(territoryArcsGroup);
   const arcGeo = new THREE.BufferGeometry();
   const arcMat = new THREE.LineBasicMaterial({
-    vertexColors: true, transparent: true, opacity: 0.6,
-    depthWrite: false, blending: THREE.AdditiveBlending
+    vertexColors: true, transparent: true, opacity: 0.82,
+    depthWrite: false, blending: THREE.NormalBlending
   });
   const arcMesh = new THREE.LineSegments(arcGeo, arcMat);
   arcMesh.frustumCulled = false;
@@ -4064,6 +4090,7 @@ window.onerror = function(msg, url, line, col, error) {
     playConclusiones();
   };
   renderGephiInfo();
+  document.querySelectorAll('.side-drawer .cat-card').forEach(c => { const im = c.querySelector('img'); if (im) c.title = im.alt; });
   window.closeConclusiones = () => {
     stopConclAuto();
     const ov = document.getElementById('conclModalOverlay');
