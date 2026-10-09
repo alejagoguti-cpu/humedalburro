@@ -359,11 +359,21 @@
       ui.className = "cx-ui-panel";
       ui.style.cssText = "position:absolute; top:78px; left:18px; z-index:20; width:228px; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,.93); border:1px solid #d5dbe1; box-shadow:0 6px 20px rgba(0,0,0,.10); font:500 11px 'Segoe UI',sans-serif; color:#1e293b;";
       const BTN = "padding:5px 9px; border-radius:6px; border:1px solid #c5ccd3; background:#fff; color:#1e293b; font:600 11px 'Segoe UI',sans-serif; cursor:pointer;";
-      const leyenda = [["verde", "Soporte, nidificación, frugivoría, polinización"], ["amarillo", "Depredación por aves"], ["rojo", "Depredación exótica, parasitismo, asfixia"], ["azul", "Alimentación acuática"], ["turquesa", "Procesos microbiológicos, eutrofización"]];
-      ui.innerHTML = '<div style="font:800 11px \'Segoe UI\',sans-serif; letter-spacing:.05em; text-transform:uppercase; color:#475569; margin-bottom:6px;">Red de interacciones</div>'
+      // Tipos de relación / convenciones (POT Kennedy): [muestra, título, cantidad, descripción]
+      const lineaSvg = (color, dash, flechas) => '<svg width="34" height="10" viewBox="0 0 34 10" style="flex:none;"><line x1="' + (flechas === 2 ? 5 : 1) + '" y1="5" x2="' + (flechas ? 29 : 33) + '" y2="5" stroke="' + color + '" stroke-width="2" stroke-dasharray="' + dash + '"/>'
+        + (flechas ? '<path d="M33 5 L27 1.5 L27 8.5 Z" fill="' + color + '"/>' : '') + (flechas === 2 ? '<path d="M1 5 L7 1.5 L7 8.5 Z" fill="' + color + '"/>' : '') + '</svg>';
+      const leyenda = [
+        [lineaSvg("#3b9eff", "0", 1), "Transformación prevista", 42, "Intervenciones orientadas por el POT"],
+        [lineaSvg("#ff9a3c", "5 3", 1), "Tensión territorial", 36, "Conflictos entre usos, movilidad, economía y ambiente"],
+        [lineaSvg("#ff4f8b", "1.5 3", 1), "Condicionante normativo", 28, "Restricciones, protecciones y obligaciones"],
+        [lineaSvg("#4caf6e", "0", 2), "Conectividad ecológica", 14, "Relaciones entre humedales, rondas y corredores"],
+        ['<span style="flex:none; width:16px; height:16px; margin:0 9px; border-radius:50%; background:#7c4dbd; border:1px solid #5b3a96;"></span>', "Actor o nodo estratégico", 31, "Instituciones, comunidades y agentes económicos"],
+        ['<span style="flex:none; width:34px; height:14px; border:1px solid #64748b; border-radius:2px; background:repeating-linear-gradient(135deg,#64748b 0 1.5px,transparent 1.5px 5px);"></span>', "Zona de oportunidad o vacío", 9, "Aspectos de la ciudad que reciben poca atención"]
+      ];
+      ui.innerHTML = '<div style="font:800 11px \'Segoe UI\',sans-serif; letter-spacing:.05em; text-transform:uppercase; color:#475569; margin-bottom:6px;">Tipos de relación / convenciones</div>'
         + '<div style="color:#64748b; line-height:1.4; margin-bottom:8px;">Pasa el cursor sobre los nodos para ampliarlos. Arrastra las bolitas si deseas reubicarlas.</div>'
         + '<div style="display:flex; gap:6px; margin-bottom:9px;"><button type="button" data-a="copiar" style="' + BTN + '">Copiar posiciones</button><button type="button" data-a="reset" style="' + BTN + '">Restablecer</button></div>'
-        + leyenda.map(l => '<div style="display:flex; align-items:center; gap:7px; margin-top:4px;"><span style="flex:none; width:20px; height:3px; border-radius:2px; background:' + COL[l[0]] + ';"></span><span style="color:#475569;">' + l[1] + '</span></div>').join("");
+        + leyenda.map(l => '<div style="margin-top:7px; padding:6px 8px; border:1px solid #d5dbe1; border-radius:6px;"><div style="display:flex; align-items:center; gap:7px;">' + l[0] + '<span style="flex:1; font-weight:700; color:#1e293b;">' + l[1] + '</span><span style="font-weight:800; color:#475569;">' + l[2] + '</span></div><div style="color:#64748b; line-height:1.35; margin-top:3px;">' + l[3] + '</div></div>').join("");
       ui.addEventListener("pointerdown", e => e.stopPropagation());
       ui.addEventListener("click", e => {
         const a = e.target.closest("[data-a]"); if (!a) return;
