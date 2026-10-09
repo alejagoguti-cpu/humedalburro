@@ -76,10 +76,10 @@
 
   function water(g, list) {
     const pos = [], uv = [];
-    list.forEach(w => { const pts = w.pts.map(p => toScene(p[0], p[1])); if (pts.length < 3) return; tri(pts, t => t.forEach(i => { pos.push(pts[i].x, 0.022, pts[i].z); uv.push(pts[i].x * 0.08, pts[i].z * 0.08); })); });
+    list.forEach(w => { const pts = w.pts.map(p => toScene(p[0], p[1])); if (pts.length < 3) return; tri(pts, t => t.forEach(i => { pos.push(pts[i].x, 0.06, pts[i].z); uv.push(pts[i].x * 0.08, pts[i].z * 0.08); })); });
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.computeVertexNormals();
     state.waterTex = tex(A + 'textura_agua2.jpg'); state.bumpTex = tex(A + 'textura_agua2.jpg'); state.bumpTex.repeat.set(2.3, 2.3);
-    g.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: state.waterTex, bumpMap: state.bumpTex, bumpScale: 0.12, color: 0x97a5af, roughness: 0.18, metalness: 0.15, transparent: true, opacity: 0.82, side: THREE.DoubleSide })));
+    const wm = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: state.waterTex, bumpMap: state.bumpTex, bumpScale: 0.12, color: 0x97a5af, roughness: 0.18, metalness: 0.15, transparent: true, opacity: 0.88, side: THREE.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })); wm.renderOrder = 3; g.add(wm);
   }
 
   function blocks(g, list) {
@@ -92,7 +92,7 @@
     const pos = [], uv = [];
     list.forEach(p => { const pts = p.pts.map(q => toScene(q[0], q[1])); if (pts.length < 3) return; tri(pts, t => t.forEach(i => { pos.push(pts[i].x, 0.02, pts[i].z); uv.push(pts[i].x * 0.006, pts[i].z * 0.006); })); });
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.computeVertexNormals();
-    const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex(A + 'textura_pasto.jpg'), color: 0xadaa90, roughness: 0.95, transparent: true, opacity: 0.6, side: THREE.DoubleSide })); m.receiveShadow = true; g.add(m);
+    const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex(A + 'textura_pasto.jpg'), color: 0xadaa90, roughness: 0.95, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthWrite: false })); m.receiveShadow = true; m.renderOrder = 1; g.add(m);
   }
 
   function triMesh(g, data, color, extra) {
