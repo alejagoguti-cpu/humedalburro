@@ -3078,6 +3078,7 @@ window.onerror = function(msg, url, line, col, error) {
 
   // Pointerdown para Clic en Baliza de Territorio
   window.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".subnetwork-modal") || e.target.closest("#seqOverlay") || e.target.closest("#srcCard")) return; // la sub-red y sus cuadros no ocultan nodos de la red grande
     if (e.target.closest(".glass-panel") || e.target.closest("#territorySpeciesModal") || e.target.closest(".welcome-modal") || e.target.closest(".bottom-experience-bar") || e.target.closest(".waypoints-bar") || e.target.closest("#activeTreeChip")) return;
 
     if (currentMorph > 0.35) {
@@ -3668,6 +3669,7 @@ window.onerror = function(msg, url, line, col, error) {
   }
 
   window.closeSubNetworkModal = () => {
+    window.__subHidden = {};
     if (subnetworkModal) subnetworkModal.style.display = "none";
     if (subCanvasAnim) cancelAnimationFrame(subCanvasAnim);
   };
@@ -3726,7 +3728,7 @@ window.onerror = function(msg, url, line, col, error) {
         __nodeClicks('sub' + nb.id, e, () => {
           if (SEQ_ON) startImageSequence(nb);
           else { selectedNode = nb; document.getElementById("subModalTitle").innerText = `Sub-Red de ${fixText(nb.label)}`; document.getElementById("subModalCode").innerText = `[${nb.taxaId}]`; initSubNetworkCanvas(); }
-        }, null, (x, y) => showSource(nb, x, y));
+        }, () => { hiddenSet.add(nb.id); hoveredNeighbor = null; initSubNetworkCanvas(); }, (x, y) => showSource(nb, x, y));
       }
     };
 
@@ -3743,7 +3745,9 @@ window.onerror = function(msg, url, line, col, error) {
     if (!center) return;
     const keyOf = (a, b) => a.id < b.id ? `${a.id}_${b.id}` : `${b.id}_${a.id}`;
     const interOf = (a, b) => edgeDetailsMap[keyOf(a, b)]?.type || getInteractionInfo(a, b);
-    const neighborsAll = center.neighbors.filter(nb => nb.active || nb.cat === EFFECT_IDX);
+    window.__subHidden = window.__subHidden || {};
+    const hiddenSet = window.__subHidden[center.id] || (window.__subHidden[center.id] = new Set());
+    const neighborsAll = center.neighbors.filter(nb => (nb.active || nb.cat === EFFECT_IDX) && !hiddenSet.has(nb.id));
     const ANCH = { self: [0.17, 0.26], rodent: [0.47, 0.5], 0: [0.76, 0.2], 1: [0.85, 0.5], 2: [0.6, 0.86], 3: [0.42, 0.88], 4: [0.2, 0.76], 5: [0.84, 0.82], 6: [0.5, 0.12], 7: [0.14, 0.5] };
     const groupOf = n => n === center ? 'self' : (isRodent(n) ? 'rodent' : n.cat);
     // semilla determinista para que la sub-red siempre se arme igual
@@ -3756,6 +3760,7 @@ window.onerror = function(msg, url, line, col, error) {
     });
     const idxOf = new Map(sNodes.map((s, k) => [s.node.id, k]));
     const sEdges = [];
+    window.__subHiddenCount = hiddenSet.size;
     neighborsAll.forEach(nb => sEdges.push({ a: 0, b: idxOf.get(nb.id), inter: interOf(center, nb), own: true }));
     for (let p = 1; p < sNodes.length; p++) {
       for (const nb2 of sNodes[p].node.neighbors) {
@@ -3764,6 +3769,7 @@ window.onerror = function(msg, url, line, col, error) {
         sEdges.push({ a: p, b: q, inter: interOf(sNodes[p].node, nb2), own: false });
       }
     }
+    { const dg = sNodes.map(() => 0); sEdges.forEach(e => { dg[e.a]++; dg[e.b]++; }); sNodes.forEach((s0, k) => { if (k > 0) s0.r = 13 + Math.min(9, Math.sqrt(dg[k]) * 2.1); s0.deg = dg[k]; }); }
     // Distribucion DESCENTRALIZADA: el nodo elegido no va al centro; cada capa tiene su zona.
     // 1) fuerzas (repulsion + resortes + zona de su capa)  2) separacion por cajas: ningun texto ni icono se superpone
     let subFont = 11, LH = subFont + 2, subSc = 1;
@@ -3830,6 +3836,34 @@ window.onerror = function(msg, url, line, col, error) {
       };
       if (![[190, 1], [150, 1], [140, 0.9], [120, 0.8], [105, 0.7], [90, 0.6], [80, 0.5]].some(a => attempt(a[0], a[1]))) attempt(80, 0.5);
     }
+    // Conexiones finas sin cruces: las más cortas primero; no atraviesan otros nodos ni textos
+    const sSel = [];
+    {
+      const P0 = sNodes.map(s0 => ({ x: s0.x, y: s0.y })), rad = sNodes.map(s0 => s0.r * 1.35 + 3);
+      const bxs = sNodes.map((s0, k) => {
+        const h = (s0.lines ? s0.lines.length : 1) * (s0.lh || 13);
+        if (k === 0) { const w2 = Math.max(s0.rr, s0.lw / 2); return { x0: s0.x - w2, x1: s0.x + w2, y0: s0.y - s0.rr, y1: s0.y + s0.rr + 18 + h }; }
+        const hh = Math.max(s0.rr, h / 2);
+        return s0.side > 0 ? { x0: s0.x - s0.rr, x1: s0.x + s0.rr + 10 + s0.lw, y0: s0.y - hh, y1: s0.y + hh } : { x0: s0.x - s0.rr - 10 - s0.lw, x1: s0.x + s0.rr, y0: s0.y - hh, y1: s0.y + hh };
+      });
+      const o3 = (p, q, r2) => (q.x - p.x) * (r2.y - p.y) - (q.y - p.y) * (r2.x - p.x);
+      const crs = (a, b, c, d) => o3(a, b, c) * o3(a, b, d) < 0 && o3(c, d, a) * o3(c, d, b) < 0;
+      const sdist = (p, a, b) => { const dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1; let u = ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2; u = Math.max(0, Math.min(1, u)); return Math.hypot(p.x - a.x - u * dx, p.y - a.y - u * dy); };
+      const segBox = (a, b, bb) => { let u0 = 0, u1 = 1; const dx = b.x - a.x, dy = b.y - a.y;
+        for (const [p, q] of [[-dx, a.x - bb.x0], [dx, bb.x1 - a.x], [-dy, a.y - bb.y0], [dy, bb.y1 - a.y]]) { if (p === 0) { if (q < 0) return false; } else { const u = q / p; if (p < 0) { if (u > u1) return false; if (u > u0) u0 = u; } else { if (u < u0) return false; if (u < u1) u1 = u; } } }
+        return true; };
+      const cands = sEdges.map(e => ({ e, len: Math.hypot(P0[e.a].x - P0[e.b].x, P0[e.a].y - P0[e.b].y) })).sort((a, b) => a.len - b.len);
+      const dgs = sNodes.map(() => 0), comp = sNodes.map((_, k) => k), find = x => { while (comp[x] !== x) { comp[x] = comp[comp[x]]; x = comp[x]; } return x; };
+      const fits = (c, lvl) => {
+        const A = P0[c.e.a], B = P0[c.e.b];
+        for (const q of sSel) { const u = q.e; if (u.a === c.e.a || u.a === c.e.b || u.b === c.e.a || u.b === c.e.b) continue; if (crs(A, B, P0[u.a], P0[u.b])) return false; }
+        for (let k = 0; k < sNodes.length; k++) { if (k === c.e.a || k === c.e.b) continue; if (sdist(P0[k], A, B) < rad[k]) return false; if (lvl === 0 && segBox(A, B, bxs[k])) return false; }
+        return true;
+      };
+      const take = c => { sSel.push(c); dgs[c.e.a]++; dgs[c.e.b]++; comp[find(c.e.a)] = find(c.e.b); };
+      cands.forEach(c => { if (fits(c, 0)) take(c); });
+      for (let lvl = 1; lvl <= 2; lvl++) cands.forEach(c => { if (sSel.includes(c)) return; if ((find(c.e.a) !== find(c.e.b) || dgs[c.e.a] === 0 || dgs[c.e.b] === 0) && (lvl === 2 || fits(c, 1))) take(c); });
+    }
     // orden de aparicion: la especie, luego los roedores, luego el resto
     const order = sNodes.map((s, k) => k).sort((a, b) => (a === 0 ? -1 : b === 0 ? 1 : (sNodes[b].rodent - sNodes[a].rodent) || a - b));
     const appearAt = new Map(order.map((k, i) => [k, i * 55]));
@@ -3843,22 +3877,24 @@ window.onerror = function(msg, url, line, col, error) {
       const vis = k => Math.min(1, Math.max(0, (now - t0 - appearAt.get(k)) / 450));
       const pos = sNodes.map((s, k) => ({ x: s.x + Math.sin(tt * 0.9 + k * 1.7) * 2.2, y: s.y + Math.cos(tt * 0.75 + k * 1.3) * 2.2 }));
 
-      // aristas curvas (relaciones entre vecinos primero, debajo)
-      [false, true].forEach(ownPass => sEdges.forEach(e => {
-        if (e.own !== ownPass || subOpts[e.inter.id] === false) return;
+      // conexiones finas y rectas, con flecha, sin cruces
+      [false, true].forEach(ownPass => sSel.forEach(q => {
+        const e = q.e; if (e.own !== ownPass || subOpts[e.inter.id] === false) return;
         const va = Math.min(vis(e.a), vis(e.b)); if (va <= 0) return;
-        const A = pos[e.a], B = pos[e.b];
-        const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, dx = B.x - A.x, dy = B.y - A.y;
-        const cx = mx - dy * 0.14, cy = my + dx * 0.14;
-        const toRodent = e.own && sNodes[e.b].rodent;
+        const A = pos[e.a], B = pos[e.b], dx = B.x - A.x, dy = B.y - A.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+        const ra = sNodes[e.a].r * 1.35 + 1, rb = sNodes[e.b].r * 1.35 + 2;
+        if (len < ra + rb + 6) return;
         const hov = hoveredNeighbor && (hoveredNeighbor.node === sNodes[e.b].node || hoveredNeighbor.node === sNodes[e.a].node);
+        const sx = A.x + ux * ra, sy = A.y + uy * ra, tx = B.x - ux * rb, ty = B.y - uy * rb, HL = hov ? 9 : 7, HW = hov ? 4.5 : 3.4;
         sctx.save();
-        sctx.globalAlpha = va * (hoveredNeighbor ? (hov ? 1 : 0.15) : (toRodent ? 0.95 : (e.own ? 0.55 : 0.4)));
-        sctx.beginPath(); sctx.moveTo(A.x, A.y); sctx.quadraticCurveTo(cx, cy, B.x, B.y);
-        sctx.strokeStyle = e.inter.color || '#84a48b';
-        sctx.lineWidth = hov ? 3.4 : (toRodent ? 3.0 : (e.own ? 1.5 : 1.1));
-        if (!e.own) sctx.setLineDash([4, 4]);
-        sctx.stroke(); sctx.restore();
+        sctx.globalAlpha = va * (hoveredNeighbor ? (hov ? 1 : 0.18) : 1);
+        sctx.strokeStyle = sctx.fillStyle = e.inter.color || '#84a48b';
+        sctx.lineWidth = hov ? 2.2 : (e.own ? 1.3 : 1.0);
+        if (!e.own) sctx.setLineDash([5, 4]);
+        sctx.beginPath(); sctx.moveTo(sx, sy); sctx.lineTo(tx - ux * HL, ty - uy * HL); sctx.stroke();
+        sctx.setLineDash([]);
+        sctx.beginPath(); sctx.moveTo(tx, ty); sctx.lineTo(tx - ux * HL - uy * HW, ty - uy * HL + ux * HW); sctx.lineTo(tx - ux * HL + uy * HW, ty - uy * HL - ux * HW); sctx.closePath(); sctx.fill();
+        sctx.restore();
       }));
 
       // nodos
