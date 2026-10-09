@@ -1661,6 +1661,7 @@ window.onerror = function(msg, url, line, col, error) {
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
   // Plano 2D: conexiones gruesas con flecha (cintas planas)
+  const PLANO_D = 7.4; // diámetro de los nodos en la vista Plano 2D
   const FLAT_MAX = 900;
   const flatGeo = new THREE.BufferGeometry();
   flatGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FLAT_MAX * 27), 3));
@@ -1675,7 +1676,7 @@ window.onerror = function(msg, url, line, col, error) {
     for (let i = 0; i < L.length && i < FLAT_MAX; i++) {
       const { na, nb, inter } = L[i], pa = na.sprite.position, pb = nb.sprite.position;
       const dx = pb.x - pa.x, dy = pb.y - pa.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
-      const ra = na.sprite.scale.x * 0.47, rb = nb.sprite.scale.x * 0.47, HL = 3.4, HW = 2.5, BW = 0.42;
+      const ra = na.sprite.scale.x * 0.47, rb = nb.sprite.scale.x * 0.47, HL = 4.8, HW = 3.4, BW = 0.7;
       if (len < ra + rb + HL + 0.5) continue;
       const c = viewEdgeColor(na, nb, inter), col = { r: c.r, g: c.g, b: c.b };
       const sx = pa.x + ux * ra, sy = pa.y + uy * ra, tx = pb.x - ux * (rb + 0.3), ty = pb.y - uy * (rb + 0.3);
@@ -1687,53 +1688,55 @@ window.onerror = function(msg, url, line, col, error) {
     flatGeo.setDrawRange(0, v);
     flatGeo.attributes.position.needsUpdate = true; flatGeo.attributes.color.needsUpdate = true;
   }
-  // Árbol de expansión: cada nodo se conecta solo con su vecino más conectado (sin cruces)
-  function planoBuild(list) {
-    const rank = (a, b) => (a.degree - b.degree) || (a.id < b.id ? -1 : 1);
-    const best = new Map(), nodes = new Set();
-    list.forEach(ed => {
-      nodes.add(ed.na); nodes.add(ed.nb);
-      [[ed.na, ed.nb], [ed.nb, ed.na]].forEach(([n, o]) => { if (rank(o, n) > 0) { const b = best.get(n.id); if (!b || rank(o, b.o) > 0) best.set(n.id, { n, o, ed }); } });
-    });
-    const parent = new Map(), children = new Map(), edges = [];
-    best.forEach(b => { parent.set(b.n.id, b.o); if (!children.has(b.o.id)) children.set(b.o.id, []); children.get(b.o.id).push(b.n); edges.push(b.ed); });
-    const roots = [...nodes].filter(n => !parent.has(n.id));
-    return (window._planoTree = { parent, children, roots, edges });
-  }
-  // Distribución radial por árbol (subárboles en sectores propios) y empaquetado de los árboles
-  function planoLayout(T, activeNodes) {
-    const inTree = new Set(); T.roots.forEach(r => { const st = [r]; while (st.length) { const n = st.pop(); inTree.add(n.id); (T.children.get(n.id) || []).forEach(c => st.push(c)); } });
-    const roots = T.roots.concat(activeNodes.filter(n => !inTree.has(n.id)));
-    const GAP = 15, W = 10, trees = [];
-    roots.forEach(root => {
-      const leaves = new Map(), depth = new Map();
-      const cnt = (n, d) => { depth.set(n.id, d); const ch = T.children.get(n.id) || []; let s = 0; ch.forEach(c => { s += cnt(c, d + 1); }); if (!ch.length) s = 1; leaves.set(n.id, s); return s; };
-      const Lt = cnt(root, 0), need = [], maxD = Math.max(0, ...depth.values());
-      depth.forEach((d, id) => { if (d > 0) { const th = leaves.get(id) / Lt * Math.PI * 2; need[d] = Math.max(need[d] || 0, W / th); } });
-      const rad = [0]; for (let d = 1; d <= maxD; d++) rad[d] = Math.max(rad[d - 1] + GAP, need[d] || 0);
-      const pos = new Map(); pos.set(root.id, { x: 0, y: 0 });
-      const place = (n, a0, a1) => {
-        const ch = T.children.get(n.id) || []; let a = a0; const span = a1 - a0, tot = leaves.get(n.id);
-        ch.forEach(c => { const w = span * leaves.get(c.id) / tot, m = a + w / 2, rr = rad[depth.get(c.id)]; pos.set(c.id, { x: rr * Math.cos(m), y: rr * Math.sin(m) }); place(c, a, a + w); a += w; });
-      };
-      place(root, 0, Math.PI * 2);
-      trees.push({ pos, R: rad[maxD] + W });
-    });
-    trees.sort((a, b) => b.R - a.R);
-    const area = trees.reduce((s, t) => s + (2 * t.R + 6) ** 2, 0), rowW = Math.max(2 * trees[0].R + 6, Math.sqrt(area) * 1.15);
-    let x = 0, y = 0, rowH = 0; const out = new Map();
-    trees.forEach(tr => {
-      const d = 2 * tr.R + 6;
-      if (x > 0 && x + d > rowW) { x = 0; y += rowH; rowH = 0; }
-      tr.pos.forEach((p, id) => out.set(id, { x: x + tr.R + 3 + p.x, y: -(y + tr.R + 3 + p.y) }));
-      x += d; rowH = Math.max(rowH, d);
-    });
+  // Plano 2D: red compacta (fuerzas) y selección de conexiones sin cruces (las más cortas primero)
+  function planoLayout(list, activeNodes) {
+    const D = PLANO_D, K = 21, P = new Map(), ids = activeNodes.map(n => n.id), n = ids.length;
+    ids.forEach((id, i) => { const a = i * 2.39996, rr = 9 * Math.sqrt(i + 1); P.set(id, { x: rr * Math.cos(a), y: rr * Math.sin(a) }); });
+    const E = list.map(e => [e.na.id, e.nb.id]).filter(([a, b]) => P.has(a) && P.has(b));
+    for (let it = 0; it < 420; it++) {
+      const T = 6 * (1 - it / 420) + 0.4, F = new Map(ids.map(id => [id, { x: 0, y: 0 }]));
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        const a = P.get(ids[i]), b = P.get(ids[j]); let dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy) || 0.01;
+        const f = K * K / d / d; const fa = F.get(ids[i]), fb = F.get(ids[j]);
+        fa.x += dx * f; fa.y += dy * f; fb.x -= dx * f; fb.y -= dy * f;
+      }
+      E.forEach(([x, y]) => {
+        const a = P.get(x), b = P.get(y); const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.01, f = d / K * 0.55;
+        const fa = F.get(x), fb = F.get(y); fa.x += dx * f; fa.y += dy * f; fb.x -= dx * f; fb.y -= dy * f;
+      });
+      ids.forEach(id => {
+        const p = P.get(id), f = F.get(id); f.x -= p.x * 0.35; f.y -= p.y * 0.35;
+        const m = Math.hypot(f.x, f.y) || 1, s = Math.min(m, T) / m; p.x += f.x * s; p.y += f.y * s;
+      });
+    }
+    for (let it = 0; it < 80; it++) {
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        const a = P.get(ids[i]), b = P.get(ids[j]); let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.01;
+        if (d < D + 4.5) { const s = (D + 4.5 - d) / 2 / d; a.x -= dx * s; a.y -= dy * s; b.x += dx * s; b.y += dy * s; }
+      }
+    }
     let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
-    out.forEach(p => { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); });
+    P.forEach(p => { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); });
     const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-    out.forEach(p => { p.x -= cx; p.y -= cy; });
-    out.ext = { w: x1 - x0 + 24, h: y1 - y0 + 24 };
-    return out;
+    P.forEach(p => { p.x -= cx; p.y -= cy; });
+    P.ext = { w: x1 - x0 + 30, h: y1 - y0 + 30 };
+    // selección: conexiones más cortas primero, solo si no cruzan otra ni pasan por un nodo
+    const o = (p, q, r2) => (q.x - p.x) * (r2.y - p.y) - (q.y - p.y) * (r2.x - p.x);
+    const crs = (a, b, c, d) => o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0;
+    const sd = (p, a, b) => { const dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1; let u = ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2; u = Math.max(0, Math.min(1, u)); return Math.hypot(p.x - a.x - u * dx, p.y - a.y - u * dy); };
+    const cand = list.filter(e => P.has(e.na.id) && P.has(e.nb.id)).map(e => ({ e, len: Math.hypot(P.get(e.na.id).x - P.get(e.nb.id).x, P.get(e.na.id).y - P.get(e.nb.id).y) })).sort((a, b) => a.len - b.len);
+    const acc = [], deg = new Map(), clear = D / 2 + 1;
+    const fits = c => {
+      const A = P.get(c.e.na.id), B = P.get(c.e.nb.id);
+      for (const q of acc) { const u = q.e; if (u.na === c.e.na || u.na === c.e.nb || u.nb === c.e.na || u.nb === c.e.nb) continue; if (crs(A, B, P.get(u.na.id), P.get(u.nb.id))) return false; }
+      for (const id of ids) { if (id === c.e.na.id || id === c.e.nb.id) continue; if (sd(P.get(id), A, B) < clear) return false; }
+      return true;
+    };
+    const take = c => { acc.push(c); deg.set(c.e.na.id, (deg.get(c.e.na.id) || 0) + 1); deg.set(c.e.nb.id, (deg.get(c.e.nb.id) || 0) + 1); };
+    cand.forEach(c => { if (c.len <= K * 2.4 && fits(c)) take(c); });
+    cand.forEach(c => { if (acc.includes(c)) return; if (((deg.get(c.e.na.id) || 0) === 0 || (deg.get(c.e.nb.id) || 0) === 0) && fits(c)) take(c); });
+    window._planoSel = new Set(acc.map(c => c.e.na.id + '_' + c.e.nb.id));
+    return P;
   }
 
     var lastEdgePairs = null; // aristas activas actuales (para moverlas con la respiracion)
@@ -1765,9 +1768,8 @@ window.onerror = function(msg, url, line, col, error) {
       if (badge) badge.innerText = interCounts[i];
     }
 
-    if (opts.layout === 'plano2d') {
-      const T = planoBuild(activeEdgesList);
-      activeEdgesList.length = 0; T.edges.forEach(e => activeEdgesList.push(e));
+    if (opts.layout === 'plano2d' && window._planoSel) {
+      for (let i = activeEdgesList.length - 1; i >= 0; i--) if (!window._planoSel.has(activeEdgesList[i].na.id + '_' + activeEdgesList[i].nb.id)) activeEdgesList.splice(i, 1);
     }
     edgeLinesMesh.visible = opts.layout !== 'plano2d'; flatMesh.visible = opts.layout === 'plano2d';
     lastEdgePairs = activeEdgesList;
@@ -1822,7 +1824,7 @@ window.onerror = function(msg, url, line, col, error) {
         activeNodesCount++;
         if (catCounts[n.cat] !== undefined) catCounts[n.cat]++;
         const sc = Math.min(5.2, Math.max(2.8, 2.6 + Math.sqrt(n.degree) * 0.45));
-        n.sprite.scale.set(sc * NODE_K, sc * NODE_K, 1.0);
+        if (opts.layout === 'plano2d') n.sprite.scale.set(PLANO_D, PLANO_D, 1.0); else n.sprite.scale.set(sc * NODE_K, sc * NODE_K, 1.0);
       }
     });
 
@@ -1928,6 +1930,7 @@ window.onerror = function(msg, url, line, col, error) {
         col.copy(white);
       }
       sc *= mult;
+      if (opts.layout === 'plano2d') sc = PLANO_D / NODE_K;
       n.sprite.scale.set(sc * NODE_K, sc * NODE_K, 1.0);
     });
   }
@@ -3246,8 +3249,10 @@ window.onerror = function(msg, url, line, col, error) {
     const _cc = {}, _cr = {}; rawNodes.forEach(n => { _cc[n.cat] = (_cc[n.cat] || 0) + 1; _cr[n.id] = _cc[n.cat] - 1; });
     let _plano = null;
     if (type === 'plano2d') {
-      recalculateDegreesAndSizes(); updateEdgeLinesGeometry();
-      _plano = planoLayout(window._planoTree, rawNodes.filter(n => n.active));
+      window._planoSel = null; recalculateDegreesAndSizes(); updateEdgeLinesGeometry();
+      const _all = lastEdgePairs.slice();
+      _plano = planoLayout(_all, rawNodes.filter(n => n.active));
+      updateEdgeLinesGeometry();
       const fov = camera.fov * Math.PI / 180, dist = Math.max(60, Math.max(_plano.ext.h / 2, _plano.ext.w / 2 / camera.aspect) / Math.tan(fov / 2));
       if (window.gsap) { gsap.to(camera.position, { x: 0, y: 0, z: dist, duration: 1.4, ease: 'power2.out' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.4, ease: 'power2.out' }); }
     }
