@@ -285,24 +285,24 @@ window.onerror = function(msg, url, line, col, error) {
   .neighbor-row:hover { background: rgba(132, 164, 139, 0.15); color: #84a48b; }
 
   
-  /* Panel izquierdo compacto (foto + conteo) */
-  .side-drawer { width: 206px; padding: 10px 8px; }
-  .side-drawer .drawer-header { font-size: 8.5px; letter-spacing: 0.6px; padding-bottom: 6px; margin-bottom: 8px; }
-  .side-drawer .quick-toggle-btn { font-size: 8px; padding: 1px 5px; }
-  .side-drawer .cat-card { display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  /* Panel izquierdo compacto (foto + conteo): solo en el territorio */
+  body.territory-mode .side-drawer { width: 206px; padding: 10px 8px; }
+  body.territory-mode .side-drawer .drawer-header { font-size: 8.5px; letter-spacing: 0.6px; padding-bottom: 6px; margin-bottom: 8px; }
+  body.territory-mode .side-drawer .quick-toggle-btn { font-size: 8px; padding: 1px 5px; }
+  body.territory-mode .side-drawer .cat-card { display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-start;
     width: calc(33.333% - 8px); margin: 0 2px 5px; padding: 7px 2px 6px; gap: 5px; vertical-align: top; }
-  .side-drawer .cat-card::before { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 3px; }
-  .side-drawer .cat-card:hover { transform: translateY(-2px); }
-  .side-drawer .cat-label-wrap > div { display: none; }
-  .side-drawer .cat-thumb { width: 36px; height: 36px; border-width: 2px; }
-  .side-drawer .cat-card > div:last-child { gap: 5px !important; }
-  .side-drawer .badge-count { font-size: 9px; padding: 1px 5px; }
-  .side-drawer .toggle-box { width: 12px; height: 12px; }
-  .side-drawer .interaction-chips-grid { gap: 3px; }
-  .side-drawer .inter-chip { padding: 4px 2px; gap: 2px; border-radius: 5px; }
-  .side-drawer .inter-chip-dot { width: 6px; height: 6px; }
-  .side-drawer .inter-chip-title { font-size: 7.5px; }
-  .side-drawer .inter-chip-badge { font-size: 7.5px; }
+  body.territory-mode .side-drawer .cat-card::before { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 3px; }
+  body.territory-mode .side-drawer .cat-card:hover { transform: translateY(-2px); }
+  body.territory-mode .side-drawer .cat-label-wrap > div { display: none; }
+  body.territory-mode .side-drawer .cat-thumb { width: 36px; height: 36px; border-width: 2px; }
+  body.territory-mode .side-drawer .cat-card > div:last-child { gap: 5px !important; }
+  body.territory-mode .side-drawer .badge-count { font-size: 9px; padding: 1px 5px; }
+  body.territory-mode .side-drawer .toggle-box { width: 12px; height: 12px; }
+  body.territory-mode .side-drawer .interaction-chips-grid { gap: 3px; }
+  body.territory-mode .side-drawer .inter-chip { padding: 4px 2px; gap: 2px; border-radius: 5px; }
+  body.territory-mode .side-drawer .inter-chip-dot { width: 6px; height: 6px; }
+  body.territory-mode .side-drawer .inter-chip-title { font-size: 7.5px; }
+  body.territory-mode .side-drawer .inter-chip-badge { font-size: 7.5px; }
 
   /* Panel de vistas estilo Gephi */
   .gephi-panel { position: absolute; top: 58px; right: 12px; width: 248px; padding: 12px; z-index: 120; pointer-events: auto;
@@ -2203,6 +2203,8 @@ window.onerror = function(msg, url, line, col, error) {
       if (uPerspectiveMode > 0.05 && aCategory > 1.8) {
         alphaBase *= mix(1.0, clamp(140.0 / max(20.0, camDist), 0.25, 0.9), uPerspectiveMode);
       }
+      // Recorte al recuadro del territorio modelado: lo que queda fuera se desvanece al materializar
+      if (position.x < -182.5 || position.x > 534.1 || abs(position.z) > 316.2) alphaBase *= (1.0 - ease);
       vAlpha = alphaBase;
     }
   `;
@@ -2242,7 +2244,7 @@ window.onerror = function(msg, url, line, col, error) {
       
       // Edificios (categoria 3): menos brillo para que no tapen especies ni relaciones
       float aOut = edgeAlpha * vAlpha;
-      if (vCategory > 2.5 && vCategory < 3.5) aOut *= 0.45;
+      if (vCategory > 2.5 && vCategory < 3.5) aOut *= 0.22;
       gl_FragColor = vec4(col, aOut);
     }
   `;
@@ -2776,7 +2778,7 @@ window.onerror = function(msg, url, line, col, error) {
   }
 
   // Límite del territorio modelado (recuadro del terreno, en unidades de escena)
-  function insideTerritory(p) { return !!p && Math.abs(p.x) <= 532 && Math.abs(p.z) <= 314; }
+  function insideTerritory(p) { return !!p && p.x >= -182.5 && p.x <= 534.1 && Math.abs(p.z) <= 316.2; }
 
   function rebuildTerritoryArcs(force) {
     if (!arcState || !arcState.geo) return;
@@ -2994,6 +2996,8 @@ window.onerror = function(msg, url, line, col, error) {
     territoryBeaconsGroup.add(beaconGroup);
     territoryBeacons.push(sprite);
   });
+  // Especies fuera del recuadro del territorio: ocultas desde el inicio
+  territoryBeaconsGroup.children.forEach(bg => { const t = bg.userData.taxonData; if (t && !insideTerritory(t.territoryPos)) bg.visible = false; });
 
   // =====================================================================
   // 6b. RELACIONES CURVAS EN EL TERRITORIO (arcos entre coordenadas reales)
@@ -4354,7 +4358,7 @@ window.onerror = function(msg, url, line, col, error) {
     if (gp) gp.style.display = showTerritory ? 'none' : '';
 
     if (territoryBeaconsGroup) territoryBeaconsGroup.visible = showTerritory;
-    if (arcState && arcState.group) arcState.group.visible = showTerritory;
+    document.body.classList.toggle('territory-mode', showTerritory);
 
     networkGroup.children.forEach(c => {
       if (c.isSprite) c.visible = !showTerritory && rawNodes[c.userData.id]?.active;
@@ -4446,6 +4450,7 @@ window.onerror = function(msg, url, line, col, error) {
   const metricOverlayEl = document.getElementById('welcomeModalOverlay');
   const conclOverlayEl = document.getElementById('conclModalOverlay');
   let lastOverlayRender = 0;
+  let arcRevealStart = null;
   function animate() {
     requestAnimationFrame(animate);
 
@@ -4475,6 +4480,32 @@ window.onerror = function(msg, url, line, col, error) {
           bg.userData.ring.scale.set(sc, sc, sc);
         }
       });
+    }
+
+    // Conectografía del territorio: aparece 4 s después de que termina la explosión y entra suavemente
+    if (arcState && arcState.group) {
+      if (currentMorph >= 0.995) {
+        if (arcRevealStart === null) arcRevealStart = elapsedTime;
+        const since = elapsedTime - arcRevealStart;
+        const k = Math.min(1, Math.max(0, (since - 4.0) / 1.6));
+        arcState.group.visible = k > 0;
+        arcMat.opacity = 0.82 * k;
+        // las relaciones brotan una tras otra durante 3 s
+        const pos = arcState.geo.attributes.position;
+        if (pos) {
+          const g = Math.min(1, Math.max(0, (since - 4.0) / 3.0));
+          const eg = 1 - Math.pow(1 - g, 3);
+          const per = ARC_SEGS * 2;
+          arcState.geo.setDrawRange(0, g >= 1 ? Infinity : Math.floor(pos.count / per * eg) * per);
+        }
+        // órbita muy lenta alrededor del territorio una vez aparecen las relaciones
+        controls.autoRotate = since > 4.0;
+        controls.autoRotateSpeed = 0.18;
+      } else {
+        if (arcRevealStart !== null) controls.autoRotate = false;
+        arcRevealStart = null;
+        arcState.group.visible = false;
+      }
     }
 
     // Con un panel de pantalla completa abierto (métricas o conclusiones) el render 3D baja a ~4 cuadros
