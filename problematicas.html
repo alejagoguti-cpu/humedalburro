@@ -11,7 +11,7 @@
 <style>
   :root{
     --bg:#0b0c0f; --panel:rgba(20,24,28,.95); --panel-border:rgba(255,255,255,.14);
-    --ink:#e8ecf1; --ink-dim:#8b96a5; --accent:#24c8bd; --accent-hover:#1fb0a6;
+    --ink:#e8ecf1; --ink-dim:#8b96a5; --accent:#8fb3a3; --accent-hover:#7ea090;
     --grass:#b8c582;
   }
   *{box-sizing:border-box;}
@@ -43,12 +43,12 @@
     box-shadow: 0 4px 20px rgba(0,0,0,.4);
   }
   .controls-bar button#histPlayPause{
-    width:38px; height:38px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ffffff;
+    width:38px; height:38px; border-radius:50%; border:1px solid rgba(0,0,0,.15); background:#ece9e2;
     color:#111418; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px;
     box-shadow: 0 3px 12px rgba(0,0,0,.3); flex-shrink:0; transition: transform .15s ease, background .15s ease;
   }
   .controls-bar button#histPlayPause:hover{
-    transform: scale(1.08); background:#f4f5f7;
+    transform: scale(1.08); background:#f3f1ec;
   }
   .year-btn{
     padding:5px 12px; border-radius:12px; border:1px solid var(--panel-border); background:rgba(255,255,255,.06);
@@ -56,7 +56,7 @@
   }
   .year-btn:hover{ background:rgba(255,255,255,.12); }
   .year-btn.active{
-    border-color:var(--accent); background:rgba(36,200,189,.25); color:var(--accent); font-weight:700;
+    border-color:var(--accent); background:rgba(143,179,163,.25); color:var(--accent); font-weight:700;
   }
 
   /* Panel lateral de herramientas de cámara, pasto y población */
@@ -86,7 +86,7 @@
   .coords-box{
     font-family:'IBM Plex Mono',monospace; font-size:10px; line-height:1.45;
     background:#08090b; border:1px solid rgba(255,255,255,.1); border-radius:6px; padding:8px;
-    color:#38bdf8; word-break:break-all; user-select:all;
+    color:#8fa9b8; word-break:break-all; user-select:all;
   }
   .btn-group{
     display:flex; gap:6px; flex-wrap:wrap;
@@ -99,12 +99,12 @@
   }
   .btn-tool:hover{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.25); }
   .btn-tool.active{
-    background:#10b981; color:#0b0c0f; border-color:#10b981; font-weight:700;
-    box-shadow:0 0 12px rgba(16,185,129,.4);
+    background:#7e9f86; color:#0b0c0f; border-color:#7e9f86; font-weight:700;
+    box-shadow:0 0 12px rgba(126,159,134,.4);
   }
   .btn-tool.cow-active{
-    background:#f59e0b; color:#0b0c0f; border-color:#f59e0b; font-weight:700;
-    box-shadow:0 0 12px rgba(245,158,11,.4);
+    background:#c79a4b; color:#0b0c0f; border-color:#c79a4b; font-weight:700;
+    box-shadow:0 0 12px rgba(199,154,75,.4);
   }
   .btn-action-sm{
     padding:5px 9px; border-radius:6px; border:1px solid var(--panel-border);
@@ -115,7 +115,7 @@
 
   .elements-textarea{
     width:100%; height:80px; resize:vertical; font-family:'IBM Plex Mono',monospace; font-size:9.5px; line-height:1.35;
-    background:#08090b; color:#a7f3d0; border:1px solid rgba(255,255,255,.12); border-radius:6px; padding:6px;
+    background:#08090b; color:#b9cdbf; border:1px solid rgba(255,255,255,.12); border-radius:6px; padding:6px;
     outline:none;
   }
   .elements-textarea:focus{ border-color:var(--accent); }
@@ -160,6 +160,53 @@
   .tree-info-kind{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-dim); margin:0 0 4px; }
   .tree-info h3{ font-size:14px; margin:0 26px 6px 0; color:var(--ink); }
   .tree-info p#treeInfoDetails{ font-size:12px; color:var(--ink-dim); margin:0; line-height:1.5; }
+
+  /* Linea de tiempo de la historia de Kennedy */
+  .kt{ position:absolute; left:340px; right:358px; bottom:88px; z-index:7; padding:10px 16px 10px; border-radius:10px;
+    background:rgba(17,20,24,.95); border:1px solid var(--panel-border); box-shadow:0 10px 30px rgba(0,0,0,.45); backdrop-filter:blur(8px); }
+  .kt h2{ margin:0; font-size:13.5px; font-weight:600; letter-spacing:.01em; }
+  .kt-cab{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .kt-pista{ margin:0; font-size:11px; color:var(--ink-dim); }
+  .kt-filtros{ display:flex; gap:6px; flex-wrap:wrap; margin-top:2px; }
+  .kt-chip{ display:inline-flex; align-items:center; gap:6px; padding:3px 8px; border-radius:6px; border:1px solid var(--panel-border); background:transparent; color:var(--ink); font:500 10.5px 'IBM Plex Sans',sans-serif; cursor:pointer; }
+  .kt-chip i{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .kt-chip[aria-pressed="false"]{ opacity:.4; }
+  .kt-chip:hover{ background:rgba(255,255,255,.06); }
+  .kt-eje{ position:relative; height:100px; margin:4px 14px 6px; }
+  .kt-linea{ position:absolute; left:0; right:0; top:50%; height:2px; background:rgba(232,236,241,.28); transform:translateY(-1px); }
+  .kt-marca{ position:absolute; top:calc(50% - 4px); width:1px; height:8px; background:rgba(232,236,241,.4); }
+  .kt-decada{ position:absolute; bottom:-4px; transform:translateX(-50%); font:500 9px 'IBM Plex Mono',monospace; color:var(--ink-dim); }
+  .kt-hito{ position:absolute; top:50%; width:14px; height:14px; margin:-7px 0 0 -7px; padding:0; border:0; background:none; cursor:pointer; z-index:1; }
+  .kt-hito:hover, .kt-hito:focus-visible{ z-index:6; }
+  .kt-punto{ position:absolute; inset:2px; border-radius:50%; background:var(--c); border:2px solid #14181c; transition:transform .15s ease; }
+  .kt-hito:hover .kt-punto{ transform:scale(1.25); }
+  .kt-hito.en-etapa .kt-punto{ box-shadow:0 0 0 3px rgba(232,236,241,.2); }
+  .kt-hito.sel{ z-index:5; }
+  .kt-hito.sel .kt-punto{ transform:scale(1.55); border-color:#e8ecf1; }
+  .kt-anio{ position:absolute; left:50%; transform:translateX(-50%); font:600 10.5px/1.1 'IBM Plex Mono',monospace; color:var(--ink-dim); white-space:nowrap; pointer-events:none; }
+  .kt-hito.sel .kt-anio{ color:var(--ink); }
+  .kt-arriba1{ bottom:17px; } .kt-arriba2{ bottom:33px; } .kt-abajo1{ top:17px; } .kt-abajo2{ top:33px; }
+  /* tarjeta con el detalle del hito: flota sobre la barra y solo aparece al elegir uno */
+  .kt-ficha{ display:none; position:absolute; left:0; right:0; bottom:calc(100% + 8px); grid-template-columns:96px 1fr; gap:14px; padding:14px 16px 12px;
+    border-radius:10px; background:rgba(17,20,24,.97); border:1px solid var(--panel-border); box-shadow:0 10px 30px rgba(0,0,0,.5); }
+  .kt.abierta .kt-ficha{ display:grid; }
+  .kt-gran{ font:600 30px/1 'IBM Plex Mono',monospace; color:var(--c); }
+  .kt-fecha-txt{ margin-top:6px; font-size:11px; color:var(--ink-dim); line-height:1.35; }
+  .kt-fila{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .kt-tema{ display:flex; align-items:center; gap:6px; font-size:10.5px; color:var(--ink-dim); }
+  .kt-tema i{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .kt-cuerpo h3{ margin:4px 0 4px; font-size:15px; font-weight:600; }
+  .kt-texto{ margin:0; font-size:12.5px; line-height:1.5; color:var(--ink); }
+  .kt-nota{ margin:6px 0 0; font-size:11px; line-height:1.45; color:var(--ink-dim); padding-left:9px; border-left:2px solid var(--c); }
+  .kt-pie{ display:flex; gap:10px; margin-top:6px; font-size:11px; color:var(--ink-dim); align-items:baseline; }
+  .kt-lbl{ min-width:62px; font-weight:600; flex:none; }
+  .kt-fuentes{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .kt-fuentes a{ color:#b9cdbf; text-decoration:underline; text-underline-offset:2px; }
+  .kt-nav{ display:flex; gap:6px; }
+  .kt-btn{ padding:4px 10px; border-radius:6px; border:1px solid var(--panel-border); background:rgba(255,255,255,.05); color:var(--ink); font:600 11px 'IBM Plex Sans',sans-serif; cursor:pointer; }
+  .kt-btn:hover{ background:rgba(255,255,255,.12); }
+  .kt button:focus-visible, .kt a:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  @media (max-width:1180px){ .kt{ left:12px; right:12px; } }
 </style>
 </head>
 <body>
@@ -178,7 +225,7 @@
       </a>
       <h1>
         Problemáticas — Evolución Histórica
-        <span id="eraBadge" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(36,200,189,.2); border:1px solid var(--accent); color:var(--accent);">1950</span>
+        <span id="eraBadge" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(143,179,163,.2); border:1px solid var(--accent); color:var(--accent);">1950</span>
       </h1>
       <p id="eraDesc">1950 · Humedal El Burro y Sabana Rural (89% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).</p>
     </div>
@@ -192,8 +239,8 @@
       <!-- Sección Vía con Grosor -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-road" style="color:#f59e0b;"></i> Vía (Línea con grosor)</span>
-          <span id="roadPointsCount" style="font-size:10px; color:#f59e0b; font-weight:700;">0 pts</span>
+          <span><i class="fa-solid fa-road" style="color:#c79a4b;"></i> Vía (Línea con grosor)</span>
+          <span id="roadPointsCount" style="font-size:10px; color:#c79a4b; font-weight:700;">0 pts</span>
         </div>
         <p class="brush-hint">Haz clic en el mapa para trazar tramos continuos de vía con textura y grosor.</p>
         <div class="btn-group">
@@ -216,8 +263,8 @@
       <!-- Sección Pista Polígono Relleno -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-plane-departure" style="color:#38bdf8;"></i> Pista (Polígono relleno)</span>
-          <span id="runwayPointsCount" style="font-size:10px; color:#38bdf8; font-weight:700;">0 pts</span>
+          <span><i class="fa-solid fa-plane-departure" style="color:#8fa9b8;"></i> Pista (Polígono relleno)</span>
+          <span id="runwayPointsCount" style="font-size:10px; color:#8fa9b8; font-weight:700;">0 pts</span>
         </div>
         <p class="brush-hint">Haz clic para definir los vértices del polígono relleno de la pista.</p>
         <div class="btn-group">
@@ -238,11 +285,14 @@
       </div>
 
       <div style="display:flex; justify-content:flex-end;">
-        <button type="button" class="btn-action-sm" id="clearPolysBtn" style="color:#ef4444;" title="Borrar vías y pistas trazadas">
+        <button type="button" class="btn-action-sm" id="clearPolysBtn" style="color:#b86655;" title="Borrar vías y pistas trazadas">
           <i class="fa-solid fa-trash"></i> Limpiar Vías / Pistas
         </button>
       </div>
     </div>
+
+    <!-- Linea de tiempo de la historia de Kennedy -->
+    <section class="kt" id="kennedyTimeline" aria-label="Línea de tiempo de la historia de Kennedy"></section>
 
     <!-- Barra de Control Temporal -->
     <div class="controls-bar" id="controlsBar">
@@ -263,13 +313,13 @@
     <div class="tools-panel" id="toolsPanel">
       <div class="panel-header">
         <h2><i class="fa-solid fa-sliders"></i> Herramientas 3D</h2>
-        <span style="font-size:10px; color:#38bdf8;"><i class="fa-solid fa-lock"></i> Axo Fija</span>
+        <span style="font-size:10px; color:#8fa9b8;"><i class="fa-solid fa-lock"></i> Axo Fija</span>
       </div>
 
       <!-- Sección 1: Ajuste de Pasto / Sabana -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-seedling" style="color:#a3e635;"></i> Ajuste de Pasto</span>
+          <span><i class="fa-solid fa-seedling" style="color:#a9b87a;"></i> Ajuste de Pasto</span>
           <span id="grassColorHex" style="font-size:10px; font-family:monospace; color:var(--accent);">#98b488</span>
         </div>
         <div class="grass-ctrl-row">
@@ -286,17 +336,17 @@
       <!-- Sección 2: Pincel y Variación de Árboles -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-tree" style="color:#4ade80;"></i> Árboles</span>
-          <span id="plantedTreesCount" style="font-size:10px; color:#4ade80; font-weight:700;">0 nuevos</span>
+          <span><i class="fa-solid fa-tree" style="color:#86a77c;"></i> Árboles</span>
+          <span id="plantedTreesCount" style="font-size:10px; color:#86a77c; font-weight:700;">0 nuevos</span>
         </div>
         <div class="grass-ctrl-row" style="margin-bottom:6px;">
           <span>Escala 24 grandes:</span>
           <input type="range" id="treeScaleSlider" min="1.4" max="3.5" step="0.1" value="2.2" title="Ajustar tamaño de los 24 árboles aleatorios destacados">
-          <span id="treeScaleVal" style="font-size:10px; width:28px; text-align:right; font-weight:700; color:#4ade80;">2.2x</span>
+          <span id="treeScaleVal" style="font-size:10px; width:28px; text-align:right; font-weight:700; color:#86a77c;">2.2x</span>
         </div>
         <div style="margin-bottom:8px;">
           <button type="button" class="btn-tool" id="randomizeTreesBtn" style="width:100%; justify-content:center; font-size:11px;" title="Seleccionar otros 24 árboles aleatorios para agrandar">
-            <i class="fa-solid fa-dice" style="color:#a3e635;"></i> Re-sortear 24 árboles grandes
+            <i class="fa-solid fa-dice" style="color:#a9b87a;"></i> Re-sortear 24 árboles grandes
           </button>
         </div>
         <p class="brush-hint">Activa el pincel y <b>arrastra el cursor sobre el mapa</b> para pintar árboles con alturas y escalas individuales.</p>
@@ -313,8 +363,8 @@
       <!-- Sección 3: Pincel de Vacas -->
       <div class="section-card">
         <div class="section-title">
-          <span><i class="fa-solid fa-cow" style="color:#fbbf24;"></i> Pincel de Vacas</span>
-          <span id="plantedCowsCount" style="font-size:10px; color:#fbbf24; font-weight:700;">0 nuevas</span>
+          <span><i class="fa-solid fa-cow" style="color:#cfa75f;"></i> Pincel de Vacas</span>
+          <span id="plantedCowsCount" style="font-size:10px; color:#cfa75f; font-weight:700;">0 nuevas</span>
         </div>
         <p class="brush-hint">Activa el pincel y haz clic o arrastra para colocar vacas en pastoreo con su sombra.</p>
         <div class="btn-group">
@@ -369,6 +419,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=267"></script>
+<script src="modulo-08-3d.js?v=268"></script>
+<script src="linea-tiempo-kennedy.js?v=1"></script>
 </body>
 </html>
