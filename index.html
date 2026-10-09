@@ -133,14 +133,26 @@ window.onerror = function(msg, url, line, col, error) {
   .side-drawer::-webkit-scrollbar-thumb { background: rgba(132,164,139,0.35); border-radius: 6px; }
   .side-drawer::-webkit-scrollbar-thumb:hover { background: rgba(132,164,139,0.7); }
   .side-drawer { overflow-x: hidden; }
-  /* Convenciones: solo iconos; el detalle aparece al pasar el cursor */
-  .rel-grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 2px 1px 6px; }
-  .rel-card { position: relative; box-sizing: border-box; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; cursor: pointer;
-    background: rgba(255,255,255,0.04); border: 1.5px solid var(--rel-color); border-radius: 50%; transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
-  .rel-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.09); box-shadow: 0 6px 16px rgba(0,0,0,.35); }
-  .rel-card.inactive { opacity: .35; filter: grayscale(.9); }
-  .rel-ico { color: var(--rel-color); font-size: 17px; line-height: 1; }
-  .rel-n { position: absolute; right: -6px; bottom: -6px; min-width: 18px; padding: 1px 5px; border-radius: 99px; text-align: center; font-size: 9.5px; font-weight: 700; font-family: ui-monospace, monospace; color: var(--rel-color); background: #0b1118; border: 1px solid var(--rel-color); }
+  /* Convenciones: en la red, lista con detalle; en el Territorio 3D, solo iconos con detalle al pasar el cursor */
+  .rel-grid { display: flex; flex-direction: column; gap: 7px; }
+  .rel-card { position: relative; box-sizing: border-box; min-width: 0; overflow: hidden; padding: 10px 44px 10px 15px; cursor: pointer;
+    background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015)); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px;
+    transition: border-color .2s ease, background .2s ease, transform .2s ease, box-shadow .2s ease; }
+  .rel-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--rel-color); opacity: .9; }
+  .rel-card:hover { border-color: var(--rel-color); background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025)); }
+  .rel-card.inactive { opacity: .38; filter: grayscale(.85); }
+  .rel-top { display: flex; align-items: center; gap: 10px; }
+  .rel-title { flex: 1; min-width: 0; font-size: 11.5px; font-weight: 600; letter-spacing: .1px; color: #eef2f6; line-height: 1.25; overflow-wrap: break-word; hyphens: none; }
+  .rel-desc { font-size: 10px; color: #8d99aa; line-height: 1.45; margin: 6px 0 0 32px; overflow-wrap: break-word; hyphens: none; }
+  .rel-ico { display: none; color: var(--rel-color); font-size: 17px; line-height: 1; }
+  .rel-n { position: absolute; top: 10px; right: 12px; padding: 1px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; font-family: ui-monospace, monospace; color: var(--rel-color); background: rgba(255,255,255,0.07); }
+  body.territory-mode .rel-grid { flex-direction: row; flex-wrap: wrap; gap: 10px; padding: 2px 1px 6px; }
+  body.territory-mode .rel-card { width: 46px; height: 46px; padding: 0; display: flex; align-items: center; justify-content: center; overflow: visible; border: 1.5px solid var(--rel-color); border-radius: 50%; background: rgba(255,255,255,0.04); }
+  body.territory-mode .rel-card::before { display: none; }
+  body.territory-mode .rel-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.09); box-shadow: 0 6px 16px rgba(0,0,0,.35); }
+  body.territory-mode .rel-full { display: none; }
+  body.territory-mode .rel-ico { display: block; }
+  body.territory-mode .rel-n { top: auto; right: -6px; bottom: -6px; min-width: 18px; padding: 1px 5px; text-align: center; font-size: 9.5px; background: #0b1118; border: 1px solid var(--rel-color); }
   #relTip { position: fixed; z-index: 400; display: none; width: 240px; padding: 11px 13px; border-radius: 10px; pointer-events: none; color: #eef2f6;
     background: rgba(12,16,22,0.97); border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 10px 30px rgba(0,0,0,.45); }
   #relTip .rt-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; font-weight: 700; line-height: 1.25; }
@@ -1439,12 +1451,13 @@ window.onerror = function(msg, url, line, col, error) {
     const rel = document.getElementById('relGridHost');
     if (rel) {
       rel.innerHTML = RED.interactions.map((t, i) => `
-      <div class="rel-card active" id="interItem${i}" style="--rel-color:${t.color};" onclick="toggleInteraction(${i})"><span class="rel-ico"><i class="fa-solid ${t.icon}"></i></span><span class="rel-n" id="badgeInter${i}">0</span></div>`).join('');
+      <div class="rel-card active" id="interItem${i}" style="--rel-color:${t.color};" onclick="toggleInteraction(${i})"><div class="rel-full"><div class="rel-top"><span style="flex:none; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:${t.color}22; border:1px solid ${t.color}; color:${t.color}; font-size:10px;"><i class="fa-solid ${t.icon}"></i></span><span class="rel-title">${t.name}</span></div><div class="rel-desc">${t.def}</div></div><span class="rel-ico"><i class="fa-solid ${t.icon}"></i></span><span class="rel-n" id="badgeInter${i}">0</span></div>`).join('');
       let tip = document.getElementById('relTip');
       if (!tip) { tip = document.createElement('div'); tip.id = 'relTip'; document.body.appendChild(tip); }
       RED.interactions.forEach((t, i) => {
         const el = document.getElementById('interItem' + i); if (!el) return;
         el.addEventListener('mouseenter', () => {
+          if (!document.body.classList.contains('territory-mode')) return;
           const n = (document.getElementById('badgeInter' + i) || {}).textContent || '0';
           tip.innerHTML = '<div class="rt-h" style="color:' + t.color + '"><span>' + t.name + '</span><span class="rt-n">' + n + '</span></div><div class="rt-d">' + t.def + '</div>';
           tip.style.display = 'block';
