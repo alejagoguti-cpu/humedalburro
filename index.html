@@ -900,6 +900,10 @@ window.onerror = function(msg, url, line, col, error) {
       <span>Anillos</span>
     </button>
 
+    <button class="glass-panel btn-flat" id="btnLayoutPlano" onclick="setLayout('plano2d')" title="Plano 2D: grupos y anillos en un plano, con la misma información">
+      <span>Plano 2D</span>
+    </button>
+
     <button class="glass-panel btn-flat active" id="btnAutoRot" onclick="opts.autoRotate = !opts.autoRotate; this.classList.toggle('active')">
       <span>Giro 3D</span>
     </button>
@@ -1822,7 +1826,7 @@ window.onerror = function(msg, url, line, col, error) {
 
   function applyViewAppearance() {
     const mode = opts.viewMode || 'taxonomy';
-    const flat = ['forceatlas', 'circular', 'radial'].includes(opts.layout);
+    const flat = ['forceatlas', 'circular', 'radial', 'plano2d'].includes(opts.layout);
     const mult = flat ? 0.55 : 1;
     const md = maxFullDeg();
     const white = new THREE.Color('#ffffff'), dim = new THREE.Color('#353c42');
@@ -1870,7 +1874,7 @@ window.onerror = function(msg, url, line, col, error) {
     const el = document.getElementById('gpInfo');
     if (!el) return;
     const mode = opts.viewMode || 'taxonomy';
-    const LAY = { forceatlas: 'ForceAtlas2', circular: 'Circular', radial: 'Ejes radiales', hyperbolic: 'Hiperbólico', clustered: 'Por grupos', concentric: 'Anillos' };
+    const LAY = { plano2d: 'Plano 2D', forceatlas: 'ForceAtlas2', circular: 'Circular', radial: 'Ejes radiales', hyperbolic: 'Hiperbólico', clustered: 'Por grupos', concentric: 'Anillos' };
     const lay = LAY[opts.layout] || 'Hiperbólico';
     let html = '';
     if (mode === 'community') {
@@ -3148,8 +3152,9 @@ window.onerror = function(msg, url, line, col, error) {
     if (type === 'hyperbolic') document.getElementById("btnLayoutHyp")?.classList.add("active");
     if (type === 'clustered') document.getElementById("btnLayoutClust")?.classList.add("active");
     if (type === 'concentric') document.getElementById("btnLayoutConc")?.classList.add("active");
+    if (type === 'plano2d') document.getElementById("btnLayoutPlano")?.classList.add("active");
     ['forceatlas', 'circular', 'radial'].forEach(k => document.getElementById('gpLayout' + k)?.classList.toggle('active', k === type));
-    if (type === 'circular' || type === 'radial') {
+    if (type === 'circular' || type === 'radial' || type === 'plano2d') {
       // vistas planas: de frente a la cámara y sin giro
       opts.autoRotate = false;
       document.getElementById('btnAutoRot')?.classList.remove('active');
@@ -3187,6 +3192,16 @@ window.onerror = function(msg, url, line, col, error) {
         tx = r * Math.cos(angle);
         ty = ((idx % 9) - 4) * 3.2;
         tz = r * Math.sin(angle);
+      }
+
+      if (type === 'plano2d') {
+        // grupos (capas) en un anillo grande; dentro de cada grupo, espiral plana; todo en z = 0
+        const g = n.cat, k = _cr[n.id], m = Math.max(1, CAT_COUNT);
+        const R0 = m > 1 ? 30 + 4 * m : 0, a0 = (g / m) * Math.PI * 2 - Math.PI / 2;
+        const rr = 3.6 * Math.sqrt(k + 0.6), aa = k * 2.39996;
+        tx = R0 * Math.cos(a0) + rr * Math.cos(aa);
+        ty = R0 * Math.sin(a0) + rr * Math.sin(aa);
+        tz = 0;
       }
 
       if (type === 'forceatlas' || type === 'circular' || type === 'radial') {
