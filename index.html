@@ -448,6 +448,45 @@ window.onerror = function(msg, url, line, col, error) {
   .legend-label { display: flex; align-items: center; gap: 8px; color: #cbd5e1; font-weight: 500; }
   .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
+  /* --- Tortas dinamicas (A y B) --- */
+  .donut-wrap { position: relative; width: 250px; height: 250px; margin: 6px 0 4px; }
+  .donut-wrap svg { width: 100%; height: 100%; overflow: visible; }
+  .donut-seg { fill: none; stroke-width: 26; cursor: pointer;
+    transition: stroke-dasharray 0.9s cubic-bezier(.22,.9,.3,1), stroke-width 0.25s ease, opacity 0.25s ease; }
+  .donut-wrap.has-focus .donut-seg { opacity: 0.22; }
+  .donut-wrap.has-focus .donut-seg.is-focus { opacity: 1; stroke-width: 34; }
+  .donut-leader { stroke-width: 0.8; fill: none; opacity: 0; transition: opacity 0.4s ease; }
+  .donut-leader.show { opacity: 0.7; }
+  .donut-icon { position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; color: #0b0d10;
+    transform: scale(0); transition: transform 0.45s cubic-bezier(.34,1.56,.64,1), opacity 0.25s ease;
+    pointer-events: none; box-shadow: 0 0 0 2px #0a0a0c; }
+  .donut-icon.show { transform: scale(1); }
+  .donut-wrap.has-focus .donut-icon { opacity: 0.25; }
+  .donut-wrap.has-focus .donut-icon.is-focus { opacity: 1; transform: scale(1.25); }
+  .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; pointer-events: none; padding: 0 64px; }
+  .donut-center-val { font-size: 26px; font-weight: 900; line-height: 1; color: #f1f5f9; font-variant-numeric: tabular-nums; }
+  .donut-center-lbl { font-size: 9.5px; color: #94a3b8; margin-top: 5px; line-height: 1.25; text-transform: uppercase; letter-spacing: 0.6px; }
+  .legend-row.lg-anim { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: center;
+    padding: 6px 10px; cursor: pointer; opacity: 0; transform: translateX(-14px);
+    transition: opacity 0.45s ease, transform 0.45s ease, background 0.2s ease, border-color 0.2s ease; }
+  .legend-row.lg-anim.show { opacity: 1; transform: none; }
+  .legend-row.lg-anim:hover, .legend-row.lg-anim.is-focus { background: rgba(255,255,255,0.08); border-color: var(--c); }
+  .lg-badge { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #0b0d10; }
+  .lg-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .lg-name { color: #cbd5e1; font-weight: 600; font-size: 10.5px; }
+  .lg-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,0.07); overflow: hidden; }
+  .lg-bar > i { display: block; height: 100%; width: 0; border-radius: 2px; transition: width 1s cubic-bezier(.22,.9,.3,1); }
+  .lg-val { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .lg-val b { font-size: 12px; }
+  .lg-val small { display: block; font-size: 9px; color: #64748b; }
+  .metric-sources { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 10.5px; color: #cbd5e1;
+    padding: 12px 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: #0a0a0c; }
+  .metric-sources-title { font-weight: 800; color: #84a48b; text-transform: uppercase; letter-spacing: 0.6px; font-size: 9.5px; margin-right: 4px; }
+  .metric-sources .dot-sep { width: 3px; height: 3px; border-radius: 50%; background: #475569; }
+
   /* Toast Notification */
   .toast-notify {
     position: fixed; top: 78px; left: 50%; transform: translateX(-50%);
@@ -593,9 +632,9 @@ window.onerror = function(msg, url, line, col, error) {
       <div>
         <div style="font-size:16px; font-weight:900; color:#84a48b; letter-spacing:0.5px; display:flex; align-items:center; gap:8px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#84a48b" stroke-width="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-          SISTEMA SOCIOECOLÓGICO DE KENNEDY — METRÍCAS ECOLÓGICAS Y MATRIZ DE EVIDENCIA
+          SISTEMA SOCIOECOLÓGICO DE KENNEDY — MÉTRICAS ECOLÓGICAS
         </div>
-        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">Distribución funcional, composición taxonómica y respaldo técnico del modelo (568 taxones)</div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">Distribución funcional y composición taxonómica del modelo (<span id="lblMetricTaxa">568</span> taxones)</div>
       </div>
       <button class="btn-flat active" style="padding:8px 18px; font-weight:800; font-size:12px;" onclick="closeWelcomeModal()">
         Explorar Red 3D →
@@ -603,121 +642,30 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
 
     <div class="pie-grid">
-      <!-- Torta A: Distribución por Tipos de Interacción Biótica -->
       <div class="pie-card">
         <div class="pie-card-title">1. Torta A: Tipos de Interacción Biótica</div>
         <div class="pie-card-desc">Distribución de las relaciones funcionales registradas en la red socioecológica de Kennedy.</div>
-        
-        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
-          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.584 0.812 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.584 0.812 A 1 1 0 0 1 -0.892 -0.452 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.892 -0.452 A 1 1 0 0 1 -0.669 -0.743 Z" fill="#F79E70" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.669 -0.743 A 1 1 0 0 1 -0.463 -0.886 Z" fill="#E69888" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.463 -0.886 A 1 1 0 0 1 1 0 Z" fill="#C96349" stroke="#000000" stroke-width="0.02"/>
-        </svg>
-
-        <div class="pie-legend">
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>Visita Floral / Polinización</div>
-            <b style="color:#A386A9;">39.18%</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Herbivoría Parcial</div>
-            <b style="color:#84A48B;">31.58%</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#F79E70;"></div>Nidificación y Refugio</div>
-            <b style="color:#F79E70;">7.44%</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#E69888;"></div>Dispersión de Semillas</div>
-            <b style="color:#E69888;">4.88%</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#C96349;"></div>Parasitismo / Depredación</div>
-            <b style="color:#C96349;">16.92%</b>
-          </div>
-        </div>
+        <div class="donut-wrap" id="donutA"></div>
+        <div class="pie-legend" id="legendA"></div>
       </div>
-
-      <!-- Torta B: Composición por Grupos Taxonómicos -->
       <div class="pie-card">
         <div class="pie-card-title">2. Torta B: Convenciones Taxonómicas</div>
         <div class="pie-card-desc">Distribución de Flora SIGAU y los 5 grupos de Fauna de Kennedy.</div>
-        
-        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
-          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.019 1.000 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.019 1.000 A 1 1 0 0 1 -0.925 -0.380 Z" fill="#38BDF8" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.925 -0.380 A 1 1 0 0 1 -0.675 -0.738 Z" fill="#F59E0B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.675 -0.738 A 1 1 0 0 1 -0.342 -0.940 Z" fill="#EC4899" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.342 -0.940 A 1 1 0 0 1 -0.118 -0.993 Z" fill="#10B981" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.118 -0.993 A 1 1 0 0 1 1 0 Z" fill="#A855F7" stroke="#000000" stroke-width="0.02"/>
-        </svg>
-
-        <div class="pie-legend">
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Flora & Arbolado SIGAU</div>
-            <b style="color:#84A48B;">50.9% (289)</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#38BDF8;"></div>Aves (Avifauna)</div>
-            <b style="color:#38BDF8;">40.8% (232)</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#F59E0B;"></div>Mamíferos (Mastofauna)</div>
-            <b style="color:#F59E0B;">2.6% (15)</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#EC4899;"></div>Moluscos (Gasterópodos)</div>
-            <b style="color:#EC4899;">2.5% (14)</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#10B981;"></div>Anfibios (Ranas/Sapos)</div>
-            <b style="color:#10B981;">1.6% (9)</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#A855F7;"></div>Reptiles (Serpientes/Lagartos)</div>
-            <b style="color:#A855F7;">1.6% (9)</b>
-          </div>
-        </div>
-      </div>
-
-      <!-- Torta C: Origen y Soporte de Fuentes de Evidencia -->
-      <div class="pie-card">
-        <div class="pie-card-title">3. Torta C: Fuentes de Evidencia</div>
-        <div class="pie-card-desc">Respaldo técnico del modelo socioecológico a partir del origen del dato.</div>
-        
-        <svg width="140" height="140" viewBox="-1.1 -1.1 2.2 2.2" style="transform: rotate(-90deg);">
-          <path d="M 0 0 L 1 0 A 1 1 0 0 1 -0.741 0.672 Z" fill="#84A48B" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.741 0.672 A 1 1 0 0 1 -0.722 -0.692 Z" fill="#E7C878" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L -0.722 -0.692 A 1 1 0 0 1 0.584 -0.812 Z" fill="#A386A9" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L 0.584 -0.812 A 1 1 0 0 1 0.951 -0.309 Z" fill="#F79E70" stroke="#000000" stroke-width="0.02"/>
-          <path d="M 0 0 L 0.951 -0.309 A 1 1 0 0 1 1 0 Z" fill="#6B9080" stroke="#000000" stroke-width="0.02"/>
-        </svg>
-
-        <div class="pie-legend">
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#84A48B;"></div>Censo SIGAU / Colecciones</div>
-            <b style="color:#84A48B;">50.9%</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#E7C878;"></div>Registros iNaturalist</div>
-            <b style="color:#E7C878;">35.8%</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#A386A9;"></div>PMA Humedales SDA</div>
-            <b style="color:#A386A9;">8.3%</b>
-          </div>
-          <div class="legend-row">
-            <div class="legend-label"><div class="legend-dot" style="background:#6B9080;"></div>Ciencia Participativa</div>
-            <b style="color:#6B9080;">5.0%</b>
-          </div>
-        </div>
+        <div class="donut-wrap" id="donutB"></div>
+        <div class="pie-legend" id="legendB"></div>
       </div>
     </div>
 
+    <div class="metric-sources">
+      <span class="metric-sources-title">Fuentes sacadas de</span>
+      <span>Censo SIGAU / Colecciones</span><span class="dot-sep"></span>
+      <span>Registros iNaturalist</span><span class="dot-sep"></span>
+      <span>PMA Humedales SDA</span><span class="dot-sep"></span>
+      <span>Ciencia Participativa</span>
+    </div>
+
     <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:14px;">
-      <span style="font-size:10.5px; color:#94a3b8;">💡 Puedes volver a abrir estas métricas en cualquier momento con el botón "Métricas" de la barra superior.</span>
+      <span style="font-size:10.5px; color:#94a3b8;">Puedes volver a abrir estas métricas en cualquier momento con el botón "Métricas" de la barra superior.</span>
       <button class="btn-flat active" style="padding:9px 24px; font-size:12px; font-weight:800; background:linear-gradient(135deg, #84a48b, #6B9080); color:#000000; border:none;" onclick="closeWelcomeModal()">
         Entendido, Ingresar al Visor
       </button>
@@ -732,24 +680,12 @@ window.onerror = function(msg, url, line, col, error) {
       <span>RED DE INTERACCIONES BIÓTICAS DE KENNEDY</span>
     </div>
 
-    <a href="axonometria-corte.html" class="glass-panel btn-flat" style="color:#2BD9C8; border-color:rgba(43,217,200,0.4); background:rgba(43,217,200,0.1); text-decoration:none;" title="Corte axonométrico estratigráfico con simulación de lluvia y capas">
-      <i class="fa-solid fa-cloud-rain" style="color:#2BD9C8;"></i>
-      <span>Axonometría Cortada (Lluvia)</span>
-    </a>
-    <a href="problematicas.html" class="glass-panel btn-flat" style="color:#f59e0b; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1); text-decoration:none;" title="Evolución histórica 1950 con vacas y Techo">
-      <i class="fa-solid fa-clock-rotate-left" style="color:#f59e0b;"></i>
-      <span>Evolución Histórica (1950)</span>
-    </a>
-    <a href="modulo-08-render.html" class="glass-panel btn-flat" style="color:#EAC119; border-color:rgba(234,193,25,0.4); text-decoration:none;">
-      <i class="fa-solid fa-cube"></i>
-      <span>Render 3D Kennedy</span>
-    </a>
     <button class="glass-panel btn-flat" id="btnHubsModal" onclick="openHubsModal()" style="color:#E7C878; border-color:rgba(231,200,120,0.35); background:rgba(231,200,120,0.12);">
       <i class="fa-solid fa-star" style="color:#E7C878;"></i>
       <span>Especies Clave (Hubs)</span>
     </button>
     <button class="glass-panel btn-flat active" onclick="openWelcomeModal()">
-      <span>Métricas (Tortas A, B, C)</span>
+      <span>Métricas</span>
     </button>
 
     <button class="glass-panel btn-flat active" id="btnToggleSide" onclick="toggleSideDrawer()">
@@ -2807,9 +2743,164 @@ window.onerror = function(msg, url, line, col, error) {
   // =====================================================================
   // 7. FUNCIONES DE CONTROL DE INTERFAZ, FILTROS Y EVENTOS
   // =====================================================================
+  // ---------------------------------------------------------------------
+  // Tortas de metricas: calculadas desde la red real, ordenadas de mayor a menor
+  // ---------------------------------------------------------------------
+  const INTER_ICONS = { 0: 'fa-crosshairs', 1: 'fa-leaf', 2: 'fa-seedling', 3: 'fa-handshake', 4: 'fa-house',
+    5: 'fa-spa', 6: 'fa-egg', 7: 'fa-bug', 8: 'fa-scale-balanced' };
+  const CAT_META = [
+    { name: 'Flora & Arbolado SIGAU', color: '#84A48B', icon: 'fa-tree' },
+    { name: 'Aves (Avifauna)', color: '#38BDF8', icon: 'fa-dove' },
+    { name: 'Mamíferos (Mastofauna)', color: '#F59E0B', icon: 'fa-paw' },
+    { name: 'Moluscos (Gasterópodos)', color: '#EC4899', icon: 'fa-worm' },
+    { name: 'Anfibios (Ranas/Sapos)', color: '#10B981', icon: 'fa-frog' },
+    { name: 'Reptiles (Serpientes/Lagartos)', color: '#A855F7', icon: 'fa-dragon' }
+  ];
+
+  function metricPieData() {
+    const interCounts = {};
+    rawEdges.forEach(e => {
+      const na = rawNodes[e.source], nb = rawNodes[e.target];
+      if (!na || !nb) return;
+      const key = na.id < nb.id ? `${na.id}_${nb.id}` : `${nb.id}_${na.id}`;
+      const inter = edgeDetailsMap[key]?.type || getInteractionInfo(na, nb);
+      interCounts[inter.id] = (interCounts[inter.id] || 0) + 1;
+    });
+    const A = Object.values(INTER_TYPES).map(t => ({ name: t.name, color: t.color, icon: INTER_ICONS[t.id], value: interCounts[t.id] || 0 }));
+    const catCounts = [0, 0, 0, 0, 0, 0];
+    rawTaxa.forEach(t => { if (catCounts[t.cat] !== undefined) catCounts[t.cat]++; });
+    const B = CAT_META.map((m, i) => ({ ...m, value: catCounts[i] }));
+    const sortDesc = arr => arr.filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+    return { A: sortDesc(A), B: sortDesc(B), totalTaxa: rawTaxa.length };
+  }
+
+  function fmtPct(v, dec) { return v.toFixed(dec).replace('.', ','); }
+
+  function renderDonut(wrapId, legendId, items, centerLbl, unit) {
+    const wrap = document.getElementById(wrapId), legend = document.getElementById(legendId);
+    if (!wrap || !legend) return;
+    const total = items.reduce((s, d) => s + d.value, 0) || 1;
+    const R = 80, C = 125, NS = 'http://www.w3.org/2000/svg';
+    wrap.innerHTML = ''; legend.innerHTML = '';
+    wrap.classList.remove('has-focus');
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 250 250');
+    const bg = document.createElementNS(NS, 'circle');
+    bg.setAttribute('cx', C); bg.setAttribute('cy', C); bg.setAttribute('r', R);
+    bg.setAttribute('fill', 'none'); bg.setAttribute('stroke', 'rgba(255,255,255,0.05)'); bg.setAttribute('stroke-width', '26');
+    svg.appendChild(bg);
+    wrap.appendChild(svg);
+    const center = document.createElement('div');
+    center.className = 'donut-center';
+    center.innerHTML = `<div class="donut-center-val">0</div><div class="donut-center-lbl">${centerLbl}</div>`;
+    wrap.appendChild(center);
+    const cVal = center.querySelector('.donut-center-val'), cLbl = center.querySelector('.donut-center-lbl');
+
+    // Posicion de iconos: sobre el anillo si la porcion es grande, fuera con linea guia si es pequena
+    let acc = 0, lastOutAngle = -999;
+    const parts = items.map((d, i) => {
+      const pct = d.value / total * 100;
+      const startDeg = acc / 100 * 360 - 90;
+      const midDeg = (acc + pct / 2) / 100 * 360 - 90;
+      acc += pct;
+      const inside = pct >= 5.5;
+      let iconDeg = midDeg;
+      if (!inside) { iconDeg = Math.max(midDeg, lastOutAngle + 15); lastOutAngle = iconDeg; }
+      return { d, i, pct, startDeg, midDeg, iconDeg, inside };
+    });
+
+    const segs = [], icons = [], rows = [];
+    parts.forEach(p => {
+      const seg = document.createElementNS(NS, 'circle');
+      seg.setAttribute('class', 'donut-seg');
+      seg.setAttribute('cx', C); seg.setAttribute('cy', C); seg.setAttribute('r', R);
+      seg.setAttribute('pathLength', '100');
+      seg.setAttribute('stroke', p.d.color);
+      seg.setAttribute('transform', `rotate(${p.startDeg} ${C} ${C})`);
+      seg.style.strokeDasharray = '0 100';
+      svg.appendChild(seg);
+      segs.push(seg);
+
+      const rad = p.iconDeg * Math.PI / 180;
+      const ir = p.inside ? R : R + 34;
+      const ix = C + Math.cos(rad) * ir, iy = C + Math.sin(rad) * ir;
+      let leader = null;
+      if (!p.inside) {
+        const mr = p.midDeg * Math.PI / 180;
+        leader = document.createElementNS(NS, 'path');
+        leader.setAttribute('class', 'donut-leader');
+        leader.setAttribute('stroke', p.d.color);
+        leader.setAttribute('d', `M ${C + Math.cos(mr) * (R + 14)} ${C + Math.sin(mr) * (R + 14)} L ${C + Math.cos(rad) * (ir - 12)} ${C + Math.sin(rad) * (ir - 12)}`);
+        svg.appendChild(leader);
+      }
+      const ic = document.createElement('div');
+      ic.className = 'donut-icon';
+      ic.style.left = (ix / 250 * 100) + '%';
+      ic.style.top = (iy / 250 * 100) + '%';
+      ic.style.background = p.d.color;
+      ic.innerHTML = `<i class="fa-solid ${p.d.icon}"></i>`;
+      wrap.appendChild(ic);
+      icons.push({ ic, leader });
+
+      const row = document.createElement('div');
+      row.className = 'legend-row lg-anim';
+      row.style.setProperty('--c', p.d.color);
+      row.innerHTML = `<div class="lg-badge" style="background:${p.d.color};"><i class="fa-solid ${p.d.icon}"></i></div>
+        <div class="lg-main"><span class="lg-name">${p.d.name}</span><div class="lg-bar"><i style="background:${p.d.color};"></i></div></div>
+        <div class="lg-val"><b style="color:${p.d.color};">0,00%</b><small>${p.d.value} ${unit}</small></div>`;
+      legend.appendChild(row);
+      rows.push(row);
+    });
+
+    // Interaccion: resaltar porcion + icono + fila
+    const focus = (idx) => {
+      wrap.classList.toggle('has-focus', idx !== null);
+      segs.forEach((s, k) => s.classList.toggle('is-focus', k === idx));
+      icons.forEach((o, k) => o.ic.classList.toggle('is-focus', k === idx));
+      rows.forEach((r, k) => r.classList.toggle('is-focus', k === idx));
+      if (idx === null) { cVal.textContent = total.toLocaleString('es-CO'); cVal.style.color = ''; cLbl.textContent = centerLbl; }
+      else { const p = parts[idx]; cVal.textContent = fmtPct(p.pct, 1) + '%'; cVal.style.color = p.d.color; cLbl.textContent = p.d.name; }
+    };
+    segs.forEach((s, k) => { s.addEventListener('mouseenter', () => focus(k)); s.addEventListener('mouseleave', () => focus(null)); });
+    rows.forEach((r, k) => { r.addEventListener('mouseenter', () => focus(k)); r.addEventListener('mouseleave', () => focus(null)); });
+
+    // Animacion de entrada: porciones en secuencia, iconos que aparecen, filas que entran y porcentajes que cuentan
+    const STEP = 130;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      parts.forEach((p, k) => {
+        setTimeout(() => {
+          const len = Math.max(p.pct - (p.pct > 1.2 ? 0.5 : 0.15), 0.1);
+          segs[k].style.strokeDasharray = `${len} ${100 - len}`;
+          rows[k].classList.add('show');
+          rows[k].querySelector('.lg-bar > i').style.width = (p.d.value / items[0].value * 100) + '%';
+          setTimeout(() => { icons[k].ic.classList.add('show'); if (icons[k].leader) icons[k].leader.classList.add('show'); }, 420);
+        }, 120 + k * STEP);
+      });
+      const dur = 120 + parts.length * STEP + 700, t0 = performance.now();
+      const vals = rows.map(r => r.querySelector('.lg-val b'));
+      const tick = (now) => {
+        const u = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - u, 3);
+        cVal.textContent = Math.round(total * e).toLocaleString('es-CO');
+        parts.forEach((p, k) => { vals[k].textContent = fmtPct(p.pct * e, 2) + '%'; });
+        if (u < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }));
+  }
+
+  function renderMetricPies() {
+    const data = metricPieData();
+    const lbl = document.getElementById('lblMetricTaxa');
+    if (lbl) lbl.textContent = data.totalTaxa;
+    renderDonut('donutA', 'legendA', data.A, 'relaciones registradas', 'relaciones');
+    renderDonut('donutB', 'legendB', data.B, 'taxones', 'taxones');
+  }
+  window.__metricPieData = metricPieData;
+
   window.openWelcomeModal = () => {
     const modal = document.getElementById("welcomeModalOverlay");
     if (modal) modal.style.display = "flex";
+    renderMetricPies();
   };
 
   window.closeWelcomeModal = () => {
