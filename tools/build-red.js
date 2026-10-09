@@ -121,14 +121,24 @@ function layout3d(n, edges) {
   const capaIdx = new Map(capas.map((c, i) => [c.name, i]));
   const tipoIdx = new Map(tipos.map(t => [t.name, t.id]));
   const errs = [];
-  // Proyeccion lat/lon -> escena (misma calibracion del mapa de Kennedy del visor)
-  const toScene = (lat, lon) => ({ x: +(209.56 + (lon + 74.153) * 15700).toFixed(2), z: +(-10.93 + (lat - 4.636) * -11600).toFixed(2) });
-  const nodes = rows(sh('NODOS'), 1, 14).map(r => {
+  // Proyeccion WGS84 -> UTM 18N -> escena (misma del mapa de Kennedy del visor: (UTM-[586865,509725]-centro)/10)
+  const utm = (lat, lon) => {
+    const a = 6378137, f = 1 / 298.257223563, k0 = 0.9996, e2 = f * (2 - f), ep2 = e2 / (1 - e2), lon0 = -75 * Math.PI / 180, p = lat * Math.PI / 180, l = lon * Math.PI / 180;
+    const N = a / Math.sqrt(1 - e2 * Math.sin(p) ** 2), T = Math.tan(p) ** 2, C = ep2 * Math.cos(p) ** 2, A = Math.cos(p) * (l - lon0);
+    const M = a * ((1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 ** 3 / 256) * p - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 ** 3 / 1024) * Math.sin(2 * p) + (15 * e2 * e2 / 256 + 45 * e2 ** 3 / 1024) * Math.sin(4 * p) - (35 * e2 ** 3 / 3072) * Math.sin(6 * p));
+    const E = 500000 + k0 * N * (A + (1 - T + C) * A ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * A ** 5 / 120);
+    const Nn = k0 * (M + N * Math.tan(p) * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * A ** 4 / 24 + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * A ** 6 / 720));
+    return [E, Nn];
+  };
+  const toScene = (lat, lon) => { const [E, N] = utm(lat, lon); return { x: +(((E - 586865) - 5341.33) / 10).toFixed(2), z: +(-(((N - 509725) - 3161.9) / 10)).toFixed(2) }; };
+  const inside = p => p.x >= -182.5 && p.x <= 534.1 && Math.abs(p.z) <= 316.2;
+  const nodes = rows(sh('NODOS'), 1, 16).map(r => {
     if (!capaIdx.has(r[2])) errs.push(`Nodo ${r[0]}: capa no valida "${r[2]}"`);
     const lat = parseFloat(r[12]), lon = parseFloat(r[13]);
     if (isNaN(lat) || isNaN(lon)) errs.push(`Nodo ${r[0]}: falta latitud/longitud`);
-    return { id: r[0], name: r[1], cat: capaIdx.get(r[2]), sciname: r[3], scale: r[4], loc: r[5], role: r[6], alert: r[7], actors: r[8], hypothesis: r[9], source: r[10], img: r[11], geo: { lat, lon, ...toScene(lat, lon) } };
+    return { id: r[0], name: r[1], cat: capaIdx.get(r[2]), sciname: r[3], scale: r[4], loc: r[5], role: r[6], alert: r[7], actors: r[8], hypothesis: r[9], source: r[10], img: r[11], img1: r[14], img2: r[15], geo: { lat, lon, ...toScene(lat, lon) } };
   });
+  nodes.filter(nd => nd.geo && !inside(nd.geo)).forEach(nd => console.warn('AVISO: fuera del mapa 3D de Kennedy (no se vera en Territorio): ' + nd.id + ' - ' + nd.name));
   const idIdx = new Map(nodes.map((n, i) => [n.id, i]));
   if (idIdx.size !== nodes.length) errs.push('IDs de nodo duplicados');
   const edges = rows(sh('ARISTAS'), 1, 12).map(r => {
@@ -141,7 +151,19 @@ function layout3d(n, edges) {
 
   const n = nodes.length, adj = Array.from({ length: n }, () => []);
   const we = edges.map(e => { adj[e.source].push(e.target); adj[e.target].push(e.source); return [e.source, e.target, e.weight]; });
-  const bc = brandes(n, adj), { comm, Q } = louvain(n, we), pos = layout3d(n, we);
+  let effName = ''; const wsR0 = wb.getWorksheet('RED'); if (wsR0) rows(wsR0, 1, 2).forEach(([k, v]) => { if (k === 'capa_efectos') effName = v; });
+  const effIdx = effName ? capas.findIndex(c => c.name === effName) : -1;
+  const bc = brandes(n, adj), { comm, Q } = louvain(n, we);
+  // El layout de las vistas de analisis se calcula con los nodos visibles (sintomas); los efectos ocultos van junto a sus sintomas
+  const vis = nodes.map((nd, i) => i).filter(i => nodes[i].cat !== effIdx), vmap = new Map(vis.map((g, k) => [g, k]));
+  const wsub = we.filter(([a2, b2]) => vmap.has(a2) && vmap.has(b2)).map(([a2, b2, w2]) => [vmap.get(a2), vmap.get(b2), w2]);
+  const psub = effIdx >= 0 ? layout3d(vis.length, wsub) : layout3d(n, we);
+  const pos = effIdx >= 0 ? nodes.map((nd, i) => {
+    if (vmap.has(i)) return psub[vmap.get(i)];
+    const nb = adj[i].filter(j => vmap.has(j)); if (!nb.length) return [0, 0, 0];
+    const m = [0, 1, 2].map(k => nb.reduce((acc, j) => acc + psub[vmap.get(j)][k], 0) / nb.length);
+    const r2 = rng(i * 7919 + 13); return m.map(v => +(v + (r2() - 0.5) * 6).toFixed(2));
+  }) : psub;
   const gephi = { Q, nodes: {} };
   nodes.forEach((nd, i) => { gephi.nodes[nd.id] = [comm[i], bc[i], ...pos[i]]; });
 
