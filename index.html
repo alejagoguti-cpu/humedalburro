@@ -126,6 +126,21 @@ window.onerror = function(msg, url, line, col, error) {
   .side-drawer.collapsed {
     opacity: 0; pointer-events: none; transform: translateX(-14px);
   }
+  /* Barra de desplazamiento del panel lateral: fina y discreta */
+  .side-drawer { scrollbar-width: thin; scrollbar-color: rgba(132,164,139,0.45) transparent; }
+  .side-drawer::-webkit-scrollbar { width: 5px; }
+  .side-drawer::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
+  .side-drawer::-webkit-scrollbar-thumb { background: rgba(132,164,139,0.35); border-radius: 6px; }
+  .side-drawer::-webkit-scrollbar-thumb:hover { background: rgba(132,164,139,0.7); }
+  .rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .rel-card { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 7px; cursor: pointer; transition: all .2s ease; }
+  .rel-card:hover { border-color: var(--rel-color); }
+  .rel-card.inactive { opacity: .35; filter: grayscale(.8); }
+  .rel-top { display: flex; align-items: center; gap: 5px; }
+  .rel-top svg { width: 26px; height: auto; }
+  .rel-title { flex: 1; font-size: 9.5px; font-weight: 700; color: #f8fafc; line-height: 1.15; }
+  .rel-n { font-size: 10px; font-weight: 800; font-family: ui-monospace, monospace; }
+  .rel-desc { font-size: 8.5px; color: #94a3b8; line-height: 1.3; margin-top: 4px; }
   .drawer-header {
     font-weight: 800; font-size: 10px; text-transform: uppercase;
     letter-spacing: 1px; color: #94a3b8; border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -1000,69 +1015,39 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
   </div>
 
-  <!-- Interactive Ecological Interaction Conventions in Compact 3-Column Grid -->
+  <!-- Tipos de relación / convenciones (POT Kennedy) -->
   <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.12);">
-    <div class="drawer-header" style="margin-bottom:6px; padding-bottom:6px;">
-      <span style="color:#84A48B; font-weight:800;">Tipos de Interacción</span>
+    <div class="drawer-header" style="margin-bottom:8px; padding-bottom:6px;">
+      <span style="color:#84A48B; font-weight:800;">Tipos de relación / convenciones</span>
       <div style="display:flex; gap:4px;">
-        <button class="quick-toggle-btn" onclick="toggleAllInteractions(true)" title="Encender todas las interacciones">Todas</button>
-        <button class="quick-toggle-btn" onclick="toggleAllInteractions(false)" title="Apagar todas las interacciones">Ninguna</button>
+        <button class="quick-toggle-btn" onclick="toggleAllRel(true)" title="Encender todas las relaciones">Todas</button>
+        <button class="quick-toggle-btn" onclick="toggleAllRel(false)" title="Apagar todas las relaciones">Ninguna</button>
       </div>
     </div>
-    
-    <div class="interaction-chips-grid" id="interactionToggleList">
-      <div class="inter-chip active" id="interItem0" style="--inter-color:#C96349;" onclick="toggleInteraction(0)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Depredación</div>
-        <div class="inter-chip-badge" id="badgeInter0">--</div>
+    <div class="rel-grid">
+      <div class="rel-card" id="relCard0" style="--rel-color:#3b9eff;" onclick="toggleRel(0)">
+        <div class="rel-top"><svg width="38" height="10" viewBox="0 0 38 10" style="flex:none;"><line x1="1" y1="5" x2="31" y2="5" stroke="#3b9eff" stroke-width="2" stroke-dasharray="0"/><path d="M37 5 L30 1.5 L30 8.5 Z" fill="#3b9eff"/></svg><span class="rel-title">Transformación prevista</span><span class="rel-n" style="color:#3b9eff;">42</span></div>
+        <div class="rel-desc">Intervenciones orientadas por el POT</div>
       </div>
-
-      <div class="inter-chip active" id="interItem1" style="--inter-color:#84A48B;" onclick="toggleInteraction(1)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Herbivoría</div>
-        <div class="inter-chip-badge" id="badgeInter1">--</div>
+      <div class="rel-card" id="relCard1" style="--rel-color:#ff9a3c;" onclick="toggleRel(1)">
+        <div class="rel-top"><svg width="38" height="10" viewBox="0 0 38 10" style="flex:none;"><line x1="1" y1="5" x2="31" y2="5" stroke="#ff9a3c" stroke-width="2" stroke-dasharray="5 3"/><path d="M37 5 L30 1.5 L30 8.5 Z" fill="#ff9a3c"/></svg><span class="rel-title">Tensión territorial</span><span class="rel-n" style="color:#ff9a3c;">36</span></div>
+        <div class="rel-desc">Conflictos entre usos, movilidad, economía y ambiente</div>
       </div>
-
-      <div class="inter-chip active" id="interItem2" style="--inter-color:#E69888;" onclick="toggleInteraction(2)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Dispersión</div>
-        <div class="inter-chip-badge" id="badgeInter2">--</div>
+      <div class="rel-card" id="relCard2" style="--rel-color:#ff4f8b;" onclick="toggleRel(2)">
+        <div class="rel-top"><svg width="38" height="10" viewBox="0 0 38 10" style="flex:none;"><line x1="1" y1="5" x2="31" y2="5" stroke="#ff4f8b" stroke-width="2" stroke-dasharray="1.5 3"/><path d="M37 5 L30 1.5 L30 8.5 Z" fill="#ff4f8b"/></svg><span class="rel-title">Condicionante normativo</span><span class="rel-n" style="color:#ff4f8b;">28</span></div>
+        <div class="rel-desc">Restricciones, protecciones y obligaciones</div>
       </div>
-
-      <div class="inter-chip active" id="interItem3" style="--inter-color:#E7C878;" onclick="toggleInteraction(3)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Mutualismo</div>
-        <div class="inter-chip-badge" id="badgeInter3">--</div>
+      <div class="rel-card" id="relCard3" style="--rel-color:#4caf6e;" onclick="toggleRel(3)">
+        <div class="rel-top"><svg width="38" height="10" viewBox="0 0 38 10" style="flex:none;"><line x1="6" y1="5" x2="31" y2="5" stroke="#4caf6e" stroke-width="2" stroke-dasharray="0"/><path d="M37 5 L30 1.5 L30 8.5 Z" fill="#4caf6e"/><path d="M1 5 L8 1.5 L8 8.5 Z" fill="#4caf6e"/></svg><span class="rel-title">Conectividad ecológica</span><span class="rel-n" style="color:#4caf6e;">14</span></div>
+        <div class="rel-desc">Relaciones entre humedales, rondas y corredores</div>
       </div>
-
-      <div class="inter-chip active" id="interItem4" style="--inter-color:#F79E70;" onclick="toggleInteraction(4)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Nidificación</div>
-        <div class="inter-chip-badge" id="badgeInter4">--</div>
+      <div class="rel-card" id="relCard4" style="--rel-color:#a78bfa;" onclick="toggleRel(4)">
+        <div class="rel-top"><span style="flex:none; width:18px; height:18px; margin:0 10px; border-radius:50%; background:#7c4dbd; border:1px solid #a78bfa;"></span><span class="rel-title">Actor o nodo estratégico</span><span class="rel-n" style="color:#a78bfa;">31</span></div>
+        <div class="rel-desc">Instituciones, comunidades y agentes económicos</div>
       </div>
-
-      <div class="inter-chip active" id="interItem5" style="--inter-color:#A386A9;" onclick="toggleInteraction(5)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Visita Floral</div>
-        <div class="inter-chip-badge" id="badgeInter5">--</div>
-      </div>
-
-      <div class="inter-chip active" id="interItem6" style="--inter-color:#D1A996;" onclick="toggleInteraction(6)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Anidamiento</div>
-        <div class="inter-chip-badge" id="badgeInter6">--</div>
-      </div>
-
-      <div class="inter-chip active" id="interItem7" style="--inter-color:#C6B3CA;" onclick="toggleInteraction(7)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Parasitismo</div>
-        <div class="inter-chip-badge" id="badgeInter7">--</div>
-      </div>
-
-      <div class="inter-chip active" id="interItem8" style="--inter-color:#6B9080;" onclick="toggleInteraction(8)">
-        <div class="inter-chip-dot"></div>
-        <div class="inter-chip-title">Competencia</div>
-        <div class="inter-chip-badge" id="badgeInter8">--</div>
+      <div class="rel-card" id="relCard5" style="--rel-color:#cbd5e1;" onclick="toggleRel(5)">
+        <div class="rel-top"><span style="flex:none; width:38px; height:16px; border:1px solid #cbd5e1; border-radius:2px; background:repeating-linear-gradient(135deg,#cbd5e1 0 1.5px,transparent 1.5px 5px);"></span><span class="rel-title">Zona de oportunidad o vacío</span><span class="rel-n" style="color:#cbd5e1;">9</span></div>
+        <div class="rel-desc">Aspectos de la ciudad que reciben poca atención</div>
       </div>
     </div>
   </div>
@@ -3444,6 +3429,9 @@ window.onerror = function(msg, url, line, col, error) {
     if (c) c.classList.toggle("inactive", !on);
   };
   window.toggleAllTerr = (state) => { for (let i = 0; i < 8; i++) { const t = document.getElementById(`toggleTerr${i}`); if (t && t.classList.contains("checked") !== state) toggleTerr(i); } };
+
+  window.toggleRel = (i) => { const c = document.getElementById(`relCard${i}`); if (c) c.classList.toggle("inactive"); };
+  window.toggleAllRel = (state) => { for (let i = 0; i < 6; i++) { const c = document.getElementById(`relCard${i}`); if (c) c.classList.toggle("inactive", !state); } };
 
   window.toggleAllCats = (state) => {
     for (let c = 0; c <= 5; c++) {
