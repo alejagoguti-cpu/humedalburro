@@ -49,6 +49,8 @@
 
   const cowsGroup = new THREE.Group();
   sceneRoot.add(cowsGroup);
+  const histTreesGroup = new THREE.Group();
+  sceneRoot.add(histTreesGroup);
 
   const historicalWetlandsGroup = new THREE.Group();
   sceneRoot.add(historicalWetlandsGroup);
@@ -284,23 +286,25 @@
 
   // Texturas de agua con relieve y movimiento (mismo color y textura que la axonometría)
   const waterTexLoader = new THREE.TextureLoader();
-  const waterTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  const waterTex = waterTexLoader.load("./assets/textura_agua_clara.jpg");
   waterTex.wrapS = THREE.RepeatWrapping;
   waterTex.wrapT = THREE.RepeatWrapping;
+  waterTex.repeat.set(0.3, 0.3); // ondas grandes: una repeticion cada ~40 unidades
+  waterTex.anisotropy = 4;
   waterTexRef = waterTex;
 
-  const bumpTex = waterTexLoader.load("./assets/textura_agua2.jpg");
+  const bumpTex = waterTexLoader.load("./assets/textura_agua_clara_relieve.jpg");
   bumpTex.wrapS = THREE.RepeatWrapping;
   bumpTex.wrapT = THREE.RepeatWrapping;
-  bumpTex.repeat.set(2.3, 2.3);
+  bumpTex.repeat.set(0.6, 0.6);
   waterBumpRef = bumpTex;
 
   const sharedWaterMat = new THREE.MeshStandardMaterial({
     vertexColors: false, // sin degradado: el agua se ve por su textura
-    color: 0x6f98a6, // mismo color y textura que el agua de la axonometria
+    color: 0xe2eef2, // agua muy clara: la textura ya trae el color, el material solo la afloja un poco
     map: waterTex,
     bumpMap: bumpTex,
-    bumpScale: 0.12,
+    bumpScale: 0.05,
     roughness: 0.15,
     metalness: 0.15,
     transparent: true,
@@ -317,10 +321,12 @@
   }
 
   const cowInstances = [];
-  // Vacas alrededor de cada humedal: se ubican en un anillo por fuera de la forma del agua de la epoca.
-  const COW_FRACTION = { 1950: 1, 1956: 1, 1972: 0.4, 1988: 0.15 }; // el ganado disminuye a medida que crece la ciudad
+  // Vacas alrededor de cada humedal: siempre por FUERA del agua, sobre el pasto, con una holgura para que al caminar no entren.
+  const COW_FRACTION = { 1950: 1, 1956: 1, 1972: 0.4, 1988: 0.15, 1995: 0.06 }; // el ganado disminuye a medida que crece la ciudad
   const COW_TOTALS = { Burro: 70, Vaca: 70, Techo: 50 };
-  const COW_SCALE = 4.2; // grandes, para que se vean a la distancia de la vista axonometrica
+  const COW_SCALE = 2.3; // chicas, pero todavia visibles a la distancia de la vista axonometrica
+  const COW_MARGEN = 6;  // distancia minima al agua (unidades de escena)
+  let lastOutlines = [];
   function createCows() { cowsGroup.clear(); cowInstances.length = 0; } // se colocan al construir los humedales
   function pointInPoly(x, z, poly) {
     let inside = false;
@@ -330,11 +336,23 @@
     }
     return inside;
   }
+  function distToPoly(x, z, poly) {
+    let d = Infinity;
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i], b = poly[(i + 1) % poly.length], dx = b.x - a.x, dz = b.z - a.z, l2 = dx * dx + dz * dz || 1e-9;
+      const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / l2));
+      d = Math.min(d, Math.hypot(x - (a.x + t * dx), z - (a.z + t * dz)));
+    }
+    return d;
+  }
+  function puntoLibreDeAgua(x, z, polys, margen) { return !polys.some(poly => pointInPoly(x, z, poly) || distToPoly(x, z, poly) < margen); }
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function colocarVacas(outlines, year) {
     createCows();
+    lastOutlines = outlines;
     const f = COW_FRACTION[year];
     if (!f) return;
-    const polys = outlines.map(o => o.pts);
+    const polys = outlines.map(o => o.pts), rnd = mulberry32(7000 + year);
     outlines.forEach(o => {
       const key = o.nombre.includes("Burro") ? "Burro" : (o.nombre.includes("Vaca") ? "Vaca" : "Techo");
       const n = Math.round(COW_TOTALS[key] * f), pts = o.pts;
@@ -342,31 +360,81 @@
       pts.forEach(p => { cx += p.x; cz += p.z; });
       cx /= pts.length; cz /= pts.length;
       for (let i = 0; i < n; i++) {
-        const p = pts[Math.floor(Math.random() * pts.length)];
+        const p = pts[Math.floor(rnd() * pts.length)];
         let dx = p.x - cx, dz = p.z - cz;
         const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
-        let x, z, tries = 0, r = 3 + Math.random() * 20;
-        do { x = p.x + dx * r + (Math.random() - 0.5) * 8; z = p.z + dz * r + (Math.random() - 0.5) * 8; r += 10; tries++; }
-        while (tries < 6 && polys.some(poly => pointInPoly(x, z, poly)));
-        const tex = cowTextures[Math.floor(Math.random() * cowTextures.length)];
+        let x, z, tries = 0, r = 7 + rnd() * 30, libre = false;
+        do {
+          x = p.x + dx * r + (rnd() - 0.5) * 8; z = p.z + dz * r + (rnd() - 0.5) * 8; tries++;
+          libre = puntoLibreDeAgua(x, z, polys, COW_MARGEN) && !isPointInRunway(x, z);
+          if (!libre) r += 6;
+        } while (!libre && tries < 14);
+        if (!libre) continue; // si no hay un lugar seco, esa vaca no se pone (nunca queda dentro del agua)
+        const tex = cowTextures[Math.floor(rnd() * cowTextures.length)];
         const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, alphaTest: 0.35, depthWrite: false });
         const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.1), mat);
-        const shadowMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.8), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3, depthWrite: false }));
+        const shadowMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.8), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.28, depthWrite: false }));
         shadowMesh.rotation.x = -Math.PI / 2;
         shadowMesh.position.set(0, -0.48, 0);
         mesh.add(shadowMesh);
-        // se dibujan despues del suelo y del agua (si no, quedan tapadas por ellos)
-        shadowMesh.renderOrder = 28; mesh.renderOrder = 30;
+        shadowMesh.renderOrder = 28; mesh.renderOrder = 30; // se dibujan despues del suelo y del agua
         const baseY = 0.55 * COW_SCALE;
         mesh.position.set(x, baseY, z);
         mesh.rotation.x = -Math.PI / 4.2;
-        mesh.rotation.y = (Math.random() - 0.5) * 0.3;
-        const sc = (0.85 + Math.random() * 0.3) * COW_SCALE;
-        mesh.scale.set((Math.random() > 0.5 ? 1 : -1) * sc, sc, sc);
+        mesh.rotation.y = (rnd() - 0.5) * 0.3;
+        const sc = (0.85 + rnd() * 0.3) * COW_SCALE;
+        mesh.scale.set((rnd() > 0.5 ? 1 : -1) * sc, sc, sc);
         cowsGroup.add(mesh);
-        cowInstances.push({ mesh, baseX: x, baseZ: z, baseY, phase: Math.random() * Math.PI * 2, speed: 0.3 + Math.random() * 0.4, wanderR: 2 + Math.random() * 4 });
+        cowInstances.push({ mesh, baseX: x, baseZ: z, baseY, phase: rnd() * Math.PI * 2, speed: 0.3 + rnd() * 0.4, wanderR: 0.8 + rnd() * 1.4 });
       }
     });
+  }
+
+  // Arboles de 1950 y 1956: franjas de ribera, bosquetes y cortinas rompevientos (agrupados, no repartidos al azar)
+  const TREE_YEARS = { 1950: true, 1956: true };
+  let histTreeTex = null;
+  function colocarArbolesHistoricos(outlines, year) {
+    histTreesGroup.clear();
+    if (!TREE_YEARS[year]) return;
+    const polys = outlines.map(o => o.pts), rnd = mulberry32(1900 + year), items = [];
+    const gauss = () => Math.sqrt(-2 * Math.log(rnd() + 1e-9)) * Math.cos(2 * Math.PI * rnd());
+    const ok = (x, z, m) => puntoLibreDeAgua(x, z, polys, m) && !isPointInRunway(x, z);
+    const centro = o => { let cx = 0, cz = 0; o.pts.forEach(q => { cx += q.x; cz += q.z; }); return { x: cx / o.pts.length, z: cz / o.pts.length }; };
+    // 1) franjas de ribera: densas junto al borde del agua y cada vez mas ralas hacia afuera
+    outlines.forEach(o => {
+      const c = centro(o), n = Math.round(o.pts.length * 5);
+      for (let i = 0; i < n; i++) {
+        const p = o.pts[Math.floor(rnd() * o.pts.length)];
+        let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
+        const r = 1.5 + Math.pow(rnd(), 2) * 16, x = p.x + dx * r + (rnd() - 0.5) * 5, z = p.z + dz * r + (rnd() - 0.5) * 5;
+        if (ok(x, z, 1.2)) items.push([x, z, 8 + rnd() * 7]);
+      }
+    });
+    // 2) bosquetes: grupos compactos en el pasto, a distintas distancias de los humedales
+    for (let b = 0; b < 46; b++) {
+      const o = outlines[Math.floor(rnd() * outlines.length)], p = o.pts[Math.floor(rnd() * o.pts.length)], c = centro(o);
+      let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
+      const d = 20 + rnd() * 110, bx = p.x + dx * d + (rnd() - 0.5) * 40, bz = p.z + dz * d + (rnd() - 0.5) * 40, sig = 4 + rnd() * 7, cnt = 25 + Math.floor(rnd() * 55);
+      for (let k = 0; k < cnt; k++) { const x = bx + gauss() * sig, z = bz + gauss() * sig; if (ok(x, z, 2)) items.push([x, z, 7 + rnd() * 7]); }
+    }
+    // 3) cortinas rompevientos: hileras rectas de arboles, todas con la misma orientacion
+    for (let r = 0; r < 10; r++) {
+      const o = outlines[Math.floor(rnd() * outlines.length)], p = o.pts[Math.floor(rnd() * o.pts.length)], c = centro(o);
+      let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
+      const d = 25 + rnd() * 70, sx = p.x + dx * d, sz = p.z + dz * d, ang = 0.35 + (rnd() - 0.5) * 0.12, len = 25 + Math.floor(rnd() * 35);
+      for (let k = 0; k < len; k++) { const x = sx + Math.cos(ang) * k * 2.6 + (rnd() - 0.5) * 0.8, z = sz + Math.sin(ang) * k * 2.6 + (rnd() - 0.5) * 0.8; if (ok(x, z, 3)) items.push([x, z, 9 + rnd() * 5]); }
+    }
+    if (!items.length) return;
+    if (!histTreeTex) histTreeTex = new THREE.TextureLoader().load("./assets/arbol_real4.png");
+    const mat = new THREE.MeshStandardMaterial({ map: histTreeTex, transparent: true, alphaTest: 0.25, side: THREE.DoubleSide, roughness: 0.95 });
+    const inst = new THREE.InstancedMesh(makePlaneGeometry(), mat, items.length), d = new THREE.Object3D();
+    const face = Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
+    items.forEach((t, i) => {
+      const h = Math.max(0.4, t[2] * SCALE * 1.5), w = h * 1.15;
+      d.position.set(t[0], 0.05, t[1]); d.scale.set(w, h, w); d.rotation.set(0, face, 0); d.updateMatrix(); inst.setMatrixAt(i, d.matrix);
+    });
+    inst.instanceMatrix.needsUpdate = true; inst.renderOrder = 26; inst.frustumCulled = false;
+    histTreesGroup.add(inst);
   }
 
   // 2. Construcción de humedales históricos con el área solicitada según la época
@@ -408,10 +476,10 @@
     let targetAreaTecho = 1200000;
 
     if (year === 1972) {
-      targetAreaBurro = 385300;
+      targetAreaBurro = 806000;  // ~80 ha: interpolacion entre las 171 ha de los anos 50 y las 27,14 ha de 1985
       targetAreaVaca = 800000;
-      targetAreaTecho = 300000;
-    } else if (year === 1988) {
+      targetAreaTecho = 560000;
+    } else if (year === 1988 || year === 1995) {
       targetAreaBurro = 271400;
       targetAreaVaca = 300000;
       targetAreaTecho = 100000;
@@ -518,7 +586,7 @@
 
       function getWetlandGradientColor(px, pz) {
         // Sin degradado: el lecho del humedal es de un solo color; el agua se ve por su textura.
-        return [0.55, 0.66, 0.70];
+        return [0.78, 0.86, 0.88];
       }
 
       // Línea de orilla oscura verdosa
@@ -566,6 +634,7 @@
       historicalWetlandsGroup.add(lineMesh);
     }
     colocarVacas(wetlandOutlines, year);
+    colocarArbolesHistoricos(wetlandOutlines, year);
   }
   // ---- Modelos Históricos Documentados ----
   function buildCorabastosModel() {
@@ -623,7 +692,7 @@
       ribbonGeo.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPos, 3));
       ribbonGeo.setAttribute("uv", new THREE.Float32BufferAttribute(ribbonUv, 2));
       ribbonGeo.computeVertexNormals();
-      const roadMat = new THREE.MeshStandardMaterial({ map: viaTex, color: 0x94a3b8, roughness: 0.85, side: THREE.DoubleSide });
+      const roadMat = new THREE.MeshStandardMaterial({ map: viaTex, color: 0xb9bdbf, roughness: 0.85, side: THREE.DoubleSide });
       const rMesh = new THREE.Mesh(ribbonGeo, roadMat);
       roads1972Group.add(rMesh);
     });
@@ -638,7 +707,7 @@
     ];
     const ribbonGeo = new THREE.BufferGeometry();
     const ribbonPos = [], ribbonUv = [];
-    const halfW = 1.35;
+    const halfW = 1.6;
     for (let i = 0; i < pts.length - 1; i++) {
       const a = pts[i], b = pts[i + 1];
       const dx = b.x - a.x, dz = b.z - a.z;
@@ -656,7 +725,7 @@
     ribbonGeo.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPos, 3));
     ribbonGeo.setAttribute("uv", new THREE.Float32BufferAttribute(ribbonUv, 2));
     ribbonGeo.computeVertexNormals();
-    const roadMat = new THREE.MeshStandardMaterial({ map: viaTex, color: 0x64748b, roughness: 0.85, side: THREE.DoubleSide });
+    const roadMat = new THREE.MeshStandardMaterial({ map: viaTex, color: 0xb9bdbf, roughness: 0.85, side: THREE.DoubleSide });
     const rMesh = new THREE.Mesh(ribbonGeo, roadMat);
     avCaliGroup.add(rMesh);
   }
@@ -864,18 +933,16 @@
       const isActive = y === year;
       btn.classList.toggle("active", isActive);
       btn.style.borderColor = isActive ? "var(--accent)" : "var(--panel-border)";
-      btn.style.background = isActive ? "rgba(36,200,189,.25)" : "rgba(255,255,255,.06)";
+      btn.style.background = isActive ? "rgba(143,179,163,.25)" : "rgba(255,255,255,.06)";
       btn.style.color = isActive ? "var(--accent)" : "var(--ink)";
     });
     const slider = document.getElementById("histYearSlider");
-    if (slider) slider.value = String(Math.max(0, [1950, 1956, 1972, 1988, 2024].indexOf(year >= 2024 ? 2024 : year))); // el deslizador va por posicion (0-4), no por año
+    if (slider) slider.value = String(Math.max(0, [1950, 1956, 1972, 1988, 1995, 2024].indexOf(year >= 2024 ? 2024 : year))); // el deslizador va por posicion (0-4), no por año
 
     const badge = document.getElementById("eraBadge");
     const desc = document.getElementById("eraDesc");
 
     // Capas urbanas modernas: las vias, manzanas y fachadas se ocultan; los edificios reales aparecen por tramos
-    if (modernRoadLines) modernRoadLines.visible = false;
-    if (modernRoadMesh) modernRoadMesh.visible = false;
     if (modernManzanasMesh) modernManzanasMesh.visible = false;
     if (modernFacadesMesh) modernFacadesMesh.visible = false;
     if (elBurroMesh) elBurroMesh.visible = false;
@@ -891,6 +958,7 @@
 
     cowsGroup.visible = true;
     historicalWetlandsGroup.visible = true;
+    histTreesGroup.visible = year <= 1956; // mas arboles solo en 1950 y 1956
     userPlantedGroup.visible = true;
     customPolysGroup.visible = true;
 
@@ -951,7 +1019,7 @@
     } else if (year === 1972) {
       setBuildingFraction(BUILDING_FRACTION[1972]); setEraNota(NOTA_EDIFICIOS(12));
       if (badge) badge.textContent = "1972 · Corabastos";
-      if (desc) desc.textContent = "1972 · Inauguración de Corabastos en Potrero Alto Negro y acceso por Av. Las Américas. Humedales reducidos a 38,5 ha.";
+      if (desc) desc.textContent = "1972 \u00b7 Inauguraci\u00f3n de Corabastos y acceso por la Av. de las Am\u00e9ricas. El Burro mide unas 80 ha: todav\u00eda no se ha reducido del todo (interpolaci\u00f3n entre las 171 ha de los a\u00f1os 50 y las 27,14 ha de 1985).";
       cowsGroup.visible = true;
       historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = false;
@@ -972,17 +1040,39 @@
       }
     } else if (year === 1988) {
       setBuildingFraction(BUILDING_FRACTION[1988]); setEraNota(NOTA_EDIFICIOS(40));
-      if (badge) badge.textContent = "1988 · Bisección Av. Cali";
-      if (desc) desc.textContent = "1988 · Construcción de Av. Ciudad de Cali que divide el humedal en dos sectores y Planta de basuras Protecho (EDIS).";
+      if (badge) badge.textContent = "1988 \u00b7 Humedal reducido";
+      if (desc) desc.textContent = "1988 \u00b7 El Burro queda reducido a unas 27 ha (27,14 ha en 1985); la Av. de las Am\u00e9ricas ya lo hab\u00eda partido.";
+      cowsGroup.visible = true;
+      historicalWetlandsGroup.visible = true;
+      aeropuertoTechoGroup.visible = false;
+      corabastosGroup.visible = true;
+      roads1972Group.visible = true;
+      avCaliGroup.visible = false;
+      protechoGroup.visible = false;
+
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1988);
+
+      if (animateCam) {
+        transitionCameraTo(
+          new THREE.Vector3(155.0, 680.0, 620.0),
+          new THREE.Vector3(210.0, -25.0, -10.0),
+          1.75,
+          2200
+        );
+      }
+    } else if (year === 1995) {
+      setBuildingFraction(BUILDING_FRACTION[1995]); setEraNota(NOTA_EDIFICIOS(70));
+      if (badge) badge.textContent = "A\u00f1os 90 \u00b7 Av. Ciudad de Cali";
+      if (desc) desc.textContent = "D\u00e9cada de 1990 \u00b7 La Av. Ciudad de Cali cruza y parte El Burro en dos (seg\u00fan El Tiempo, sobre el estudio de la Universidad Nacional; las fuentes no dan el a\u00f1o exacto).";
       cowsGroup.visible = true;
       historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = false;
       corabastosGroup.visible = true;
       roads1972Group.visible = true;
       avCaliGroup.visible = true;
-      protechoGroup.visible = true;
+      protechoGroup.visible = false;
 
-      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1988);
+      if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1995);
 
       if (animateCam) {
         transitionCameraTo(
@@ -1101,7 +1191,7 @@
     });
   });
 
-  const histYears = [1950, 1956, 1972, 1988, 2024];
+  const histYears = [1950, 1956, 1972, 1988, 1995, 2024];
   const histSlider = document.getElementById("histYearSlider");
   if (histSlider) {
     histSlider.addEventListener("input", () => {
@@ -1135,7 +1225,11 @@
 
   // ---- Red vial: una sola geometria de lineas fusionada (19 mil tramos,
   // asi que se combina TODO en un unico BufferGeometry por rendimiento) ----
-  function buildRoads(edges) {
+  function buildRoads(edgesIn) {
+    const nucR = nucleoCrecimiento();
+    const ordR = edgesIn.map((e, i) => { const q = toScene(e[1][0][0], e[1][0][1]); return [i, Math.hypot(q.x - nucR.x, q.z - nucR.z)]; }).sort((a, b) => a[1] - b[1]);
+    const edges = ordR.map(o => edgesIn[o[0]]);
+    roadGrowthDist = ordR.map(o => o[1]); roadLineCum = []; roadRibbonCum = [];
     const positions = [];
     edges.forEach(([kind, pts]) => {
       for (let i = 0; i < pts.length - 1; i++) {
@@ -1143,6 +1237,7 @@
         const b = toScene(pts[i + 1][0], pts[i + 1][1]);
         positions.push(a.x, 0, a.z, b.x, 0, b.z);
       }
+      roadLineCum.push(positions.length / 3);
     });
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
@@ -1170,7 +1265,7 @@
       // se note como un "escalon" entre una via y la siguiente.
       const yJitter = 0.03 + ((edgeIdx * 2654435761) % 1000) / 1000 * 0.006;
       const n = pts.length;
-      if (n < 2) return;
+      if (n < 2) { roadRibbonCum.push(ribbonPos.length / 3); return; }
       const scenePts = pts.map(p => toScene(p[0], p[1]));
       const segNormal = (p, q) => {
         const dx = q.x - p.x, dz = q.z - p.z;
@@ -1204,6 +1299,7 @@
           [a.x - ax, a.z - az], [b.x + bx, b.z + bz], [b.x - bx, b.z - bz],
         ].forEach(([px, pz]) => ribbonUv.push(px * RIBBON_UV_SCALE, pz * RIBBON_UV_SCALE));
       }
+      roadRibbonCum.push(ribbonPos.length / 3);
     });
     ribbonGeo.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPos, 3));
     ribbonGeo.setAttribute("uv", new THREE.Float32BufferAttribute(ribbonUv, 2));
@@ -1273,8 +1369,9 @@
   // Crecimiento de la ciudad: los edificios son los reales del conjunto de datos, ordenados del antiguo
   // aeropuerto de Techo (donde se levanto Ciudad Techo) hacia afuera, y se muestran por tramos segun la epoca.
   // Los datos no traen el anio de construccion de cada edificio: es una aproximacion, no una fecha por edificio.
-  let buildingGrowthVert = [], buildingGrowthEdge = [];
-  const BUILDING_FRACTION = { 1950: 0, 1956: 0, 1972: 0.12, 1988: 0.40, 2024: 1 };
+  let buildingGrowthVert = [], buildingGrowthEdge = [], buildingGrowthDist = [];
+  let roadGrowthDist = [], roadLineCum = [], roadRibbonCum = [];
+  const BUILDING_FRACTION = { 1950: 0, 1956: 0, 1972: 0.12, 1988: 0.40, 1995: 0.70, 2024: 1 };
   function fraccionEdificios(year) { return year >= 2024 ? 1 : (BUILDING_FRACTION[year] || 0); }
   function nucleoCrecimiento() {
     let x = 0, z = 0;
@@ -1282,13 +1379,26 @@
     return { x: x / AEROPUERTO_RUNWAY_PTS.length, z: z / AEROPUERTO_RUNWAY_PTS.length };
   }
   function setBuildingFraction(f) {
-    if (!currentBuildingMesh || !buildingGrowthVert.length) return;
-    const n = Math.floor(buildingGrowthVert.length * f);
-    currentBuildingMesh.visible = n > 0;
-    currentBuildingMesh.geometry.setDrawRange(0, n ? buildingGrowthVert[n - 1] : 0);
-    if (modernBuildingEdges) {
-      modernBuildingEdges.visible = n > 0;
-      modernBuildingEdges.geometry.setDrawRange(0, n ? buildingGrowthEdge[n - 1] : 0);
+    if (currentBuildingMesh && buildingGrowthVert.length) {
+      const n = Math.floor(buildingGrowthVert.length * f);
+      currentBuildingMesh.visible = n > 0;
+      currentBuildingMesh.geometry.setDrawRange(0, n ? buildingGrowthVert[n - 1] : 0);
+      if (modernBuildingEdges) {
+        modernBuildingEdges.visible = n > 0;
+        modernBuildingEdges.geometry.setDrawRange(0, n ? buildingGrowthEdge[n - 1] : 0);
+      }
+    }
+    // las vias crecen junto con los edificios: se ven las que quedan dentro del mismo radio
+    if (modernRoadLines && modernRoadMesh && roadGrowthDist.length && buildingGrowthDist.length) {
+      let m = 0;
+      if (f >= 1) m = roadGrowthDist.length;
+      else {
+        const n = Math.floor(buildingGrowthVert.length * f), R = n ? buildingGrowthDist[n - 1] : -1;
+        while (m < roadGrowthDist.length && roadGrowthDist[m] <= R) m++;
+      }
+      modernRoadLines.visible = m > 0; modernRoadMesh.visible = m > 0;
+      modernRoadLines.geometry.setDrawRange(0, m ? roadLineCum[m - 1] : 0);
+      modernRoadMesh.geometry.setDrawRange(0, m ? roadRibbonCum[m - 1] : 0);
     }
   }
   function setEraNota(t) { const el = document.getElementById("eraNota"); if (el) el.textContent = t || ""; }
@@ -1300,6 +1410,10 @@
     rangoDibujo: currentBuildingMesh ? currentBuildingMesh.geometry.drawRange.count : null,
     mallaVisible: currentBuildingMesh ? currentBuildingMesh.visible : null,
     vacas: cowsGroup.children.length, vacasVisibles: cowsGroup.visible,
+    vacasEnAgua: cowsGroup.children.filter(c => lastOutlines.some(o => pointInPoly(c.position.x, c.position.z, o.pts))).length,
+    vacasCercaDelAgua: cowsGroup.children.filter(c => lastOutlines.some(o => distToPoly(c.position.x, c.position.z, o.pts) < 3)).length,
+    arboles: histTreesGroup.children.reduce((n, m) => n + (m.count || 0), 0), arbolesVisibles: histTreesGroup.visible,
+    viasVisibles: modernRoadMesh ? modernRoadMesh.visible : null, rangoVias: modernRoadLines ? modernRoadLines.geometry.drawRange.count : null, avCaliVisible: avCaliGroup.visible,
     notaEdificios: (document.getElementById("eraNota") || {}).textContent || "",
     volumenesInventados: corabastosGroup.children.length + protechoGroup.children.length
   });
@@ -1315,7 +1429,7 @@
     buildingStarts = [];
 
     let vertexOffset = 0;
-    buildingGrowthVert = []; buildingGrowthEdge = [];
+    buildingGrowthVert = []; buildingGrowthEdge = []; buildingGrowthDist = [];
     const nuc = nucleoCrecimiento(), dist = new Float64Array(buildings.length);
     buildings.forEach((b, i) => { const q = b.pts[0] ? toScene(b.pts[0][0], b.pts[0][1]) : { x: 0, z: 0 }; dist[i] = Math.hypot(q.x - nuc.x, q.z - nuc.z); });
     const orden = Array.from(buildings.keys()).sort((a, b) => dist[a] - dist[b]);
@@ -1383,6 +1497,7 @@
       buildingStarts.push(startV);
       buildingGrowthVert.push(vertexOffset);
       buildingGrowthEdge.push(edgePositions.length / 3);
+      buildingGrowthDist.push(dist[idx]);
     });
 
     const geo = new THREE.BufferGeometry();
@@ -1995,7 +2110,7 @@
     // con vertexColors activado se veia NEGRA. Material propio, color natural.
     const mat = sharedWaterMat.clone();
     mat.vertexColors = false;
-    mat.color = new THREE.Color(0x6f98a6);
+    mat.color = new THREE.Color(0xe2eef2);
     mat.opacity = 0.9;
     waterMat = mat;
     const waterMesh = new THREE.Mesh(geo, mat);
