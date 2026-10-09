@@ -289,14 +289,14 @@
   const waterTex = waterTexLoader.load("./assets/textura_agua_clara.jpg");
   waterTex.wrapS = THREE.RepeatWrapping;
   waterTex.wrapT = THREE.RepeatWrapping;
-  waterTex.repeat.set(0.3, 0.3); // ondas grandes: una repeticion cada ~40 unidades
+  waterTex.repeat.set(0.9, 0.9); // escala chica: ondas finas (una repeticion cada ~14 unidades)
   waterTex.anisotropy = 4;
   waterTexRef = waterTex;
 
   const bumpTex = waterTexLoader.load("./assets/textura_agua_clara_relieve.jpg");
   bumpTex.wrapS = THREE.RepeatWrapping;
   bumpTex.wrapT = THREE.RepeatWrapping;
-  bumpTex.repeat.set(0.6, 0.6);
+  bumpTex.repeat.set(1.6, 1.6);
   waterBumpRef = bumpTex;
 
   const sharedWaterMat = new THREE.MeshStandardMaterial({
@@ -322,7 +322,7 @@
 
   const cowInstances = [];
   // Vacas alrededor de cada humedal: siempre por FUERA del agua, sobre el pasto, con una holgura para que al caminar no entren.
-  const COW_FRACTION = { 1950: 1, 1956: 1, 1972: 0.4, 1988: 0.15, 1995: 0.06 }; // el ganado disminuye a medida que crece la ciudad
+  const COW_FRACTION = { 1950: 1, 1956: 1 }; // vacas solo en 1950 y 1956; desde 1972 ya no hay
   const COW_TOTALS = { Burro: 70, Vaca: 70, Techo: 50 };
   const COW_SCALE = 2.3; // chicas, pero todavia visibles a la distancia de la vista axonometrica
   const COW_MARGEN = 6;  // distancia minima al agua (unidades de escena)
@@ -402,7 +402,7 @@
     const centro = o => { let cx = 0, cz = 0; o.pts.forEach(q => { cx += q.x; cz += q.z; }); return { x: cx / o.pts.length, z: cz / o.pts.length }; };
     // 1) franjas de ribera: densas junto al borde del agua y cada vez mas ralas hacia afuera
     outlines.forEach(o => {
-      const c = centro(o), n = Math.round(o.pts.length * 5);
+      const c = centro(o), n = Math.round(o.pts.length * 9);
       for (let i = 0; i < n; i++) {
         const p = o.pts[Math.floor(rnd() * o.pts.length)];
         let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
@@ -411,14 +411,14 @@
       }
     });
     // 2) bosquetes: grupos compactos en el pasto, a distintas distancias de los humedales
-    for (let b = 0; b < 46; b++) {
+    for (let b = 0; b < 110; b++) {
       const o = outlines[Math.floor(rnd() * outlines.length)], p = o.pts[Math.floor(rnd() * o.pts.length)], c = centro(o);
       let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
       const d = 20 + rnd() * 110, bx = p.x + dx * d + (rnd() - 0.5) * 40, bz = p.z + dz * d + (rnd() - 0.5) * 40, sig = 4 + rnd() * 7, cnt = 25 + Math.floor(rnd() * 55);
       for (let k = 0; k < cnt; k++) { const x = bx + gauss() * sig, z = bz + gauss() * sig; if (ok(x, z, 2)) items.push([x, z, 7 + rnd() * 7]); }
     }
     // 3) cortinas rompevientos: hileras rectas de arboles, todas con la misma orientacion
-    for (let r = 0; r < 10; r++) {
+    for (let r = 0; r < 24; r++) {
       const o = outlines[Math.floor(rnd() * outlines.length)], p = o.pts[Math.floor(rnd() * o.pts.length)], c = centro(o);
       let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
       const d = 25 + rnd() * 70, sx = p.x + dx * d, sz = p.z + dz * d, ang = 0.35 + (rnd() - 0.5) * 0.12, len = 25 + Math.floor(rnd() * 35);
@@ -635,6 +635,7 @@
     }
     colocarVacas(wetlandOutlines, year);
     colocarArbolesHistoricos(wetlandOutlines, year);
+    aplicarCrecimiento(); // edificios y vias segun las reglas de la epoca y el agua de la epoca
   }
   // ---- Modelos Históricos Documentados ----
   function buildCorabastosModel() {
@@ -700,6 +701,7 @@
 
   function buildAvCaliModel() {
     avCaliGroup.clear();
+    return; // se quito la cinta recta que se habia trazado: la avenida que cruza el humedal sale ahora de las vias reales
     const viaTex = new THREE.TextureLoader().load("./assets/textura_via.jpg");
     viaTex.wrapS = THREE.RepeatWrapping; viaTex.wrapT = THREE.RepeatWrapping;
     const pts = [
@@ -973,7 +975,7 @@
     }
 
     if (year === 1950) {
-      setBuildingFraction(0); setEraNota("");
+      setEraNota("");
       if (badge) badge.textContent = "1950 · Sabana Rural";
       if (desc) desc.textContent = "1950 · Humedal El Burro (171 ha), La Vaca (181 ha) y Sabana Rural con 210 vacas en pastoreo y senderos veredales.";
       cowsGroup.visible = true;
@@ -995,7 +997,7 @@
         );
       }
     } else if (year === 1956) {
-      setBuildingFraction(0); setEraNota("");
+      setEraNota("");
       if (badge) badge.textContent = "1956 · Aeropuerto Techo";
       if (desc) desc.textContent = "1956 · Humedal La Vaca y Laguna de Techo extendidos hacia El Burro, Antiguo Aeropuerto de Techo con pista y vías de conexión.";
       cowsGroup.visible = true;
@@ -1009,15 +1011,11 @@
       if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1956);
 
       if (animateCam) {
-        transitionCameraTo(
-          new THREE.Vector3(50.39, 695.32, 825.02),
-          new THREE.Vector3(171.99, -60.08, 79.42),
-          2.23,
-          2400
-        );
+        const ap = nucleoCrecimiento(), cam = camParaPuntoArriba(ap.x, ap.z, new THREE.Vector3(-121.6, 755.4, 745.6), -60, 2.8);
+        transitionCameraTo(cam.pos, cam.target, 2.8, 2400); // 1956: enfocado en el aeropuerto de Techo, por encima de la barra historica
       }
     } else if (year === 1972) {
-      setBuildingFraction(BUILDING_FRACTION[1972]); setEraNota(NOTA_EDIFICIOS(12));
+      setEraNota(NOTA_EDIFICIOS(25, true));
       if (badge) badge.textContent = "1972 · Corabastos";
       if (desc) desc.textContent = "1972 \u00b7 Inauguraci\u00f3n de Corabastos y acceso por la Av. de las Am\u00e9ricas. El Burro mide unas 80 ha: todav\u00eda no se ha reducido del todo (interpolaci\u00f3n entre las 171 ha de los a\u00f1os 50 y las 27,14 ha de 1985).";
       cowsGroup.visible = true;
@@ -1039,9 +1037,9 @@
         );
       }
     } else if (year === 1988) {
-      setBuildingFraction(BUILDING_FRACTION[1988]); setEraNota(NOTA_EDIFICIOS(40));
+      setEraNota(NOTA_EDIFICIOS(60, true));
       if (badge) badge.textContent = "1988 \u00b7 Humedal reducido";
-      if (desc) desc.textContent = "1988 \u00b7 El Burro queda reducido a unas 27 ha (27,14 ha en 1985); la Av. de las Am\u00e9ricas ya lo hab\u00eda partido.";
+      if (desc) desc.textContent = "1988 \u00b7 El Burro queda reducido a unas 27 ha (27,14 ha en 1985). Todav\u00eda no hay edificios en altura ni la avenida que lo cruza.";
       cowsGroup.visible = true;
       historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = false;
@@ -1061,15 +1059,15 @@
         );
       }
     } else if (year === 1995) {
-      setBuildingFraction(BUILDING_FRACTION[1995]); setEraNota(NOTA_EDIFICIOS(70));
+      setEraNota(NOTA_EDIFICIOS(70, false));
       if (badge) badge.textContent = "A\u00f1os 90 \u00b7 Av. Ciudad de Cali";
-      if (desc) desc.textContent = "D\u00e9cada de 1990 \u00b7 La Av. Ciudad de Cali cruza y parte El Burro en dos (seg\u00fan El Tiempo, sobre el estudio de la Universidad Nacional; las fuentes no dan el a\u00f1o exacto).";
+      if (desc) desc.textContent = "D\u00e9cada de 1990 \u00b7 Aparecen los edificios en altura y la avenida que cruza y parte El Burro (la Av. Ciudad de Cali, seg\u00fan El Tiempo y el estudio de la Universidad Nacional; las fuentes no dan el a\u00f1o exacto).";
       cowsGroup.visible = true;
       historicalWetlandsGroup.visible = true;
       aeropuertoTechoGroup.visible = false;
       corabastosGroup.visible = true;
       roads1972Group.visible = true;
-      avCaliGroup.visible = true;
+      avCaliGroup.visible = false;
       protechoGroup.visible = false;
 
       if (rawWaterData) buildHistoricalWetlands(rawWaterData, 1995);
@@ -1083,7 +1081,7 @@
         );
       }
     } else if (year >= 2024) {
-      setBuildingFraction(1); setEraNota("");
+      aplicarCrecimiento(); setEraNota("");
       if (badge) badge.textContent = "Actualidad (2024)";
       if (desc) desc.textContent = "Actualidad · Modelo axonométrico arquitectónico urbano completo de Kennedy con el Humedal El Burro protegido de 18,8 ha.";
       
@@ -1229,7 +1227,7 @@
     const nucR = nucleoCrecimiento();
     const ordR = edgesIn.map((e, i) => { const q = toScene(e[1][0][0], e[1][0][1]); return [i, Math.hypot(q.x - nucR.x, q.z - nucR.z)]; }).sort((a, b) => a[1] - b[1]);
     const edges = ordR.map(o => edgesIn[o[0]]);
-    roadGrowthDist = ordR.map(o => o[1]); roadLineCum = []; roadRibbonCum = [];
+    roadGrowthDist = ordR.map(o => o[1]); roadLineCum = []; roadRibbonCum = []; roadScenePts = []; roadClass = [];
     const positions = [];
     edges.forEach(([kind, pts]) => {
       for (let i = 0; i < pts.length - 1; i++) {
@@ -1265,8 +1263,9 @@
       // se note como un "escalon" entre una via y la siguiente.
       const yJitter = 0.03 + ((edgeIdx * 2654435761) % 1000) / 1000 * 0.006;
       const n = pts.length;
-      if (n < 2) { roadRibbonCum.push(ribbonPos.length / 3); return; }
+      if (n < 2) { roadRibbonCum.push(ribbonPos.length / 3); roadScenePts.push([]); roadClass.push(0); return; }
       const scenePts = pts.map(p => toScene(p[0], p[1]));
+      roadScenePts.push(scenePts); roadClass.push(kind === "major" ? 2 : (kind === "mid" ? 1 : 0));
       const segNormal = (p, q) => {
         const dx = q.x - p.x, dz = q.z - p.z;
         const len = Math.hypot(dx, dz) || 0.001;
@@ -1371,38 +1370,108 @@
   // Los datos no traen el anio de construccion de cada edificio: es una aproximacion, no una fecha por edificio.
   let buildingGrowthVert = [], buildingGrowthEdge = [], buildingGrowthDist = [];
   let roadGrowthDist = [], roadLineCum = [], roadRibbonCum = [];
-  const BUILDING_FRACTION = { 1950: 0, 1956: 0, 1972: 0.12, 1988: 0.40, 1995: 0.70, 2024: 1 };
-  function fraccionEdificios(year) { return year >= 2024 ? 1 : (BUILDING_FRACTION[year] || 0); }
+  let bCx = [], bCz = [], bH = [], roadScenePts = [], roadClass = [];
+  let idxV = null, idxE = null, idxRL = null, idxRR = null, estadoCrecimiento = {};
   function nucleoCrecimiento() {
     let x = 0, z = 0;
     AEROPUERTO_RUNWAY_PTS.forEach(p => { x += p.x; z += p.z; });
     return { x: x / AEROPUERTO_RUNWAY_PTS.length, z: z / AEROPUERTO_RUNWAY_PTS.length };
   }
-  function setBuildingFraction(f) {
+  // Reglas por epoca. "f" es la fraccion de los edificios elegibles (ordenados por cercania al antiguo aeropuerto de Techo):
+  //  - unPiso: solo edificios de un piso (h = 3 m). Los edificios en altura aparecen en los anos 90.
+  //  - humedal: no se muestran edificios ni vias sobre el agua de esa epoca.
+  //  - avenidas: las vias de clase "major" (avenidas principales, glorietas) aparecen en los anos 90.
+  const ERA_REGLAS = {
+    1950: { f: 0, unPiso: true, avenidas: false, humedal: true },
+    1956: { f: 0, unPiso: true, avenidas: false, humedal: true },
+    1972: { f: 0.25, unPiso: true, avenidas: false, humedal: true },
+    1988: { f: 0.60, unPiso: true, avenidas: false, humedal: true },
+    1995: { f: 0.70, unPiso: false, avenidas: true, humedal: true },
+    2024: { f: 1, unPiso: false, avenidas: true, humedal: false }
+  };
+  function reglasEra(year) { return ERA_REGLAS[year >= 2024 ? 2024 : year] || ERA_REGLAS[1950]; }
+  function llenarIndice(attrRef, capacidad, rangos) {
+    // un solo buffer de indices que se reutiliza (no se crea uno nuevo en cada cambio de epoca)
+    let attr = attrRef;
+    if (!attr || attr.array.length < capacidad) attr = new THREE.BufferAttribute(new Uint32Array(Math.max(capacidad, 1)), 1);
+    const arr = attr.array; let p = 0;
+    rangos.forEach(([a, b]) => { for (let j = a; j < b; j++) arr[p++] = j; });
+    attr.needsUpdate = true;
+    return { attr, total: p };
+  }
+  function aplicarCrecimiento() {
+    const R = reglasEra(currentHistoricalYear);
+    const polys = R.humedal ? lastOutlines.map(o => o.pts) : [];
+    const cajas = polys.map(poly => { let a = 1e9, b = 1e9, c = -1e9, d = -1e9; poly.forEach(p => { a = Math.min(a, p.x); b = Math.min(b, p.z); c = Math.max(c, p.x); d = Math.max(d, p.z); }); return [a - 3, b - 3, c + 3, d + 3]; });
+    const enAgua = (x, z) => polys.some((poly, i) => { const c = cajas[i]; return x >= c[0] && x <= c[2] && z >= c[1] && z <= c[3] && (pointInPoly(x, z, poly) || distToPoly(x, z, poly) < 1.5); });
+    estadoCrecimiento = { edificios: 0, edificiosAltos: 0, edificiosEnAgua: 0, vias: 0, viasMajor: 0, viasEnAgua: 0 };
+    let radio = -1;
+    // ---- edificios ----
     if (currentBuildingMesh && buildingGrowthVert.length) {
-      const n = Math.floor(buildingGrowthVert.length * f);
-      currentBuildingMesh.visible = n > 0;
-      currentBuildingMesh.geometry.setDrawRange(0, n ? buildingGrowthVert[n - 1] : 0);
+      const N = buildingGrowthVert.length, elegibles = [];
+      for (let k = 0; k < N; k++) if (!R.unPiso || bH[k] <= 3.5) elegibles.push(k);
+      const nShow = Math.floor(elegibles.length * R.f);
+      radio = R.f >= 1 ? Infinity : (nShow ? buildingGrowthDist[elegibles[nShow - 1]] : -1);
+      const rv = [], re = [];
+      for (let i = 0; i < nShow; i++) {
+        const k = elegibles[i];
+        if (polys.length && enAgua(bCx[k], bCz[k])) continue;
+        rv.push([buildingStarts[k], buildingStarts[k] + buildingRanges[k].count]);
+        re.push([k ? buildingGrowthEdge[k - 1] : 0, buildingGrowthEdge[k]]);
+        estadoCrecimiento.edificios++; if (bH[k] > 3.5) estadoCrecimiento.edificiosAltos++;
+        if (polys.length && enAgua(bCx[k], bCz[k])) estadoCrecimiento.edificiosEnAgua++;
+      }
+      const geo = currentBuildingMesh.geometry, A = llenarIndice(idxV, buildingGrowthVert[N - 1], rv);
+      idxV = A.attr; geo.setIndex(idxV); geo.setDrawRange(0, A.total); currentBuildingMesh.visible = A.total > 0;
       if (modernBuildingEdges) {
-        modernBuildingEdges.visible = n > 0;
-        modernBuildingEdges.geometry.setDrawRange(0, n ? buildingGrowthEdge[n - 1] : 0);
+        const B = llenarIndice(idxE, buildingGrowthEdge[N - 1], re), g2 = modernBuildingEdges.geometry;
+        idxE = B.attr; g2.setIndex(idxE); g2.setDrawRange(0, B.total); modernBuildingEdges.visible = B.total > 0;
       }
     }
-    // las vias crecen junto con los edificios: se ven las que quedan dentro del mismo radio
-    if (modernRoadLines && modernRoadMesh && roadGrowthDist.length && buildingGrowthDist.length) {
-      let m = 0;
-      if (f >= 1) m = roadGrowthDist.length;
-      else {
-        const n = Math.floor(buildingGrowthVert.length * f), R = n ? buildingGrowthDist[n - 1] : -1;
-        while (m < roadGrowthDist.length && roadGrowthDist[m] <= R) m++;
+    // ---- vias reales: crecen con la ciudad; antes de los 90 no hay avenidas principales ni vias sobre el agua ----
+    if (modernRoadLines && modernRoadMesh && roadGrowthDist.length) {
+      const M = roadGrowthDist.length, rl = [], rr = [];
+      for (let k = 0; k < M; k++) {
+        if (roadGrowthDist[k] > radio) break;
+        if (!R.avenidas && roadClass[k] === 2) continue;
+        if (!R.avenidas && polys.length) {
+          const P = roadScenePts[k]; let cruza = false;
+          for (let i = 0; i < P.length && !cruza; i++) cruza = enAgua(P[i].x, P[i].z);
+          if (cruza) continue;
+        }
+        rl.push([k ? roadLineCum[k - 1] : 0, roadLineCum[k]]); rr.push([k ? roadRibbonCum[k - 1] : 0, roadRibbonCum[k]]);
+        estadoCrecimiento.vias++; if (roadClass[k] === 2) estadoCrecimiento.viasMajor++;
       }
-      modernRoadLines.visible = m > 0; modernRoadMesh.visible = m > 0;
-      modernRoadLines.geometry.setDrawRange(0, m ? roadLineCum[m - 1] : 0);
-      modernRoadMesh.geometry.setDrawRange(0, m ? roadRibbonCum[m - 1] : 0);
+      const A = llenarIndice(idxRL, roadLineCum[M - 1], rl), B = llenarIndice(idxRR, roadRibbonCum[M - 1], rr);
+      idxRL = A.attr; idxRR = B.attr;
+      modernRoadLines.geometry.setIndex(idxRL); modernRoadLines.geometry.setDrawRange(0, A.total); modernRoadLines.visible = A.total > 0;
+      modernRoadMesh.geometry.setIndex(idxRR); modernRoadMesh.geometry.setDrawRange(0, B.total); modernRoadMesh.visible = B.total > 0;
     }
   }
+  // Igual que camParaPunto, pero el punto queda en el centro del espacio que deja libre la barra historica (arriba de ella)
+  function camParaPuntoArriba(gx, gz, off, ty, zoom) {
+    const base = camParaPunto(gx, gz, off, ty);
+    const H = window.innerHeight || 720, libre = (H - 300) / 2, ndcY = 1 - 2 * libre / H;
+    const tmp = camera.clone(); tmp.zoom = zoom;
+    const medir = dz => {
+      tmp.position.copy(base.pos); tmp.position.z += dz;
+      const t = base.target.clone(); t.z += dz;
+      tmp.lookAt(t); tmp.updateProjectionMatrix(); tmp.updateMatrixWorld(true);
+      return new THREE.Vector3(gx, 0, gz).project(tmp).y;
+    };
+    const y0 = medir(0), k = medir(1) - y0;
+    const dz = Math.abs(k) > 1e-9 ? (ndcY - y0) / k : 0;
+    base.pos.z += dz; base.target.z += dz;
+    return base;
+  }
+  // Camara que deja un punto del suelo (gx, gz) en el centro de la pantalla, conservando el angulo de vista "off"
+  function camParaPunto(gx, gz, off, ty = -60) {
+    const d = new THREE.Vector3(-off.x, -off.y, -off.z), t = -ty / d.y;
+    const target = new THREE.Vector3(gx - t * d.x, ty, gz - t * d.z);
+    return { pos: target.clone().add(off), target };
+  }
   function setEraNota(t) { const el = document.getElementById("eraNota"); if (el) el.textContent = t || ""; }
-  const NOTA_EDIFICIOS = pct => "Edificios reales de Kennedy mostrados de a poco (" + pct + " % de los " + "243.538" + "), ordenados por cercan\u00eda al antiguo aeropuerto de Techo. Los datos no traen el a\u00f1o de construcci\u00f3n de cada edificio: es una aproximaci\u00f3n.";
+  const NOTA_EDIFICIOS = (pct, soloUnPiso) => "Edificios reales de Kennedy mostrados de a poco (" + pct + " % de " + (soloUnPiso ? "los de un piso" : "todos") + "), ordenados por cercan\u00eda al antiguo aeropuerto de Techo. " + (soloUnPiso ? "Solo de un piso: los edificios en altura aparecen en los a\u00f1os 90. " : "Ya aparecen los edificios en altura y las avenidas principales. ") + "No hay edificios sobre el humedal. Los datos no traen el a\u00f1o de construcci\u00f3n: es una aproximaci\u00f3n.";
   window.__estadoHistorico = () => ({
     anio: currentHistoricalYear,
     edificiosVisibles: currentBuildingMesh ? Math.floor(buildingGrowthVert.length * (currentBuildingMesh.visible ? 1 : 0)) : 0,
@@ -1415,6 +1484,8 @@
     arboles: histTreesGroup.children.reduce((n, m) => n + (m.count || 0), 0), arbolesVisibles: histTreesGroup.visible,
     viasVisibles: modernRoadMesh ? modernRoadMesh.visible : null, rangoVias: modernRoadLines ? modernRoadLines.geometry.drawRange.count : null, avCaliVisible: avCaliGroup.visible,
     notaEdificios: (document.getElementById("eraNota") || {}).textContent || "",
+    crecimiento: estadoCrecimiento,
+    aeropuertoEnPantalla: (() => { const a = nucleoCrecimiento(), v = new THREE.Vector3(a.x, 0, a.z).project(camera); return [Math.round((v.x + 1) / 2 * window.innerWidth), Math.round((1 - v.y) / 2 * window.innerHeight)]; })(),
     volumenesInventados: corabastosGroup.children.length + protechoGroup.children.length
   });
   let selectedBuildingRange = null;
@@ -1429,7 +1500,7 @@
     buildingStarts = [];
 
     let vertexOffset = 0;
-    buildingGrowthVert = []; buildingGrowthEdge = []; buildingGrowthDist = [];
+    buildingGrowthVert = []; buildingGrowthEdge = []; buildingGrowthDist = []; bCx = []; bCz = []; bH = [];
     const nuc = nucleoCrecimiento(), dist = new Float64Array(buildings.length);
     buildings.forEach((b, i) => { const q = b.pts[0] ? toScene(b.pts[0][0], b.pts[0][1]) : { x: 0, z: 0 }; dist[i] = Math.hypot(q.x - nuc.x, q.z - nuc.z); });
     const orden = Array.from(buildings.keys()).sort((a, b) => dist[a] - dist[b]);
@@ -1439,6 +1510,9 @@
       const pts = b.pts.map(p => toScene(p[0], p[1]));
       const h = b.h * SCALE;
       if (pts.length < 4) return;
+      let mx = 0, mz = 0;
+      pts.forEach(q => { mx += q.x; mz += q.z; });
+      mx /= pts.length; mz /= pts.length;
 
       const startV = vertexOffset;
       const bldgId = `bldg_${idx + 1}`;
@@ -1498,6 +1572,7 @@
       buildingGrowthVert.push(vertexOffset);
       buildingGrowthEdge.push(edgePositions.length / 3);
       buildingGrowthDist.push(dist[idx]);
+      bCx.push(mx); bCz.push(mz); bH.push(b.h);
     });
 
     const geo = new THREE.BufferGeometry();
@@ -1528,7 +1603,7 @@
     const edgeLines = new THREE.LineSegments(edgeGeo, edgeMat);
     modernBuildingEdges = edgeLines;
     sceneRoot.add(edgeLines);
-    setBuildingFraction(fraccionEdificios(currentHistoricalYear));
+    aplicarCrecimiento();
   }
 
   function findBuildingByVertexIndex(vIdx) {
@@ -2935,12 +3010,12 @@
     // la capa de relieve (bump) a velocidades/escalas DISTINTAS entre si,
     // simulando dos capas de oleaje superpuestas (exacto a modulo-10-corte.html).
     if (waterTexRef) {
-      waterTexRef.offset.x = (now * 0.000018) % 1;
-      waterTexRef.offset.y = (now * 0.000012) % 1;
+      waterTexRef.offset.x = (now * 0.00007) % 1;   // el agua se mueve bastante mas rapido que antes
+      waterTexRef.offset.y = (now * 0.00005) % 1;
     }
     if (waterBumpRef) {
-      waterBumpRef.offset.x = (now * -0.000027) % 1;
-      waterBumpRef.offset.y = (now * 0.000021) % 1;
+      waterBumpRef.offset.x = (now * -0.0001) % 1;
+      waterBumpRef.offset.y = (now * 0.00008) % 1;
     }
     updateBirds(now);
     controls.update();
