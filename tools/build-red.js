@@ -119,9 +119,13 @@ function layout3d(n, edges) {
   const capaIdx = new Map(capas.map((c, i) => [c.name, i]));
   const tipoIdx = new Map(tipos.map(t => [t.name, t.id]));
   const errs = [];
-  const nodes = rows(sh('NODOS'), 1, 12).map(r => {
+  // Proyeccion lat/lon -> escena (misma calibracion del mapa de Kennedy del visor)
+  const toScene = (lat, lon) => ({ x: +(209.56 + (lon + 74.153) * 15700).toFixed(2), z: +(-10.93 + (lat - 4.636) * -11600).toFixed(2) });
+  const nodes = rows(sh('NODOS'), 1, 14).map(r => {
     if (!capaIdx.has(r[2])) errs.push(`Nodo ${r[0]}: capa no valida "${r[2]}"`);
-    return { id: r[0], name: r[1], cat: capaIdx.get(r[2]), sciname: r[3], scale: r[4], loc: r[5], role: r[6], alert: r[7], actors: r[8], hypothesis: r[9], source: r[10], img: r[11] };
+    const lat = parseFloat(r[12]), lon = parseFloat(r[13]);
+    if (isNaN(lat) || isNaN(lon)) errs.push(`Nodo ${r[0]}: falta latitud/longitud`);
+    return { id: r[0], name: r[1], cat: capaIdx.get(r[2]), sciname: r[3], scale: r[4], loc: r[5], role: r[6], alert: r[7], actors: r[8], hypothesis: r[9], source: r[10], img: r[11], geo: { lat, lon, ...toScene(lat, lon) } };
   });
   const idIdx = new Map(nodes.map((n, i) => [n.id, i]));
   if (idIdx.size !== nodes.length) errs.push('IDs de nodo duplicados');
