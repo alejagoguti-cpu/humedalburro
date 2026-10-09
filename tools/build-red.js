@@ -1,5 +1,7 @@
 // Convierte datos/red-pot-kennedy-visor.xlsx -> assets/red-data.js
-// Uso:  npm i exceljs  &&  node tools/build-red.js
+// Uso:  npm i exceljs  &&  node tools/build-red.js [libro.xlsx] [pagina.html]
+// Por defecto: datos/red-pot-kennedy-visor.xlsx -> index.html. Los datos quedan EMBEBIDOS en la pagina
+// (entre <!--RED_DATA_START--> y <!--RED_DATA_END-->), asi no dependen de ningun otro archivo.
 // Mismo formato que usa el visor: categorias (CAT_META), interacciones (INTER_TYPES),
 // nodos (rawTaxa), aristas y metricas de analisis (GEPHI: comunidad, intermediacion, layout 3D).
 const ExcelJS = require('exceljs');
@@ -7,8 +9,8 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const XLSX_PATH = path.join(ROOT, 'datos', 'red-pot-kennedy-visor.xlsx');
-const OUT_PATH = path.join(ROOT, 'assets', 'red-data.js');
+const XLSX_PATH = path.resolve(process.argv[2] || path.join(ROOT, 'datos', 'red-pot-kennedy-visor.xlsx'));
+const HTML_PATH = path.resolve(process.argv[3] || path.join(ROOT, 'index.html'));
 
 const txt = c => {
   let x = c && c.value;
@@ -143,7 +145,22 @@ function layout3d(n, edges) {
   const gephi = { Q, nodes: {} };
   nodes.forEach((nd, i) => { gephi.nodes[nd.id] = [comm[i], bc[i], ...pos[i]]; });
 
-  const data = { categories: capas, interactions: tipos, nodes, edges, gephi };
-  fs.writeFileSync(OUT_PATH, '// GENERADO por tools/build-red.js desde datos/red-pot-kennedy-visor.xlsx. No editar a mano.\nwindow.RED_DATA = ' + JSON.stringify(data) + ';\n');
-  console.log(`OK: ${n} nodos, ${edges.length} aristas, ${capas.length} capas, ${tipos.length} tipos, ${new Set(comm).size} comunidades (Q=${Q}) -> assets/red-data.js`);
+  // Hoja opcional RED (Clave | Valor): titulo, marca, faq1_pregunta, faq1_respuesta, ...
+  const config = { faq: [] };
+  const wsR = wb.getWorksheet('RED');
+  if (wsR) rows(wsR, 1, 2).forEach(([k, v]) => {
+    const m = /^faq(\d+)_(pregunta|respuesta)$/.exec(k);
+    if (m) { const i = +m[1] - 1; (config.faq[i] = config.faq[i] || { q: '', a: '' })[m[2] === 'pregunta' ? 'q' : 'a'] = v; }
+    else config[k] = v;
+  });
+  config.faq = config.faq.filter(f => f && f.q);
+  const data = { config, categories: capas, interactions: tipos, nodes, edges, gephi };
+  let html = fs.readFileSync(HTML_PATH, 'utf8');
+  const A = '<!--RED_DATA_START-->', B = '<!--RED_DATA_END-->';
+  const ia = html.indexOf(A), ib = html.indexOf(B);
+  if (ia < 0 || ib < 0) throw new Error('La pagina no tiene los marcadores ' + A + ' ... ' + B);
+  const json = JSON.stringify(data).replace(/</g, "\\u003c"); // evita cerrar el <script> por accidente
+  html = html.slice(0, ia) + A + '<script>window.RED_DATA = ' + json + ';</script>' + html.slice(ib);
+  fs.writeFileSync(HTML_PATH, html);
+  console.log(`OK: ${n} nodos, ${edges.length} aristas, ${capas.length} capas, ${tipos.length} tipos, ${new Set(comm).size} comunidades (Q=${Q}) -> ${path.basename(HTML_PATH)}`);
 })().catch(e => { console.error(e); process.exit(1); });
