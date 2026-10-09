@@ -207,6 +207,7 @@
   .kt-btn:hover{ background:rgba(255,255,255,.12); }
   .kt button:focus-visible, .kt a:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
   @media (max-width:1180px){ .kt{ left:12px; right:12px; } }
+  .hud-title .era-nota{ margin:4px 0 0; font-size:10.5px; color:var(--ink-dim); max-width:540px; line-height:1.4; }
 </style>
 </head>
 <body>
@@ -228,6 +229,7 @@
         <span id="eraBadge" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(143,179,163,.2); border:1px solid var(--accent); color:var(--accent);">1950</span>
       </h1>
       <p id="eraDesc">1950 · Humedal El Burro y Sabana Rural (89% mayor extensión hídrica, potreros de pastoreo con ganado vacuno, arboledas naturales, sin vías ni urbanización).</p>
+      <p id="eraNota" class="era-nota"></p>
     </div>
 
     <!-- Panel Izquierdo: Trazado de Vías y Pista de Aeropuerto -->
@@ -419,7 +421,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="modulo-08-3d.js?v=268"></script>
+<script src="modulo-08-3d.js?v=269"></script>
 <script src="linea-tiempo-kennedy.js?v=1"></script>
 </body>
 </html>
