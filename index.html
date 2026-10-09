@@ -3766,7 +3766,7 @@ window.onerror = function(msg, url, line, col, error) {
     }
     // Distribucion DESCENTRALIZADA: el nodo elegido no va al centro; cada capa tiene su zona.
     // 1) fuerzas (repulsion + resortes + zona de su capa)  2) separacion por cajas: ningun texto ni icono se superpone
-    const subFont = 11, LH = subFont + 2;
+    let subFont = 11, LH = subFont + 2, subSc = 1;
     for (let it = 0; it < 320; it++) {
       for (let p = 0; p < sNodes.length; p++) {
         const A = sNodes[p];
@@ -3794,42 +3794,41 @@ window.onerror = function(msg, url, line, col, error) {
       });
     }
     {
+      // Colocación sin superposiciones: cada nodo (icono + texto) busca el hueco libre más cercano a su zona
       const measure = document.createElement('canvas').getContext('2d'); measure.font = subFont + 'px sans-serif';
       const mc = document.createElement('canvas').getContext('2d'); mc.font = 'bold 14px sans-serif';
-      sNodes.forEach((s0, k) => {
-        const text = fixText(s0.node.label || ''), ctx0 = k === 0 ? mc : measure;
-        s0.lines = wrapLines(ctx0, text, k === 0 ? 300 : 190, 99) || [text];
-        s0.lw = Math.max(...s0.lines.map(l => ctx0.measureText(l).width)); s0.lh = k === 0 ? 16 : LH;
-        s0.rr = s0.r * 1.35;
-      });
-      const PAD = 8, MX = 14, MY = 14;
-      const box = (s0, k) => {
-        const h = s0.lines.length * s0.lh;
-        if (k === 0) { const w2 = Math.max(s0.rr, s0.lw / 2); return { x0: s0.x - w2, x1: s0.x + w2, y0: s0.y - s0.rr, y1: s0.y + s0.rr + 18 + h }; }
-        s0.side = s0.x < W - (s0.lw + s0.rr + 30) ? 1 : -1;
-        const hh = Math.max(s0.rr, h / 2);
-        return s0.side > 0 ? { x0: s0.x - s0.rr, x1: s0.x + s0.rr + 10 + s0.lw, y0: s0.y - hh, y1: s0.y + hh } : { x0: s0.x - s0.rr - 10 - s0.lw, x1: s0.x + s0.rr, y0: s0.y - hh, y1: s0.y + hh };
-      };
-      for (let it = 0; it < 600; it++) {
-        let moved = false; const bx = sNodes.map(box);
-        for (let p = 0; p < sNodes.length; p++) for (let q = p + 1; q < sNodes.length; q++) {
-          const A = bx[p], B = bx[q];
-          const ox = Math.min(A.x1, B.x1) - Math.max(A.x0, B.x0) + PAD, oy = Math.min(A.y1, B.y1) - Math.max(A.y0, B.y0) + PAD;
-          if (ox > 0 && oy > 0) {
-            moved = true;
-            const pa = sNodes[p], pb = sNodes[q], wa = p === 0 ? 0.25 : 0.5, wb = q === 0 ? 0.25 : 0.5, tw = wa + wb;
-            if (ox < oy) { const dir = (pa.x + pa.rr) <= (pb.x + pb.rr) ? -1 : 1; pa.x += dir * ox * wa / tw * 0.6; pb.x -= dir * ox * wb / tw * 0.6; }
-            else { const dir = pa.y <= pb.y ? -1 : 1; pa.y += dir * oy * wa / tw * 0.6; pb.y -= dir * oy * wb / tw * 0.6; }
-          }
-        }
+      const PAD = 7, MX = 14, MY = 14, orig = sNodes.map(s0 => [s0.x, s0.y]);
+      const attempt = (ww, sc) => {
+        subSc = sc; subFont = 11 * sc; LH = subFont + 2; measure.font = subFont + 'px sans-serif'; mc.font = 'bold ' + Math.round(14 * Math.max(sc, 0.8)) + 'px sans-serif';
         sNodes.forEach((s0, k) => {
-          const bb = box(s0, k);
-          if (bb.x0 < MX) s0.x += MX - bb.x0; if (bb.x1 > W - MX) s0.x -= bb.x1 - (W - MX);
-          if (bb.y0 < MY) s0.y += MY - bb.y0; if (bb.y1 > H - MY) s0.y -= bb.y1 - (H - MY);
+          s0.x = orig[k][0]; s0.y = orig[k][1]; if (s0.rb === undefined) s0.rb = s0.r; s0.r = s0.rb * sc;
+          const text = fixText(s0.node.label || ''), ctx0 = k === 0 ? mc : measure;
+          s0.lines = wrapLines(ctx0, text, k === 0 ? 300 : ww, 99) || [text];
+          s0.lw = Math.max(...s0.lines.map(l => ctx0.measureText(l).width)); s0.lh = k === 0 ? 16 * Math.max(sc, 0.8) : LH; s0.rr = s0.r * 1.35;
         });
-        if (!moved) break;
-      }
-      sNodes.forEach((s0, k) => box(s0, k));
+        const placed = [];
+        const boxAt = (s0, k, x, y, side) => {
+          const h = s0.lines.length * s0.lh;
+          if (k === 0) { const w2 = Math.max(s0.rr, s0.lw / 2); return { x0: x - w2, x1: x + w2, y0: y - s0.rr, y1: y + s0.rr + 18 + h }; }
+          const hh = Math.max(s0.rr, h / 2);
+          return side > 0 ? { x0: x - s0.rr, x1: x + s0.rr + 10 + s0.lw, y0: y - hh, y1: y + hh } : { x0: x - s0.rr - 10 - s0.lw, x1: x + s0.rr, y0: y - hh, y1: y + hh };
+        };
+        const free = b => b.x0 >= MX && b.x1 <= W - MX && b.y0 >= MY && b.y1 <= H - MY && placed.every(p => b.x1 + PAD <= p.x0 || b.x0 - PAD >= p.x1 || b.y1 + PAD <= p.y0 || b.y0 - PAD >= p.y1);
+        for (let k = 0; k < sNodes.length; k++) {
+          const s0 = sNodes[k], sides = k === 0 ? [1] : (s0.x < W / 2 ? [1, -1] : [-1, 1]); let best = null;
+          search: for (let rho = 0; rho <= Math.max(W, H); rho += 6) {
+            const steps = rho === 0 ? 1 : Math.max(8, Math.round(rho * 0.45));
+            for (let a = 0; a < steps; a++) {
+              const ang = a / steps * Math.PI * 2 + k, x = s0.x + rho * Math.cos(ang), y = s0.y + rho * Math.sin(ang);
+              for (const sd2 of sides) { const b = boxAt(s0, k, x, y, sd2); if (free(b)) { best = { x, y, side: sd2, b }; break search; } }
+            }
+          }
+          if (!best) return false;
+          s0.x = best.x; s0.y = best.y; s0.side = best.side; placed.push(best.b);
+        }
+        return true;
+      };
+      if (![[190, 1], [150, 1], [140, 0.9], [120, 0.8], [105, 0.7], [90, 0.6], [80, 0.5]].some(a => attempt(a[0], a[1]))) attempt(80, 0.5);
     }
     // orden de aparicion: la especie, luego los roedores, luego el resto
     const order = sNodes.map((s, k) => k).sort((a, b) => (a === 0 ? -1 : b === 0 ? 1 : (sNodes[b].rodent - sNodes[a].rodent) || a - b));
@@ -3885,7 +3884,7 @@ window.onerror = function(msg, url, line, col, error) {
         const lbl = fixText(nb.label || '');
         sctx.textAlign = 'center';
         sctx.fillStyle = k === 0 || isHover ? '#ffffff' : '#cbd5e1';
-        const fs0 = k === 0 ? 14 : (isHover ? 12 : 11);
+        const fs0 = k === 0 ? Math.round(14 * Math.max(subSc, 0.8)) : (isHover ? 12 * subSc : subFont);
         sctx.font = (k === 0 ? 'bold ' : '') + fs0 + 'px sans-serif';
         if (k === 0) {
           s.lines.forEach((ln, li) => sctx.fillText(ln, P.x, P.y + r + 18 + li * s.lh));
