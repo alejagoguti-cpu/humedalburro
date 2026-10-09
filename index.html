@@ -1661,8 +1661,8 @@ window.onerror = function(msg, url, line, col, error) {
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
   // Plano 2D: conexiones gruesas con flecha (cintas planas)
-  const PLANO_D = 9; // diámetro máximo de los nodos en la vista Plano 2D
-  const planoSize = n => 5.6 + Math.min(3.4, Math.sqrt(n.degree || 0) * 0.6); // el tamaño depende de las conexiones
+  const PLANO_D = 10.5; // diámetro máximo de los nodos en la vista Plano 2D
+  const planoSize = n => 5 + Math.min(5.5, Math.sqrt(n.degree || 0) * 0.95); // el tamaño depende de las conexiones
   const FLAT_MAX = 900;
   const flatGeo = new THREE.BufferGeometry();
   flatGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FLAT_MAX * 27), 3));
@@ -1706,7 +1706,7 @@ window.onerror = function(msg, url, line, col, error) {
         const fa = F.get(x), fb = F.get(y); fa.x += dx * f; fa.y += dy * f; fb.x -= dx * f; fb.y -= dy * f;
       });
       ids.forEach(id => {
-        const p = P.get(id), f = F.get(id); f.x -= p.x * 0.35; f.y -= p.y * 0.35;
+        const p = P.get(id), f = F.get(id); f.x -= p.x * 0.8; f.y -= p.y * 0.8;
         const m = Math.hypot(f.x, f.y) || 1, s = Math.min(m, T) / m; p.x += f.x * s; p.y += f.y * s;
       });
     }
@@ -1736,6 +1736,19 @@ window.onerror = function(msg, url, line, col, error) {
     const take = c => { acc.push(c); deg.set(c.e.na.id, (deg.get(c.e.na.id) || 0) + 1); deg.set(c.e.nb.id, (deg.get(c.e.nb.id) || 0) + 1); };
     cand.forEach(c => { if (c.len <= K * 2.4 && fits(c)) take(c); });
     cand.forEach(c => { if (acc.includes(c)) return; if (((deg.get(c.e.na.id) || 0) === 0 || (deg.get(c.e.nb.id) || 0) === 0) && fits(c)) take(c); });
+    // la red debe quedar conectada: unir componentes con la conexión más corta que quepa (sin cruces; si no hay, la más corta)
+    const comp = new Map(ids.map(id => [id, id])), find = x => { while (comp.get(x) !== x) { comp.set(x, comp.get(comp.get(x))); x = comp.get(x); } return x; };
+    acc.forEach(c => comp.set(find(c.e.na.id), find(c.e.nb.id)));
+    const bridge = (strict) => {
+      let any = false;
+      cand.forEach(c => {
+        if (acc.includes(c) || find(c.e.na.id) === find(c.e.nb.id)) return;
+        if (strict ? fits(c) : fitsNodes(c)) { take(c); comp.set(find(c.e.na.id), find(c.e.nb.id)); any = true; }
+      });
+      return any;
+    };
+    const fitsNodes = c => { const A = P.get(c.e.na.id), B = P.get(c.e.nb.id); for (const id of ids) { if (id === c.e.na.id || id === c.e.nb.id) continue; if (sd(P.get(id), A, B) < clear) return false; } return true; };
+    bridge(true); bridge(true); bridge(false);
     window._planoSel = new Set(acc.map(c => c.e.na.id + '_' + c.e.nb.id));
     return P;
   }
