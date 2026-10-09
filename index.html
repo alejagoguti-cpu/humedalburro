@@ -1661,7 +1661,8 @@ window.onerror = function(msg, url, line, col, error) {
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
   // Plano 2D: conexiones gruesas con flecha (cintas planas)
-  const PLANO_D = 7.4; // diámetro de los nodos en la vista Plano 2D
+  const PLANO_D = 9; // diámetro máximo de los nodos en la vista Plano 2D
+  const planoSize = n => 5.6 + Math.min(3.4, Math.sqrt(n.degree || 0) * 0.6); // el tamaño depende de las conexiones
   const FLAT_MAX = 900;
   const flatGeo = new THREE.BufferGeometry();
   flatGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FLAT_MAX * 27), 3));
@@ -1824,7 +1825,7 @@ window.onerror = function(msg, url, line, col, error) {
         activeNodesCount++;
         if (catCounts[n.cat] !== undefined) catCounts[n.cat]++;
         const sc = Math.min(5.2, Math.max(2.8, 2.6 + Math.sqrt(n.degree) * 0.45));
-        if (opts.layout === 'plano2d') n.sprite.scale.set(PLANO_D, PLANO_D, 1.0); else n.sprite.scale.set(sc * NODE_K, sc * NODE_K, 1.0);
+        if (opts.layout === 'plano2d') n.sprite.scale.set(planoSize(n), planoSize(n), 1.0); else n.sprite.scale.set(sc * NODE_K, sc * NODE_K, 1.0);
       }
     });
 
@@ -1853,6 +1854,8 @@ window.onerror = function(msg, url, line, col, error) {
     applyViewAppearance();
     updateEdgeLinesGeometry();
     rebuildTerritoryArcs();
+    // Plano 2D: al ocultar/mostrar nodos o filtros, la estructura se reorganiza
+    if (opts.layout === 'plano2d' && !window._planoBusy) { window._planoBusy = true; try { window.setLayout('plano2d'); } finally { window._planoBusy = false; } }
   }
 
   // =====================================================================
@@ -1930,7 +1933,7 @@ window.onerror = function(msg, url, line, col, error) {
         col.copy(white);
       }
       sc *= mult;
-      if (opts.layout === 'plano2d') sc = PLANO_D / NODE_K;
+      if (opts.layout === 'plano2d') sc = planoSize(n) / NODE_K;
       n.sprite.scale.set(sc * NODE_K, sc * NODE_K, 1.0);
     });
   }
