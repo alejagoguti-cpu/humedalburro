@@ -1660,6 +1660,81 @@ window.onerror = function(msg, url, line, col, error) {
   });
   const edgeLinesMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   networkGroup.add(edgeLinesMesh);
+  // Plano 2D: conexiones gruesas con flecha (cintas planas)
+  const FLAT_MAX = 900;
+  const flatGeo = new THREE.BufferGeometry();
+  flatGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FLAT_MAX * 27), 3));
+  flatGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(FLAT_MAX * 27), 3));
+  const flatMesh = new THREE.Mesh(flatGeo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.95, depthWrite: false }));
+  flatMesh.frustumCulled = false; flatMesh.visible = false; flatMesh.renderOrder = -1;
+  networkGroup.add(flatMesh);
+  function drawFlatRibbons() {
+    const L = lastEdgePairs || [], P = flatGeo.attributes.position.array, C = flatGeo.attributes.color.array;
+    let v = 0;
+    const vert = (x, y, z, c) => { P[v * 3] = x; P[v * 3 + 1] = y; P[v * 3 + 2] = z; C[v * 3] = c.r; C[v * 3 + 1] = c.g; C[v * 3 + 2] = c.b; v++; };
+    for (let i = 0; i < L.length && i < FLAT_MAX; i++) {
+      const { na, nb, inter } = L[i], pa = na.sprite.position, pb = nb.sprite.position;
+      const dx = pb.x - pa.x, dy = pb.y - pa.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+      const ra = na.sprite.scale.x * 0.47, rb = nb.sprite.scale.x * 0.47, HL = 3.4, HW = 2.5, BW = 0.42;
+      if (len < ra + rb + HL + 0.5) continue;
+      const c = viewEdgeColor(na, nb, inter), col = { r: c.r, g: c.g, b: c.b };
+      const sx = pa.x + ux * ra, sy = pa.y + uy * ra, tx = pb.x - ux * (rb + 0.3), ty = pb.y - uy * (rb + 0.3);
+      const bx = tx - ux * HL, by = ty - uy * HL, nx = -uy, ny = ux, z = Math.min(pa.z, pb.z) - 0.4;
+      vert(sx + nx * BW, sy + ny * BW, z, col); vert(sx - nx * BW, sy - ny * BW, z, col); vert(bx + nx * BW, by + ny * BW, z, col);
+      vert(sx - nx * BW, sy - ny * BW, z, col); vert(bx - nx * BW, by - ny * BW, z, col); vert(bx + nx * BW, by + ny * BW, z, col);
+      vert(bx + nx * HW, by + ny * HW, z, col); vert(bx - nx * HW, by - ny * HW, z, col); vert(tx, ty, z, col);
+    }
+    flatGeo.setDrawRange(0, v);
+    flatGeo.attributes.position.needsUpdate = true; flatGeo.attributes.color.needsUpdate = true;
+  }
+  // Árbol de expansión: cada nodo se conecta solo con su vecino más conectado (sin cruces)
+  function planoBuild(list) {
+    const rank = (a, b) => (a.degree - b.degree) || (a.id < b.id ? -1 : 1);
+    const best = new Map(), nodes = new Set();
+    list.forEach(ed => {
+      nodes.add(ed.na); nodes.add(ed.nb);
+      [[ed.na, ed.nb], [ed.nb, ed.na]].forEach(([n, o]) => { if (rank(o, n) > 0) { const b = best.get(n.id); if (!b || rank(o, b.o) > 0) best.set(n.id, { n, o, ed }); } });
+    });
+    const parent = new Map(), children = new Map(), edges = [];
+    best.forEach(b => { parent.set(b.n.id, b.o); if (!children.has(b.o.id)) children.set(b.o.id, []); children.get(b.o.id).push(b.n); edges.push(b.ed); });
+    const roots = [...nodes].filter(n => !parent.has(n.id));
+    return (window._planoTree = { parent, children, roots, edges });
+  }
+  // Distribución radial por árbol (subárboles en sectores propios) y empaquetado de los árboles
+  function planoLayout(T, activeNodes) {
+    const inTree = new Set(); T.roots.forEach(r => { const st = [r]; while (st.length) { const n = st.pop(); inTree.add(n.id); (T.children.get(n.id) || []).forEach(c => st.push(c)); } });
+    const roots = T.roots.concat(activeNodes.filter(n => !inTree.has(n.id)));
+    const GAP = 15, W = 10, trees = [];
+    roots.forEach(root => {
+      const leaves = new Map(), depth = new Map();
+      const cnt = (n, d) => { depth.set(n.id, d); const ch = T.children.get(n.id) || []; let s = 0; ch.forEach(c => { s += cnt(c, d + 1); }); if (!ch.length) s = 1; leaves.set(n.id, s); return s; };
+      const Lt = cnt(root, 0), need = [], maxD = Math.max(0, ...depth.values());
+      depth.forEach((d, id) => { if (d > 0) { const th = leaves.get(id) / Lt * Math.PI * 2; need[d] = Math.max(need[d] || 0, W / th); } });
+      const rad = [0]; for (let d = 1; d <= maxD; d++) rad[d] = Math.max(rad[d - 1] + GAP, need[d] || 0);
+      const pos = new Map(); pos.set(root.id, { x: 0, y: 0 });
+      const place = (n, a0, a1) => {
+        const ch = T.children.get(n.id) || []; let a = a0; const span = a1 - a0, tot = leaves.get(n.id);
+        ch.forEach(c => { const w = span * leaves.get(c.id) / tot, m = a + w / 2, rr = rad[depth.get(c.id)]; pos.set(c.id, { x: rr * Math.cos(m), y: rr * Math.sin(m) }); place(c, a, a + w); a += w; });
+      };
+      place(root, 0, Math.PI * 2);
+      trees.push({ pos, R: rad[maxD] + W });
+    });
+    trees.sort((a, b) => b.R - a.R);
+    const area = trees.reduce((s, t) => s + (2 * t.R + 6) ** 2, 0), rowW = Math.max(2 * trees[0].R + 6, Math.sqrt(area) * 1.15);
+    let x = 0, y = 0, rowH = 0; const out = new Map();
+    trees.forEach(tr => {
+      const d = 2 * tr.R + 6;
+      if (x > 0 && x + d > rowW) { x = 0; y += rowH; rowH = 0; }
+      tr.pos.forEach((p, id) => out.set(id, { x: x + tr.R + 3 + p.x, y: -(y + tr.R + 3 + p.y) }));
+      x += d; rowH = Math.max(rowH, d);
+    });
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    out.forEach(p => { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); });
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    out.forEach(p => { p.x -= cx; p.y -= cy; });
+    out.ext = { w: x1 - x0 + 24, h: y1 - y0 + 24 };
+    return out;
+  }
 
     var lastEdgePairs = null; // aristas activas actuales (para moverlas con la respiracion)
     function updateEdgeLinesGeometry() {
@@ -1691,12 +1766,10 @@ window.onerror = function(msg, url, line, col, error) {
     }
 
     if (opts.layout === 'plano2d') {
-      // Plano 2D limpio: cada nodo conserva una sola conexión (con su vecino más conectado)
-      const best = new Map(), put = (n, o, ed) => { const b = best.get(n.id); if (!b || o.degree > b.o.degree) best.set(n.id, { o, ed }); };
-      activeEdgesList.forEach(ed => { put(ed.na, ed.nb, ed); put(ed.nb, ed.na, ed); });
-      const keep = new Set([...best.values()].map(b => b.ed));
-      for (let i = activeEdgesList.length - 1; i >= 0; i--) if (!keep.has(activeEdgesList[i])) activeEdgesList.splice(i, 1);
+      const T = planoBuild(activeEdgesList);
+      activeEdgesList.length = 0; T.edges.forEach(e => activeEdgesList.push(e));
     }
+    edgeLinesMesh.visible = opts.layout !== 'plano2d'; flatMesh.visible = opts.layout === 'plano2d';
     lastEdgePairs = activeEdgesList;
     const count = activeEdgesList.length;
     const posArr = new Float32Array(count * 6);
@@ -3165,12 +3238,19 @@ window.onerror = function(msg, url, line, col, error) {
       // vistas planas: de frente a la cámara y sin giro
       opts.autoRotate = false;
       document.getElementById('btnAutoRot')?.classList.remove('active');
-      resetCamera();
+      if (type !== 'plano2d') resetCamera();
     }
     applyViewAppearance();
     renderGephiInfo();
 
     const _cc = {}, _cr = {}; rawNodes.forEach(n => { _cc[n.cat] = (_cc[n.cat] || 0) + 1; _cr[n.id] = _cc[n.cat] - 1; });
+    let _plano = null;
+    if (type === 'plano2d') {
+      recalculateDegreesAndSizes(); updateEdgeLinesGeometry();
+      _plano = planoLayout(window._planoTree, rawNodes.filter(n => n.active));
+      const fov = camera.fov * Math.PI / 180, dist = Math.max(60, Math.max(_plano.ext.h / 2, _plano.ext.w / 2 / camera.aspect) / Math.tan(fov / 2));
+      if (window.gsap) { gsap.to(camera.position, { x: 0, y: 0, z: dist, duration: 1.4, ease: 'power2.out' }); gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.4, ease: 'power2.out' }); }
+    }
     rawNodes.forEach((n, idx) => {
       let tx = n.ox, ty = n.oy, tz = n.oz;
 
@@ -3201,15 +3281,7 @@ window.onerror = function(msg, url, line, col, error) {
         tz = r * Math.sin(angle);
       }
 
-      if (type === 'plano2d') {
-        // grupos (capas) en un anillo grande; dentro de cada grupo, espiral plana; todo en z = 0
-        const g = n.cat, k = _cr[n.id], m = Math.max(1, CAT_COUNT);
-        const R0 = m > 1 ? 30 + 4 * m : 0, a0 = (g / m) * Math.PI * 2 - Math.PI / 2;
-        const rr = 3.6 * Math.sqrt(k + 0.6), aa = k * 2.39996;
-        tx = R0 * Math.cos(a0) + rr * Math.cos(aa);
-        ty = R0 * Math.sin(a0) + rr * Math.sin(aa);
-        tz = 0;
-      }
+      if (type === 'plano2d') { const p = _plano.get(n.id); if (p) { tx = p.x; ty = p.y; tz = 0; } }
 
       if (type === 'forceatlas' || type === 'circular' || type === 'radial') {
         const p = gephiLayoutPos(n, type); tx = p.x; ty = p.y; tz = p.z;
@@ -4390,6 +4462,7 @@ window.onerror = function(msg, url, line, col, error) {
       networkGroup.scale.set(1, 1, 1);
     }
 
+    if (opts.layout === 'plano2d') drawFlatRibbons();
     renderer.render(scene, camera);
   }
 
