@@ -1690,6 +1690,13 @@ window.onerror = function(msg, url, line, col, error) {
       if (badge) badge.innerText = interCounts[i];
     }
 
+    if (opts.layout === 'plano2d') {
+      // Plano 2D limpio: cada nodo conserva una sola conexión (con su vecino más conectado)
+      const best = new Map(), put = (n, o, ed) => { const b = best.get(n.id); if (!b || o.degree > b.o.degree) best.set(n.id, { o, ed }); };
+      activeEdgesList.forEach(ed => { put(ed.na, ed.nb, ed); put(ed.nb, ed.na, ed); });
+      const keep = new Set([...best.values()].map(b => b.ed));
+      for (let i = activeEdgesList.length - 1; i >= 0; i--) if (!keep.has(activeEdgesList[i])) activeEdgesList.splice(i, 1);
+    }
     lastEdgePairs = activeEdgesList;
     const count = activeEdgesList.length;
     const posArr = new Float32Array(count * 6);
