@@ -643,6 +643,9 @@ window.onerror = function(msg, url, line, col, error) {
     display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.8); pointer-events: none;
   }
 
+  /* Solo red: sin barra de transición ni ajuste de vista 3D */
+  .bottom-experience-bar, #camInspectorBox, #waypointsBar { display: none !important; }
+
   /* Waypoints Bar (Stage 2) */
   .waypoints-bar {
     position: absolute; top: 78px; left: 50%; transform: translateX(-50%); z-index: 10;
@@ -1355,6 +1358,11 @@ window.onerror = function(msg, url, line, col, error) {
   scene.add(dirLight);
 
   const RED = window.RED_DATA;
+  // Gama de colores sobria (tonos tierra) para capas y tipos de relación
+  const CAT_PALETTE = ["#7FB08A", "#C9736B", "#6F9FC4", "#D9A066", "#9C86B8", "#D8C27A", "#5FA8A3", "#9AA3AD"];
+  const REL_PALETTE = ["#7DA0C4", "#C96349", "#D98E5C", "#D9B65F", "#C27A92", "#84A48B", "#9C86B8", "#5FA8A3", "#6E7781", "#A9A0C2"];
+  RED.categories.forEach((c, i) => { if (CAT_PALETTE[i]) c.color = CAT_PALETTE[i]; });
+  RED.interactions.forEach((t, i) => { if (REL_PALETTE[i]) t.color = REL_PALETTE[i]; });
   const CAT_COUNT = RED.categories.length, INTER_COUNT = RED.interactions.length;
   // Opciones de Visualización
   const opts = {
@@ -1415,9 +1423,8 @@ window.onerror = function(msg, url, line, col, error) {
   <div class="cat-card" id="catCard${i}" style="--cat-color:${c.color};" onclick="toggleCat(${i})">
     <div class="cat-label-wrap">
       <span class="cat-thumb" style="--cat-color:${c.color}; display:flex; align-items:center; justify-content:center; color:${c.color}; font-size:15px;"><i class="fa-solid ${c.icon}"></i></span>
-      <div>
+      <div title="${c.desc}">
         <div style="font-weight:700; color:#f8fafc;">${c.name}</div>
-        <div style="font-size:9.5px; color:#94a3b8;">${c.desc}</div>
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
@@ -1429,7 +1436,6 @@ window.onerror = function(msg, url, line, col, error) {
     if (rel) rel.innerHTML = RED.interactions.map((t, i) => `
       <div class="rel-card active" id="interItem${i}" style="--rel-color:${t.color};" onclick="toggleInteraction(${i})" title="${t.def.replace(/"/g, '&quot;')}">
         <div class="rel-top"><span style="flex:none; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:${t.color}22; border:1px solid ${t.color}; color:${t.color}; font-size:10px;"><i class="fa-solid ${t.icon}"></i></span><span class="rel-title">${t.name}</span><span class="rel-n" id="badgeInter${i}" style="color:${t.color};">0</span></div>
-        <div class="rel-desc">${t.def}</div>
       </div>`).join('');
     if (EFFECT_IDX >= 0) { document.getElementById('toggleCat' + EFFECT_IDX)?.classList.remove('checked'); document.getElementById('catCard' + EFFECT_IDX)?.classList.add('inactive'); }
     const sub = document.getElementById('subInterToggles');
@@ -3474,10 +3480,10 @@ window.onerror = function(msg, url, line, col, error) {
   // Tipo de fuente: academica (paper, tesis, revista), oficial (norma, entidad, informe), prensa o del grupo
   function srcKind(line) {
     if (/wikipedia/i.test(line)) return ['No admisible', '#ef4444'];
-    if (/inaturalist|sib colombia|ciencia participativa/i.test(line)) return ['Ciencia participativa', '#38bdf8'];
+    if (/inaturalist|sib colombia|ciencia participativa/i.test(line)) return ['Ciencia participativa', '#6F9FC4'];
     if (/grupo|memoria técnica/i.test(line)) return ['Del grupo', '#f59e0b'];
     if (/doi.org|repositor|redalyc|doaj|scielo|revista|journal|tesis|universidad|.edu.co|sociedadyeconomia|trabajo de grado/i.test(line)) return ['Académica', '#a78bfa'];
-    if (/gov.co|secretar[ií]a|alcald[ií]a|IDU|EAAB|IDRD|DANE|contralor|personer|decreto|resoluci|SDP|UAESP|IPES|ministerio|ficha|DNP|veedur|banco de alimentos|greenpeace|metro de bogot|oficio|c[aá]mara de comercio|sentencia|consejo de estado|idiger|bibliored|transmilenio s.a|empresa metro|aerocivil|pol[ií]tica de humedales|decreto/i.test(line)) return ['Oficial', '#4ade80'];
+    if (/gov.co|secretar[ií]a|alcald[ií]a|IDU|EAAB|IDRD|DANE|contralor|personer|decreto|resoluci|SDP|UAESP|IPES|ministerio|ficha|DNP|veedur|banco de alimentos|greenpeace|metro de bogot|oficio|c[aá]mara de comercio|sentencia|consejo de estado|idiger|bibliored|transmilenio s.a|empresa metro|aerocivil|pol[ií]tica de humedales|decreto/i.test(line)) return ['Oficial', '#7FB08A'];
     if (/publimetro|contexto ganadero|espectador|tiempo|rep[uú]blica|pulzo|infobae|la fm|lafm|noticias|minuto60|diario del sur|blu radio|bluradio|las2orillas|semana|portafolio|cronista|caracol|rcn|carro colombiano|prensa/i.test(line)) return ['Prensa', '#94a3b8'];
     return ['Sin clasificar', '#64748b'];
   }
@@ -3955,16 +3961,14 @@ window.onerror = function(msg, url, line, col, error) {
     const cards = [
       { acc: '#E7C878', icon: 'fa-circle-nodes', kpi: nf(A.withoutTop, 0) + '%', head: 'Sin centro',
         line: `Sin <b>${topName}</b> (el nodo más conectado), el ${nf(A.withoutTop, 0)}% de la red sigue unida.`, mini: spark, act: 'noTop', actTxt: 'Quitarlo de la red' },
-      { acc: '#4ADE80', icon: 'fa-tree', kpi: nf(pct(A.ecoEdges, A.totalEdges), 0) + '%', head: 'La capa «' + RED.categories[A.ecoIdx].name + '» es el tejido',
-        line: `de las relaciones toca la capa <b>${ecoName}</b>. Sin ella, la red se rompe en <b>${A.ecoFragments} pedazos</b>.`, mini: track([{ w: pct(A.ecoEdges, A.totalEdges), c: '#4ADE80' }]), act: 'noEco', actTxt: 'Apagar la capa' },
-      { acc: '#F43F5E', icon: 'fa-triangle-exclamation', kpi: nf(pct(A.sevCount, A.totalEdges), 0) + '%', head: 'Tensión crítica y severa',
-        line: `de las relaciones es de tensión crítica o severa; la mayoría son de <b>${sevName}</b>.`, mini: track([{ w: pct(A.sevCount, A.totalEdges), c: '#F43F5E' }]), act: 'onlySevere', actTxt: 'Ver ese tipo de relación' },
-      { acc: '#FB923C', icon: 'fa-bullseye', kpi: nf(A.top3Share, 0) + '%', head: 'Pocos nodos concentran',
-        line: `de las conexiones pasa por solo tres nodos, encabezados por <b>${topName}</b>.`, mini: track([{ w: A.top3Share, c: '#FB923C' }]), act: 'topHub', actTxt: `Ver ${topName}` },
-      { acc: '#A855F7', icon: 'fa-layer-group', kpi: nf(A.topGroup.mean, 1), head: 'La capa más conectada',
-        line: `relaciones por nodo en <b>${A.topGroup.name}</b>, la capa más articulada. El tipo dominante es <b>${bigName}</b>.`, mini: track([{ w: Math.min(100, A.topGroup.mean / (A.topNode ? A.topDeg : 1) * 100), c: '#A855F7' }]), act: 'onlyBiggest', actTxt: 'Ver ese tipo de relación' },
-      { acc: '#22D3EE', icon: 'fa-map-location-dot', kpi: String(A.n), head: 'Del papel al territorio',
-        line: `nodos ubicados sobre el mapa de Kennedy: mira dónde se concentran las relaciones.`, mini: track([{ w: 100, c: '#22D3EE' }]), act: 'territory', actTxt: 'Ir al territorio' }
+      { acc: '#7FB08A', icon: 'fa-tree', kpi: nf(pct(A.ecoEdges, A.totalEdges), 0) + '%', head: 'La capa «' + RED.categories[A.ecoIdx].name + '» es el tejido',
+        line: `de las relaciones toca la capa <b>${ecoName}</b>. Sin ella, la red se rompe en <b>${A.ecoFragments} pedazos</b>.`, mini: track([{ w: pct(A.ecoEdges, A.totalEdges), c: '#7FB08A' }]), act: 'noEco', actTxt: 'Apagar la capa' },
+      { acc: '#C96349', icon: 'fa-triangle-exclamation', kpi: nf(pct(A.sevCount, A.totalEdges), 0) + '%', head: 'Tensión crítica y severa',
+        line: `de las relaciones es de tensión crítica o severa; la mayoría son de <b>${sevName}</b>.`, mini: track([{ w: pct(A.sevCount, A.totalEdges), c: '#C96349' }]), act: 'onlySevere', actTxt: 'Ver ese tipo de relación' },
+      { acc: '#D98E5C', icon: 'fa-bullseye', kpi: nf(A.top3Share, 0) + '%', head: 'Pocos nodos concentran',
+        line: `de las conexiones pasa por solo tres nodos, encabezados por <b>${topName}</b>.`, mini: track([{ w: A.top3Share, c: '#D98E5C' }]), act: 'topHub', actTxt: `Ver ${topName}` },
+      { acc: '#9C86B8', icon: 'fa-layer-group', kpi: nf(A.topGroup.mean, 1), head: 'La capa más conectada',
+        line: `relaciones por nodo en <b>${A.topGroup.name}</b>, la capa más articulada. El tipo dominante es <b>${bigName}</b>.`, mini: track([{ w: Math.min(100, A.topGroup.mean / (A.topNode ? A.topDeg : 1) * 100), c: '#9C86B8' }]), act: 'onlyBiggest', actTxt: 'Ver ese tipo de relación' }
     ];
     document.getElementById('conclList').innerHTML = `<div class="cc-grid">${cards.map(c => `
       <div class="cc-card" style="--acc:${c.acc};">
@@ -4246,6 +4250,7 @@ window.onerror = function(msg, url, line, col, error) {
   const labelTerritory = document.getElementById("labelTerritory");
 
   function animateToStage(target) {
+    if (target > 0) return; // esta versión muestra solo la red (sin territorio 3D)
     targetMorph = target;
     isTerritory = target > 0.5;
 
