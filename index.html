@@ -146,13 +146,13 @@ window.onerror = function(msg, url, line, col, error) {
   .rel-desc { font-size: 10px; color: #8d99aa; line-height: 1.45; margin: 6px 0 0 32px; overflow-wrap: break-word; hyphens: none; }
   .rel-ico { display: none; color: var(--rel-color); font-size: 17px; line-height: 1; }
   .rel-n { position: absolute; top: 10px; right: 12px; padding: 1px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; font-family: ui-monospace, monospace; color: var(--rel-color); background: rgba(255,255,255,0.07); }
-  body.territory-mode .rel-grid { flex-direction: row; flex-wrap: wrap; gap: 10px; padding: 2px 1px 6px; }
-  body.territory-mode .rel-card { width: 46px; height: 46px; padding: 0; display: flex; align-items: center; justify-content: center; overflow: visible; border: 1.5px solid var(--rel-color); border-radius: 50%; background: rgba(255,255,255,0.04); }
-  body.territory-mode .rel-card::before { display: none; }
-  body.territory-mode .rel-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.09); box-shadow: 0 6px 16px rgba(0,0,0,.35); }
-  body.territory-mode .rel-full { display: none; }
-  body.territory-mode .rel-ico { display: block; }
-  body.territory-mode .rel-n { top: auto; right: -6px; bottom: -6px; min-width: 18px; padding: 1px 5px; text-align: center; font-size: 9.5px; background: #0b1118; border: 1px solid var(--rel-color); }
+  body.conv-compact .rel-grid { flex-direction: row; flex-wrap: wrap; gap: 10px; padding: 2px 1px 6px; }
+  body.conv-compact .rel-card { width: 46px; height: 46px; padding: 0; display: flex; align-items: center; justify-content: center; overflow: visible; border: 1.5px solid var(--rel-color); border-radius: 50%; background: rgba(255,255,255,0.04); }
+  body.conv-compact .rel-card::before { display: none; }
+  body.conv-compact .rel-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.09); box-shadow: 0 6px 16px rgba(0,0,0,.35); }
+  body.conv-compact .rel-full { display: none; }
+  body.conv-compact .rel-ico { display: block; }
+  body.conv-compact .rel-n { top: auto; right: -6px; bottom: -6px; min-width: 18px; padding: 1px 5px; text-align: center; font-size: 9.5px; background: #0b1118; border: 1px solid var(--rel-color); }
   #relTip { position: fixed; z-index: 400; display: none; width: 240px; padding: 11px 13px; border-radius: 10px; pointer-events: none; color: #eef2f6;
     background: rgba(12,16,22,0.97); border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 10px 30px rgba(0,0,0,.45); }
   #relTip .rt-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; font-weight: 700; line-height: 1.25; }
@@ -318,23 +318,23 @@ window.onerror = function(msg, url, line, col, error) {
 
   
   /* Panel izquierdo compacto (foto + conteo): solo en el territorio */
-  body.territory-mode .side-drawer { width: 236px; padding: 10px 8px; }
-  body.territory-mode .side-drawer .drawer-header { font-size: 8.5px; letter-spacing: 0.6px; padding-bottom: 6px; margin-bottom: 8px; }
-  body.territory-mode .side-drawer .quick-toggle-btn { font-size: 8px; padding: 1px 5px; }
-  body.territory-mode .side-drawer .cat-card { display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  body.conv-compact .side-drawer { width: 236px; padding: 10px 8px; }
+  body.conv-compact .side-drawer .drawer-header { font-size: 8.5px; letter-spacing: 0.6px; padding-bottom: 6px; margin-bottom: 8px; }
+  body.conv-compact .side-drawer .quick-toggle-btn { font-size: 8px; padding: 1px 5px; }
+  body.conv-compact .side-drawer .cat-card { display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-start;
     width: calc(33.333% - 8px); margin: 0 2px 5px; padding: 7px 2px 6px; gap: 5px; vertical-align: top; }
-  body.territory-mode .side-drawer .cat-card::before { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 3px; }
-  body.territory-mode .side-drawer .cat-card:hover { transform: translateY(-2px); }
-  body.territory-mode .side-drawer .cat-label-wrap > div { display: none; }
-  body.territory-mode .side-drawer .cat-thumb { width: 36px; height: 36px; border-width: 2px; }
-  body.territory-mode .side-drawer .cat-card > div:last-child { gap: 5px !important; }
-  body.territory-mode .side-drawer .badge-count { font-size: 9px; padding: 1px 5px; }
-  body.territory-mode .side-drawer .toggle-box { width: 12px; height: 12px; }
-  body.territory-mode .side-drawer .interaction-chips-grid { gap: 3px; }
-  body.territory-mode .side-drawer .inter-chip { padding: 4px 2px; gap: 2px; border-radius: 5px; }
-  body.territory-mode .side-drawer .inter-chip-dot { width: 6px; height: 6px; }
-  body.territory-mode .side-drawer .inter-chip-title { font-size: 7.5px; }
-  body.territory-mode .side-drawer .inter-chip-badge { font-size: 7.5px; }
+  body.conv-compact .side-drawer .cat-card::before { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 3px; }
+  body.conv-compact .side-drawer .cat-card:hover { transform: translateY(-2px); }
+  body.conv-compact .side-drawer .cat-label-wrap > div { display: none; }
+  body.conv-compact .side-drawer .cat-thumb { width: 36px; height: 36px; border-width: 2px; }
+  body.conv-compact .side-drawer .cat-card > div:last-child { gap: 5px !important; }
+  body.conv-compact .side-drawer .badge-count { font-size: 9px; padding: 1px 5px; }
+  body.conv-compact .side-drawer .toggle-box { width: 12px; height: 12px; }
+  body.conv-compact .side-drawer .interaction-chips-grid { gap: 3px; }
+  body.conv-compact .side-drawer .inter-chip { padding: 4px 2px; gap: 2px; border-radius: 5px; }
+  body.conv-compact .side-drawer .inter-chip-dot { width: 6px; height: 6px; }
+  body.conv-compact .side-drawer .inter-chip-title { font-size: 7.5px; }
+  body.conv-compact .side-drawer .inter-chip-badge { font-size: 7.5px; }
 
   /* Panel de vistas estilo Gephi */
   .gephi-panel { position: absolute; top: 58px; right: 12px; width: 248px; padding: 12px; z-index: 120; pointer-events: auto;
@@ -1437,6 +1437,7 @@ window.onerror = function(msg, url, line, col, error) {
 
   // Panel lateral: capas territoriales y tipos de relacion (se generan desde los datos)
   (function buildDrawer() {
+    document.body.classList.add('conv-compact');
     const host = document.getElementById('catCardsHost');
     if (host) host.innerHTML = RED.categories.map((c, i) => `
   <div class="cat-card" id="catCard${i}" style="--cat-color:${c.color};" onclick="toggleCat(${i})">
@@ -1460,7 +1461,6 @@ window.onerror = function(msg, url, line, col, error) {
       RED.interactions.forEach((t, i) => {
         const el = document.getElementById('interItem' + i); if (!el) return;
         el.addEventListener('mouseenter', () => {
-          if (!document.body.classList.contains('territory-mode')) return;
           const n = (document.getElementById('badgeInter' + i) || {}).textContent || '0';
           tip.innerHTML = '<div class="rt-h" style="color:' + t.color + '"><span>' + t.name + '</span><span class="rt-n">' + n + '</span></div><div class="rt-d">' + t.def + '</div>';
           tip.style.display = 'block';
@@ -1472,6 +1472,23 @@ window.onerror = function(msg, url, line, col, error) {
       });
     }
     if (EFFECT_IDX >= 0) { document.getElementById('toggleCat' + EFFECT_IDX)?.classList.remove('checked'); document.getElementById('catCard' + EFFECT_IDX)?.classList.add('inactive'); }
+    // Capas: icono con conteo; el detalle aparece al pasar el cursor
+    (() => {
+      let tip = document.getElementById('relTip');
+      if (!tip) { tip = document.createElement('div'); tip.id = 'relTip'; document.body.appendChild(tip); }
+      RED.categories.forEach((c, i) => {
+        const el = document.getElementById('catCard' + i); if (!el) return;
+        el.addEventListener('mouseenter', () => {
+          const n = (document.getElementById('badgeCat' + i) || {}).textContent || '0';
+          tip.innerHTML = '<div class="rt-h" style="color:' + c.color + '"><span>' + c.name + '</span><span class="rt-n">' + n + '</span></div><div class="rt-d">' + (c.desc || '') + '</div>';
+          tip.style.display = 'block';
+          const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+          tip.style.left = Math.min(window.innerWidth - w - 8, r.right + 12) + 'px';
+          tip.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, r.top)) + 'px';
+        });
+        el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+      });
+    })();
     const sub = document.getElementById('subInterToggles');
     if (sub) sub.innerHTML = RED.interactions.map((t, i) => `<button class="btn-flat active" id="subInterToggle${i}" onclick="toggleSubInteraction(${i})" style="font-size:8.5px; padding:2px 6px; border-color:${t.color}; color:${t.color}; background:${t.color}26;">${t.name}</button>`).join('');
   })();
