@@ -1676,7 +1676,7 @@ window.onerror = function(msg, url, line, col, error) {
     for (let i = 0; i < L.length && i < FLAT_MAX; i++) {
       const { na, nb, inter } = L[i], pa = na.sprite.position, pb = nb.sprite.position;
       const dx = pb.x - pa.x, dy = pb.y - pa.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
-      const ra = na.sprite.scale.x * 0.47, rb = nb.sprite.scale.x * 0.47, HL = 4.8, HW = 3.4, BW = 0.7;
+      const ra = na.sprite.scale.x * 0.47, rb = nb.sprite.scale.x * 0.47, HL = 2.6, HW = 0.95, BW = 0.12;
       if (len < ra + rb + HL + 0.5) continue;
       const c = viewEdgeColor(na, nb, inter), col = { r: c.r, g: c.g, b: c.b };
       const sx = pa.x + ux * ra, sy = pa.y + uy * ra, tx = pb.x - ux * (rb + 0.3), ty = pb.y - uy * (rb + 0.3);
