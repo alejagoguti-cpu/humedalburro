@@ -132,7 +132,10 @@ window.onerror = function(msg, url, line, col, error) {
   .side-drawer::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
   .side-drawer::-webkit-scrollbar-thumb { background: rgba(132,164,139,0.35); border-radius: 6px; }
   .side-drawer::-webkit-scrollbar-thumb:hover { background: rgba(132,164,139,0.7); }
-  .rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .side-drawer { overflow-x: hidden; }
+  .rel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .rel-card { min-width: 0; box-sizing: border-box; }
+  .rel-title, .rel-desc { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
   .rel-card { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 7px; cursor: pointer; transition: all .2s ease; }
   .rel-card:hover { border-color: var(--rel-color); }
   .rel-card.inactive { opacity: .35; filter: grayscale(.8); }
