@@ -41,27 +41,15 @@
     ["mirla", "sauco", "verde", "Alimentación y refugio"],
     ["chamon", "mirla", "rojo", "Parasitismo de nido"],
     ["tingua_azul", "enea", "verde", "Nidificación y refugio en el juncal"],
-    ["tingua_azul", "libelulas", "amarillo", "Depredación de invertebrados"],
-    ["perros_gatos", "tingua_azul", "rojo", "Depredación exótica: nidos terrestres y huevos"],
     ["tingua_bogotana", "enea", "verde", "Nidificación exclusiva en juncal denso"],
-    ["perros_gatos", "tingua_bogotana", "rojo", "Depredación de nidos terrestres y huevos"],
+    ["perros_gatos", "tingua_azul", "rojo", "Depredación exótica: nidos y huevos"],
+    ["perros_gatos", "tingua_bogotana", "rojo", "Depredación de nidos y huevos"],
     ["monjita", "enea", "verde", "Nidificación y posadero"],
-    ["cucarachero", "enea", "verde", "Refugio y hábitat exclusivo"],
-    ["chamon", "cucarachero", "rojo", "Parasitismo de nido"],
     ["garza", "rana", "amarillo", "Depredación"],
-    ["garza", "libelulas", "amarillo", "Depredación de larvas acuáticas"],
-    ["libelulas", "fitoplancton", "azul", "Alimentación en fase acuática"],
     ["mariposas", "chilco", "verde", "Polinización / visita floral"],
     ["mariposas", "sauco", "verde", "Polinización / visita floral"],
-    ["escarabajos", "hongos", "turquesa", "Descomposición de biomasa"],
-    ["rana", "libelulas", "azul", "Consumo de insectos"],
-    ["anoxia", "rana", "rojo", "Mortalidad / asfixia hídrica · estrés metabólico"],
-    ["buchon", "nutrientes", "turquesa", "Absorción y proliferación masiva"],
-    ["buchon", "anoxia", "turquesa", "Bloqueo de luz y descomposición en el fondo"],
-    ["nutrientes", "buchon", "verde", "Eutrofización hídrica"],
-    ["nutrientes", "fitoplancton", "verde", "Eutrofización hídrica"],
-    ["lixiviados", "nutrientes", "turquesa", "Enriquecimiento orgánico"],
-    ["anoxia", "bacterias", "turquesa", "Mal olor y putrefacción en fondo anóxico"]
+    ["anoxia", "rana", "rojo", "Mortalidad / asfixia hídrica"],
+    ["nutrientes", "fitoplancton", "verde", "Eutrofización hídrica"]
   ];
 
   const POS_FIJAS = {};
