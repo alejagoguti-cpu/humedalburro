@@ -85,21 +85,30 @@
       { i: "fa-droplet", v: "El Tintal", t: "Una sola laguna antes del aeropuerto (en los años 30 se fraccionó en cinco humedales, entre ellos La Vaca)" },
       { i: "fa-cow", v: "≈750", t: "Ganado vacuno en pastoreo sobre las zonas verdes, por fuera del agua" },
       { i: "fa-tree", t: "Más árboles: franjas de ribera ampliadas, bosquetes y sabana abierta" }] },
-    1930: { nombre: "Aeropuerto de Techo", anioTxt: "1930", icono: "fa-plane-up", chips: [
-      { i: "fa-plane", t: "Inaugurado el 7 de agosto de 1930; opera hasta 1959 (SCADTA)" },
-      { i: "fa-droplet", v: "171 ha", t: "Sin dato de 1930: se usa el de los años 50 (El Burro: 171 hectáreas, El Tiempo)" },
-      { i: "fa-cow", t: "Vacas en pastoreo, por fuera del agua" },
+    1905: { nombre: "Decreto 40", anioTxt: "1905", icono: "fa-gavel", chips: [
+      { i: "fa-gavel", t: "Decreto 40 de 1905: ordena el secado de lagunas y ciénagas para convertir la tierra en suelo aprovechable" },
+      { i: "fa-droplet", v: "Lagunas secadas", t: "Transformación del paisaje hídrico: cuerpos de agua reducidos a suelo secado" },
+      { i: "fa-tree", t: "Árboles en zonas verdes recién disponibles" }] },
+    1920: { nombre: "Aeródromo de Techo", anioTxt: "1920", icono: "fa-plane-up", chips: [
+      { i: "fa-plane-up", t: "Aeródromo de Techo en operación" },
+      { i: "fa-droplet", v: "Humedales completos", t: "Laguna El Tintal y cuerpos de agua sin fragmentar aún" },
+      { i: "fa-cow", t: "Vacas en pastoreo, zona del aeródromo" },
       { i: "fa-tree", t: "Franjas de árboles junto al agua y bosquetes" }] },
-    1950: { nombre: "Sabana rural", icono: "fa-wheat-awn", chips: [
-      { i: "fa-plane", t: "El aeródromo de Techo opera de 1930 a 1959" },
-      { i: "fa-droplet", v: "171 ha", t: "Humedal El Burro: 171 hectáreas en los años 50 (El Tiempo)" },
-      { i: "fa-cow", v: "530", t: "Ganado vacuno en pastoreo sobre las zonas verdes, por fuera del agua" },
-      { i: "fa-tree", t: "Franjas de árboles junto al agua y bosquetes" }] },
-    1956: { nombre: "Aeropuerto de Techo", icono: "fa-plane", chips: [
-      { i: "fa-plane", t: "Aeropuerto de Techo" },
-      { i: "fa-droplet", v: "171 ha", t: "Humedal El Burro: 171 hectáreas en los años 50 (El Tiempo)" },
-      { i: "fa-cow", t: "Vacas en pastoreo, por fuera del agua" },
-      { i: "fa-tree", t: "Franjas de árboles junto al agua y bosquetes" }] },
+    1946: { nombre: "Avenida de las Américas", anioTxt: "1946", icono: "fa-route", chips: [
+      { i: "fa-route", t: "Avenida de las Américas trazada" },
+      { i: "fa-droplet", v: "171 ha", t: "Humedal El Burro y La Vaca con extensión completa" },
+      { i: "fa-cow", t: "Vacas en pastoreo, actividad mixte" },
+      { i: "fa-tree", t: "Franjas de árboles y mayor actividad arbórea" }] },
+    1961: { nombre: "Ciudad Techo", anioTxt: "1961", icono: "fa-house-chimney", chips: [
+      { i: "fa-house-chimney", t: "Ciudad Techo con 15,000 viviendas" },
+      { i: "fa-droplet", v: "Humedales fragmentados", t: "Aeródromo desmantelado, humedales en proceso de fragmentación" },
+      { i: "fa-cow", t: "Vacas en zonas residuales" },
+      { i: "fa-tree", t: "Árboles en áreas urbanizables" }] },
+    1972: { nombre: "Corabastos", anioTxt: "1972", icono: "fa-basket-shopping", chips: [
+      { i: "fa-basket-shopping", t: "Central de abastos inaugurada" },
+      { i: "fa-droplet", v: "≈80 ha", t: "Humedal El Burro reducido a unas 80 hectáreas" },
+      { i: "fa-house", v: "1 piso", t: "Solo edificios de un piso, sin edificios sobre el humedal" },
+      { i: "fa-road", t: "Calles reales; todavía sin avenidas principales" }] },
     1972: { nombre: "Corabastos", icono: "fa-basket-shopping", chips: [
       { i: "fa-droplet", v: "La Vaca ampliada", t: "Se muestran los dos sectores cartografiados del Humedal La Vaca, incluido el ámbito que llega hasta Corabastos" },
       { i: "fa-basket-shopping", v: "420.000 m²", t: "Perímetro esquemático del predio de Corabastos, inaugurado en 1972" },
