@@ -450,6 +450,11 @@ CONTROL_ROWS = [
 
 
 def main():
+    # Red causal sin fotos: los nodos se dibujan con icono + nombre (medalla de color).
+    for _n in NODOS:
+        _n[11] = ''
+        _n[14] = ''
+        _n[15] = ''
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = 'LEEME'
