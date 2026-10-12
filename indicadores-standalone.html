@@ -103,7 +103,7 @@
     #activeTreeChip { position: absolute; top: 78px; right: 28px; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 5px 14px 5px 6px; border-radius: 24px; background: rgba(18, 18, 22, 0.92); border: 1px solid rgba(132, 164, 139, 0.4); color: var(--ink); font-size: 11px; font-weight: 700; cursor: pointer; backdrop-filter: blur(16px); box-shadow: 0 8px 24px rgba(0,0,0,0.6); transition: all 0.3s ease; opacity: 0; pointer-events: none; transform: translateY(-6px); }
     #activeTreeChip.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
     #activeTreeChip:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.04); }
-    #activeTreeChip img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent); }
+    #activeTreeChip img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1.5px var(--accent); }
     .bottom-control-capsule { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: auto; }
     .scrub-container { display: flex; align-items: center; gap: 16px; padding: 9px 22px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 36px; backdrop-filter: blur(24px); box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9); transition: border-color 0.3s; }
     .scrub-container:hover { border-color: var(--accent); }
@@ -111,38 +111,27 @@
     .scrub-label.active, .scrub-label:hover { color: var(--accent); text-shadow: 0 0 12px var(--accent); }
     .experience-toggle-btn { padding: 8px 20px; border-radius: 20px; font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; cursor: pointer; border: 1px solid var(--accent); background: linear-gradient(135deg, #84A48B, #6B9080); color: #000; text-shadow: none; box-shadow: 0 0 20px var(--accent-glow); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .experience-toggle-btn:hover { transform: scale(1.06); box-shadow: 0 0 32px var(--accent-glow); }
-    #activeTreeChip img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent); }
-    /* Indicadores styles */
+    /* Indicadores styles - SIN dependencia de assets folder */
     .indicadores-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.95); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: center; animation: modalFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
     .indicadores-modal { width: 92%; max-width: 1120px; max-height: 90vh; background: #050505; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 28px; overflow-y: auto; color: #f1f5f9; display: flex; flex-direction: column; gap: 20px; }
     .indicadores-modal .welcome-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 16px; }
-    .pie-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-    .pie-card { background: #0a0a0c; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative; overflow: hidden; }
-    .pie-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.8; }
-    .pie-card-title { font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; text-align: center; text-transform: uppercase; }
-    .pie-card-desc { font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.4; }
-    .pie-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
-    .legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; padding: 5px 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; }
-    .legend-label { display: flex; align-items: center; gap: 8px; color: #cbd5e1; font-weight: 500; }
-    .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .pie-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+    .pie-card { background: #0a0a0c; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; overflow: hidden; }
+    .pie-card .indicador-simbolo { width: 40px; height: 40px; background: #1a1a1a; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #84A48B; font-size: 12px; margin-bottom: 8px; }
+    .pie-card .indicador-nombre { font-weight: 700; font-size: 12px; color: #84A48B; text-align: center; }
+    .pie-card .indicador-desc { font-size: 10px; color: #64748b; text-align: center; line-height: 1.3; max-width: 200px; }
+    .pie-card .indicador-archivo { font-size: 10px; color: #64748b; margin-top: 4px; }
+    .pie-card .btn-ver { width: 100%; padding: 6px 10px; font-size: 9px; border: none; border-radius: 20px; background: #E7C878; color: #000; font-weight: 700; cursor: pointer; margin-top: 4px; }
+    .pie-card .btn-ver:hover { background: #d4b39e; }
     .close-btn { cursor: pointer; padding: 8px 14px; font-weight: 700; font-size: 12px; border-radius: 20px; border: 1px solid #84A48B; color: #84A48B; transition: all 0.2s; }
     .close-btn:hover { transform: translateY(-2px); background: rgba(132, 164, 139, 0.15); color: #ffffff; border-color: #84a48b; }
     .indicadores-button { padding: 8px 14px; border-radius: 20px; font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; cursor: pointer; border: 1px solid var(--accent); background: linear-gradient(135deg, #84A48B, #6B9080); color: #000; text-shadow: none; box-shadow: 0 0 20px var(--accent-glow); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .indicadores-button:hover { transform: scale(1.06); box-shadow: 0 0 32px var(--accent-glow); }
     .indicadores-button.active { background: #E7C878; color: #000; box-shadow: 0 0 20px rgba(231, 200, 120, 0.5); }
     .indicadores-button:focus { outline: 2px solid #fff; outline-offset: 2px; }
-    .indicador-modelo { background: #0a0a0c; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 20px 24px; }
-    .indicador-modelo .indicador-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-    .indicador-modelo .indicador-titulo { font-weight: 800; font-size: 14px; color: #84A48B; }
-    .indicador-modelo .indicador-descripcion { font-size: 11px; color: #94a3b8; }
-    .indicador-modelo .indicador-imagen { width: 100px; height: 100px; border-radius: 8px; object-fit: cover; margin-right: 15px; border: 1.5px solid var(--accent); }
-    .indicador-modelo .indicador-gradient { width: 60px; height: 20px; border-radius: 4px; object-fit: cover; margin-top: 10px; }
-    .indicador-modelo .indicador-info { flex: 1; }
-    .indicador-modelo .indicador-archivo { font-size: 11px; color: #cbd5e1; margin-bottom: 8px; }
-    .indicador-modelo .indicador-nota { font-size: 10px; color: #64748b; }
-    .indicador-modelo .btn-ver-servicio { margin-top: 10px; padding: 6px 12px; font-size: 10px; border: none; border-radius: 20px; background: #E7C878; color: #000; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-    .indicador-modelo .btn-ver-servicio:hover { background: #d4b39e; }
+    .indicadores-button:not(:first-child) { margin-left: 8px; }
+    .indicadores-button:first-child { margin-left: 0; }
   </style>
 </head>
 <body>
@@ -177,7 +166,7 @@
       </button>
     </div>
     <div class="nav-group">
-      <button class="glass-panel btn-flat active" onclick="closeTodos()">
+      <button class="glass-panel btn-flat" onclick="closeTodos()">
         <span>Cerrar</span>
       </button>
     </div>
@@ -221,63 +210,57 @@
   </div>
 
   <script>
-    // Datos de los indicadores (thumbnails y descripción desde MALLAS)
+    // Datos de los indicadores - SIN rutas de imágenes externas
+    // Los thumbnails se indican por nombre pero se muestra texto por si las imágenes no cargan
     const datosIndicadores = {
       SE: {
         titulo: 'MALLA SE',
-        thumb: 'Synthesis Indicator1.png',
-        gradient: 'Synthesis_Indicator_Gradient1.png',
+        simbolo: 'SE',
         descripcion: 'Modelo 3D de la malla SE del humedal',
-        archivo: 'MALLA SE.3dm',
-        urlServicio: 'https://tu-servicio.cloud/malla-se'
+        archivo: 'MALLA SE.3dm (≈270MB)',
+        color: '#84A48B'
       },
       PM: {
         titulo: 'MALLA PM',
-        thumb: 'Synthesis Indicator2.png',
-        gradient: 'Synthesis_Indicator_Gradient2.png',
+        simbolo: 'PM',
         descripcion: 'Modelo 3D de la malla PM del humedal',
-        archivo: 'PM MALLA.3dm',
-        urlServicio: 'https://tu-servicio.cloud/malla-pm'
+        archivo: 'PM MALLA.3dm (≈270MB)',
+        color: '#E7C878'
       },
       PA: {
         titulo: 'MALLA PA',
-        thumb: 'Synthesis Indicator2.png',
-        gradient: 'Synthesis_Indicator_Gradient2.png',
+        simbolo: 'PA',
         descripcion: 'Modelo 3D de la malla PA del humedal',
-        archivo: 'MALLA PA.3dm',
-        urlServicio: 'https://tu-servicio.cloud/malla-pa'
+        archivo: 'MALLA PA.3dm (≈270MB)',
+        color: '#D9A066'
       },
       OC: {
         titulo: 'MALLA OC',
-        thumb: 'Synthesis Indicator1.png',
-        gradient: 'Synthesis_Indicator_Gradient1.png',
+        simbolo: 'OC',
         descripcion: 'Modelo 3D de la malla OC del humedal',
-        archivo: 'OC MALLA.3dm',
-        urlServicio: 'https://tu-servicio.cloud/malla-oc'
+        archivo: 'OC MALLA.3dm (≈270MB)',
+        color: '#84A48B'
       },
       DC: {
         titulo: 'MALLA DC',
-        thumb: 'Synthesis Indicator2.png',
-        gradient: 'Synthesis_Indicator_Gradient2.png',
+        simbolo: 'DC',
         descripcion: 'Modelo 3D de la malla DC del humedal',
-        archivo: 'DC MALLA.3dm',
-        urlServicio: 'https://tu-servicio.cloud/malla-dc'
+        archivo: 'DC MALLA.3dm (≈270MB)',
+        color: '#7FB08A'
       },
       CVA: {
         titulo: 'MALLA CVA',
-        thumb: 'Synthesis Indicator2.png',
-        gradient: 'Synthesis_Indicator_Gradient2.png',
+        simbolo: 'CVA',
         descripcion: 'Modelo 3D de la malla CVA del humedal',
-        archivo: 'CV MALLA.3dm',
-        urlServicio: 'https://tu-servicio.cloud/malla-cva'
+        archivo: 'CV MALLA.3dm (≈270MB)',
+        color: '#C96349'
       },
       CCL: {
         titulo: 'MALLA CCL',
-        thumb: 'Synthesis Indicator3.png',
-        gradient: 'Synthesis_Indicator_Gradient3.png',
+        simbolo: 'CCL',
         descripcion: 'Modelo 3D de la malla CCL del humedal',
-        archivo: 'CCL MALLA.3dm',
-        urlServicio: 'https://tu-servicio.cloud/malla-ccl'
+        archivo: 'CCL MALLA.3dm (≈270MB)',
+        color: '#9C86B8'
       }
     };
 
@@ -306,26 +289,16 @@
     function renderizarGridIndicadoresGenerales() {
       const grid = document.getElementById('gridIndicadoresGenerales');
       grid.innerHTML = '';
-      Object.keys(datosIndicadores).forEach((clave, idx) => {
+      Object.keys(datosIndicadores).forEach((clave) => {
         const d = datosIndicadores[clave];
         const card = document.createElement('div');
         card.className = 'pie-card';
         card.innerHTML = `
-          <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <img src="assets/${d.thumb}" alt="${d.titulo}" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
-            <div>
-              <div style="font-weight:700; color:#84A48B; font-size:14px;">${d.titulo}</div>
-              <div style="font-size:11px; color:#94a3b8;">${d.descripcion}</div>
-            </div>
-          </div>
-          <div style="display:flex; gap:5px;">
-            <img src="assets/${d.gradient}" alt="${d.titulo} gradiente" style="width:60px; height:20px; object-fit:cover;">
-          </div>
-          <div style="margin-top:15px;">
-            <p style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">Archivo 3D: ${d.archivo} (formato .3dm - Rhino)</p>
-            <p style="font-size:11px; color:#cbd5e1;">Nota: Los archivos .3dm tienen ~270MB. Para ver en 3D, se recomienda un visor Rhino Web o convertir a GLTF/USDZ.</p>
-            <button class="btn-flat" style="margin-top:5px; padding:6px 12px; font-size:10px;" onclick="verEnServicio('${clave}')">Ver en mi servicio →</button>
-          </div>
+          <div class="pie-card .simbolo" style="color: ${d.color}">${d.simbolo}</div>
+          <div class="pie-card .indicador-nombre">${d.titulo}</div>
+          <div class="pie-card .pie-card .indicador-desc">${d.descripcion}</div>
+          <div class="pie-card .indicador-archivo">${d.archivo}</div>
+          <button class="pie-card .btn-ver" onclick="verEnServicio('${clave}')">Ver en mi servicio →</button>
         `;
         grid.appendChild(card);
       });
@@ -339,29 +312,20 @@
       
       // Actualizar botones
       botonesIndicadores.forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      // Hacer que el botón padre tenga el active (el que disparó el evento)
+      // Buscar el botón padre en el container
+      const padre = event.target.closest('.indicadores-button');
+      if (padre) padre.classList.add('active');
       
       // Cargar contenido
       const contenedor = document.getElementById('contenidoIndicadorIndividual');
       contenedor.innerHTML = `
-        <div class="indicador-modelo">
-          <div class="indicador-header">
-            <div>
-              <div class="indicador-titulo">${d.titulo}</div>
-              <div class="indicador-descripcion">${d.descripcion}</div>
-            </div>
-            <div class="indicador-imagen">
-              <img src="assets/${d.thumb}" alt="${d.titulo}" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
-            </div>
-            <div class="indicador-gradient">
-              <img src="assets/${d.gradient}" alt="${d.titulo} gradiente" style="width:60px; height:20px; object-fit:cover;">
-            </div>
-          </div>
-          <div class="indicador-info">
-            <p class="indicador-archivo">Archivo 3D: ${d.archivo} (formato .3dm - Rhino)</p>
-            <p class="indicador-nota">Nota: Los archivos .3dm tienen ~270MB. Para ver en 3D en el navegador, se recomienda utilizar un visor Rhino Web o convertir a formato GLTF/USDZ.</p>
-            <button class="btn-ver-servicio" onclick="verEnServicio('${clave}')">Ver en mi servicio →</button>
-          </div>
+        <div class="indicador-modelo" style="border-left: 4px solid ${d.color}">
+          <div style="font-size:18px; color:${d.color}; margin-bottom:10px;">${d.titulo}</div>
+          <p style="font-size:11px; color:#64748b; margin-bottom:8px;">${d.descripcion}</p>
+          <p style="font-size:10px; color:#64748b; margin-bottom:8px;">Archivo 3D: ${d.archivo}</p>
+          <p style="font-size:10px; color:#64748b;">Nota: Los archivos .3dm tienen ~270MB. Se recomienda visor Rhino Web o conversión a GLTF/USDZ.</p>
+          <button class="btn-ver" style="width:100%; padding:6px 10px; font-size:9px; border:none; border-radius:20px; background:${d.color}; color:#000; font-weight:700;" onclick="verEnServicio('${clave}')">Ver en mi servicio →</button>
         </div>
       `;
       
@@ -382,7 +346,7 @@
     // Ver en servicio
     function verEnServicio(clave) {
       const d = datosIndicadores[clave];
-      window.open(d.urlServicio, '_blank');
+      window.open(`https://tu-servicio.cloud/${clave.toLowerCase()}`, '_blank');
     }
 
     // Cerrar todos
@@ -393,10 +357,9 @@
       btnIndicadoresGenerales.classList.remove('active');
     }
 
-    // Inicializar: ocultar modales y quitar active de todos los botones inicialmente
+    // Inicializar
     document.addEventListener('DOMContentLoaded', () => {
       closeTodos();
-      // Botón general activo por defecto
       btnIndicadoresGenerales.classList.add('active');
     });
   </script>
