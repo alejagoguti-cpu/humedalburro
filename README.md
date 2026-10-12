@@ -10,6 +10,15 @@ Este proyecto visualiza el **Sistema Socioecológico del Humedal Burro** en la l
 - **Datos del censo SIGAU** de la Secretaría Distrital de Ambiente de Bogotá
 - **Visualizaciones 3D** y análisis de capas territoriales
 
+## Redes del visor
+
+| Página | Contenido |
+|--------|-----------|
+| `index.html` | Red Territorial de Kennedy (POT): 58 nodos, 383 relaciones (77 troncales + 306 derivadas) |
+| `red-causal-3n.html` | **Red Causal de Problemas (3 niveles + 10 indicadores)**: 30 nodos, 46 relaciones. Nivel 1 manifestaciones → Nivel 2 efectos → Nivel 3 causa raíz (Fragmentación Territorial). Fuente: `datos/red-causal-3n.xlsx` |
+
+Para crear o actualizar una red: edita su `.xlsx` en `datos/` y reconstruye con `python tools/build-red.py datos/<red>.xlsx <pagina>.html`. Detalles en `datos/LEEME-redes.md`.
+
 ## Estructura del repositorio
 
 | Directorio | Descripción |

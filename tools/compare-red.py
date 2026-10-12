@@ -1,6 +1,8 @@
-import openpyxl, re, json
+import openpyxl, re, json, sys
 
-wb = openpyxl.load_workbook('datos/red-pot-kennedy-visor.xlsx', data_only=True)
+XLSX = sys.argv[1] if len(sys.argv) > 1 else 'datos/red-pot-kennedy-visor.xlsx'
+HTML = sys.argv[2] if len(sys.argv) > 2 else 'index.html'
+wb = openpyxl.load_workbook(XLSX, data_only=True)
 
 def txt(v):
     return '' if v is None else str(v).strip()
@@ -18,7 +20,7 @@ tipos = rows(wb['INTERACCIONES'], 1, 5)
 nodos = rows(wb['NODOS'], 1, 18)
 aristas = rows(wb['ARISTAS'], 1, 12)
 
-html = open('index.html', encoding='utf-8').read()
+html = open(HTML, encoding='utf-8').read()
 a = '<!--RED_DATA_START-->'
 b = '<!--RED_DATA_END-->'
 seg = html[html.index(a):html.index(b)]

@@ -1,7 +1,8 @@
-"""Valida la calidad de la red POT-Kennedy: grados, imagenes, coordenadas, tensiones."""
-import openpyxl, os
+"""Valida la calidad de la red: grados, imagenes, coordenadas, tensiones."""
+import openpyxl, os, sys
 
-wb = openpyxl.load_workbook('datos/red-pot-kennedy-visor.xlsx', data_only=True)
+XLSX = sys.argv[1] if len(sys.argv) > 1 else 'datos/red-pot-kennedy-visor.xlsx'
+wb = openpyxl.load_workbook(XLSX, data_only=True)
 
 def txt(v):
     return '' if v is None else str(v).strip()
