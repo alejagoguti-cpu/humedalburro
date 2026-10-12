@@ -904,6 +904,10 @@ window.onerror = function(msg, url, line, col, error) {
     <button class="glass-panel btn-flat" onclick="restoreHiddenNodes()">
       <span>Restablecer (<span id="lblHiddenCount">0</span>)</span>
     </button>
+    <button class="glass-panel btn-flat" id="btnIndicadores" onclick="openIndicadores()">
+      <i class="fa-solid fa-chart-bar" style="color:#84A48B;"></i>
+      <span>Indicadores</span>
+    </button>
 
     <input type="text" id="searchInput" placeholder="Buscar nodo..." oninput="searchNode(this.value)" class="glass-panel search-box">
   </div>
@@ -4182,6 +4186,12 @@ window.onerror = function(msg, url, line, col, error) {
     if (!ov) return;
     ov.style.display = 'flex';
     playConclusiones();
+  };
+  window.openIndicadores = () => {
+    const ov = document.getElementById('indicadoresModalOverlay');
+    if (!ov) return;
+    ov.style.display = 'flex';
+    renderIndicadores();
   };
   renderGephiInfo();
   document.querySelectorAll('.side-drawer .cat-card').forEach(c => { const im = c.querySelector('img'); if (im) c.title = im.alt; });
