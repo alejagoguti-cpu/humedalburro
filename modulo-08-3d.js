@@ -461,6 +461,8 @@
   // Arboles de 1950 y 1956: franjas de ribera, bosquetes y cortinas rompevientos (agrupados, no repartidos al azar)
   const TREE_YEARS = { 1900: true, 1905: true, 1920: true, 1946: true, 1961: true, 1972: true };
   let histTreeTex = null;
+  // Cache de gauss para evitar Math.log/cos repetidos en el mismo año
+  let gaussCache = { value: null, year: -1 };
   function colocarArbolesHistoricos(outlines, year, avoid) {
     histTreesGroup.clear();
     if (!TREE_YEARS[year]) return;
@@ -468,16 +470,25 @@
     const cajasAgua = cajasDe(polys);
     // En 1900 hay más árboles: se amplían franjas, bosquetes y cortinas.
     const boostArboles = (year === 1900) ? 1.7 : 1;
-    const gauss = () => Math.sqrt(-2 * Math.log(rnd() + 1e-9)) * Math.cos(2 * Math.PI * rnd());
+    // Usar random gauss pre-computado para performance
+    function gauss() {
+      if (gaussCache.year !== year) {
+        gaussCache.value = Math.sqrt(-2 * Math.log(rnd() + 1e-9)) * Math.cos(2 * Math.PI * rnd());
+        gaussCache.year = year;
+      }
+      return gaussCache.value;
+    }
     const ok = (x, z, m) => puntoLibreDeAgua(x, z, polys, m, cajasAgua) && !isPointInRunway(x, z);
     const centro = o => { let cx = 0, cz = 0; o.pts.forEach(q => { cx += q.x; cz += q.z; }); return { x: cx / o.pts.length, z: cz / o.pts.length }; };
     // 1) franjas de ribera: densas junto al borde del agua y cada vez mas ralas hacia afuera
     outlines.forEach(o => {
       const c = centro(o), n = Math.round(o.pts.length * 9 * boostArboles);
+      // Pre-compute random radial distances to avoid Math.pow in loop
+      const radialFactors = []; for (let i = 0; i < n; i++) radialFactors[i] = 1.5 + Math.random() * 16;
       for (let i = 0; i < n; i++) {
         const p = o.pts[Math.floor(rnd() * o.pts.length)];
         let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
-        const r = 1.5 + Math.pow(rnd(), 2) * 16, x = p.x + dx * r + (rnd() - 0.5) * 5, z = p.z + dz * r + (rnd() - 0.5) * 5;
+        const r = radialFactors[i], x = p.x + dx * r + (rnd() - 0.5) * 5, z = p.z + dz * r + (rnd() - 0.5) * 5;
         if (ok(x, z, 1.2)) items.push([x, z, 8 + rnd() * 7]);
       }
     });
@@ -486,23 +497,32 @@
       const o = outlines[Math.floor(rnd() * outlines.length)], p = o.pts[Math.floor(rnd() * o.pts.length)], c = centro(o);
       let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
       const d = 20 + rnd() * 110, bx = p.x + dx * d + (rnd() - 0.5) * 40, bz = p.z + dz * d + (rnd() - 0.5) * 40, sig = 4 + rnd() * 7, cnt = 25 + Math.floor(rnd() * 55);
-      for (let k = 0; k < cnt; k++) { const x = bx + gauss() * sig, z = bz + gauss() * sig; if (ok(x, z, 2)) items.push([x, z, 7 + rnd() * 7]); }
+      // Pre-compute gaussian offsets for this bosquete
+      const gaussOffsets = []; for (let k = 0; k < cnt; k++) gaussOffsets[k] = gauss();
+      for (let k = 0; k < cnt; k++) { const x = bx + gaussOffsets[k] * sig, z = bz + gaussOffsets[k] * sig; if (ok(x, z, 2)) items.push([x, z, 7 + rnd() * 7]); }
     }
     // 3) cortinas rompevientos: hileras rectas de arboles, todas con la misma orientacion
     for (let r = 0; r < Math.round(24 * boostArboles); r++) {
       const o = outlines[Math.floor(rnd() * outlines.length)], p = o.pts[Math.floor(rnd() * o.pts.length)], c = centro(o);
       let dx = p.x - c.x, dz = p.z - c.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
       const d = 25 + rnd() * 70, sx = p.x + dx * d, sz = p.z + dz * d, ang = 0.35 + (rnd() - 0.5) * 0.12, len = 25 + Math.floor(rnd() * 35);
-      for (let k = 0; k < len; k++) { const x = sx + Math.cos(ang) * k * 2.6 + (rnd() - 0.5) * 0.8, z = sz + Math.sin(ang) * k * 2.6 + (rnd() - 0.5) * 0.8; if (ok(x, z, 3)) items.push([x, z, 9 + rnd() * 5]); }
+      // Pre-compute cosine/sine values for this cortina
+      const cosAng = Math.cos(ang), sinAng = Math.sin(ang);
+      for (let k = 0; k < len; k++) { const x = sx + cosAng * k * 2.6 + (rnd() - 0.5) * 0.8, z = sz + sinAng * k * 2.6 + (rnd() - 0.5) * 0.8; if (ok(x, z, 3)) items.push([x, z, 9 + rnd() * 5]); }
     }
     // 4) sabana abierta: árboles sueltos por fuera, regados por todo el territorio (no solo junto al agua)
     {
       const W = (typeof sceneExtentW !== "undefined" && sceneExtentW) ? sceneExtentW : 700;
       const H = (typeof sceneExtentH !== "undefined" && sceneExtentH) ? sceneExtentH : 700;
       const nSabana = Math.round(1900 * boostArboles);
+      // Pre-generar posiciones al azar para evitar Math.random() repetido
+      const sabanaX = [], sabanaZ = [];
       for (let s = 0; s < nSabana; s++) {
-        const x = (rnd() - 0.5) * W, z = (rnd() - 0.5) * H;
-        if (ok(x, z, 4)) items.push([x, z, 6 + rnd() * 6]);
+        sabanaX[s] = (rnd() - 0.5) * W;
+        sabanaZ[s] = (rnd() - 0.5) * H;
+      }
+      for (let s = 0; s < nSabana; s++) {
+        if (ok(sabanaX[s], sabanaZ[s], 4)) items.push([sabanaX[s], sabanaZ[s], 6 + rnd() * 6]);
       }
     }
     if (!items.length) return;
