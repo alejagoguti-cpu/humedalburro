@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indicadores 3D - Humedal Burro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #000000;
+      --accent: #84A48B;
+      --accent-glow: rgba(132, 164, 139, 0.45);
+      --accent2: #E7C878;
+      --accent2-glow: rgba(231, 200, 120, 0.45);
+      --ink: #f1f5f9;
+      --ink-dim: #94a3b8;
+      --glass-bg: rgba(6, 9, 15, 0.92);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --card-bg: #0a0a0c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background-color: #000000; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif; font-size: 12px; -webkit-font-smoothing: antialiased; }
+    #canvasContainer { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; cursor: crosshair; }
+    #sceneCanvas { display: block; width: 100%; height: 100%; }
+    .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 8px; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85); }
+    .top-header { position: absolute; top: 8px; left: 8px; right: 8px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; z-index: 100; flex-wrap: wrap; gap: 6px; transition: opacity 0.4s ease, transform 0.4s ease; }
+    .nav-group { display: flex; align-items: center; gap: 5px; pointer-events: auto; flex-wrap: wrap; }
+    .brand-title { padding: 5px 10px; font-weight: 800; letter-spacing: 0.5px; color: var(--accent); display: flex; align-items: center; gap: 6px; font-size: 10.5px; text-transform: uppercase; white-space: nowrap; }
+    .btn-flat { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); color: #cbd5e1; padding: 5px 9px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; transition: all 0.15s ease; text-decoration: none; }
+    .btn-flat:hover { background: rgba(132, 164, 139, 0.15); border-color: rgba(132, 164, 139, 0.4); color: #ffffff; }
+    .btn-flat.active { background: rgba(132, 164, 139, 0.2); border-color: var(--accent); color: var(--accent); }
+    .search-box { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.18); color: var(--accent); padding: 5px 10px; border-radius: 6px; font-family: inherit; font-size: 10px; outline: none; width: 130px; transition: width 0.25s ease; }
+    .search-box:focus { width: 170px; border-color: var(--accent); }
+    .side-drawer { position: absolute; top: 48px; left: 8px; width: 310px; max-height: calc(100vh - 120px); overflow-y: auto; padding: 12px; pointer-events: auto; z-index: 90; transition: opacity 0.3s ease, transform 0.3s ease; border: 1px solid rgba(132, 164, 139, 0.25); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9); }
+    .side-drawer.collapsed { opacity: 0; pointer-events: none; transform: translateX(-14px); }
+    .side-drawer { scrollbar-width: thin; scrollbar-color: rgba(132,164,139,0.45) transparent; }
+    .side-drawer::-webkit-scrollbar { width: 5px; }
+    .side-drawer::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
+    .side-drawer::-webkit-scrollbar-thumb { background: rgba(132,164,139,0.35); border-radius: 6px; }
+    .side-drawer::-webkit-scrollbar-thumb:hover { background: rgba(132,164,139,0.7); }
+    .side-drawer { overflow-x: hidden; }
+    .rel-grid { display: flex; flex-direction: column; gap: 7px; }
+    .rel-card { position: relative; box-sizing: border-box; min-width: 0; overflow: hidden; padding: 10px 44px 10px 15px; cursor: pointer; background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015)); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; transition: border-color .2s ease, background .2s ease, transform .2s ease, box-shadow .2s ease; }
+    .rel-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--rel-color); opacity: .9; }
+    .rel-card:hover { border-color: var(--rel-color); background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025)); }
+    .rel-card.inactive { opacity: .38; filter: grayscale(.85); }
+    .rel-top { display: flex; align-items: center; gap: 10px; }
+    .rel-title { flex: 1; min-width: 0; font-size: 11.5px; font-weight: 600; letter-spacing: .1px; color: #eef2f6; line-height: 1.25; overflow-wrap: break-word; hyphens: none; }
+    .rel-desc { font-size: 10px; color: #8d99aa; line-height: 1.45; margin: 6px 0 0 32px; overflow-wrap: break-word; hyphens: none; }
+    .rel-ico { display: none; color: var(--rel-color); font-size: 17px; line-height: 1; }
+    .rel-n { position: absolute; top: 10px; right: 12px; padding: 1px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; font-family: ui-monospace, monospace; color: var(--rel-color); background: rgba(255,255,255,0.07); }
+    #relTip { position: fixed; z-index: 400; display: none; width: 240px; padding: 11px 13px; border-radius: 10px; pointer-events: none; color: #eef2f6; background: rgba(12,16,22,0.97); border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+    #relTip .rt-h { display: flex; align-items: center; justify-content: space-between; gap: 10x; font-size: 12px; font-weight: 700; line-height: 1.25; }
+    #relTip .rt-n { font-family: ui-monospace, monospace; font-size: 11px; padding: 1px 8px; border-radius: 99px; background: rgba(255,255,255,0.08); }
+    #relTip .rt-d { margin-top: 6px; font-size: 10.5px; line-height: 1.45; color: #9aa6b6; }
+    .drawer-header { font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-dim); border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 8x; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .cat-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden; }
+    .cat-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--cat-color, var(--accent)); box-shadow: 0 0 10px var(--cat-color, var(--accent)); }
+    .cat-card:hover { border-color: rgba(132, 164, 139, 0.4); background: rgba(15, 23, 42, 0.9); transform: translateX(3px); }
+    .cat-card.inactive { opacity: 0.35; filter: grayscale(0.8); transform: none !important; }
+    .cat-label-wrap { display: flex; align-items: center; gap: 8px; }
+    .cat-thumb { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--cat-color, var(--accent)); flex-shrink: 0; }
+    .badge-count { font-size: 10px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.15); padding: 2px 7px; border-radius: 6x; color: var(--accent); font-family: ui-monospace, monospace; font-weight: 700; }
+    .toggle-box { width: 16px; height: 16px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); transition: all 0.15s; cursor: pointer; }
+    .toggle-box.checked { background: var(--toggle-bg, var(--accent)); border-color: var(--toggle-bg, var(--accent)); }
+    .toggle-box.checked::after { content: ""; width: 5px; height: 5px; background: #000000; border-radius: 1px; }
+    .interaction-chips-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 6px; }
+    .inter-chip { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 5px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; transition: all 0.18s ease; text-align: center; }
+    .inter-chip:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--inter-color, var(--accent)); }
+    .inter-chip.inactive { opacity: 0.32; filter: grayscale(0.7); }
+    .inter-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--inter-color, var(--accent)); box-shadow: 0 0 6px var(--inter-color, var(--accent)); }
+    .inter-chip-title { font-size: 8.5px; font-weight: 700; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .inter-chip-badge { font-size: 8px; font-family: monospace; font-weight: 800; color: var(--inter-color, var(--accent)); }
+    .quick-toggle-btn { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14); color: var(--ink-dim); font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+    .quick-toggle-btn:hover { background: rgba(132, 164, 139, 0.25); border-color: var(--accent); color: #ffffff; transform: translateX(2px); }
+    .node-inspector { position: absolute; top: 62px; right: 12px; width: 370px; max-height: calc(100vh - 140px); overflow-y: auto; pointer-events: auto; z-index: 150; border-left: 4px var(--accent) solid; animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .inspector-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; }
+    .node-title { font-size: 14px; font-weight: 700; color: var(--accent); }
+    .node-subtitle { font-size: 11px; font-style: italic; color: var(--ink-dim); }
+    .btn-close { cursor: pointer; color: var(--ink-dim); padding: 2px 8px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; }
+    .btn-close:hover { color: var(--ink); background: rgba(255, 255, 255, 0.1); }
+    .media-preview { width: 100%; height: 145px; object-fit: cover; border-radius: 6px; margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.15); background: #000; }
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .metric-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 8px; }
+    .metric-val { font-size: 13px; font-weight: 700; color: var(--accent); font-family: monospace; }
+    .metric-lbl { font-size: 10px; color: var(--ink-dim); text-transform: uppercase; }
+    .sec-header { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); margin-bottom: 4px; font-weight: 700; }
+    .text-content { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 8px 10px; color: var(--ink); font-size: 11px; line-height: 1.4; margin-bottom: 10px; }
+    .text-content.alert { background: rgba(201, 99, 73, 0.12); border-color: rgba(201, 99, 73, 0.35); color: #ff80a0; }
+    .neighbor-scroll { max-height: 120px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6x; }
+    .neighbor-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; }
+    .neighbor-row:hover { background: rgba(132, 164, 139, 0.15); color: var(--accent); }
+    .bottom-experience-bar, #camInspectorBox, #waypointsBar { display: none !important; }
+    .waypoints-bar { position: absolute; top: 78px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 8px; pointer-events: auto; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+    .waypoints-bar.show { opacity: 1; pointer-events: auto; }
+    .waypoint-pill { padding: 7px 15px; border-radius: 16px; background: rgba(25, 25, 28, 0.88); border: 1px solid var(--glass-border); color: var(--ink); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(12px); transition: all 0.25s ease; display: flex; align-items: center; gap: 6px; }
+    .waypoint-pill:hover, .waypoint-pill.active { color: #000; border-color: var(--accent); background: var(--accent); box-shadow: 0 0 14px var(--accent-glow); transform: translateY(-1px); }
+    #activeTreeChip { position: absolute; top: 78px; right: 28px; z-index: 20; display: flex; align-items: center; gap: 8x; padding: 5px 14px 5px 6x; border-radius: 24x; background: rgba(18, 18, 22, 0.92); border: 1x solid rgba(132, 164, 139, 0.4); color: var(--ink); font-size: 11x; font-weight: 700; cursor: pointer; backdrop-filter: blur(16x); box-shadow: 0 8x 24x rgba(0,0,0,0.6); transition: all 0.3s ease; opacity: 0; pointer-events: none; transform: translateY(-6x); }
+    #activeTreeChip.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    #activeTreeChip:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.04); }
+    #activeTreeChip img { width: 26x; height: 26x; border-radius: 50x; object-fit: cover; border: 1.5x var(--accent); }
+    .bottom-control-capsule { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 6x; pointer-events: auto; }
+    .scrub-container { display: flex; align-items: center; gap: 16x; padding: 9x 22x; background: var(--glass-bg); border: 1x solid var(--glass-border); border-radius: 36x; backdrop-filter: blur(24x); box-shadow: 0 16x 50x rgba(0,0,0,0.9); transition: border-color 0.3s; }
+    .scrub-container:hover { border-color: var(--accent); }
+    .scrub-label { font-family: 'Inter', sans-serif; font-size: 10.5x; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-dim); text-transform: uppercase; cursor: pointer; transition: color 0.2s; }
+    .scrub-label.active, .scrub-label:hover { color: var(--accent); text-shadow: 0 0 12x var(--accent); }
+    .experience-toggle-btn { padding: 8x 20x; border-radius: 20x; font-family: 'Inter', sans-serif; font-size: 10.5x; font-weight: 800; letter-spacing: 0.14em; cursor: pointer; border: 1x solid var(--accent); background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #000; text-shadow: none; box-shadow: 0 0 20x var(--accent-glow); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .experience-toggle-btn:hover { transform: scale(1.06); box-shadow: 0 0 32x var(--accent-glow); }
+    /* Indicadores styles */
+    .indicadores-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.95); backdrop-filter: blur(24x); -webkit-backdrop-filter: blur(24x); display: flex; align-items: center; justify-content: center; animation: modalFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+    .indicadores-modal { width: 92%; max-width: 1120x; max-height: 90vh; background: #050505; border: 1x solid rgba(255, 255, 255, 0.15); border-radius: 18x; padding: 28x; overflow-y: auto; color: var(--ink); display: flex; flex-direction: column; gap: 20x; }
+    .indicadores-modal .welcome-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1x solid rgba(255, 255, 255, 0.12); padding-bottom: 16x; }
+    .indicadores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280x, 1fr)); gap: 15x; }
+    .indicador-card { background: var(--card-bg); border: 1x solid rgba(255, 255, 255, 0.08); border-radius: 10x; padding: 15x; display: flex; flex-direction: column; align-items: center; gap: 8x; position: relative; overflow: hidden; transition: transform 0.2s ease; }
+    .indicador-card:hover { transform: translateY(-4x); }
+    .indicador-simbolo { width: 40x; height: 40x; background: #1a1a1a; border-radius: 6x; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 12x; margin-bottom: 8x; }
+    .indicador-nombre { font-weight: 700; font-size: 12x; color: var(--accent); text-align: center; line-height: 1.2; }
+    .indicador-desc { font-size: 10x; color: var(--ink-dim); text-align: center; line-height: 1.3; max-width: 200x; margin-top: 4x; }
+    .indicador-archivo { font-size: 9x; color: var(--ink-dim); margin-top: 4x; }
+    .indicador-btn { width: 100%; padding: 6x 10x; font-size: 9x; border: none; border-radius: 20x; background: var(--accent2); color: #000; font-weight: 700; cursor: pointer; margin-top: 4x; transition: background 0.2s; }
+    .indicador-btn:hover { background: #d4b39e; }
+    .close-btn { cursor: pointer; padding: 8x 14x; font-weight: 700; font-size: 12x; border-radius: 20x; border: 1x solid var(--accent); color: var(--accent); transition: all 0.2s; }
+    .close-btn:hover { transform: translateY(-2x); background: rgba(132, 164, 139, 0.15); color: #ffffff; border-color: var(--ink-dim); }
+    .indicadores-button { padding: 8x 14x; border-radius: 20x; font-family: 'Inter', sans-serif; font-size: 10.5x; font-weight: 800; letter-spacing: 0.14em; cursor: pointer; border: 1x solid var(--accent); background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #000; text-shadow: none; box-shadow: 0 0 20x var(--accent-glow); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .indicadores-button:hover { transform: scale(1.06); box-shadow: 0 0 32x var(--accent-glow); }
+    .indicadores-button.active { background: var(--accent2); color: #000; box-shadow: 0 0 20x rgba(231, 200, 120, 0.5); }
+    .indicadores-button:focus { outline: 2x solid #fff; outline-offset: 2x; }
+    .indicadores-button:not(:first-child) { margin-left: 8x; }
+    .indicadores-button:first-child { margin-left: 0; }
+    .modelo-visor { margin-top: 20x; text-align: center; }
+    .modelo-visor iframe { width: 100%; height: 400px; border: none; border-radius: 8x; }
+  </style>
+</head>
+<body>
+  <div class="top-header" id="topHeader">
+    <div class="nav-group">
+      <div class="glass-panel brand-title">
+        <span>HUMEDAL BURRO - TODOS LOS INDICADORES</span>
+      </div>
+      <button class="glass-panel btn-flat indicadores-button active" id="btnIndicadoresTodos" onclick="openIndicadoresTodos()">
+        <span>Todos los indicadores</span>
+      </button>
+      <button class="glass-panel btn-flat indicadores-button" id="btnSE" onclick="openIndicador('SE')">
+        <span>SE</span>
+      </button>
+      <button class="glass-panel btn-flat indicadores-button" id="btnPM" onclick="openIndicador('PM')">
+        <span>PM</span>
+      </button>
+      <button class="glass-panel btn-flat indicadores-button" id="btnPA" onclick="openIndicador('PA')">
+        <span>PA</span>
+      </button>
+      <button class="glass-panel btn-flat indicadores-button" id="btnOC" onclick="openIndicador('OC')">
+        <span>OC</span>
+      </button>
+      <button class="glass-panel btn-flat indicadores-button" id="btnDC" onclick="openIndicador('DC')">
+        <span>DC</span>
+      </button>
+      <button class="glass-panel btn-flat indicadores-button" id="btnCVA" onclick="openIndicador('CVA')">
+        <span>CVA</span>
+      </button>
+      <button class="glass-panel btn-flat indicadores-button" id="btnCCL" onclick="openIndicador('CCL')">
+        <span>CCL</span>
+      </button>
+    </div>
+    <div class="nav-group">
+      <button class="glass-panel btn-flat" onclick="closeTodos()">
+        <span>Cerrar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal General -->
+  <div class="indicadores-modal-overlay" id="modalIndicadoresTodos" style="display:none;">
+    <div class="indicadores-modal" id="modalScrollTodos">
+      <div class="welcome-header">
+        <div>
+          <div style="font-size:16px; font-weight:900; color:var(--accent); letter-spacing:0.5px; display:flex; align-items:center; gap:8x;">
+            <i class="fa-solid fa-chart-bar"></i> TODOS LOS INDICADORES TERRITORIALES
+          </div>
+          <div style="font-size:11x; color:var(--ink-dim); margin-top:2x;">Haz clic en cada indicador para ver su modelo 3D</div>
+        </div>
+        <div style="display:flex; gap:8x;">
+          <button class="close-btn" onclick="closeIndicadoresTodos()">Cerrar</button>
+        </div>
+      </div>
+      <div class="indicadores-grid" id="gridIndicadoresTodos"></div>
+    </div>
+  </div>
+
+  <!-- Modal Individual -->
+  <div class="indicadores-modal-overlay" id="modalIndicadorIndividual" style="display:none;">
+    <div class="indicadores-modal" id="modalScrollIndividual">
+      <div class="welcome-header">
+        <div>
+          <div style="font-size:16px; font-weight:900; color:var(--accent); letter-spacing:0.5px; display:flex; align-items:center; gap:8x;">
+            <span id="modalTituloIndicador"></span>
+          </div>
+        </div>
+        <div style="display:flex; gap:8x;">
+          <button class="close-btn" onclick="closeModalIndividual()">Cerrar</button>
+        </div>
+      </div>
+      <div class="indicador-modelo" id="contenidoIndicadorIndividual">
+        <!-- Contenido dinámico -->
+      </div>
+      <div class="modelo-visor">
+        <p>Para ver el modelo 3D real en el visor de Rhino, haz clic en el botón abajo.</p>
+        <button class="indicador-btn" onclick="verEnVisorRhino()">Abrir en Rhino Web Viewer →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Datos de los indicadores - Información y URLs para el visor
+    const datosIndicadores = {
+      SE: {
+        titulo: 'MALLA SE',
+        simbolo: 'SE',
+        color: '#84A48B',
+        descripcion: 'Modelo 3D de la malla SE del humedal. Archivo: MALLA SE.3dm (~270MB).',
+        archivo: 'MALLA SE.3dm',
+        urlVisor: 'https://rhino3d.com/viewer?file=MALLA%20SE.3dm'
+      },
+      PM: {
+        titulo: 'MALLA PM',
+        simbolo: 'PM',
+        color: '#E7C878',
+        descripcion: 'Modelo 3D de la malla PM del humedal. Archivo: PM MALLA.3dm (~270MB).',
+        archivo: 'PM MALLA.3dm',
+        urlVisor: 'https://rhino3d.com/viewer?file=PM%20MALLA.3dm'
+      },
+      PA: {
+        titulo: 'MALLA PA',
+        simbolo: 'PA',
+        color: '#D9A066',
+        descripcion: 'Modelo 3D de la malla PA del humedal. Archivo: MALLA PA.3dm (~270MB).',
+        archivo: 'MALLA PA.3dm',
+        urlVisor: 'https://rhino3d.com/viewer?file=MALLA%20PA.3dm'
+      },
+      OC: {
+        titulo: 'MALLA OC',
+        simbolo: 'OC',
+        color: '#84A48B',
+        descripcion: 'Modelo 3D de la malla OC del humedal. Archivo: OC MALLA.3dm (~270MB).',
+        archivo: 'OC MALLA.3dm',
+        urlVisor: 'https://rhino3d.com/viewer?file=OC%20MALLA.3dm'
+      },
+      DC: {
+        titulo: 'MALLA DC',
+        simbolo: 'DC',
+        color: '#7FB08A',
+        descripcion: 'Modelo 3D de la malla DC del humedal. Archivo: DC MALLA.3dm (~270MB).',
+        archivo: 'DC MALLA.3dm',
+        urlVisor: 'https://rhino3d.com/viewer?file=DC%20MALLA.3dm'
+      },
+      CVA: {
+        titulo: 'MALLA CVA',
+        simbolo: 'CVA',
+        color: '#C96349',
+        descripcion: 'Modelo 3D de la malla CVA del humedal. Archivo: CV MALLA.3dm (~270MB).',
+        archivo: 'CV MALLA.3dm',
+        urlVisor: 'https://rhino3d.com/viewer?file=CV%20MALLA.3dm'
+      },
+      CCL: {
+        titulo: 'MALLA CCL',
+        simbolo: 'CCL',
+        color: '#9C86B8',
+        descripcion: 'Modelo 3D de la malla CCL del humedal. Archivo: CCL MALLA.3dm (~270MB).',
+        archivo: 'CCL MALLA.3dm',
+        urlVisor: 'https://rhino3d.com/viewer?file=CCL%20MALLA.3dm'
+      }
+    };
+
+    // Estado actual
+    let modeloActual = null;
+
+    // Botones de la cabecera
+    const botonesIndicadores = document.querySelectorAll('.indicadores-button:not(.indicadores-button:first-child)');
+    const btnIndicadoresTodos = document.getElementById('btnIndicadoresTodos');
+
+    // Abrir modal general
+    function openIndicadoresTodos() {
+      btnIndicadoresTodos.classList.add('active');
+      botonesIndicadores.forEach(b => b.classList.remove('active'));
+      document.getElementById('modalIndicadoresTodos').style.display = 'flex';
+      renderizarGridIndicadoresTodos();
+    }
+
+    // Cerrar modal general
+    function closeIndicadoresTodos() {
+      btnIndicadoresTodos.classList.remove('active');
+      document.getElementById('modalIndicadoresTodos').style.display = 'none';
+    }
+
+    // Renderizar grid del modal general
+    function renderizarGridIndicadoresTodos() {
+      const grid = document.getElementById('gridIndicadoresTodos');
+      grid.innerHTML = '';
+      Object.keys(datosIndicadores).forEach((clave) => {
+        const d = datosIndicadores[clave];
+        const card = document.createElement('div');
+        card.className = 'indicador-card';
+        card.innerHTML = `
+          <div class="indicador-simbolo" style="color: ${d.color}">${d.simbolo}</div>
+          <div class="pie-card .indicador-nombre">${d.titulo}</div>
+          <div class="pie-card .indicador-desc">${d.descripcion}</div>
+          <div class="pie-card .indicador-archivo">${d.archivo}</div>
+          <button class="pie-card .indicador-btn" onclick="openIndicador('${clave}')">Abrir modelo →</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Abrir modal individual
+    function openIndicador(clave) {
+      closeModalIndividual();
+      const d = datosIndicadores[clave];
+      modeloActual = clave;
+      
+      // Actualizar botones
+      botonesIndicadores.forEach(b => b.classList.remove('active'));
+      // Hacer que el botón padre tenga el active
+      const padre = event.target.closest('.indicadores-button');
+      if (padre) padre.classList.add('active');
+      
+      // Cargar contenido
+      const contenedor = document.getElementById('contenidoIndicadorIndividual');
+      contenedor.innerHTML = `
+        <div class="indicador-modelo" style="border-left: 4x solid ${d.color}">
+          <div style="font-size:18x; color:${d.color}; margin-bottom:10x;">${d.titulo}</div>
+          <p style="font-size:11x; color:var(--ink-dim); margin-bottom:8x;">${d.descripcion}</p>
+          <p style="font-size:10x; color:var(--ink-dim); margin-bottom:8x;">Archivo 3D: ${d.archivo} (~270MB)</p>
+          <p style="font-size:10x; color:var(--ink-dim);">Nota: Los archivos .3dm tienen ~270MB. Para ver en 3D en el navegador, se recomienda utilizar el visor oficial de Rhino Web.</p>
+          <div class="modelo-visor">
+            <p>Abrir modelo en visor oficial de Rhino:</p>
+            <button class="indicador-btn" onclick="verEnVisorRhino('${d.urlVisor}')">Abrir en Rhino Web Viewer →</button>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('modalIndicadorIndividual').style.display = 'flex';
+      document.getElementById('modalTituloIndicador').textContent = d.titulo;
+    }
+
+    // Cerrar modal individual
+    function closeModalIndividual() {
+      document.getElementById('modalIndicadorIndividual').style.display = 'none';
+      if (modeloActual) {
+        const btn = document.querySelector(`[onclick="openIndicador('${modeloActual}')"`);
+        if (btn) btn.classList.remove('active');
+      }
+      modeloActual = null;
+    }
+
+    // Abrir en visor Rhino
+    function verEnVisorRhino(url = null) {
+      const d = datosIndicadores[modeloActual || 'SE'];
+      const urlVisor = url || d.urlVisor;
+      window.open(urlVisor, '_blank');
+    }
+
+    // Cerrar todos
+    function closeTodos() {
+      closeIndicadoresTodos();
+      closeModalIndividual();
+      botonesIndicadores.forEach(b => b.classList.remove('active'));
+      btnIndicadoresTodos.classList.remove('active');
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+      closeTodos();
+      btnIndicadoresTodos.classList.add('active');
+    });
+  </script>
+</body>
+</html>
