@@ -36,20 +36,16 @@
     { id: "hongos", t: "Hongos y materia orgánica del suelo", s: "", cat: "micro", img: "assets/cx_hongos.png", kind: "circle", w: 240, h: 240, pos: [0.86, 0.775] }
   ];
   const ENLACES = [
-    ["mirla", "urapan", "verde", "Nidificación (anida en la copa alta)"],
-    ["mirla", "capuli", "verde", "Frugivoría / dispersión de semillas"],
-    ["mirla", "sauco", "verde", "Alimentación y refugio"],
-    ["chamon", "mirla", "rojo", "Parasitismo de nido"],
-    ["tingua_azul", "enea", "verde", "Nidificación y refugio en el juncal"],
-    ["tingua_bogotana", "enea", "verde", "Nidificación exclusiva en juncal denso"],
-    ["perros_gatos", "tingua_azul", "rojo", "Depredación exótica: nidos y huevos"],
-    ["perros_gatos", "tingua_bogotana", "rojo", "Depredación de nidos y huevos"],
-    ["monjita", "enea", "verde", "Nidificación y posadero"],
+    ["mirla", "urapan", "verde", "Nidificación"],
+    ["mirla", "sauco", "verde", "Alimentación"],
+    ["tingua_azul", "enea", "verde", "Nidificación en juncal"],
+    ["tingua_bogotana", "enea", "verde", "Nidificación densa"],
+    ["perros_gatos", "tingua_azul", "rojo", "Depredación"],
+    ["monjita", "enea", "verde", "Nidificación"],
     ["garza", "rana", "amarillo", "Depredación"],
-    ["mariposas", "chilco", "verde", "Polinización / visita floral"],
-    ["mariposas", "sauco", "verde", "Polinización / visita floral"],
-    ["anoxia", "rana", "rojo", "Mortalidad / asfixia hídrica"],
-    ["nutrientes", "fitoplancton", "verde", "Eutrofización hídrica"]
+    ["mariposas", "chilco", "verde", "Polinización"],
+    ["anoxia", "rana", "rojo", "Asfixia hídrica"],
+    ["mariposas", "sauco", "verde", "Polinización floral"]
   ];
 
   const POS_FIJAS = {};
