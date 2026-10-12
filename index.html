@@ -908,6 +908,34 @@ window.onerror = function(msg, url, line, col, error) {
       <i class="fa-solid fa-chart-bar" style="color:#84A48B;"></i>
       <span>Indicadores</span>
     </button>
+    <button class="glass-panel btn-flat" id="btnSE" onclick="openIndicatorModel('SE')">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#84A48B;"></i>
+      <span>SE</span>
+    </button>
+    <button class="glass-panel btn-flat" id="btnPM" onclick="openIndicatorModel('PM')">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#84A48B;"></i>
+      <span>PM</span>
+    </button>
+    <button class="glass-panel btn-flat" id="btnPA" onclick="openIndicatorModel('PA')">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#84A48B;"></i>
+      <span>PA</span>
+    </button>
+    <button class="glass-panel btn-flat" id="btnOC" onclick="openIndicatorModel('OC')">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#84A48B;"></i>
+      <span>OC</span>
+    </button>
+    <button class="glass-panel btn-flat" id="btnDC" onclick="openIndicatorModel('DC')">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#84A48B;"></i>
+      <span>DC</span>
+    </button>
+    <button class="glass-panel btn-flat" id="btnCVA" onclick="openIndicatorModel('CVA')">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#84A48B;"></i>
+      <span>CVA</span>
+    </button>
+    <button class="glass-panel btn-flat" id="btnCCL" onclick="openIndicatorModel('CCL')">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#84A48B;"></i>
+      <span>CCL</span>
+    </button>
 
     <input type="text" id="searchInput" placeholder="Buscar nodo..." oninput="searchNode(this.value)" class="glass-panel search-box">
   </div>
@@ -4192,6 +4220,93 @@ window.onerror = function(msg, url, line, col, error) {
     if (!ov) return;
     ov.style.display = 'flex';
     renderIndicadores();
+  };
+  window.openIndicatorModel = (modelId) => {
+    const ov = document.getElementById('indicadoresModalOverlay');
+    if (!ov) return;
+    ov.style.display = 'flex';
+    renderIndicatorContent(modelId);
+  };
+  window.renderIndicatorContent = (modelId) => {
+    const list = document.getElementById('indicadoresList');
+    if (!list) return;
+    // Hide any previous model
+    list.querySelectorAll('.indicator-model').forEach(el => el.remove());
+    // Show thumbnail and info for the selected model
+    const models = {
+      SE: {
+        title: 'MALLA SE',
+        thumb: 'Synthesis Indicator1.png',
+        gradient: 'Synthesis_Indicator_Gradient1.png',
+        description: 'Modelo 3D de la malla SE del humedal',
+        file: 'MALLA SE.3dm'
+      },
+      PM: {
+        title: 'MALLA PM',
+        thumb: 'Synthesis Indicator2.png',
+        gradient: 'Synthesis_Indicator_Gradient2.png',
+        description: 'Modelo 3D de la malla PM del humedal',
+        file: 'PM MALLA.3dm'
+      },
+      PA: {
+        title: 'MALLA PA',
+        thumb: 'Synthesis Indicator2.png',
+        gradient: 'Synthesis_Indicator_Gradient2.png',
+        description: 'Modelo 3D de la malla PA del humedal',
+        file: 'MALLA PA.3dm'
+      },
+      OC: {
+        title: 'MALLA OC',
+        thumb: 'Synthesis Indicator1.png',
+        gradient: 'Synthesis_Indicator_Gradient1.png',
+        description: 'Modelo 3D de la malla OC del humedal',
+        file: 'OC MALLA.3dm'
+      },
+      DC: {
+        title: 'MALLA DC',
+        thumb: 'Synthesis Indicator2.png',
+        gradient: 'Synthesis_Indicator_Gradient2.png',
+        description: 'Modelo 3D de la malla DC del humedal',
+        file: 'DC MALLA.3dm'
+      },
+      CVA: {
+        title: 'MALLA CVA',
+        thumb: 'Synthesis Indicator2.png',
+        gradient: 'Synthesis_Indicator_Gradient2.png',
+        description: 'Modelo 3D de la malla CVA del humedal',
+        file: 'CV MALLA.3dm'
+      },
+      CCL: {
+        title: 'MALLA CCL',
+        thumb: 'Synthesis Indicator3.png',
+        gradient: 'Synthesis_Indicator_Gradient3.png',
+        description: 'Modelo 3D de la malla CCL del humedal',
+        file: 'CCL MALLA.3dm'
+      }
+    };
+    const m = models[modelId] || { title: modelId, description: 'Modelo no disponible' };
+    list.innerHTML = \`
+      <div class="indicator-model">
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+          <img src="assets/\${m.thumb}" alt="\${m.title}" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
+          <div>
+            <div style="font-weight:700; color:#84A48B; font-size:14px;">\${m.title}</div>
+            <div style="font-size:11px; color:#94a3b8;">\${m.description}</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:5px;">
+          <img src="assets/\${m.gradient}" alt="\${m.title} gradiente" style="width:60px; height:20px; object-fit:cover;">
+        </div>
+        <div style="margin-top:15px;">
+          <p style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">Archivo 3D: \${m.file} (formato .3dm - Rhino)</p>
+          <p style="font-size:11px; color:#cbd5e1;">Nota: Los archivos .3dm tienen ~270MB. Para ver en 3D en el navegador, se recomienda utilizar un visor Rhino Web o convertir a formato GLTF/USDZ.</p>
+          <button class="btn-flat" style="margin-top:5px; padding:6px 12px; font-size:10px;" onclick="viewInRhinoWeb('${m.file}')">Ver en Rhino Web →</button>
+        </div>
+      </div>
+    \`;
+  };
+  window.viewInRhinoWeb = (fileName) => {
+    window.open(`https://rhino3d.com/viewer?file=${fileName}`, '_blank');
   };
   renderGephiInfo();
   document.querySelectorAll('.side-drawer .cat-card').forEach(c => { const im = c.querySelector('img'); if (im) c.title = im.alt; });
