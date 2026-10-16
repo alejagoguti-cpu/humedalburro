@@ -4285,26 +4285,26 @@ window.onerror = function(msg, url, line, col, error) {
       }
     };
     const m = models[modelId] || { title: modelId, description: 'Modelo no disponible' };
-    list.innerHTML = \`
+    list.innerHTML = `
       <div class="indicator-model">
         <div style="display:flex; gap:10px; margin-bottom:15px;">
-          <img src="assets/\${m.thumb}" alt="\${m.title}" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
+          <img src="assets/${m.thumb}" alt="${m.title}" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
           <div>
-            <div style="font-weight:700; color:#84A48B; font-size:14px;">\${m.title}</div>
-            <div style="font-size:11px; color:#94a3b8;">\${m.description}</div>
+            <div style="font-weight:700; color:#84A48B; font-size:14px;">${m.title}</div>
+            <div style="font-size:11px; color:#94a3b8;">${m.description}</div>
           </div>
         </div>
         <div style="display:flex; gap:5px;">
-          <img src="assets/\${m.gradient}" alt="\${m.title} gradiente" style="width:60px; height:20px; object-fit:cover;">
+          <img src="assets/${m.gradient}" alt="${m.title} gradiente" style="width:60px; height:20px; object-fit:cover;">
         </div>
         <div style="margin-top:15px;">
-          <p style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">Archivo 3D: \${m.file} (formato .3dm - Rhino)</p>
+          <p style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">Archivo 3D: ${m.file} (formato .3dm - Rhino)</p>
           <p style="font-size:11px; color:#cbd5e1;">Subido a tu servicio en la nube (Google Drive, OneDrive, etc.)</p>
           <p style="font-size:10px; color:#84a48b; margin-top:4px; font-style:italic;" id="rhinoWebHint">Haz clic en el modelo para abrir en tu visor externo</p>
           <button class="btn-flat" style="margin-top:5px; padding:6px 12px; font-size:10px;" onclick="viewInRhinoWeb('${m.file}', true)">Ver en mi servicio →</button>
         </div>
       </div>
-    \`;
+    `;
   };
   // Ver modelo 3D en visor externo (Google Drive, OneDrive, Dropbox, etc.)
 // Uso: viewInRhinoWeb('URL_COMPLETA', true) o viewInRhinoWeb('NOMBRE_ARCHIVO')
